@@ -1,5 +1,10 @@
 body, html {margin: 0;}
 body, html, #root, .canvas, .world{height: 100%; width: 100%;}
+
+button{
+  margin: 1em;
+}
+
 .overlay {
   display: flex;
   height: 100%;
@@ -7,6 +12,9 @@ body, html, #root, .canvas, .world{height: 100%; width: 100%;}
   position: fixed;
   left: 0; top: 0;
   pointer-events: none;
+}
+.overlay button{
+  pointer-events: all;
 }
 .left{
   flex-grow: 2;
@@ -26,15 +34,58 @@ body, html, #root, .canvas, .world{height: 100%; width: 100%;}
   margin-top: auto;
   height: 4em; width: 100%;
   background: rgba(255, 255, 255, 0.5);
+  display: flex;
+  justify-content: space-between;
 }
 .world{
   background: white;
   overflow: auto;
 }
-.world img{
+.world .tile{
   opacity: .3;
   display: inline-block;
 }
-.world img:hover{
+.world .tile:hover{
   opacity: 1;
+}
+.pull-r{
+  float: right;
+}
+.header{
+  text-align: center;
+  margin-top: 1em;
+}
+
+.modal{
+  width: 60%;
+  height: 60%;
+  position: fixed;
+  top: 20%;
+  left: 20%;
+  background: white;
+  border-radius: 7px;
+  border: 1px solid rgba(0,0,0,0.75);
+  box-shadow: 3px 3px 15px 15px rgba(0,0,0,.5);
+  pointer-events: all;
+}
+.modal button.done{
+  float: right;
+}
+.policies{
+  
+}
+.policy{
+  display: inline-block;
+}
+.policy, .policy b, .policy .badge{
+  margin: .25em;
+}
+.policy p{
+  margin-top: .5em;
+}
+.policy .badge{
+  border-radius: 6px;
+  border: 1px solid grey;
+  padding: .25em;
+  margin-left: 0;
 }
