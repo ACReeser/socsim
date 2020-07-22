@@ -47,13 +47,31 @@ class WorldTile extends React.Component<WorldTilePs> {
     )
   }
 }
-const keyToName = {state: 'Statist', ego: 'Egoist', trad: 'Traditionalist', prog: 'Progressive'};
+const keyToName = {state: 'Statist', ego: 'Egoist', trad: 'Traditionalist', prog: 'Progressive', circle: 'Circle', square: 'Square', triangle: 'Triangle', book: 'Book', heart: 'Heart', music: 'Music'};
 const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
+function magToTextSw(magnitude: number){
+  switch(magnitude) {
+    case -3:
+      return '---';
+    case -2:
+      return '--';
+    case -1:
+      return '-';
+    case 1:
+      return '+';
+    case 2:
+      return '++';
+    case 3:
+      return '+++';
+    default:
+      return '/';
+  }
+}
 function compass(p: PoliticalEffect){
   return (
     <span className="badge">
       { keyToName[p.key] }
-      {/* { magToText[p.mag.toString()] } */}
+      { magToTextSw(p.mag) }
     </span>
   )
 }
