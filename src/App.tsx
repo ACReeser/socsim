@@ -1,9 +1,14 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
+import { World, Tile, Policy, PoliticalEffect } from './World';
 
-class Modal extends React.Component {
-  constructor(props) {
+interface modalPs{
+  show: boolean;
+  onClick: () => void;
+}
+class Modal extends React.Component<modalPs> {
+  constructor(props: modalPs) {
     super(props);
     this.state = {
       show: false
@@ -21,8 +26,12 @@ class Modal extends React.Component {
     )
   }
 }
-class WorldTile extends React.Component {
-  constructor(props) {
+
+interface WorldTilePs {
+  tile: Tile;
+}
+class WorldTile extends React.Component<WorldTilePs> {
+  constructor(props: WorldTilePs) {
     super(props);
     this.state = {
       tile: null,
@@ -40,15 +49,15 @@ class WorldTile extends React.Component {
 }
 const keyToName = {state: 'Statist', ego: 'Egoist', trad: 'Traditionalist', prog: 'Progressive'};
 const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
-function compass(p){
+function compass(p: PoliticalEffect){
   return (
     <span className="badge">
       { keyToName[p.key] }
-      { magToText[p.mag] }
+      {/* { magToText[p.mag.toString()] } */}
     </span>
   )
 }
-function policy(p){
+function policy(p: Policy){
   return (
     <div className="policy">
       <b>{p.key}</b>
@@ -59,8 +68,18 @@ function policy(p){
   )
 }
 
-class App extends React.Component{
-  constructor(props) {
+interface AppPs{
+}
+interface AppState{
+  tiles: Tile[];
+  activeTileID: number|null;
+  showPolicies: boolean;
+  showCampaigns: boolean;
+  policies: Policy[];
+}
+
+class App extends React.Component<AppPs, AppState>{
+  constructor(props: AppPs) {
     super(props);
     let url = 'http://lorempixel.com/400/400/';
     this.state = {
@@ -73,7 +92,7 @@ class App extends React.Component{
         {url: url+'/city/6', key: 5, type:'city'},
         {url: url+'/nature/3', key: 6, type:'coast'}],
       activeTileID: null,
-      showPolicies: false,
+      showPolicies: false, showCampaigns: false,
       policies: [
         {key: "Food Welfare", fx:[{key: 'state', mag: 1}, {key: 'prog', mag:1}]},
         {key: "Church Schooling", fx:[{key: 'state', mag:1}, {key:'trad', mag:1}]},
@@ -104,11 +123,23 @@ class App extends React.Component{
             {this.state.policies.map((p) => policy(p))}
           </div>
         </Modal>
+        <Modal show={this.state.showCampaigns} onClick={() => this.setState({showCampaigns: false})}>
+          <b>Active Campaigns</b>
+          <div className="policies">
+            <div>
+              <b>Propaganda</b>
+
+            </div>
+          </div>
+        </Modal>
         <div className="left">
           <div className="top">
             <span>
               Year 1, 
               Spring
+            </span>
+            <span>
+              Budget
             </span>
             <span className="pull-r" style={{marginRight: 2+'em'}}>
               election in 7 seasons
