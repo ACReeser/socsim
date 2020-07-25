@@ -89,3 +89,17 @@ button{
   padding: .25em;
   margin-left: 0;
 }
+
+.tile{
+  border: 1px solid black;
+  padding: 10em;
+}
+.bar{
+  font-size: 8px; height: 8px;
+  background: rgba(255, 255, 255, .8);
+  position: relative;
+}
+.bar-inner{
+  left: 0; position: absolute; top: 0; height: 100%;
+  background: rgba(0, 255, 0, .8);
+}
