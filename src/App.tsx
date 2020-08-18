@@ -1,13 +1,54 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { World, Tile, Policy, PoliticalEffect } from './World';
+import { World, Tile, Policy, PoliticalEffect, City, Bean } from './World';
 import { GenerateWorld } from './WorldGen';
 import { Modal } from './Modal';
 import { CityPanel } from './CityPanel';
 
+class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean}> {
+  constructor(props: {bean: Bean}) {
+    super(props);
+    this.timerID = null;
+    this.seed = (Math.random() * 60) + this.props.bean.key;
+    this.state = {
+      paused: false
+    }
+  }
+  timerID: number|null;
+  seed: number;
+  componentDidMount() {
+    this.startWander();
+  }
+  startWander(){
+    this.setState({paused: false});
+    this.timerID = window.setTimeout(
+      () => this.stopWander(),
+      (1000 * (this.seed % 3))
+    );
+  }
+  componentWillUnmount() {
+    if(this.timerID)
+      window.clearInterval(this.timerID);
+  }
+  stopWander(){
+    this.setState({paused: true});
+    this.timerID = window.setTimeout(
+      () => this.startWander(),
+      1000
+    );
+  }
+  render() {
+    return (
+      <span className={(this.state.paused ? 'idle' : '')+" bean-walker interactable"}
+      style={{animationDelay: '-'+this.seed+'s'}}></span>
+    )
+  }
+}
+
 interface WorldTilePs {
   tile: Tile;
+  city: City;
   onClick: () => void;
 }
 class WorldTile extends React.Component<WorldTilePs> {
@@ -15,13 +56,20 @@ class WorldTile extends React.Component<WorldTilePs> {
     super(props);
     this.state = {
       tile: null,
+      city: null,
       activeTileID: null,
     }
   }
   render() {
+    const beans = this.props.city.beans.map((b: Bean) => {
+      return (
+        <AnimatedBean bean={b} key={b.key}></AnimatedBean>
+      )
+    })
     return (
       <div className="tile" onClick={() => this.props.onClick()}>
         <span>{this.props.tile.name}</span>
+        {beans}
         <img src={this.props.tile.url} alt={this.props.tile.type} />
       </div>
     )
@@ -57,7 +105,7 @@ function compass(p: PoliticalEffect){
 }
 function policy(p: Policy){
   return (
-    <div className="policy">
+    <div className="policy" key={p.key}>
       <b>{p.key}</b>
       <p>
         {p.fx.map((x) => compass(x))}
@@ -87,7 +135,7 @@ class App extends React.Component<AppPs, AppState>{
   render() {
     const tiles = this.state.world.cities.map((t) => {
       return (
-        <WorldTile tile={t} onClick={() => this.setState({activeCityID: t.key})}></WorldTile>
+        <WorldTile tile={t} city={t} onClick={() => this.setState({activeCityID: t.key})} key={t.key}></WorldTile>
       )
     })
     return (

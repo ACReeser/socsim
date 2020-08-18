@@ -93,6 +93,7 @@ button{
 .tile{
   border: 1px solid black;
   padding: 10em;
+  position: relative;
 }
 .bar{
   font-size: 8px; height: 8px;
@@ -101,5 +102,71 @@ button{
 }
 .bar-inner{
   left: 0; position: absolute; top: 0; height: 100%;
-  background: rgba(0, 255, 0, .8);
+  background: rgba(0, 255, 0, .8); 
+}
+
+.bean-walker{
+  position: absolute;
+  border-radius: 10px;
+  height: 20px; width: 20px;
+  border: 1px solid black;
+  background: grey;
+  animation: hop 0.5s infinite, wander 60s infinite linear;
+}
+.bean-walker.idle{
+  animation-play-state: paused;
+}
+.bean-walker.interactable:hover{
+  cursor: pointer;
+  animation-play-state: paused;
+}
+
+@keyframes hop {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-13px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes handwritten_wander {
+  0%   { left:  0%; top:  0%; }
+  10%  { left: 90%; top: 90%; }
+  20%  { left: 90%; top:  0%; }
+  30%  { left:  0%; top: 90%; }
+  40%  { left: 50%; top: 90%; }
+  50%  { left: 90%; top: 90%; }
+  60%  { left:  0%; top:  0%; }
+  70%  { left: 90%; top:  0%; }
+  80%  { left: 90%; top: 50%; }
+  90%  { left:  0%; top: 90%; }
+  95%  { left: 60%; top: 77%; }
+  100% { left:  0%; top:  0%;}
+}
+@keyframes wander {
+  0%   { left: 79%; top: 15%; }
+  5%   { left:  4%; top: 64%; }
+  10%  { left: 32%; top: 12%; }
+  15%  { left: 47%; top: 79%; }
+  20%  { left: 05%; top: 38%; }
+  25%  { left: 71%; top: 39%; }
+  30%  { left: 77%; top: 01%; }
+  35%  { left: 01%; top: 63%; }
+  40%  { left: 18%; top: 25%; }
+  45%  { left: 35%; top: 31%; }
+  50%  { left: 27%; top: 60%; }
+  55%  { left: 16%; top: 35%; }
+  60%  { left: 90%; top: 54%; }
+  65%  { left: 62%; top: 77%; }
+  70%  { left: 79%; top: 73%; }
+  75%  { left: 81%; top: 54%; }
+  80%  { left: 51%; top: 11%; }
+  85%  { left: 28%; top: 58%; }
+  90%  { left: 66%; top: 21%; }
+  95%  { left: 81%; top: 66%; }
+  /*100% { left: 75%; top: 21%;}*/
+  100% { left: 79%; top: 15%; }
 }

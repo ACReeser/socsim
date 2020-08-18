@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { GetRandom, RandomEthno } from './WorldGen';
+import { maxHeaderSize } from 'http';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
@@ -62,9 +63,36 @@ export type TraitCommunity = 'state'|'ego';
 export type TraitIdeals = 'prog'|'trad';
 export type TraitEthno = 'circle'|'square'|'triangle';
 export type TraitFaith = 'book'|'music'|'heart'|'noFaith';
+export type TraitFood = 'hungry'|'sated'|'stuffed';
+export type TraitShelter = 'podless'|'crowded'|'homeowner';
+export type TraitHealth = 'sick'|'bruised'|'fresh';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith;
 export type Axis = 'vote'|'healthcare'|'faith'|'trade';
+
+export enum MaslowScore {Deficient= -2, Sufficient=0, Abundant=1}
+
+export function ShelterScore(shelter: TraitShelter): number{
+    switch(shelter){
+        case 'podless': return MaslowScore.Deficient;
+        default: case 'crowded': return MaslowScore.Sufficient;
+        case 'homeowner': return MaslowScore.Abundant;
+    }
+}
+export function HealthScore(health: TraitHealth): number{
+    switch(health){
+        case 'sick': return MaslowScore.Deficient;
+        default: case 'bruised': return MaslowScore.Sufficient;
+        case 'fresh': return MaslowScore.Abundant;
+    }
+}
+export function FoodScore(food: TraitFood): number{
+    switch(food){
+        case 'hungry': return MaslowScore.Deficient;
+        default: case 'sated': return MaslowScore.Sufficient;
+        case 'stuffed': return MaslowScore.Abundant;
+    }
+}
 
 /**
  * a bean is a citizen with preferences
@@ -76,10 +104,16 @@ export interface IBean{
     ideals: TraitIdeals;
     ethnicity: TraitEthno;
     faith?: TraitFaith;
-    wealth: number;
-    health: number;
-    food: number;
+    shelter: TraitShelter;
+    health: TraitHealth;
+    discrete_food: number;
+    cash: number;
 }
+
+const MaslowHappinessWeight = 2;
+const ValuesHappinessWeight = 1;
+const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
+
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -87,29 +121,47 @@ export class Bean implements IBean{
     public ideals: TraitIdeals = 'trad';
     public ethnicity: TraitEthno = RandomEthno();
     public faith?: TraitFaith;
-    public wealth: number = 0;
-    public health: number = 0;
-    public food: number = 0;
+    public shelter: TraitShelter = 'crowded';
+    public health: TraitHealth = 'bruised';
+    public discrete_food: number = 0;
+    public get food(): TraitFood {
+        if (this.discrete_food >= 3)
+            return 'stuffed';
+        else if (this.discrete_food >= 1)
+            return 'sated'
+        else
+            return 'hungry';
+    }
+    public cash: number = 0;
     /**
-     * happiness! 0-100
+     * normalized multiplier, 0-1
      */
-    getBaseSentiment(homeCity: City): number{
-        return 0;
+    getMaslowSentiment(homeCity: City): number{
+        let maslow = ShelterScore(this.shelter) + HealthScore(this.health) + FoodScore(this.food);
+        //minimum of -6, max of 3, so 10 "buckets"
+        return maslow / 10; //so divide by 10 to normalize
     }
+    /**
+     * non-normalized multiplier
+     */
     getTotalSentiment(homeCity: City, law: Law): number{
-        let sent = this.getBaseSentiment(homeCity);
+        const maslow = this.getMaslowSentiment(homeCity) * MaslowHappinessWeight;
         const traits = this._getTraitMap();
-        sent = this.getSentimentPolicies(sent, traits, law.policies);
-        return sent;
+        const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
+        return (maslow + values) / TotalWeight;
     }
-    getSentimentPolicies(sentiment: number, traits: {[x:string]:boolean}, policies: Policy[]){
+    /**
+     * non-normalized multiplier
+     */
+    getSentimentPolicies(traits: {[x:string]:boolean}, policies: Policy[]){
+        let multiplier = 0;
         policies.forEach((policy) => {
             policy.fx.forEach((fx) => {
                 if (traits[fx.key])
-                sentiment += fx.mag *10
+                multiplier += fx.mag * 10; //-30 to +30
             });
         });
-        return sentiment;
+        return multiplier / 100;
     }
     _getTraitMap(){
         let traits = {[this.community]: true, [this.ideals]:  true, [this.ethnicity]: true};
