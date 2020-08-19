@@ -4,13 +4,70 @@ import { maxHeaderSize } from 'http';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
-export interface World {
+export interface IWorld {
     cities: City[];
     law: Law;
     party: Party;
     year: number;
     season: Season;
     electionIn: number;
+}
+export class World implements IWorld{
+    public cities: City[] = [];
+    public law: {
+        policies: Policy[]
+    } = { 
+        policies: [] 
+    };
+    public economy: Economy = new Economy();
+    public party: Party = {} as Party;
+    public year = 1;
+    public season = Season.Spring;
+    public electionIn = 7;
+
+    /**
+     * update 'pushed' state
+     */
+    public calculateComputedState(){
+        this.cities.forEach(c => {
+            c.beans.forEach(b => b.updateTotalSentiment(c, this.law));
+        });
+    }
+
+    /**
+     * simulates a season passing, setting a lot of state
+     */
+    public next(){
+        this.electionIn--;
+        if (this.electionIn <= 0){
+            this.electionIn = 8;
+        }
+        this.season++;
+        if (this.season > 3){
+            this.year++;
+            this.season = 0;
+        }
+        this.cities.forEach(c => {
+            c.beans.forEach(b => {
+                if (b.job == 'jobless')
+                    b.tryFindJob(this.law, c);
+                    
+                b.work(this.law, c, this.economy);
+            });
+        });
+        // console.log(JSON.stringify(this.economy.book, (key, value) => {
+        //     if (key != 'seller') return value;
+        //     else return undefined;
+        // }, ' '));
+        this.cities.forEach(c => {
+            c.beans.forEach(b => {
+                b.eat(c, this.economy);
+                b.weather(c, this.economy);
+                b.age(c, this.economy);
+            });
+        });
+        this.calculateComputedState();
+    }
 }
 
 export interface Tile {
@@ -66,6 +123,7 @@ export type TraitFaith = 'book'|'music'|'heart'|'noFaith';
 export type TraitFood = 'hungry'|'sated'|'stuffed';
 export type TraitShelter = 'podless'|'crowded'|'homeowner';
 export type TraitHealth = 'sick'|'bruised'|'fresh';
+export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith;
 export type Axis = 'vote'|'healthcare'|'faith'|'trade';
@@ -93,6 +151,14 @@ export function FoodScore(food: TraitFood): number{
         case 'stuffed': return MaslowScore.Abundant;
     }
 }
+export function JobToGood(job: TraitJob): TraitGood{
+    switch(job){
+        case 'builder': return 'shelter';
+        case 'doc': return 'medicine';
+        case 'entertainer': return 'fun';
+        default: case 'farmer': return 'food';
+    }
+}
 
 /**
  * a bean is a citizen with preferences
@@ -117,22 +183,38 @@ const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
-    public community: TraitCommunity = 'ego';
-    public ideals: TraitIdeals = 'trad';
+    public alive: boolean = true;
+
     public ethnicity: TraitEthno = RandomEthno();
-    public faith?: TraitFaith;
-    public shelter: TraitShelter = 'crowded';
-    public health: TraitHealth = 'bruised';
-    public discrete_food: number = 0;
+
+    //maslow
+    public discrete_food: number = 1;
     public get food(): TraitFood {
         if (this.discrete_food >= 3)
-            return 'stuffed';
+        return 'stuffed';
         else if (this.discrete_food >= 1)
-            return 'sated'
+        return 'sated'
         else
-            return 'hungry';
+        return 'hungry';
     }
-    public cash: number = 0;
+    public shelter: TraitShelter = 'crowded';
+    public discrete_health: number = 2;
+    public get health(): TraitHealth {
+        if (this.discrete_health >= 3)
+        return 'fresh';
+        else if (this.discrete_health >= 1)
+        return 'bruised'
+        else
+        return 'sick';
+    }
+    //values
+    public community: TraitCommunity = 'ego';
+    public ideals: TraitIdeals = 'trad';
+    //other
+    public job: TraitJob = 'jobless';
+    public faith?: TraitFaith;
+    public cash: number = 3;
+    public lastSentiment: number = 0;
     /**
      * normalized multiplier, 0-1
      */
@@ -149,6 +231,10 @@ export class Bean implements IBean{
         const traits = this._getTraitMap();
         const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
         return (maslow + values) / TotalWeight;
+    }
+    updateTotalSentiment(homeCity: City, law: Law): void{
+        const sentiment = this.getTotalSentiment(homeCity, law);
+        this.lastSentiment = sentiment;
     }
     /**
      * non-normalized multiplier
@@ -168,6 +254,103 @@ export class Bean implements IBean{
         if (this.faith)
             traits[this.faith] = true;
         return traits;
+    }
+    getFace(): string{
+        if (!this.alive)
+            return '💀';
+        if (this.food == 'hungry')
+            return '😣';
+        if (this.shelter == 'podless')
+            return '🥶';
+        if (this.health == 'sick')
+            return '🤢';
+        if (this.lastSentiment < 0)
+            return '☹️';
+        if (this.lastSentiment >= 1)
+            return '🙂';
+        if (this.job == 'jobless')
+            return '😧';
+        return '😐';
+    }
+    tryFindJob(law: { policies: Policy[]; }, c: City) {
+        if (Math.random() > 0.5) {
+            this.job = GetRandom(['builder', 'doc', 'farmer']);
+        }
+    }
+    work(law: { policies: Policy[]; }, c: City, econ: Economy) {
+        if (this.job != 'jobless'){
+            econ.addList(this, JobToGood(this.job), 1);
+        }
+    }
+    eat(c: City, economy: Economy) {
+        if (this.job == 'farmer'){
+            this.discrete_food += 1;
+        } else {
+            const groceries = economy.tryTransact(this, 'food');
+            if (groceries)
+                this.discrete_food += groceries.bought;
+        }
+        this.discrete_food -= 1;
+    }
+    weather(c: City, economy: Economy) {
+        // const rent = economy.tryTransact(this, 'shelter');
+        // if (rent)
+        //     this.discrete_food += rent.bought;
+    }
+    age(c: City, economy: Economy) {
+        if (this.job == 'doc'){
+            this.discrete_health += 0.5;
+        } else {
+            const meds = economy.tryTransact(this, 'medicine');
+            if (meds)
+                this.discrete_health += meds.bought;
+        }
+        this.discrete_health -= 0.25;
+
+        if (this.discrete_health < 0 && Math.random() >= 0.25)
+            this.die();
+    }
+    die(){
+        this.alive = false;
+    }
+}
+
+export interface Listing{
+    sellerCityKey: number;
+    sellerBeanKey: number;
+    price: number;
+    seller: Bean;
+}
+export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
+export class Economy {
+    book: {[key in TraitGood]: Listing[]} = {
+        food: [] as Listing[],
+        shelter: [] as Listing[],
+        medicine: [] as Listing[],
+        fun: [] as Listing[],
+    }
+    tryTransact(buyer: Bean, good: TraitGood): {bought: number, price: number}|null {
+        if (this.book[good].length > 0){
+            if (this.book[good][0].price <= buyer.cash){
+                const purchase = this.book[good].splice(0, 1)[0];
+                buyer.cash -= purchase.price;
+                purchase.seller.cash += purchase.price;
+                return {
+                    bought: 1,
+                    price: purchase.price
+                }
+            }
+        }
+        return null;
+    }
+    addList(seller: Bean, good: TraitGood, price: 1) {
+        this.book[good].push({
+            sellerCityKey: seller.cityKey,
+            sellerBeanKey: seller.key,
+            price: 1,
+            seller: seller
+        });
+        //todo: sort book[good] by price
     }
 }
 

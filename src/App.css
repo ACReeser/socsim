@@ -107,13 +107,55 @@ button{
 
 .bean-walker{
   position: absolute;
-  border-radius: 10px;
+  font-size: 18px;
   height: 20px; width: 20px;
-  border: 1px solid black;
-  background: grey;
   animation: hop 0.5s infinite, wander 60s infinite linear;
+  text-align: center;
 }
-.bean-walker.idle{
+.bean-walker:after{
+  left: -12px;
+  top: 7px;
+  font-size: 16px;
+  position: absolute;
+  z-index: 1;
+}
+.bean-walker.doc:after{
+  content: '💊';
+}
+.bean-walker.builder:after{
+  content: '🔨';
+}
+.bean-walker.farmer:after{
+  content: '🌾';
+}
+.bean-walker.jobless:after{
+  content: '📰';
+  transform: rotate(-45deg);
+  font-size: 12px;
+  top: 9px;
+}
+.bean-walker.jobless{
+  animation-duration: 90s;
+}
+.bean-walker:before{
+  content: ' ';
+  height: 20px; width: 20px;
+  border-radius: 12px;
+  left: 1px;
+  top: 8px;
+  position: absolute;
+  border: 1px solid black;
+  background: saddlebrown;
+  z-index: -2;
+}
+.bean-walker.square:before{
+  border-radius: 0px;
+}
+.bean-walker.triangle:before{
+  border-radius: 0px;
+  transform: rotate(45deg);
+}
+.bean-walker.paused{
   animation-play-state: paused;
 }
 .bean-walker.interactable:hover{

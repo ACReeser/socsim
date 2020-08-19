@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { World, Tile, Policy, PoliticalEffect, City, Bean } from './World';
+import { World, Tile, Policy, PoliticalEffect, City, Bean, Season } from './World';
 import { GenerateWorld } from './WorldGen';
 import { Modal } from './Modal';
 import { CityPanel } from './CityPanel';
@@ -10,13 +10,15 @@ class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean}> {
   constructor(props: {bean: Bean}) {
     super(props);
     this.timerID = null;
-    this.seed = (Math.random() * 60) + this.props.bean.key;
+    this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
+    this.waitSeedSec = 1 + (Math.random() * 3) + this.props.bean.key;
     this.state = {
       paused: false
     }
   }
   timerID: number|null;
-  seed: number;
+  delaySeedSec: number;
+  waitSeedSec: number;
   componentDidMount() {
     this.startWander();
   }
@@ -24,7 +26,7 @@ class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean}> {
     this.setState({paused: false});
     this.timerID = window.setTimeout(
       () => this.stopWander(),
-      (1000 * (this.seed % 3))
+      (1000 * this.waitSeedSec)
     );
   }
   componentWillUnmount() {
@@ -39,9 +41,12 @@ class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean}> {
     );
   }
   render() {
+    let classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
+    classes += this.state.paused || !this.props.bean.alive ? ' paused' : '';
+    let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health} ${this.props.bean.job} ${this.props.bean.community} ${this.props.bean.ideals}`
     return (
-      <span className={(this.state.paused ? 'idle' : '')+" bean-walker interactable"}
-      style={{animationDelay: '-'+this.seed+'s'}}></span>
+      <span className={classes+" bean-walker interactable"}
+    style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}>{this.props.bean.getFace()}</span>
     )
   }
 }
@@ -131,8 +136,14 @@ class App extends React.Component<AppPs, AppState>{
       activeCityID: null,
       showPolicies: false, showCampaigns: false,
     };
+    this.state.world.calculateComputedState();
+  }
+  endTurn() {
+    this.state.world.next();
+    this.setState({world: this.state.world});
   }
   render() {
+    const season = Season[this.state.world.season];
     const tiles = this.state.world.cities.map((t) => {
       return (
         <WorldTile tile={t} city={t} onClick={() => this.setState({activeCityID: t.key})} key={t.key}></WorldTile>
@@ -162,16 +173,20 @@ class App extends React.Component<AppPs, AppState>{
         <div className="left">
           <div className="top">
             <span>
-              Year 1, 
-              Spring
+              Year {this.state.world.year}, 
+              {season}
             </span>
+            &nbsp;
+            &nbsp;
+            &nbsp;
+            &nbsp;
             <span>
               Budget
             </span>
             <span className="pull-r" style={{marginRight: 2+'em'}}>
               election in {this.state.world.electionIn} seasons
               &nbsp;
-              <button type="button">Finalize Agenda</button>
+              <button type="button" onClick={() => this.endTurn()}>Go to next Season</button>
             </span>
           </div>
           <div className="bottom">

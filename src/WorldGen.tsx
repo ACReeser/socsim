@@ -21,24 +21,16 @@ export function RandomFaith(): TraitFaith{
 }
 
 export function GenerateWorld(): World{
-    const world: World = {
-        cities: [],
-        law: {
-            policies: []
-        },
-        party: {
-            name: "Worker's Wheat Party",
-            activeCampaigns: [],
-            availablePolicies: Data.AllPolicies,
-            proposedPolicy: undefined,
-            availableCampaigns: [],   
-            politicalCapital: 10,
-            materialCapital: 10
-        },
-        year: 1,
-        season: Season.Spring,
-        electionIn: 7
-    }
+    const world = new World();
+    world.party = {
+        name: "Worker's Wheat Party",
+        activeCampaigns: [],
+        availablePolicies: Data.AllPolicies,
+        proposedPolicy: undefined,
+        availableCampaigns: [],   
+        politicalCapital: 10,
+        materialCapital: 10
+    };
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
     }
@@ -68,6 +60,7 @@ export function GenerateBean(cityKey: number, previousBeanCount: number): Bean{
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
+    newBean.job = GetRandom(['farmer','farmer','builder','builder','doc','jobless']);
     
     return newBean;
 }
