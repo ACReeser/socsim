@@ -37,6 +37,10 @@ button{
   display: flex;
   justify-content: space-between;
 }
+.bottom button{
+  height: 44px;
+  margin: 2px;
+}
 .world{
   background: white;
   overflow: auto;
@@ -71,6 +75,9 @@ button{
 .modal button.done{
   float: right;
 }
+.pad-20{
+  padding: 20px;
+}
 .policies{
   
 }
@@ -103,6 +110,22 @@ button{
 .bar-inner{
   left: 0; position: absolute; top: 0; height: 100%;
   background: rgba(0, 255, 0, .8); 
+}
+
+ul.boxes{
+  padding-left: 0;
+}
+ul.boxes li{
+  padding: 2px 6px;
+  display: inline-block;
+}
+
+.col-2{
+  display: flex;
+}
+.col-2 > *{
+  width: 45%;
+  margin-left: 4%;
 }
 
 .bean-walker{

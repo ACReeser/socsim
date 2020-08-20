@@ -1,4 +1,5 @@
-import { Bean, City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Season, Policy } from './World';
+import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Season, Policy, TraitJob } from './World';
+import { Bean } from './Bean';
 
 export function GetRandom<S>(choices: S[]):S {
     const max = choices.length;
@@ -18,6 +19,12 @@ export function RandomEthno(): TraitEthno{
 }
 export function RandomFaith(): TraitFaith{
     return GetRandom(['book','music','heart', 'noFaith']);
+}
+export function StartingCash(job: TraitJob): number{
+    switch(job){
+        case 'doc': return 5;
+        default: return 3;
+    }
 }
 
 export function GenerateWorld(): World{
@@ -47,20 +54,22 @@ export function GenerateCity(previousCityCount: number): City{
     const cityPopulation = 11;
     while(newCity.beans.length < cityPopulation){
         newCity.beans.push(
-            GenerateBean(newCity.key, newCity.beans.length)
+            GenerateBean(newCity, newCity.beans.length)
         );
     }
 
     return newCity;
 }
-export function GenerateBean(cityKey: number, previousBeanCount: number): Bean{
+export function GenerateBean(city: City, previousBeanCount: number): Bean{
     let newBean = new Bean();
     newBean.key = previousBeanCount;
-    newBean.cityKey = cityKey;
+    newBean.cityKey = city.key;
+    newBean.city = city;
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
     newBean.job = GetRandom(['farmer','farmer','builder','builder','doc','jobless']);
+    newBean.cash = StartingCash(newBean.job);
     
     return newBean;
 }

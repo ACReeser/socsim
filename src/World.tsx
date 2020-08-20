@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { GetRandom, RandomEthno } from './WorldGen';
 import { maxHeaderSize } from 'http';
+import { Bean } from './Bean';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
@@ -25,6 +26,12 @@ export class World implements IWorld{
     public season = Season.Spring;
     public electionIn = 7;
 
+    public getAliveBeans(): Bean[]{
+        return this.cities.reduce((list, c) => {
+            return list.concat(c.beans.filter(x => x.alive));
+        }, [] as Bean[]);
+    }
+
     /**
      * update 'pushed' state
      */
@@ -47,27 +54,46 @@ export class World implements IWorld{
             this.year++;
             this.season = 0;
         }
+        
+        this.economy.resetSeasonalDemand();
+
         this.cities.forEach(c => {
             c.beans.forEach(b => {
-                if (b.job == 'jobless')
-                    b.tryFindJob(this.law, c);
-                    
-                b.work(this.law, c, this.economy);
+                if (b.alive)             
+                    b.work(this.law, c, this.economy);
             });
         });
         // console.log(JSON.stringify(this.economy.book, (key, value) => {
         //     if (key != 'seller') return value;
         //     else return undefined;
         // }, ' '));
-        this.cities.forEach(c => {
-            c.beans.forEach(b => {
-                b.eat(c, this.economy);
-                b.weather(c, this.economy);
-                b.age(c, this.economy);
-            });
-        });
+        const shuffled = shuffle(this.getAliveBeans());
+        shuffled.forEach((b) => {
+            b.eat(this.economy);
+            b.weather(this.economy);
+            b.age(this.economy);
+        })
         this.calculateComputedState();
     }
+}
+function shuffle(array: Array<any>) {
+    let counter = array.length;
+
+    // While there are elements in the array
+    while (counter > 0) {
+        // Pick a random index
+        let index = Math.floor(Math.random() * counter);
+
+        // Decrease counter by 1
+        counter--;
+
+        // And swap the last element with it
+        let temp = array[counter];
+        array[counter] = array[index];
+        array[index] = temp;
+    }
+
+    return array;
 }
 
 export interface Tile {
@@ -114,6 +140,15 @@ export class City implements Tile {
         result.avg /= this.beans.length;
         return result;
     }
+    onCitizenDeath(b: Bean){
+        if (b.cash > 0){
+            const shuffled = shuffle(this.beans.filter((x) => x.alive));
+            if (shuffled.length > 0) {
+                shuffled[0].cash += b.cash;
+                b.cash = 0;
+            }
+        }
+    }
 }
 
 export type TraitCommunity = 'state'|'ego';
@@ -159,167 +194,12 @@ export function JobToGood(job: TraitJob): TraitGood{
         default: case 'farmer': return 'food';
     }
 }
-
-/**
- * a bean is a citizen with preferences
- */
-export interface IBean{
-    key: number;
-    cityKey: number;
-    community: TraitCommunity;
-    ideals: TraitIdeals;
-    ethnicity: TraitEthno;
-    faith?: TraitFaith;
-    shelter: TraitShelter;
-    health: TraitHealth;
-    discrete_food: number;
-    cash: number;
-}
-
-const MaslowHappinessWeight = 2;
-const ValuesHappinessWeight = 1;
-const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
-
-export class Bean implements IBean{
-    public key: number = 0;
-    public cityKey: number = 0;
-    public alive: boolean = true;
-
-    public ethnicity: TraitEthno = RandomEthno();
-
-    //maslow
-    public discrete_food: number = 1;
-    public get food(): TraitFood {
-        if (this.discrete_food >= 3)
-        return 'stuffed';
-        else if (this.discrete_food >= 1)
-        return 'sated'
-        else
-        return 'hungry';
-    }
-    public shelter: TraitShelter = 'crowded';
-    public discrete_health: number = 2;
-    public get health(): TraitHealth {
-        if (this.discrete_health >= 3)
-        return 'fresh';
-        else if (this.discrete_health >= 1)
-        return 'bruised'
-        else
-        return 'sick';
-    }
-    //values
-    public community: TraitCommunity = 'ego';
-    public ideals: TraitIdeals = 'trad';
-    //other
-    public job: TraitJob = 'jobless';
-    public faith?: TraitFaith;
-    public cash: number = 3;
-    public lastSentiment: number = 0;
-    /**
-     * normalized multiplier, 0-1
-     */
-    getMaslowSentiment(homeCity: City): number{
-        let maslow = ShelterScore(this.shelter) + HealthScore(this.health) + FoodScore(this.food);
-        //minimum of -6, max of 3, so 10 "buckets"
-        return maslow / 10; //so divide by 10 to normalize
-    }
-    /**
-     * non-normalized multiplier
-     */
-    getTotalSentiment(homeCity: City, law: Law): number{
-        const maslow = this.getMaslowSentiment(homeCity) * MaslowHappinessWeight;
-        const traits = this._getTraitMap();
-        const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
-        return (maslow + values) / TotalWeight;
-    }
-    updateTotalSentiment(homeCity: City, law: Law): void{
-        const sentiment = this.getTotalSentiment(homeCity, law);
-        this.lastSentiment = sentiment;
-    }
-    /**
-     * non-normalized multiplier
-     */
-    getSentimentPolicies(traits: {[x:string]:boolean}, policies: Policy[]){
-        let multiplier = 0;
-        policies.forEach((policy) => {
-            policy.fx.forEach((fx) => {
-                if (traits[fx.key])
-                multiplier += fx.mag * 10; //-30 to +30
-            });
-        });
-        return multiplier / 100;
-    }
-    _getTraitMap(){
-        let traits = {[this.community]: true, [this.ideals]:  true, [this.ethnicity]: true};
-        if (this.faith)
-            traits[this.faith] = true;
-        return traits;
-    }
-    getFace(): string{
-        if (!this.alive)
-            return '💀';
-        if (this.food == 'hungry')
-            return '😣';
-        if (this.shelter == 'podless')
-            return '🥶';
-        if (this.health == 'sick')
-            return '🤢';
-        if (this.lastSentiment < 0)
-            return '☹️';
-        if (this.lastSentiment >= 1)
-            return '🙂';
-        if (this.job == 'jobless')
-            return '😧';
-        return '😐';
-    }
-    tryFindJob(law: { policies: Policy[]; }, c: City) {
-        if (Math.random() > 0.5) {
-            this.job = GetRandom(['builder', 'doc', 'farmer']);
-        }
-    }
-    work(law: { policies: Policy[]; }, c: City, econ: Economy) {
-        if (this.job != 'jobless'){
-            econ.addList(this, JobToGood(this.job), 1);
-        }
-    }
-    eat(c: City, economy: Economy) {
-        if (this.job == 'farmer'){
-            this.discrete_food += 1;
-        } else {
-            const groceries = economy.tryTransact(this, 'food');
-            if (groceries)
-                this.discrete_food += groceries.bought;
-        }
-        this.discrete_food -= 1;
-    }
-    weather(c: City, economy: Economy) {
-        // const rent = economy.tryTransact(this, 'shelter');
-        // if (rent)
-        //     this.discrete_food += rent.bought;
-    }
-    age(c: City, economy: Economy) {
-        if (this.job == 'doc'){
-            this.discrete_health += 0.5;
-        } else {
-            const meds = economy.tryTransact(this, 'medicine');
-            if (meds)
-                this.discrete_health += meds.bought;
-        }
-        this.discrete_health -= 0.25;
-
-        if (this.discrete_health < 0 && Math.random() >= 0.25)
-            this.die();
-    }
-    die(){
-        this.alive = false;
-    }
-}
-
 export interface Listing{
     sellerCityKey: number;
     sellerBeanKey: number;
     price: number;
     seller: Bean;
+    quantity: number;
 }
 export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
 export class Economy {
@@ -329,18 +209,28 @@ export class Economy {
         medicine: [] as Listing[],
         fun: [] as Listing[],
     }
+    unfulfilledSeasonalDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
+    constructor(){
+
+    }
+    public resetSeasonalDemand(){
+        this.unfulfilledSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
+    }
     tryTransact(buyer: Bean, good: TraitGood): {bought: number, price: number}|null {
+        const demand = 1;
         if (this.book[good].length > 0){
             if (this.book[good][0].price <= buyer.cash){
                 const purchase = this.book[good].splice(0, 1)[0];
                 buyer.cash -= purchase.price;
                 purchase.seller.cash += purchase.price;
+                purchase.seller.seasonSinceLastSale--;
                 return {
-                    bought: 1,
+                    bought: demand,
                     price: purchase.price
                 }
             }
         }
+        this.unfulfilledSeasonalDemand[good] += demand;
         return null;
     }
     addList(seller: Bean, good: TraitGood, price: 1) {
@@ -348,7 +238,8 @@ export class Economy {
             sellerCityKey: seller.cityKey,
             sellerBeanKey: seller.key,
             price: 1,
-            seller: seller
+            seller: seller,
+            quantity: 1
         });
         //todo: sort book[good] by price
     }
