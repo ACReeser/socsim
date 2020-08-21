@@ -79,7 +79,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <h3>Economic Health</h3>
           <div className="col-2">
             <div>
-              <strong>💰 Wealth</strong> Median: ${wealth_median} <br/>
+              <strong>💰 Wealth</strong> Median: ${wealth_median.toFixed(2)} <br/>
               {wealth_dire} penniless citizens
             </div>
             <span>

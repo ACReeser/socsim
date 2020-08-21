@@ -245,7 +245,18 @@ ul.boxes li{
   cursor: pointer;
   animation-play-state: paused;
 }
-
+.idea{
+  position: absolute;
+  left: 1px;
+  top: -25px;
+}
+.idea.bad:after{
+  content: '❌';
+  font-size: 10px;
+  position: absolute;
+  left: -2px;
+  bottom: 0px;
+}
 @keyframes hop {
   0% {
     transform: translateY(0);

@@ -34,6 +34,7 @@ export function GenerateWorld(): World{
     world.party = new BaseParty();
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
+        world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
     }
 
     return world;

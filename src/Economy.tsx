@@ -1,4 +1,4 @@
-import { TraitGood, TraitJob, GoodToJob } from "./World";
+import { TraitGood, TraitJob, GoodToJob, City } from "./World";
 import { Bean } from "./Bean";
 
 export interface Listing{
@@ -8,6 +8,7 @@ export interface Listing{
     seller: Bean;
     quantity: number;
 }
+const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
 export class Economy {
     book: {[key in TraitGood]: Listing[]} = {
         food: [] as Listing[],
@@ -72,10 +73,12 @@ export class Economy {
         return null;
     }
     produceAndPrice(seller: Bean, good: TraitGood, quantity: number, price: number) {
+        this.totalSeasonalSupply[good] += quantity;
         const existing = this.book[good].find((x) => x.sellerBeanKey == seller.key && x.sellerCityKey == seller.cityKey);
         if (existing){
             existing.quantity += quantity;
             existing.price = price;
+            existing.quantity = Math.min(existing.quantity, 6);
         } else {
             this.book[good].push({
                 sellerCityKey: seller.cityKey,
@@ -88,7 +91,7 @@ export class Economy {
         //todo: sort book[good] by price
     }
     public mostInDemandJob(): TraitJob|null{
-        const goods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
+        const goods: TraitGood[] = AllGoods;
         const max = goods.reduce((last, good) => {
             if (this.unfulfilledSeasonalDemand[good] > last.max){
                 last.max = this.unfulfilledSeasonalDemand[good];
@@ -98,6 +101,17 @@ export class Economy {
         }, {max: 0, job: null as TraitJob|null})
 
         return max.job;
+    }
+    public onBeanDie = (deadBean: Bean, city: City) => {
+        AllGoods.forEach((g) => {
+            const existing = this.book[g].find((x) => x.sellerBeanKey == deadBean.key && x.sellerCityKey == deadBean.cityKey);
+            if (existing){
+                const lucky = city.getRandomCitizen();
+                if (lucky) {
+                    existing.sellerBeanKey = lucky.key;
+                }
+            }
+        });
     }
 }
 

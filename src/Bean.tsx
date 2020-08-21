@@ -24,6 +24,7 @@ const MaslowHappinessWeight = 2;
 const ValuesHappinessWeight = 1;
 const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
 
+const BabyChance = 0.05;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -63,6 +64,7 @@ export class Bean implements IBean{
     public lastSentiment: number = 0;
     public seasonSinceLastSale: number = 0;
     public seasonSinceLastRent: number = 0;
+    public fairGoodPrice: number = 1;
     /**
      * normalized multiplier, 0-1
      */
@@ -80,9 +82,17 @@ export class Bean implements IBean{
         const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
         return (maslow + values) / TotalWeight;
     }
-    calculateBeliefs(homeCity: City, law: Law): void{
+    calculateBeliefs(econ: Economy, homeCity: City, law: Law): void{
         const sentiment = this.getTotalSentiment(homeCity, law);
         this.lastSentiment = sentiment;
+        if (this.job == 'jobless'){
+            this.fairGoodPrice = 1;
+        } else {
+            const myGood = JobToGood(this.job);
+            const supply = econ.totalSeasonalSupply[myGood] || 1;
+            const demand = econ.totalSeasonalDemand[myGood];
+            this.fairGoodPrice = 0.5 + (0.5 * Math.min(demand/supply, 1));
+        }
     }
     /**
      * non-normalized multiplier
@@ -120,6 +130,17 @@ export class Bean implements IBean{
             return '🙂';
         return '😐';
     }
+    getIdea(): {bad: boolean, idea: string}|null {
+        if (this.food == 'hungry')
+            return {bad: true, idea: '🍗'};
+        if (this.health == 'sick')
+            return {bad: true, idea: '💊'};
+        if (this.shelter == 'podless')
+            return {bad: true, idea: '🏠'};
+        if (this.canBaby())
+            return {bad: false, idea: '👶'};
+        return null;        
+    }
     tryFindRandomJob(law: { policies: Policy[]; }) {
         if (Math.random() > 0.5) {
             this.job = GetRandom(['builder', 'doc', 'farmer']);
@@ -138,7 +159,7 @@ export class Bean implements IBean{
                         this.job = newJob;
                 }
             }
-            econ.produceAndPrice(this, JobToGood(this.job), 3, 1);
+            econ.produceAndPrice(this, JobToGood(this.job), 2.5, this.fairGoodPrice);
         }
     }
     eat(economy: Economy): IEvent|null {
@@ -149,6 +170,7 @@ export class Bean implements IBean{
             if (groceries)
                 this.discrete_food += groceries.bought;
         }
+
         this.discrete_food -= 1;
         if (this.discrete_food < 0)
             this.discrete_health -= 0.3;
@@ -157,16 +179,19 @@ export class Bean implements IBean{
     }
     weather(economy: Economy): IEvent|null {
         if (!this.alive) return null;
-        const housing = economy.tryTransact(this, 'shelter');
-        if (housing) {
-            this.seasonSinceLastRent = 0;
+        if (this.job == 'builder'){
             this.shelter = 'crowded';
-        } else if (this.seasonSinceLastRent > 1){
-            this.shelter = 'podless';
         } else {
-            this.seasonSinceLastRent++;
-        }
-        
+            const housing = economy.tryTransact(this, 'shelter');
+            if (housing) {
+                this.seasonSinceLastRent = 0;
+                this.shelter = 'crowded';
+            } else if (this.seasonSinceLastRent > 1){
+                this.shelter = 'podless';
+            } else {
+                this.seasonSinceLastRent++;
+            }
+        }        
         
         if (this.shelter == 'podless')
             this.discrete_health -= 0.1;
@@ -186,6 +211,24 @@ export class Bean implements IBean{
         this.discrete_health = Math.min(this.discrete_health, 3);
         return this.maybeDie('sickness', 0.4);
     }
+    maybeBaby(economy: Economy): IEvent | null {
+        if (this.canBaby() &&
+            Math.random() <= BabyChance) {
+            if (this.city)
+                this.city.breedBean(this);
+            else
+                throw 'bean doesnot have city object';
+            return {icon: '🎉', message: 'A new bean is born!'}
+        } else {
+            return null;
+        }
+    }
+    canBaby(): boolean{
+        return this.cash > 8 &&
+            this.food != 'hungry' &&
+            this.shelter != 'podless' &&
+            this.health != 'sick';
+    }
     maybeDie(cause: string, chance = 0.5): IEvent|null{
         if (this.discrete_health < 0 && Math.random() <= chance) {
             this.die();
@@ -196,6 +239,6 @@ export class Bean implements IBean{
     }
     die(){
         this.alive = false;
-        this.city?.onCitizenDeath(this);
+        this.city?.onCitizenDie(this);
     }
 }

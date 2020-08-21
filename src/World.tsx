@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { GetRandom, RandomEthno } from './WorldGen';
+import { GetRandom, RandomEthno, GenerateBean } from './WorldGen';
 import { maxHeaderSize } from 'http';
 import { Bean, IBean } from './Bean';
 import { Economy } from './Economy';
@@ -60,7 +60,7 @@ export class World implements IWorld, IBeanContainer{
      */
     public calculateComputedState(){
         this.cities.forEach(c => {
-            c.beans.forEach(b => b.calculateBeliefs(c, this.law));
+            c.beans.forEach(b => b.calculateBeliefs(this.economy, c, this.law));
         });
     }
 
@@ -84,16 +84,18 @@ export class World implements IWorld, IBeanContainer{
         shuffle(this.beans).forEach((b: Bean) => {
             b.work(this.law, this.economy);
         });
-        console.log(JSON.stringify(this.economy.book, (key, value) => {
-            if (key != 'seller') return value;
-            else return undefined;
-        }, ' '));
+        // console.log(JSON.stringify(this.economy.book, (key, value) => {
+        //     if (key != 'seller') return value;
+        //     else return undefined;
+        // }, ' '));
         shuffle(this.beans).forEach((b: Bean) => {
             let e = b.eat(this.economy);
             if (e) this.yearsEvents.push(e);
             e = b.weather(this.economy);
             if (e) this.yearsEvents.push(e);
             e = b.age(this.economy);
+            if (e) this.yearsEvents.push(e);
+            e = b.maybeBaby(this.economy);
             if (e) this.yearsEvents.push(e);
         });
         this.calculateComputedState();
@@ -139,6 +141,7 @@ export class City implements Tile, IBeanContainer {
     }
     public historicalBeans: Bean[] = [];
     public houses: any[] = [];
+    public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
     public avgSentiment(){
 
@@ -170,14 +173,30 @@ export class City implements Tile, IBeanContainer {
         result.avg /= this.beans.length;
         return result;
     }
-    onCitizenDeath(b: Bean){
-        if (b.cash > 0){
-            const shuffled = shuffle(this.beans);
-            if (shuffled.length > 0) {
-                shuffled[0].cash += b.cash;
-                b.cash = 0;
+    getRandomCitizen(): Bean|null{
+        const shuffled = shuffle(this.beans);
+        if (shuffled.length > 0) {
+            return shuffled[0];
+        } else {
+            return null;
+        }
+    }
+    onCitizenDie(deadBean: Bean){
+        if (deadBean.cash > 0){
+            const lucky = this.getRandomCitizen();
+            if (lucky) {
+                lucky.cash += deadBean.cash;
+                deadBean.cash = 0;
             }
         }
+        this.doOnCitizenDie.forEach((x) => x(deadBean, this));
+    }
+    breedBean(parent: Bean) {
+        let bean = GenerateBean(this, this.historicalBeans.length);
+        bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
+        bean.cash = parent.cash / 2;
+        parent.cash /= 2;
+        this.historicalBeans.push(bean);
     }
 }
 

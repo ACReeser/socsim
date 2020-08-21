@@ -35,13 +35,24 @@ export class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean
         1000
       );
     }
+    getIdea(){
+        if (this.state.paused) {
+            const idea = this.props.bean.getIdea()
+            if (idea){
+                return <span className={idea.bad ? 'bad idea': 'idea'}>{idea.idea}</span>
+            }
+        }
+        return null;
+    }
     render() {
       let classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
       classes += this.state.paused || !this.props.bean.alive ? ' paused' : '';
       let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health} ${this.props.bean.community} ${this.props.bean.ideals} $${this.props.bean.cash}`
       return (
         <span className={classes+" bean-walker interactable"}
-      style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}>{this.props.bean.getFace()}</span>
+            style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}>
+          {this.props.bean.getFace()} {this.getIdea()}
+        </span>
       )
     }
   }
