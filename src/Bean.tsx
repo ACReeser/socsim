@@ -1,5 +1,6 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, Policy, Economy, JobToGood } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, Policy, JobToGood } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
+import { Economy } from "./Economy";
 
 
 /**
@@ -60,6 +61,7 @@ export class Bean implements IBean{
     public cash: number = 3;
     public lastSentiment: number = 0;
     public seasonSinceLastSale: number = 0;
+    public seasonSinceLastRent: number = 0;
     /**
      * normalized multiplier, 0-1
      */
@@ -145,8 +147,14 @@ export class Bean implements IBean{
     }
     weather(economy: Economy) {
         const housing = economy.tryTransact(this, 'shelter');
-        if (housing)
+        if (housing) {
+            this.seasonSinceLastRent = 0;
             this.shelter = 'crowded';
+        } else if (this.seasonSinceLastRent > 2){
+            this.shelter = 'podless';
+        } else {
+            this.seasonSinceLastRent++;
+        }
         
         
         if (this.shelter == 'podless')

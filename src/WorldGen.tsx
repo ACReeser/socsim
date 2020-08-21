@@ -21,9 +21,10 @@ export function RandomFaith(): TraitFaith{
     return GetRandom(['book','music','heart', 'noFaith']);
 }
 export function StartingCash(job: TraitJob): number{
+    let base = Math.floor(Math.random() * 3);
     switch(job){
-        case 'doc': return 5;
-        default: return 3;
+        case 'doc': return base+5;
+        default: return base+3;
     }
 }
 
@@ -56,6 +57,13 @@ export function GenerateCity(previousCityCount: number): City{
         newCity.beans.push(
             GenerateBean(newCity, newCity.beans.length)
         );
+    }
+    const houseCount = Math.floor((cityPopulation / 2) + Math.floor(Math.random() * cityPopulation / 2));
+    for (let i = 0; i < houseCount; i++) {
+        newCity.houses.push({
+            left: Math.floor(Math.random() * 60),
+            top: Math.floor(Math.random() * 60),
+        });
     }
 
     return newCity;

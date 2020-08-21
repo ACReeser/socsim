@@ -7,39 +7,20 @@ import { Modal } from './Modal';
 import { CityPanel } from './CityPanel';
 import { Bean } from './Bean';
 import { AnimatedBean } from './AnimatedBean';
+import { WorldTile } from './WorldTile';
 import { EconomyReport } from './EconomyReport';
 
 
-interface WorldTilePs {
-  tile: Tile;
-  city: City;
-  onClick: () => void;
-}
-class WorldTile extends React.Component<WorldTilePs> {
-  constructor(props: WorldTilePs) {
-    super(props);
-    this.state = {
-      tile: null,
-      city: null,
-      activeTileID: null,
-    }
-  }
-  render() {
-    const beans = this.props.city.beans.map((b: Bean) => {
-      return (
-        <AnimatedBean bean={b} key={b.key}></AnimatedBean>
-      )
-    })
-    return (
-      <div className="tile" onClick={() => this.props.onClick()}>
-        <span>{this.props.tile.name}</span>
-        {beans}
-        <img src={this.props.tile.url} alt={this.props.tile.type} />
-      </div>
-    )
-  }
-}
-export const keyToName = {state: 'Statist', ego: 'Egoist', trad: 'Traditionalist', prog: 'Progressive', circle: 'Circle', square: 'Square', triangle: 'Triangle', book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless'};
+
+export const keyToName = {
+  state: 'Statist', ego: 'Egoist', 
+  trad: 'Traditionalist', prog: 'Progressive', 
+  circle: 'Circle', square: 'Square', triangle: 'Triangle', 
+  book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless',
+  hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
+  podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
+  sick: 'Sick', bruised: 'Bruised', fresh: 'Fresh'
+};
 export const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
 function magToTextSw(magnitude: number){
   switch(magnitude) {
@@ -148,7 +129,7 @@ class App extends React.Component<AppPs, AppState>{
             <span className="pull-r" style={{marginRight: 2+'em'}}>
               election in {this.state.world.electionIn} seasons
               &nbsp;
-              <button type="button" onClick={() => this.endTurn()}>Go to next Season</button>
+              <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button>
             </span>
           </div>
           <div className="bottom">
@@ -159,7 +140,7 @@ class App extends React.Component<AppPs, AppState>{
               <b>Political Capital</b> {this.state.world.party.politicalCapital}
             </span>
             <span>
-              <button type="button" onClick={() => this.setState({activeModal:'economy'})}>National Overview</button>
+              <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>Situation Report</button>
               <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button>
               <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Policies</button>
             </span>

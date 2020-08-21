@@ -2,8 +2,20 @@ import * as React from 'react';
 import { GetRandom, RandomEthno } from './WorldGen';
 import { maxHeaderSize } from 'http';
 import { Bean } from './Bean';
+import { Economy } from './Economy';
 
 export enum Season {Spring, Summer, Fall, Winter}
+
+export interface IBeanContainer{
+    /**
+     * all beans ever, including dead ones
+     */
+    historicalBeans: Bean[];
+    /**
+     * current non-dead beans
+     */
+    beans: Bean[];
+}
 
 export interface IWorld {
     cities: City[];
@@ -109,6 +121,8 @@ export class City implements Tile {
     public type: string = '';
     public key: number = 0;
     public beans: Bean[] = [];
+    public historicalBeans: Bean[] = [];
+    public houses: any[] = [];
 
     public avgSentiment(){
 
@@ -160,7 +174,7 @@ export type TraitShelter = 'podless'|'crowded'|'homeowner';
 export type TraitHealth = 'sick'|'bruised'|'fresh';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
 
-export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith;
+export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth;
 export type Axis = 'vote'|'healthcare'|'faith'|'trade';
 
 export enum MaslowScore {Deficient= -2, Sufficient=0, Abundant=1}
@@ -194,56 +208,7 @@ export function JobToGood(job: TraitJob): TraitGood{
         default: case 'farmer': return 'food';
     }
 }
-export interface Listing{
-    sellerCityKey: number;
-    sellerBeanKey: number;
-    price: number;
-    seller: Bean;
-    quantity: number;
-}
 export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
-export class Economy {
-    book: {[key in TraitGood]: Listing[]} = {
-        food: [] as Listing[],
-        shelter: [] as Listing[],
-        medicine: [] as Listing[],
-        fun: [] as Listing[],
-    }
-    unfulfilledSeasonalDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
-    constructor(){
-
-    }
-    public resetSeasonalDemand(){
-        this.unfulfilledSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
-    }
-    tryTransact(buyer: Bean, good: TraitGood): {bought: number, price: number}|null {
-        const demand = 1;
-        if (this.book[good].length > 0){
-            if (this.book[good][0].price <= buyer.cash){
-                const purchase = this.book[good].splice(0, 1)[0];
-                buyer.cash -= purchase.price;
-                purchase.seller.cash += purchase.price;
-                purchase.seller.seasonSinceLastSale--;
-                return {
-                    bought: demand,
-                    price: purchase.price
-                }
-            }
-        }
-        this.unfulfilledSeasonalDemand[good] += demand;
-        return null;
-    }
-    addList(seller: Bean, good: TraitGood, price: 1) {
-        this.book[good].push({
-            sellerCityKey: seller.cityKey,
-            sellerBeanKey: seller.key,
-            price: 1,
-            seller: seller,
-            quantity: 1
-        });
-        //todo: sort book[good] by price
-    }
-}
 
 export interface Law {
     policies: Policy[];

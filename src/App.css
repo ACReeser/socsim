@@ -4,6 +4,30 @@ body, html, #root, .canvas, .world{height: 100%; width: 100%;}
 button{
   margin: 1em;
 }
+button.important{
+  background: hsl(16, 100%, 50%);
+  color: white;
+  font-weight: bold;
+  border-radius: 4px;
+  padding: 4px;
+}
+button.important:hover{
+  background: hsl(16, 90%, 50%);
+}
+button.important:active{
+  background: hsl(16, 100%, 60%);
+}
+button.callout{
+  background: hsl(16, 100%, 80%);
+  border-radius: 4px;
+  padding: 4px;
+}
+button.callout:hover{
+  background: hsl(16, 100%, 70%);
+}
+button.callout:active{
+  background: hsl(16, 100%, 90%);
+}
 
 .overlay {
   display: flex;
@@ -46,11 +70,25 @@ button{
   overflow: auto;
 }
 .world .tile{
-  opacity: .3;
   display: inline-block;
 }
 .world .tile:hover{
-  opacity: 1;
+  border-color: hsl(16, 100%, 50%);
+}
+.tile-label{
+  opacity: .6;
+  z-index: 9;
+  font-weight: bold;
+}
+.world .tile:hover .tile-label{
+  opacity: .99;
+  color: hsl(16, 100%, 50%);
+  background: white;
+  box-shadow: 0px 0px 6px 6px white;
+}
+.house{
+  z-index: 0;
+  opacity: .5;
 }
 .pull-r{
   float: right;
@@ -103,13 +141,22 @@ button{
   position: relative;
 }
 .bar{
-  font-size: 8px; height: 8px;
+  font-size: 8px; height: 10px;
   background: rgba(255, 255, 255, .8);
   position: relative;
 }
 .bar-inner{
   left: 0; position: absolute; top: 0; height: 100%;
   background: rgba(0, 255, 0, .8); 
+  text-align: center;
+  pointer-events: visible;
+}
+.bar-inner.dire{
+  background: rgba(255, 0, 0, .8); 
+}
+.bar-inner.abundant{
+  left: auto;
+  right: 0;
 }
 
 ul.boxes{
@@ -126,6 +173,11 @@ ul.boxes li{
 .col-2 > *{
   width: 45%;
   margin-left: 4%;
+}
+
+.house{
+  position: absolute;
+  font-size: 30px;
 }
 
 .bean-walker{
