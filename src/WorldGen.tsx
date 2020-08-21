@@ -22,10 +22,10 @@ export function RandomFaith(): TraitFaith{
     return GetRandom(['book','music','heart', 'noFaith']);
 }
 export function StartingCash(job: TraitJob): number{
-    let base = Math.floor(Math.random() * 3);
+    let base = 4 + Math.floor(Math.random() * 3);
     switch(job){
-        case 'doc': return base+5;
-        default: return base+3;
+        case 'doc': return base+2;
+        default: return base;
     }
 }
 
@@ -45,10 +45,11 @@ export function GenerateCity(previousCityCount: number): City{
     newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', '', '', '', '', '', '']);
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Iron', 'Ore', 'Liver', 'Hawk', 'Yellow', 'Blue', 'Black', 'White']);
     newCity.name += GetRandom(['water ', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', 'land', 'burgh', 'bridge', 'ford', 'bury']);
-    const cityPopulation = 11;
+
+    const cityPopulation = 3;
     while(newCity.historicalBeans.length < cityPopulation){
         newCity.historicalBeans.push(
-            GenerateBean(newCity, newCity.beans.length)
+            GenerateBean(newCity, newCity.historicalBeans.length)
         );
     }
     const houseCount = Math.floor((cityPopulation / 2) + Math.floor(Math.random() * cityPopulation / 2));
@@ -63,14 +64,18 @@ export function GenerateCity(previousCityCount: number): City{
 }
 export function GenerateBean(city: City, previousBeanCount: number): Bean{
     let newBean = new Bean();
+    
     newBean.key = previousBeanCount;
     newBean.cityKey = city.key;
     newBean.city = city;
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
-    newBean.job = GetRandom(['farmer','farmer','builder','builder','doc','jobless']);
+    const mod = previousBeanCount % 3;
+    newBean.job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
+    //newBean.job = GetRandom(['farmer','builder','doc']);
     newBean.cash = StartingCash(newBean.job);
+    newBean.discrete_food = 2;
     
     return newBean;
 }

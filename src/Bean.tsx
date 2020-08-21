@@ -80,7 +80,7 @@ export class Bean implements IBean{
         const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
         return (maslow + values) / TotalWeight;
     }
-    updateTotalSentiment(homeCity: City, law: Law): void{
+    calculateBeliefs(homeCity: City, law: Law): void{
         const sentiment = this.getTotalSentiment(homeCity, law);
         this.lastSentiment = sentiment;
     }
@@ -130,13 +130,15 @@ export class Bean implements IBean{
             this.tryFindRandomJob(law);
         } else {
             this.seasonSinceLastSale++;
-            if (this.seasonSinceLastSale > 1){
+            if (this.seasonSinceLastSale > 2){
                 //underemployment
                 if (Math.random() > 0.5) {
-                    this.job = econ.mostInDemandJob();
+                    const newJob = econ.mostInDemandJob();
+                    if (newJob)
+                        this.job = newJob;
                 }
             }
-            econ.addList(this, JobToGood(this.job), 3, 1);
+            econ.produceAndPrice(this, JobToGood(this.job), 3, 1);
         }
     }
     eat(economy: Economy): IEvent|null {
@@ -149,7 +151,7 @@ export class Bean implements IBean{
         }
         this.discrete_food -= 1;
         if (this.discrete_food < 0)
-            this.discrete_health -= 0.4;
+            this.discrete_health -= 0.3;
 
         return this.maybeDie('starvation', 0.6);
     }
@@ -174,13 +176,14 @@ export class Bean implements IBean{
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
         if (this.job == 'doc'){
-            this.discrete_health += 0.35;
+            this.discrete_health += 0.25;
         } else {
             const meds = economy.tryTransact(this, 'medicine');
             if (meds)
                 this.discrete_health += meds.bought;
         }
         this.discrete_health -= 0.2;
+        this.discrete_health = Math.min(this.discrete_health, 3);
         return this.maybeDie('sickness', 0.4);
     }
     maybeDie(cause: string, chance = 0.5): IEvent|null{

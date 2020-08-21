@@ -2,6 +2,7 @@ import React from "react";
 import { City, Trait } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
+import { NeedReadout } from "./widgets/NeedRedout";
 
 interface CityPanelIn{
     cities: City[],
@@ -53,39 +54,6 @@ export class CityPanel extends React.Component<CityPanelIn> {
     }
 }
 
-export class NeedReadout extends React.Component<{beans: Bean[], need: (b: Bean) => Trait, dire: Trait, abundant: Trait}> {
-    constructor(props: any) {
-        super(props);
-        this.state = {
-        }
-    }
-    render(){
-        const dire = this.props.beans.filter(b => this.props.need(b) == this.props.dire).length;
-        const dire_style = {
-            width: Math.floor((dire / this.props.beans.length)*100)+'%'
-        }
-        const full = this.props.beans.filter(b => this.props.need(b) == this.props.abundant).length;
-        const full_style = {
-            width: Math.floor((full / this.props.beans.length)*100)+'%'
-        }
-        return (                
-        <div>
-            <b>
-                { this.props.children }
-            </b>&nbsp;&nbsp;
-            {/* <span>{keyToName[this.props.report.winner]}</span> */}
-            <div className="bar">
-                <div className="bar-inner dire" style={dire_style} title={full+' '+keyToName[this.props.dire]}>
-                    {dire}
-                </div>
-                <div className="bar-inner abundant" style={full_style} title={full+' '+keyToName[this.props.abundant]}>
-                    {full}
-                </div>
-            </div>
-        </div>
-        )
-    }
-}
 export class AxisReadout extends React.Component<{report: {avg: number, winner: Trait}}> {
     constructor(props: any) {
         super(props);

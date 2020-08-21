@@ -60,7 +60,7 @@ export class World implements IWorld, IBeanContainer{
      */
     public calculateComputedState(){
         this.cities.forEach(c => {
-            c.beans.forEach(b => b.updateTotalSentiment(c, this.law));
+            c.beans.forEach(b => b.calculateBeliefs(c, this.law));
         });
     }
 
@@ -81,21 +81,21 @@ export class World implements IWorld, IBeanContainer{
         
         this.economy.resetSeasonalDemand();
 
-        shuffle(this.beans).forEach(b => {
+        shuffle(this.beans).forEach((b: Bean) => {
             b.work(this.law, this.economy);
         });
-        // console.log(JSON.stringify(this.economy.book, (key, value) => {
-        //     if (key != 'seller') return value;
-        //     else return undefined;
-        // }, ' '));
-        shuffle(this.beans).forEach((b) => {
+        console.log(JSON.stringify(this.economy.book, (key, value) => {
+            if (key != 'seller') return value;
+            else return undefined;
+        }, ' '));
+        shuffle(this.beans).forEach((b: Bean) => {
             let e = b.eat(this.economy);
             if (e) this.yearsEvents.push(e);
             e = b.weather(this.economy);
             if (e) this.yearsEvents.push(e);
             e = b.age(this.economy);
             if (e) this.yearsEvents.push(e);
-        })
+        });
         this.calculateComputedState();
     }
 }

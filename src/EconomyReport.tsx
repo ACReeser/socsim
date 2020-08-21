@@ -1,6 +1,7 @@
 import { Bean } from "./Bean";
 import React from "react";
 import { World, TraitJob } from "./World";
+import { NeedReadout } from "./widgets/NeedRedout";
 
 function median(values: Array<number>){
   if(values.length ===0) return 0;
@@ -56,13 +57,13 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <div className="col-2">
             <div>
               <strong>🍞 Food Security</strong> Median:{food_median} meals <br/>
-              {food_dire} starving citizens<br/>
+              <NeedReadout beans={this.props.world.beans} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
               Supply: {food.supply} meals <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.food} meals
             </div>
             <div>
               <strong>🩺 Healthcare</strong> Median:{health_median} <br/>
-              {health_dire} sick citizens <br/>
+              <NeedReadout beans={this.props.world.beans} need={(b) => b.health} dire="sick" abundant="fresh" className="big"></NeedReadout>
               Supply: {meds.supply} treatments <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.medicine} treatments
             </div>
@@ -70,7 +71,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <div className="col-2">
             <div>
               <strong>🏡 Housing</strong> <br/>
-              {shelter_dire} homeless citizens <br/>
+              <NeedReadout beans={this.props.world.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner" className="big"></NeedReadout>
               Supply: {houses.supply} units <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.shelter} units
             </div>

@@ -26,32 +26,56 @@ export class Economy {
         this.totalSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
         this.totalSeasonalSupply = { food: 0, shelter: 0, medicine: 0, fun: 0, };
     }
+    public getLowestPriceListing(good: TraitGood, demand: number): Listing|null{
+        const fullListings =  this.book[good].filter((l) => {
+            return l.quantity >= demand;
+        });
+        if (fullListings.length > 0){
+            let numberOfSamePriceListings = 1;
+            const lowPrice = fullListings[0].price;
+            for (let i = 1; i < fullListings.length; i++) {
+                const list = fullListings[i];
+                if (list.price > lowPrice)
+                    break;
+                numberOfSamePriceListings++;
+            }
+            const i = Math.floor(Math.random() * numberOfSamePriceListings);
+            if (i >= fullListings.length)
+                throw "invalid index";
+            return fullListings[i];
+        }
+        return null;
+    }
     tryTransact(buyer: Bean, good: TraitGood): {bought: number, price: number}|null {
         const demand = 1;
         this.totalSeasonalDemand[good] += demand;
-        if (this.book[good].length > 0){
-            if (this.book[good][0].quantity >= demand && this.book[good][0].price <= buyer.cash){
-                const listing = this.book[good][0];
-                listing.quantity -= demand;
-                if (listing.quantity <= 0){
-                    this.book[good].splice(0, 1);
-                }
-                buyer.cash -= listing.price;
-                listing.seller.cash += listing.price;
-                listing.seller.seasonSinceLastSale--;
-                return {
-                    bought: demand,
-                    price: listing.price
-                }
+        const listing = this.getLowestPriceListing(good, demand);
+        if (listing == null){
+            console.log('bean could not find '+good);
+        }
+        else if (listing.price <= buyer.cash){
+            listing.quantity -= demand;
+            if (listing.quantity <= 0){
+                this.book[good].splice(0, 1);
             }
+            buyer.cash -= listing.price;
+            listing.seller.cash += listing.price;
+            listing.seller.seasonSinceLastSale--;
+            return {
+                bought: demand,
+                price: listing.price
+            }
+        } else {
+            console.log('bean couldnot afford '+good+" @ $"+listing?.price)
         }
         this.unfulfilledSeasonalDemand[good] += demand;
         return null;
     }
-    addList(seller: Bean, good: TraitGood, quantity: number, price: number) {
-        const existing = this.book[good].find((x) => x.sellerBeanKey == seller.key && seller.cityKey == seller.cityKey);
+    produceAndPrice(seller: Bean, good: TraitGood, quantity: number, price: number) {
+        const existing = this.book[good].find((x) => x.sellerBeanKey == seller.key && x.sellerCityKey == seller.cityKey);
         if (existing){
             existing.quantity += quantity;
+            existing.price = price;
         } else {
             this.book[good].push({
                 sellerCityKey: seller.cityKey,
@@ -63,7 +87,7 @@ export class Economy {
         }
         //todo: sort book[good] by price
     }
-    public mostInDemandJob(): TraitJob{
+    public mostInDemandJob(): TraitJob|null{
         const goods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
         const max = goods.reduce((last, good) => {
             if (this.unfulfilledSeasonalDemand[good] > last.max){
@@ -71,7 +95,7 @@ export class Economy {
                 last.job = GoodToJob(good);
             }
             return last;
-        }, {max: 0, job: 'farmer' as TraitJob})
+        }, {max: 0, job: null as TraitJob|null})
 
         return max.job;
     }
