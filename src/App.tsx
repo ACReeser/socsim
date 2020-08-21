@@ -11,6 +11,7 @@ import { WorldTile } from './WorldTile';
 import { EconomyReport } from './EconomyReport';
 import { Charity } from './CharityPanel';
 import { PoliticalEffect, Policy } from './Politics';
+import { EventsPanel } from './right-panel/Events';
 
 
 
@@ -84,13 +85,21 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.next();
     this.setState({world: this.state.world});
   }
+  getPanel(){
+    if (this.state.activeCityID == null) {
+      return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
+    } else {
+      return <CityPanel cities={this.state.world.cities} activeCityKey={this.state.activeCityID} clearCity={() => this.setState({activeCityID: null})}></CityPanel>
+    }
+  }
   render() {
     const season = Season[this.state.world.season];
     const tiles = this.state.world.cities.map((t) => {
       return (
         <WorldTile tile={t} city={t} onClick={() => this.setState({activeCityID: t.key})} key={t.key}></WorldTile>
       )
-    })
+    });
+    const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);
     return (
     <div className="canvas">
       <div className="world">
@@ -111,8 +120,8 @@ class App extends React.Component<AppPs, AppState>{
             </div>
             <Charity world={this.state.world}></Charity>
             <div>
-              <b>Campaign Finances</b>
-              <b>Expenses</b> <b>Surplus</b>
+              <b>Campaign Finances</b> <br/>
+              <b>Expenses</b> ${seasonalCost} <b>Surplus</b> ${this.state.world.party.seasonalIncome - seasonalCost}
             </div>
           </div>
         </Modal>
@@ -140,7 +149,7 @@ class App extends React.Component<AppPs, AppState>{
           </div>
           <div className="bottom">
             <span>
-              <b>Material Capital</b> {this.state.world.party.materialCapital}
+              <b>Physical Capital</b> {this.state.world.party.materialCapital}
             </span>
             <span>
               <b>Political Capital</b> {this.state.world.party.politicalCapital}
@@ -153,7 +162,7 @@ class App extends React.Component<AppPs, AppState>{
           </div>
         </div>
         <div className="right">
-          <CityPanel cities={this.state.world.cities} activeCityKey={this.state.activeCityID}></CityPanel>
+          {this.getPanel()}
         </div>
       </div>
     </div>

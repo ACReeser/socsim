@@ -1,4 +1,4 @@
-import React from "react";
+import React, { SyntheticEvent, ChangeEvent } from "react";
 import { World } from "./World";
 import './panels.css';
 
@@ -13,11 +13,14 @@ export class Charity extends React.Component<charityPS, {show: boolean}> {
             show: false
         }
     }
+    onChangeValue(event: ChangeEvent<HTMLInputElement>) {
+      console.log(event.target.value);
+    }
     panel(){
         if (this.state.show){
             return (
                 <div className="panel-add">
-                    <div>
+                    <div onChange={this.onChangeValue}>
                         <label>
                             <input type="radio" name="type" value="food" /> Food Bank
                         </label>

@@ -25,7 +25,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       }
     }
     render() {
-      let beans = this.props.world.getAliveBeans();
+      let beans = this.props.world.beans;
       const wealth_median = median(beans.map(x => x.cash));
       const food_median = median(beans.map(x => x.discrete_food));
       const health_median = median(beans.map(x => x.discrete_health)).toFixed(1);
@@ -39,15 +39,15 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       }, {} as {[key in TraitJob]: number});
       const unemployed = (((jobs.jobless || 0) / beans.length)*100).toFixed(1);
       const food = this.props.world.economy.book['food'].reduce((obj, l) => {
-        obj.supply += 1;
+        obj.supply += l.quantity;
         return obj;
       }, {supply: 0});
       const meds = this.props.world.economy.book['medicine'].reduce((obj, l) => {
-        obj.supply += 1;
+        obj.supply += l.quantity;
         return obj;
       }, {supply: 0});
       const houses = this.props.world.economy.book['shelter'].reduce((obj, l) => {
-        obj.supply += 1;
+        obj.supply += l.quantity;
         return obj;
       }, {supply: 0});
       return (

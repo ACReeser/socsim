@@ -1,9 +1,9 @@
 import * as React from 'react';
 import { GetRandom, RandomEthno } from './WorldGen';
 import { maxHeaderSize } from 'http';
-import { Bean } from './Bean';
+import { Bean, IBean } from './Bean';
 import { Economy } from './Economy';
-import { Policy, Party } from './Politics';
+import { Policy, Party, BaseParty } from './Politics';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
@@ -17,6 +17,10 @@ export interface IBeanContainer{
      */
     beans: Bean[];
 }
+export interface IEvent{
+    icon: string;
+    message: string;
+}
 
 export interface IWorld {
     cities: City[];
@@ -26,7 +30,7 @@ export interface IWorld {
     season: Season;
     electionIn: number;
 }
-export class World implements IWorld{
+export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
     public law: {
         policies: Policy[]
@@ -34,14 +38,20 @@ export class World implements IWorld{
         policies: [] 
     };
     public economy: Economy = new Economy();
-    public party: Party = {} as Party;
+    public party: Party = new BaseParty();
     public year = 1;
     public season = Season.Spring;
     public electionIn = 7;
+    public yearsEvents: IEvent[] = [];
 
-    public getAliveBeans(): Bean[]{
+    public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {
-            return list.concat(c.beans.filter(x => x.alive));
+            return list.concat(c.beans);
+        }, [] as Bean[]);
+    }
+    public get historicalBeans(): Bean[]{
+        return this.cities.reduce((list, c) => {
+            return list.concat(c.historicalBeans);
         }, [] as Bean[]);
     }
 
@@ -65,26 +75,26 @@ export class World implements IWorld{
         this.season++;
         if (this.season > 3){
             this.year++;
+            this.yearsEvents = [];
             this.season = 0;
         }
         
         this.economy.resetSeasonalDemand();
 
-        this.cities.forEach(c => {
-            c.beans.forEach(b => {
-                if (b.alive)             
-                    b.work(this.law, c, this.economy);
-            });
+        shuffle(this.beans).forEach(b => {
+            b.work(this.law, this.economy);
         });
         // console.log(JSON.stringify(this.economy.book, (key, value) => {
         //     if (key != 'seller') return value;
         //     else return undefined;
         // }, ' '));
-        const shuffled = shuffle(this.getAliveBeans());
-        shuffled.forEach((b) => {
-            b.eat(this.economy);
-            b.weather(this.economy);
-            b.age(this.economy);
+        shuffle(this.beans).forEach((b) => {
+            let e = b.eat(this.economy);
+            if (e) this.yearsEvents.push(e);
+            e = b.weather(this.economy);
+            if (e) this.yearsEvents.push(e);
+            e = b.age(this.economy);
+            if (e) this.yearsEvents.push(e);
         })
         this.calculateComputedState();
     }
@@ -116,12 +126,17 @@ export interface Tile {
     key: number
 }
 
-export class City implements Tile {
+export class City implements Tile, IBeanContainer {
     public name: string = '';
     public url: string = '';
     public type: string = '';
     public key: number = 0;
-    public beans: Bean[] = [];
+    public get beans(): Bean[] {
+        return this.historicalBeans.filter((x) => x.alive);
+    }
+    public set beans(beans: Bean[]){
+        throw "can't set city beans";
+    }
     public historicalBeans: Bean[] = [];
     public houses: any[] = [];
 
@@ -157,7 +172,7 @@ export class City implements Tile {
     }
     onCitizenDeath(b: Bean){
         if (b.cash > 0){
-            const shuffled = shuffle(this.beans.filter((x) => x.alive));
+            const shuffled = shuffle(this.beans);
             if (shuffled.length > 0) {
                 shuffled[0].cash += b.cash;
                 b.cash = 0;
@@ -207,6 +222,14 @@ export function JobToGood(job: TraitJob): TraitGood{
         case 'doc': return 'medicine';
         case 'entertainer': return 'fun';
         default: case 'farmer': return 'food';
+    }
+}
+export function GoodToJob(good: TraitGood): TraitJob{
+    switch(good){
+        case 'shelter': return 'builder';
+        case 'medicine': return 'doc';
+        case 'fun': return 'entertainer';
+        default: case 'food': return 'farmer';
     }
 }
 export type TraitGood = 'food'|'shelter'|'medicine'|'fun';

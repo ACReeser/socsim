@@ -10,6 +10,8 @@ export interface Party {
 
     politicalCapital: number;
     materialCapital: number;
+
+    seasonalIncome: number;
 }
 
 export class BaseParty implements Party{
@@ -19,9 +21,10 @@ export class BaseParty implements Party{
     public availableCampaigns: Campaign[] = [];
     public activeCampaigns: Campaign[] = [];
     public politicalCapital: number = 10;
-    public materialCapital: number = 10;
+    public materialCapital: number = 20;
 
-
+    
+    public seasonalIncome: number = 0;
 }
 
 export interface PoliticalEffect {

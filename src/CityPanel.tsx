@@ -6,6 +6,7 @@ import { Bean } from "./Bean";
 interface CityPanelIn{
     cities: City[],
     activeCityKey: number|null;
+    clearCity: () => void;
 }
 
 export class CityPanel extends React.Component<CityPanelIn> {
@@ -17,11 +18,13 @@ export class CityPanel extends React.Component<CityPanelIn> {
     render(){
         let city = this.props.cities.find((x) => x.key == this.props.activeCityKey);
         if (!city) {
-            return null;
+            return null
         }
         return (                
         <div>
-            <div><b>{city.name}</b></div>
+            <div><b>{city.name}</b>
+            <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+            </div>
             <div className="header"><b>Demographics</b></div>
             <div>
                 <b>Population</b>&nbsp;

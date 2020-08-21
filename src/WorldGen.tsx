@@ -46,8 +46,8 @@ export function GenerateCity(previousCityCount: number): City{
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Iron', 'Ore', 'Liver', 'Hawk', 'Yellow', 'Blue', 'Black', 'White']);
     newCity.name += GetRandom(['water ', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', 'land', 'burgh', 'bridge', 'ford', 'bury']);
     const cityPopulation = 11;
-    while(newCity.beans.length < cityPopulation){
-        newCity.beans.push(
+    while(newCity.historicalBeans.length < cityPopulation){
+        newCity.historicalBeans.push(
             GenerateBean(newCity, newCity.beans.length)
         );
     }

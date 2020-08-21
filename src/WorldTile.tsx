@@ -23,17 +23,23 @@ export class WorldTile extends React.Component<WorldTilePs> {
           <AnimatedBean bean={b} key={b.key}></AnimatedBean>
         )
       })
-      const houses = this.props.city.houses.map((h: any) => {
+      const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
+        return (
+          <span key={i} className="dead" style={{left: (i*10)+'px'}}>⚰️</span>
+        )
+      })
+      const houses = this.props.city.houses.map((h: any, i) => {
         const style = {
             left: h.left+'%',
             top: h.top+'%'
         }
         return (
-          <span style={style} className="house">🏡</span>
+          <span key={i} style={style} className="house">🏡</span>
         )
       })
       return (
         <div className="tile" onClick={() => this.props.onClick()}>
+          {deaths}
           {houses}
           {beans}
           <span className="tile-label">{this.props.tile.name}</span>

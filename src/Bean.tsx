@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood, IEvent } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy } from "./Economy";
 import { Policy } from "./Politics";
@@ -120,21 +120,26 @@ export class Bean implements IBean{
             return '🙂';
         return '😐';
     }
-    tryFindJob(law: { policies: Policy[]; }, c: City) {
+    tryFindRandomJob(law: { policies: Policy[]; }) {
         if (Math.random() > 0.5) {
             this.job = GetRandom(['builder', 'doc', 'farmer']);
         }
     }
-    work(law: { policies: Policy[]; }, c: City, econ: Economy) {
-        if (this.job == 'jobless' || this.seasonSinceLastSale > 2){
-            this.tryFindJob(law, c);
+    work(law: { policies: Policy[]; }, econ: Economy) {
+        if (this.job == 'jobless'){
+            this.tryFindRandomJob(law);
         } else {
-            econ.addList(this, JobToGood(this.job), 1);
-            econ.addList(this, JobToGood(this.job), 1);
             this.seasonSinceLastSale++;
+            if (this.seasonSinceLastSale > 1){
+                //underemployment
+                if (Math.random() > 0.5) {
+                    this.job = econ.mostInDemandJob();
+                }
+            }
+            econ.addList(this, JobToGood(this.job), 3, 1);
         }
     }
-    eat(economy: Economy) {
+    eat(economy: Economy): IEvent|null {
         if (this.job == 'farmer'){
             this.discrete_food += 1;
         } else {
@@ -144,14 +149,17 @@ export class Bean implements IBean{
         }
         this.discrete_food -= 1;
         if (this.discrete_food < 0)
-            this.discrete_health -= 0.6;
+            this.discrete_health -= 0.4;
+
+        return this.maybeDie('starvation', 0.6);
     }
-    weather(economy: Economy) {
+    weather(economy: Economy): IEvent|null {
+        if (!this.alive) return null;
         const housing = economy.tryTransact(this, 'shelter');
         if (housing) {
             this.seasonSinceLastRent = 0;
             this.shelter = 'crowded';
-        } else if (this.seasonSinceLastRent > 2){
+        } else if (this.seasonSinceLastRent > 1){
             this.shelter = 'podless';
         } else {
             this.seasonSinceLastRent++;
@@ -160,8 +168,11 @@ export class Bean implements IBean{
         
         if (this.shelter == 'podless')
             this.discrete_health -= 0.1;
+        
+        return this.maybeDie('exposure', 0.2);
     }
-    age(economy: Economy) {
+    age(economy: Economy): IEvent|null {
+        if (!this.alive) return null;
         if (this.job == 'doc'){
             this.discrete_health += 0.35;
         } else {
@@ -170,9 +181,15 @@ export class Bean implements IBean{
                 this.discrete_health += meds.bought;
         }
         this.discrete_health -= 0.2;
-
-        if (this.discrete_health < 0 && Math.random() >= 0.25)
+        return this.maybeDie('sickness', 0.4);
+    }
+    maybeDie(cause: string, chance = 0.5): IEvent|null{
+        if (this.discrete_health < 0 && Math.random() <= chance) {
             this.die();
+            return {icon: '☠️', message: `A bean died of ${cause}!`};
+        } else {
+            return null;
+        }
     }
     die(){
         this.alive = false;

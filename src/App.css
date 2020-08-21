@@ -179,6 +179,10 @@ ul.boxes li{
   position: absolute;
   font-size: 30px;
 }
+.dead{
+  position: absolute;
+  bottom: 20px;
+}
 
 .bean-walker{
   position: absolute;
