@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { World, Tile, Policy, PoliticalEffect, City, Season } from './World';
+import { World, Tile, City, Season } from './World';
 import { GenerateWorld } from './WorldGen';
 import { Modal } from './Modal';
 import { CityPanel } from './CityPanel';
@@ -9,6 +9,8 @@ import { Bean } from './Bean';
 import { AnimatedBean } from './AnimatedBean';
 import { WorldTile } from './WorldTile';
 import { EconomyReport } from './EconomyReport';
+import { Charity } from './CharityPanel';
+import { PoliticalEffect, Policy } from './Politics';
 
 
 
@@ -102,11 +104,15 @@ class App extends React.Component<AppPs, AppState>{
           </div>
         </Modal>
         <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({activeModal: null})}>
-          <b>Active Campaigns</b>
           <div className="policies">
             <div>
               <b>Propaganda</b>
 
+            </div>
+            <Charity world={this.state.world}></Charity>
+            <div>
+              <b>Campaign Finances</b>
+              <b>Expenses</b> <b>Surplus</b>
             </div>
           </div>
         </Modal>
@@ -142,7 +148,7 @@ class App extends React.Component<AppPs, AppState>{
             <span>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>Situation Report</button>
               <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button>
-              <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Policies</button>
+              <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Law</button>
             </span>
           </div>
         </div>

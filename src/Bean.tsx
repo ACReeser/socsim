@@ -1,6 +1,7 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, Policy, JobToGood } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy } from "./Economy";
+import { Policy } from "./Politics";
 
 
 /**

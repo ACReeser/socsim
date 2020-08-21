@@ -3,6 +3,7 @@ import { GetRandom, RandomEthno } from './WorldGen';
 import { maxHeaderSize } from 'http';
 import { Bean } from './Bean';
 import { Economy } from './Economy';
+import { Policy, Party } from './Politics';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
@@ -212,33 +213,4 @@ export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
 
 export interface Law {
     policies: Policy[];
-}
-
-export interface Party {
-    name: string;
-    availablePolicies: Policy[]; 
-    proposedPolicy?: Policy;
-    availableCampaigns: Campaign[];
-    activeCampaigns: Campaign[];
-
-    politicalCapital: number;
-    materialCapital: number;
-}
-
-export interface PoliticalEffect {
-    key: Trait;
-    /**
-     * magnitude (-3 to +3)
-     */
-    mag: number;
-}
-export interface Policy {
-    key: string; 
-    fx: PoliticalEffect[];
-    axis?: Axis;
-}
-export interface Campaign {
-    key: string; 
-    fx: PoliticalEffect[];
-    cityKey?: number;
 }

@@ -1,5 +1,6 @@
-import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Season, Policy, TraitJob } from './World';
+import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Season, TraitJob } from './World';
 import { Bean } from './Bean';
+import { Policy, BaseParty } from './Politics';
 
 export function GetRandom<S>(choices: S[]):S {
     const max = choices.length;
@@ -30,15 +31,7 @@ export function StartingCash(job: TraitJob): number{
 
 export function GenerateWorld(): World{
     const world = new World();
-    world.party = {
-        name: "Worker's Wheat Party",
-        activeCampaigns: [],
-        availablePolicies: Data.AllPolicies,
-        proposedPolicy: undefined,
-        availableCampaigns: [],   
-        politicalCapital: 10,
-        materialCapital: 10
-    };
+    world.party = new BaseParty();
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
     }
