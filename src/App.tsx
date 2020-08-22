@@ -4,7 +4,7 @@ import './App.css';
 import { World, Tile, City, Season, TraitGood } from './World';
 import { GenerateWorld } from './WorldGen';
 import { Modal } from './Modal';
-import { OverviewPanel } from './CityPanel';
+import { OverviewPanel } from './OverviewPanel';
 import { Bean } from './Bean';
 import { AnimatedBean } from './AnimatedBean';
 import { WorldTile } from './WorldTile';
