@@ -32,6 +32,7 @@ export function StartingCash(job: TraitJob): number{
 export function GenerateWorld(): World{
     const world = new World();
     world.party = new BaseParty();
+    world.institutions.push(world.party);
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);

@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { World, Tile, City, Season } from './World';
+import { World, Tile, City, Season, TraitGood } from './World';
 import { GenerateWorld } from './WorldGen';
 import { Modal } from './Modal';
 import { CityPanel } from './CityPanel';
@@ -85,6 +85,10 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.next();
     this.setState({world: this.state.world});
   }
+  foundCharity = (good: TraitGood, budget: number) => {
+    this.state.world.addCharity(good, budget);
+    this.setState({world: this.state.world});
+  }
   getPanel(){
     if (this.state.activeCityID == null) {
       return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
@@ -118,7 +122,7 @@ class App extends React.Component<AppPs, AppState>{
               <b>Propaganda</b>
 
             </div>
-            <Charity world={this.state.world}></Charity>
+            <Charity world={this.state.world} onFoundCharity={this.foundCharity}></Charity>
             <div>
               <b>Campaign Finances</b> <br/>
               <b>Expenses</b> ${seasonalCost} <b>Surplus</b> ${this.state.world.party.seasonalIncome - seasonalCost}

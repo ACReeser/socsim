@@ -257,6 +257,13 @@ ul.boxes li{
   left: -2px;
   bottom: 0px;
 }
+.subheader h3{
+  display: inline-block;
+  margin: 0;
+}
+.subheader button{
+  margin: 4px;
+}
 @keyframes hop {
   0% {
     transform: translateY(0);

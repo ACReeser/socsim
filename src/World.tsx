@@ -4,6 +4,7 @@ import { maxHeaderSize } from 'http';
 import { Bean, IBean } from './Bean';
 import { Economy } from './Economy';
 import { Policy, Party, BaseParty } from './Politics';
+import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
@@ -29,6 +30,7 @@ export interface IWorld {
     year: number;
     season: Season;
     electionIn: number;
+    institutions: IInstitution[];
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
@@ -38,6 +40,7 @@ export class World implements IWorld, IBeanContainer{
         policies: [] 
     };
     public economy: Economy = new Economy();
+    public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
     public year = 1;
     public season = Season.Spring;
@@ -53,6 +56,11 @@ export class World implements IWorld, IBeanContainer{
         return this.cities.reduce((list, c) => {
             return list.concat(c.historicalBeans);
         }, [] as Bean[]);
+    }
+    public get organizations(): IOrganization[]{
+        return this.institutions.reduce((list, institute) => {
+            return list.concat(institute.organizations);
+        }, [] as IOrganization[]);
     }
 
     /**
@@ -81,9 +89,13 @@ export class World implements IWorld, IBeanContainer{
         
         this.economy.resetSeasonalDemand();
 
+        this.institutions.forEach((i) => i.fundOrganizations());
+
         shuffle(this.beans).forEach((b: Bean) => {
             b.work(this.law, this.economy);
         });
+
+        this.organizations.forEach((org) => org.work(this.law, this.economy));
         // console.log(JSON.stringify(this.economy.book, (key, value) => {
         //     if (key != 'seller') return value;
         //     else return undefined;
@@ -99,6 +111,12 @@ export class World implements IWorld, IBeanContainer{
             if (e) this.yearsEvents.push(e);
         });
         this.calculateComputedState();
+    }
+    addCharity(good: TraitGood, budget: number) {
+        const charity = new Charity();
+        charity.good = good;
+        charity.seasonalBudget = budget;
+        this.party.organizations.push(charity);
     }
 }
 function shuffle(array: Array<any>) {

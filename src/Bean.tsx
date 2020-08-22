@@ -1,6 +1,6 @@
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood, IEvent } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
-import { Economy } from "./Economy";
+import { Economy, ISeller } from "./Economy";
 import { Policy } from "./Politics";
 
 
@@ -25,7 +25,7 @@ const ValuesHappinessWeight = 1;
 const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
 
 const BabyChance = 0.05;
-export class Bean implements IBean{
+export class Bean implements IBean, ISeller{
     public key: number = 0;
     public cityKey: number = 0;
     public alive: boolean = true;

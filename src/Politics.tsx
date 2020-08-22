@@ -1,8 +1,8 @@
 import { Trait, Axis } from "./World";
+import { IInstitution, IOrganization } from "./simulation/Institutions";
 
 
-export interface Party {
-    name: string;
+export interface Party extends IInstitution{
     availablePolicies: Policy[]; 
     proposedPolicy?: Policy;
     availableCampaigns: Campaign[];
@@ -15,6 +15,9 @@ export interface Party {
 }
 
 export class BaseParty implements Party{
+    key = 1;
+    playerKey = 1;
+    organizations: IOrganization[] = [];
     public name: string = "Worker's Wheat Party";
     public availablePolicies: Policy[] = [];
     public proposedPolicy?: Policy;
@@ -23,8 +26,16 @@ export class BaseParty implements Party{
     public politicalCapital: number = 10;
     public materialCapital: number = 20;
 
-    
+
     public seasonalIncome: number = 0;
+    fundOrganizations(): void{
+        this.organizations.forEach((org) => {
+            if (this.materialCapital >= org.seasonalBudget){
+                this.materialCapital -= org.seasonalBudget;
+                org.cash += org.seasonalBudget;
+            }
+        });
+    }
 }
 
 export interface PoliticalEffect {
