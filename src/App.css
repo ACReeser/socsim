@@ -65,6 +65,17 @@ button.callout:active{
   height: 44px;
   margin: 2px;
 }
+
+.full-width-tabs{
+  margin-bottom: 6px;
+  display: flex;
+}
+.full-width-tabs button{
+  flex-grow: 1;
+  margin: 0;
+  height: 3em;
+}
+
 .world{
   background: white;
   overflow: auto;

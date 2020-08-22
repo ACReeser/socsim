@@ -13,12 +13,17 @@ export class EventsPanel extends React.Component<EventsPanelPS> {
         }
     }
     render(){
-        const events = this.props.events.map((e, i) => {
+        let events = this.props.events.map((e, i) => {
             return <div key={i}>
                 <span>{e.icon}</span>&nbsp;
                 <span>{e.message}</span>
             </div>
         });
+        if (this.props.events.length === 0){
+            events = [<div>
+                <small>No events yet this year</small>
+            </div>]
+        }
         return (                
         <div>
             <div>

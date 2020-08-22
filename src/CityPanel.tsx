@@ -3,43 +3,45 @@ import { City, Trait } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedRedout";
+import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
 
-interface CityPanelIn{
-    cities: City[],
-    activeCityKey: number|null;
+interface OverviewPanelIn{
+    city?: City,
+    beans: Bean[],
     clearCity: () => void;
 }
 
-export class CityPanel extends React.Component<CityPanelIn> {
+export class OverviewPanel extends React.Component<OverviewPanelIn> {
     constructor(props: any) {
         super(props);
         this.state = {
         }
     }
     render(){
-        let city = this.props.cities.find((x) => x.key == this.props.activeCityKey);
-        if (!city) {
-            return null
+        let header = null;
+        if (this.props.city){
+            header = 
+            <div><b>{this.props.city.name}</b>
+            <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+            </div>
         }
         return (                
         <div>
-            <div><b>{city.name}</b>
-            <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
-            </div>
+            {header}
             <div className="header"><b>Demographics</b></div>
             <div>
                 <b>Population</b>&nbsp;
-                <span>{city.beans.length}</span>
+                <span>{this.props.beans.length}</span>
             </div>
-            <AxisReadout report={city.reportEthno()}>Ethnicity</AxisReadout>
+            <AxisReadout report={reportEthno(this.props.beans)}>Ethnicity</AxisReadout>
             <div className="header"><b>Situation</b></div>
-            <NeedReadout beans={city.beans} need={(b) => b.food} dire="hungry" abundant="stuffed">Food Security</NeedReadout>
-            <NeedReadout beans={city.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner">Housing</NeedReadout>
-            <NeedReadout beans={city.beans} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
+            <NeedReadout beans={this.props.beans} need={(b) => b.food} dire="hungry" abundant="stuffed">Food Security</NeedReadout>
+            <NeedReadout beans={this.props.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner">Housing</NeedReadout>
+            <NeedReadout beans={this.props.beans} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
             <div className="header"><b>Electorate</b></div>
-            <AxisReadout report={city.reportIdeals()}>Sentiment</AxisReadout>
-            <AxisReadout report={city.reportCommunity()}>Community</AxisReadout>
-            <AxisReadout report={city.reportIdeals()}>Ideals</AxisReadout>
+            <AxisReadout report={reportIdeals(this.props.beans)}>Sentiment</AxisReadout>
+            <AxisReadout report={reportCommunity(this.props.beans)}>Community</AxisReadout>
+            <AxisReadout report={reportIdeals(this.props.beans)}>Ideals</AxisReadout>
             {/* <div className="header"><b>Party</b></div>
             <div>
                 <b>Approval</b>&nbsp;

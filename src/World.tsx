@@ -164,33 +164,6 @@ export class City implements Tile, IBeanContainer {
     public avgSentiment(){
 
     }
-
-    reportIdeals(): {avg: number, winner: Trait}{
-        return this._report('ego' as Trait, (b) => b.ideals);
-    }
-    reportCommunity(): {avg: number, winner: Trait}{
-        return this._report('state' as Trait, (b) => b.community);
-    }
-    reportEthno(): {avg: number, winner: Trait}{
-        return this._report('circle' as Trait, (b) => b.ethnicity);
-    }
-    _report(defWin: Trait, beanPropGet: (bean: Bean) => Trait): {avg: number, winner: Trait}{
-        const result = { avg: 0, winner: defWin };
-        const all = this.beans.reduce((stash: any, bean) => {
-            const value = beanPropGet(bean);
-            if (stash[value] == null) { stash[value] = 1;}
-            else { stash[value]++}
-            return stash;
-        }, {});
-        Object.keys(all).forEach((trait) => {
-            if (all[trait] > result.avg) {
-                result.avg = all[trait];
-                result.winner = trait as Trait;
-            }
-        });
-        result.avg /= this.beans.length;
-        return result;
-    }
     getRandomCitizen(): Bean|null{
         const shuffled = shuffle(this.beans);
         if (shuffled.length > 0) {

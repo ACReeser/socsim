@@ -4,7 +4,7 @@ import './App.css';
 import { World, Tile, City, Season, TraitGood } from './World';
 import { GenerateWorld } from './WorldGen';
 import { Modal } from './Modal';
-import { CityPanel } from './CityPanel';
+import { OverviewPanel } from './CityPanel';
 import { Bean } from './Bean';
 import { AnimatedBean } from './AnimatedBean';
 import { WorldTile } from './WorldTile';
@@ -69,6 +69,7 @@ interface AppState{
   world: World,
   activeCityID: number|null;
   activeModal: ModalView|null;
+  activeRightPanel: 'events'|'overview'|'goals';
 }
 
 class App extends React.Component<AppPs, AppState>{
@@ -77,7 +78,8 @@ class App extends React.Component<AppPs, AppState>{
     this.state = {
       world: GenerateWorld(),
       activeCityID: null,
-      activeModal: null
+      activeModal: null,
+      activeRightPanel: 'overview'
     };
     this.state.world.calculateComputedState();
   }
@@ -90,17 +92,36 @@ class App extends React.Component<AppPs, AppState>{
     this.setState({world: this.state.world});
   }
   getPanel(){
-    if (this.state.activeCityID == null) {
-      return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
-    } else {
-      return <CityPanel cities={this.state.world.cities} activeCityKey={this.state.activeCityID} clearCity={() => this.setState({activeCityID: null})}></CityPanel>
+    switch(this.state.activeRightPanel){
+      case 'overview':
+        if (this.state.activeCityID == null) {
+          return <OverviewPanel beans={this.state.world.beans} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>
+        } else {
+          const city = this.state.world.cities.find((x) => x.key == this.state.activeCityID)
+          if (city)
+            return <OverviewPanel beans={city?.beans} city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>
+          else
+            return <div>
+            </div>
+        }
+      case 'goals':
+        return <div>
+          <div><b>Goals</b></div>
+          <ul>
+            <li>
+              
+            </li>
+          </ul>
+        </div>
+      case 'events':
+        return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
     }
   }
   render() {
     const season = Season[this.state.world.season];
     const tiles = this.state.world.cities.map((t) => {
       return (
-        <WorldTile tile={t} city={t} onClick={() => this.setState({activeCityID: t.key})} key={t.key}></WorldTile>
+        <WorldTile tile={t} city={t} onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview'})} key={t.key}></WorldTile>
       )
     });
     const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);
@@ -166,6 +187,11 @@ class App extends React.Component<AppPs, AppState>{
           </div>
         </div>
         <div className="right">
+          <div className="full-width-tabs">
+            <button onClick={() => this.setState({activeRightPanel: 'overview'})}>📈 Overview</button>
+            <button onClick={() => this.setState({activeRightPanel: 'events'})}>📣 Events</button>
+            <button onClick={() => this.setState({activeRightPanel: 'goals'})}>🏆 Goals</button>
+          </div>
           {this.getPanel()}
         </div>
       </div>
