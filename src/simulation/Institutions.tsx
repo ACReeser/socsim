@@ -11,7 +11,7 @@ export interface IInstitution{
     fundOrganizations(): void;
 }
 
-export interface IOrganization {
+export interface IOrganization extends ISeller{
     work(law: { policies: Policy[]; }, economy: Economy): void;
     key: number;
     institutionKey: number;
@@ -33,7 +33,7 @@ export class Charity implements IOrganization, ISeller{
         if (this.cash > 0){
             const bought = economy.tryTransact(this, this.good);
             if (bought){
-                
+                economy.addCharity(this, this.good, bought.bought);
             }
         }
     }

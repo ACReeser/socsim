@@ -1,6 +1,7 @@
 import React, { SyntheticEvent, ChangeEvent } from "react";
 import { World, TraitGood } from "./World";
 import './panels.css';
+import { Charity } from "./simulation/Institutions";
 
 export interface charityPS{
     world: World,
@@ -10,14 +11,16 @@ export interface charityS{
     show: boolean,
     selectedCharityGood: TraitGood|null,
     selectedCharityBudget: number
+    selectedCharityName: string
 }
 
-export class Charity extends React.Component<charityPS, charityS> {
+export class CharityPanel extends React.Component<charityPS, charityS> {
     constructor(props: charityPS) {
         super(props);
         this.state = {
             show: false,
             selectedCharityGood: null,
+            selectedCharityName: '',
             selectedCharityBudget: 1
         }
     }
@@ -37,6 +40,7 @@ export class Charity extends React.Component<charityPS, charityS> {
         if (this.state.show){
             return (
                 <div className="panel-add">
+                    <input type="text" name="name" value={this.state.selectedCharityName} onChange={(change) => this.setState({selectedCharityName: change.target.value})}  />
                     <div onChange={this.onChangeValue}>
                         <label>
                             <input type="radio" name="type" value="food" /> Food Bank
@@ -63,6 +67,14 @@ export class Charity extends React.Component<charityPS, charityS> {
             return null
         }
     }
+    list(){
+        return this.props.world.party.organizations.filter((x) => x instanceof Charity).map((i) => {
+            const charity = i as unknown as Charity;
+            return <div key={charity.key}>
+                Gives beans {charity.good}. ${charity.cash} cash.
+            </div>
+        })
+    }
     render() {
         return (
             <div>
@@ -71,7 +83,8 @@ export class Charity extends React.Component<charityPS, charityS> {
                     <button type="button" className="callout" onClick={() => this.setState({show: true})} >💗 Found New Charity</button>
                 </div>
                 <span>Charities help needy beans while also improving their party loyalty</span>
-              {this.panel()}
+                {this.list()}
+                {this.panel()}
             </div>
         )
     }

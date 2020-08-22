@@ -39,15 +39,15 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
         return obj;
       }, {} as {[key in TraitJob]: number});
       const unemployed = (((jobs.jobless || 0) / beans.length)*100).toFixed(1);
-      const food = this.props.world.economy.book['food'].reduce((obj, l) => {
+      const food = this.props.world.economy.market.listings['food'].reduce((obj, l) => {
         obj.supply += l.quantity;
         return obj;
       }, {supply: 0});
-      const meds = this.props.world.economy.book['medicine'].reduce((obj, l) => {
+      const meds = this.props.world.economy.market.listings['medicine'].reduce((obj, l) => {
         obj.supply += l.quantity;
         return obj;
       }, {supply: 0});
-      const houses = this.props.world.economy.book['shelter'].reduce((obj, l) => {
+      const houses = this.props.world.economy.market.listings['shelter'].reduce((obj, l) => {
         obj.supply += l.quantity;
         return obj;
       }, {supply: 0});

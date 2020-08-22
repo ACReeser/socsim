@@ -9,7 +9,7 @@ import { Bean } from './Bean';
 import { AnimatedBean } from './AnimatedBean';
 import { WorldTile } from './WorldTile';
 import { EconomyReport } from './EconomyReport';
-import { Charity } from './CharityPanel';
+import { CharityPanel } from './CharityPanel';
 import { PoliticalEffect, Policy } from './Politics';
 import { EventsPanel } from './right-panel/Events';
 
@@ -122,7 +122,7 @@ class App extends React.Component<AppPs, AppState>{
               <b>Propaganda</b>
 
             </div>
-            <Charity world={this.state.world} onFoundCharity={this.foundCharity}></Charity>
+            <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
             <div>
               <b>Campaign Finances</b> <br/>
               <b>Expenses</b> ${seasonalCost} <b>Surplus</b> ${this.state.world.party.seasonalIncome - seasonalCost}
