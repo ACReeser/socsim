@@ -176,7 +176,7 @@ export class City implements Tile, IBeanContainer {
         if (deadBean.cash > 0){
             const lucky = this.getRandomCitizen();
             if (lucky) {
-                lucky.cash += deadBean.cash;
+                lucky.cash = lucky.cash + deadBean.cash;
                 deadBean.cash = 0;
             }
         }
@@ -184,6 +184,7 @@ export class City implements Tile, IBeanContainer {
     }
     breedBean(parent: Bean) {
         let bean = GenerateBean(this, this.historicalBeans.length);
+        bean.ethnicity = parent.ethnicity;
         bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;

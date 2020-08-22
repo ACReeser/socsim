@@ -90,7 +90,9 @@ export class Economy {
             if (existing){
                 const lucky = city.getRandomCitizen();
                 if (lucky) {
+                    existing.sellerCityKey = lucky.cityKey;
                     existing.sellerBeanKey = lucky.key;
+                    existing.seller = lucky;
                 }
             }
         });
