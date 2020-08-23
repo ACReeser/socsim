@@ -5,7 +5,7 @@ import { Charity } from "./simulation/Institutions";
 
 export interface charityPS{
     world: World,
-    onFoundCharity: (good: TraitGood, budget: number) => void
+    onFoundCharity: (good: TraitGood, name: string, budget: number) => void
 }
 export interface charityS{
     show: boolean,
@@ -20,7 +20,7 @@ export class CharityPanel extends React.Component<charityPS, charityS> {
         this.state = {
             show: false,
             selectedCharityGood: null,
-            selectedCharityName: '',
+            selectedCharityName: 'Our Lady of ',
             selectedCharityBudget: 1
         }
     }
@@ -32,9 +32,9 @@ export class CharityPanel extends React.Component<charityPS, charityS> {
     }
     onFoundCharity = () => {
         if (this.state.selectedCharityGood){
-            this.props.onFoundCharity(this.state.selectedCharityGood, this.state.selectedCharityBudget);
+            this.props.onFoundCharity(this.state.selectedCharityGood, this.state.selectedCharityName, this.state.selectedCharityBudget);
         }
-        this.setState({selectedCharityGood: null});
+        this.setState({selectedCharityGood: null, show: false});
     }
     panel(){
         if (this.state.show){
@@ -71,7 +71,7 @@ export class CharityPanel extends React.Component<charityPS, charityS> {
         return this.props.world.party.organizations.filter((x) => x instanceof Charity).map((i) => {
             const charity = i as unknown as Charity;
             return <div key={charity.key}>
-                Gives beans {charity.good}. ${charity.cash} cash.
+                💗 <b>{charity.name}</b> Has given {charity.beansHelped} beans free {charity.good}. {charity.inventory} {charity.good} and ${charity.cash.toFixed(2)} cash.
             </div>
         })
     }

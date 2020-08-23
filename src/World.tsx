@@ -3,7 +3,7 @@ import { GetRandom, RandomEthno, GenerateBean } from './WorldGen';
 import { maxHeaderSize } from 'http';
 import { Bean, IBean } from './Bean';
 import { Economy } from './Economy';
-import { Policy, Party, BaseParty } from './Politics';
+import { Policy, Party, BaseParty, ICityPartyHQ } from './Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 
 export enum Season {Spring, Summer, Fall, Winter}
@@ -83,7 +83,8 @@ export class World implements IWorld, IBeanContainer{
         this.season++;
         if (this.season > 3){
             this.year++;
-            this.yearsEvents = [];
+            this.inflate();
+            this.resetYearlyCounters();
             this.season = 0;
         }
         
@@ -110,10 +111,35 @@ export class World implements IWorld, IBeanContainer{
             e = b.maybeBaby(this.economy);
             if (e) this.yearsEvents.push(e);
         });
+        this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
     }
-    addCharity(good: TraitGood, budget: number) {
+    inflate() {
+        const allMoney = this.beans.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);
+        const percent = allMoney / 100;
+        const yearlyInflationDollars = Math.round(percent * 1);
+        if (yearlyInflationDollars > 0){
+            const richest = this.beans.reduce((obj: {winner?: Bean, max: number}, b) => {
+                if (b.cash > obj.max){
+                    obj.winner = b;
+                    obj.max = b.cash;
+                }
+                return obj;
+            }, {max: 0});
+            if (richest.winner){
+                richest.winner.cash += yearlyInflationDollars;
+            }
+        }
+    }
+    resetYearlyCounters() {
+        this.yearsEvents = [];
+        this.cities.forEach((c) => {
+            c.yearsPartyDonations = 0;
+        })
+    }
+    addCharity(good: TraitGood, name: string, budget: number) {
         const charity = new Charity();
+        charity.name = name;
         charity.good = good;
         charity.seasonalBudget = budget;
         this.party.organizations.push(charity);
@@ -159,11 +185,10 @@ export class City implements Tile, IBeanContainer {
     }
     public historicalBeans: Bean[] = [];
     public houses: any[] = [];
+    public partyHQ?: ICityPartyHQ;
+    public yearsPartyDonations: number = 0;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
-    public avgSentiment(){
-
-    }
     getRandomCitizen(): Bean|null{
         const shuffled = shuffle(this.beans);
         if (shuffled.length > 0) {
@@ -186,9 +211,19 @@ export class City implements Tile, IBeanContainer {
         let bean = GenerateBean(this, this.historicalBeans.length);
         bean.ethnicity = parent.ethnicity;
         bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
+        bean.partyLoyalty = Math.max(parent.partyLoyalty * 0.4, 0.2);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         this.historicalBeans.push(bean);
+    }
+    getTaxesAndDonations(party: Party, economy: Economy){
+        if (this.partyHQ){
+            this.beans.forEach((b) => {
+                const donation = b.maybeDonate(economy);
+                party.materialCapital += donation;
+                this.yearsPartyDonations += donation;
+            });
+        }
     }
 }
 

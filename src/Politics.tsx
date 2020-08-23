@@ -38,6 +38,13 @@ export class BaseParty implements Party{
     }
 }
 
+export interface ICityPartyHQ{
+    cityKey: number;
+}
+export class CityPartyHQ implements ICityPartyHQ{
+    cityKey: number = 0;
+}
+
 export interface PoliticalEffect {
     key: Trait;
     /**

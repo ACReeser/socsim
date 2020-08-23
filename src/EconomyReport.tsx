@@ -1,7 +1,8 @@
 import { Bean } from "./Bean";
 import React from "react";
 import { World, TraitJob } from "./World";
-import { NeedReadout } from "./widgets/NeedRedout";
+import { NeedReadout } from "./widgets/NeedReadout";
+import { Listing } from "./Economy";
 
 function median(values: Array<number>){
   if(values.length ===0) return 0;
@@ -42,18 +43,16 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
         return obj;
       }, {} as {[key in TraitJob]: number});
       const unemployed = (((jobs.jobless || 0) / beans.length)*100).toFixed(1);
-      const food = this.props.world.economy.market.listings['food'].reduce((obj, l) => {
+      function reducer(obj:  {supply: number, price: number, avg: number, count: number}, l: Listing){
         obj.supply += l.quantity;
+        obj.price += l.price;
+        obj.count++;
+        obj.avg = obj.price / obj.count;
         return obj;
-      }, {supply: 0});
-      const meds = this.props.world.economy.market.listings['medicine'].reduce((obj, l) => {
-        obj.supply += l.quantity;
-        return obj;
-      }, {supply: 0});
-      const houses = this.props.world.economy.market.listings['shelter'].reduce((obj, l) => {
-        obj.supply += l.quantity;
-        return obj;
-      }, {supply: 0});
+      }
+      const food = this.props.world.economy.market.listings['food'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
+      const meds = this.props.world.economy.market.listings['medicine'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
+      const houses = this.props.world.economy.market.listings['shelter'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
       return (
         <div className="pad-20">
           <h3>Citizen's Health</h3>
@@ -61,13 +60,13 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
             <div>
               <strong>🍞 Food Security</strong> Median:{food_median} meals <br/>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
-              Supply: {food.supply} meals <br/>
+              Supply: {food.supply} meals. Avg. price ${food.avg.toFixed(2)} <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.food} meals
             </div>
             <div>
               <strong>🩺 Healthcare</strong> Median:{health_median} <br/>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.health} dire="sick" abundant="fresh" className="big"></NeedReadout>
-              Supply: {meds.supply} treatments <br/>
+              Supply: {meds.supply} treatments. Avg. price ${meds.avg.toFixed(2)}  <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.medicine} treatments
             </div>
           </div>
@@ -75,15 +74,15 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
             <div>
               <strong>🏡 Housing</strong> <br/>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner" className="big"></NeedReadout>
-              Supply: {houses.supply} units <br/>
+              Supply: {houses.supply} units. Avg. price ${houses.avg.toFixed(2)}   <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.shelter} units
             </div>
           </div>
           <h3>Economic Health</h3>
           <div className="col-2">
             <div>
-              <strong>💰 Wealth</strong> Total Wealth: {wealth_total.toFixed(2)}<br/>
-              {wealth_dire} penniless citizens <br/>
+              <strong>💰 Wealth</strong> Household Wealth: {wealth_total.toFixed(2)}<br/>
+              {wealth_dire} penniless citizens &nbsp; &nbsp; Cost of Living: ${this.props.world.economy.getCostOfLiving().toFixed(2)} <br/>
               Median: ${wealth_median.toFixed(2)} Average: ${wealth_avg.toFixed(2)} <br/>
               Top {wealthy_percentage.toFixed(1)}% of beans own {wealthy_ownership.toFixed(1)}% of the wealth
             </div>

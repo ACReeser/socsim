@@ -1,8 +1,8 @@
 import { Bean } from "./Bean";
 import React from "react";
 
-export class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean}> {
-    constructor(props: {bean: Bean}) {
+export class AnimatedBean extends React.Component<{bean: Bean, costOfLiving: number}, {paused: boolean}> {
+    constructor(props: {bean: Bean, costOfLiving: number}) {
       super(props);
       this.timerID = null;
       this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
@@ -37,7 +37,7 @@ export class AnimatedBean extends React.Component<{bean: Bean}, {paused: boolean
     }
     getIdea(){
         if (this.state.paused) {
-            const idea = this.props.bean.getIdea()
+            const idea = this.props.bean.getIdea(this.props.costOfLiving)
             if (idea){
                 return <span className={idea.bad ? 'bad idea': 'idea'}>{idea.idea}</span>
             }

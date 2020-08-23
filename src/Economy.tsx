@@ -16,6 +16,7 @@ export interface Listing{
     quantity: number;
 }
 const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
+const PartyLoyaltyPerCharityUse = 0.2;
 export class Economy {
     market = new OrderBook();
     charity = new OrderBook();
@@ -42,8 +43,11 @@ export class Economy {
         } else if (buyer instanceof Bean) {
             console.log('bean couldnot afford '+good+" @ $"+listing?.price);
             const charityTicket = this.charity.getLowestPriceListing(good, demand);
-            if (charityTicket) {
+            if (charityTicket && charityTicket.seller instanceof Charity) {
                 console.log('bean got '+good+" from charity");
+                buyer.partyLoyalty += PartyLoyaltyPerCharityUse;
+                charityTicket.seller.beansHelped++;
+                charityTicket.seller.inventory -= demand;
                 return this.charity.transact(charityTicket, good, demand, buyer);
             }
         }
@@ -67,8 +71,10 @@ export class Economy {
         if (existing){
             existing.quantity += quantity;
             existing.quantity = Math.min(existing.quantity, 10);
+            seller.inventory = existing.quantity;
         } else {
             this.charity.addNewOrgListing(good, quantity, 0, seller);
+            seller.inventory = quantity;
         }
         //this.book[good].sort((a, b) => a.price - b.price);
     }
@@ -96,6 +102,14 @@ export class Economy {
                 }
             }
         });
+    }
+    public getFairGoodPrice(good: TraitGood){
+        const supply = this.totalSeasonalSupply[good] || 1;
+        const demand = this.totalSeasonalDemand[good];
+        return 0.25 + (0.75 * Math.min(demand/supply, 1));
+    }
+    public getCostOfLiving(){
+        return this.getFairGoodPrice('food')+this.getFairGoodPrice('shelter')+this.getFairGoodPrice('medicine');
     }
 }
 

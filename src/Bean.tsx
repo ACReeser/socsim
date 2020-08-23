@@ -61,10 +61,17 @@ export class Bean implements IBean, ISeller{
     public job: TraitJob = 'jobless';
     public faith?: TraitFaith;
     public cash: number = 3;
+    public partyLoyalty: number = 0.2;
+    public lastHappiness: number = 0;
     public lastSentiment: number = 0;
     public seasonSinceLastSale: number = 0;
     public seasonSinceLastRent: number = 0;
     public fairGoodPrice: number = 1;
+    get isInCrisis(): boolean{
+        return this.food == 'hungry' ||
+        this.shelter == 'podless' ||
+        this.health == 'sick';
+    }
     /**
      * normalized multiplier, 0-1
      */
@@ -84,21 +91,19 @@ export class Bean implements IBean, ISeller{
     }
     calculateBeliefs(econ: Economy, homeCity: City, law: Law): void{
         const sentiment = this.getTotalSentiment(homeCity, law);
-        this.lastSentiment = sentiment;
+        this.lastHappiness = sentiment;
         if (this.job == 'jobless'){
             this.fairGoodPrice = 1;
         } else {
             const myGood = JobToGood(this.job);
-            const supply = econ.totalSeasonalSupply[myGood] || 1;
-            const demand = econ.totalSeasonalDemand[myGood];
-            this.fairGoodPrice = 0.5 + (0.5 * Math.min(demand/supply, 1));
+            this.fairGoodPrice = econ.getFairGoodPrice(myGood);
         }
     }
     /**
      * non-normalized multiplier
      */
     getSentimentPolicies(traits: {[x:string]:boolean}, policies: Policy[]){
-        let multiplier = 0;
+        let multiplier = 100;
         policies.forEach((policy) => {
             policy.fx.forEach((fx) => {
                 if (traits[fx.key])
@@ -130,14 +135,14 @@ export class Bean implements IBean, ISeller{
             return '🙂';
         return '😐';
     }
-    getIdea(): {bad: boolean, idea: string}|null {
+    getIdea(costOfLiving: number): {bad: boolean, idea: string}|null {
         if (this.food == 'hungry')
             return {bad: true, idea: '🍗'};
         if (this.health == 'sick')
             return {bad: true, idea: '💊'};
         if (this.shelter == 'podless')
             return {bad: true, idea: '🏠'};
-        if (this.canBaby())
+        if (this.canBaby(costOfLiving))
             return {bad: false, idea: '👶'};
         return null;        
     }
@@ -212,7 +217,7 @@ export class Bean implements IBean, ISeller{
         return this.maybeDie('sickness', 0.4);
     }
     maybeBaby(economy: Economy): IEvent | null {
-        if (this.canBaby() &&
+        if (this.canBaby(economy.getCostOfLiving()) &&
             Math.random() <= BabyChance) {
             if (this.city)
                 this.city.breedBean(this);
@@ -223,11 +228,21 @@ export class Bean implements IBean, ISeller{
             return null;
         }
     }
-    canBaby(): boolean{
-        return this.cash > 8 &&
-            this.food != 'hungry' &&
-            this.shelter != 'podless' &&
-            this.health != 'sick';
+    canBaby(costOfLiving: number): boolean{
+        return this.cash > costOfLiving * 3 &&
+            !this.isInCrisis;
+    }
+    maybeDonate(economy: Economy){
+        const canDonate = this.cash > economy.getCostOfLiving() * 2 && !this.isInCrisis;
+        if (canDonate){
+            const willDonate = this.partyLoyalty > 0.5 && Math.random() < (this.partyLoyalty - 0.5) / 2;
+            if (willDonate){
+                const donation = 1;
+                this.cash -= donation;
+                return donation;
+            }
+        }
+        return 0;
     }
     maybeDie(cause: string, chance = 0.5): IEvent|null{
         if (this.discrete_health < 0 && Math.random() <= chance) {

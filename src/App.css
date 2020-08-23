@@ -65,6 +65,9 @@ button.callout:active{
   height: 44px;
   margin: 2px;
 }
+button.pull-r{
+  margin: 0;
+}
 
 .full-width-tabs{
   margin-bottom: 6px;

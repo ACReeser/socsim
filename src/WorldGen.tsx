@@ -1,6 +1,6 @@
 import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Season, TraitJob } from './World';
 import { Bean } from './Bean';
-import { Policy, BaseParty } from './Politics';
+import { Policy, BaseParty, CityPartyHQ } from './Politics';
 
 export function GetRandom<S>(choices: S[]):S {
     const max = choices.length;
@@ -36,9 +36,24 @@ export function GenerateWorld(): World{
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
+
+        if (i < 2){
+            const city = world.cities[i];
+            GeneratePartyHQ(city);
+        }
     }
+    world.economy.totalSeasonalDemand.food = world.beans.length;
+    world.economy.totalSeasonalDemand.shelter = world.beans.length;
+    world.economy.totalSeasonalDemand.medicine = world.beans.length;
 
     return world;
+}
+
+function GeneratePartyHQ(city: City) {
+    const hq = new CityPartyHQ();
+    hq.cityKey = city.key;
+    city.partyHQ = hq;
+    city.beans.forEach((x) => x.partyLoyalty = 1);
 }
 
 export function GenerateCity(previousCityCount: number): City{

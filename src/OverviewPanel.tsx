@@ -2,7 +2,7 @@ import React from "react";
 import { City, Trait } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
-import { NeedReadout } from "./widgets/NeedRedout";
+import { NeedReadout } from "./widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
 
 interface OverviewPanelIn{
@@ -18,13 +18,19 @@ export class OverviewPanel extends React.Component<OverviewPanelIn> {
         }
     }
     render(){
-        let header = null;
+        let header = null; let footer = null;
         if (this.props.city){
-            header = 
-            <div><b>{this.props.city.name}</b>
-            <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+            header = <div><b>{this.props.city.name}</b>
+                <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+            </div>;
+            let partyHQ = <span></span>
+            footer = <div>
+                {(this.props.city.partyHQ ? '🏢 Has Party HQ ' : 'No Party HQ')}<br/>
+                ${this.props.city.yearsPartyDonations.toFixed(2)} donations this year
             </div>
         }
+        const avg_happy = this.props.beans.reduce((sum, x) => sum+x.lastHappiness, 0) / (this.props.beans.length || 1) * 100;
+        const avg_loyalty = this.props.beans.reduce((sum, x) => sum+x.partyLoyalty, 0) / (this.props.beans.length || 1) * 100;
         return (                
         <div>
             {header}
@@ -38,19 +44,21 @@ export class OverviewPanel extends React.Component<OverviewPanelIn> {
             <NeedReadout beans={this.props.beans} need={(b) => b.food} dire="hungry" abundant="stuffed">Food Security</NeedReadout>
             <NeedReadout beans={this.props.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner">Housing</NeedReadout>
             <NeedReadout beans={this.props.beans} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
+            <b>Average Happiness</b> {Math.round(avg_happy)}%
             <div className="header"><b>Electorate</b></div>
             <AxisReadout report={reportIdeals(this.props.beans)}>Sentiment</AxisReadout>
             <AxisReadout report={reportCommunity(this.props.beans)}>Community</AxisReadout>
             <AxisReadout report={reportIdeals(this.props.beans)}>Ideals</AxisReadout>
-            {/* <div className="header"><b>Party</b></div>
+            <div className="header"><b>Party</b></div>
+            {footer}
             <div>
                 <b>Approval</b>&nbsp;
                 <span>Approve (60%)</span>
             </div>
             <div>
-                <b>Representatives</b>&nbsp;
-                <span>3/4</span>
-            </div> */}
+                <b>Avg. Party Loyalty</b>&nbsp;
+                <span>{avg_loyalty.toFixed(0)}%</span>
+            </div>
         </div>
         )
     }

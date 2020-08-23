@@ -87,8 +87,8 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.next();
     this.setState({world: this.state.world});
   }
-  foundCharity = (good: TraitGood, budget: number) => {
-    this.state.world.addCharity(good, budget);
+  foundCharity = (good: TraitGood, name: string, budget: number) => {
+    this.state.world.addCharity(good, name, budget);
     this.setState({world: this.state.world});
   }
   getPanel(){
@@ -109,7 +109,16 @@ class App extends React.Component<AppPs, AppState>{
           <div><b>Goals</b></div>
           <ul>
             <li>
-              
+              Review Finances
+            </li>
+            <li>
+              Found a Charity
+            </li>
+            <li>
+              Create Propaganda
+            </li>
+            <li>
+              Pass Legislation
             </li>
           </ul>
         </div>
@@ -119,9 +128,10 @@ class App extends React.Component<AppPs, AppState>{
   }
   render() {
     const season = Season[this.state.world.season];
+    const COL = this.state.world.economy.getCostOfLiving();
     const tiles = this.state.world.cities.map((t) => {
       return (
-        <WorldTile tile={t} city={t} onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview'})} key={t.key}></WorldTile>
+        <WorldTile tile={t} city={t} costOfLiving={COL} onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview'})} key={t.key}></WorldTile>
       )
     });
     const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);
@@ -139,10 +149,13 @@ class App extends React.Component<AppPs, AppState>{
         </Modal>
         <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({activeModal: null})}>
           <div className="policies">
-            <div>
-              <b>Propaganda</b>
-
+            <div className="subheader">
+                <h3>Propaganda</h3>
+                <button type="button" className="callout" onClick={() => void(0)} >🎙️ Create New Propaganda</button>
             </div>
+            <span>
+              Propaganda slightly changes beans' feelings on a wide variety of topics.
+            </span>
             <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
             <div>
               <b>Campaign Finances</b> <br/>
@@ -156,7 +169,9 @@ class App extends React.Component<AppPs, AppState>{
         <div className="left">
           <div className="top">
             <span>
+              &nbsp;
               Year {this.state.world.year}, 
+              &nbsp;
               {season}
             </span>
             &nbsp;
@@ -174,7 +189,7 @@ class App extends React.Component<AppPs, AppState>{
           </div>
           <div className="bottom">
             <span>
-              <b>Physical Capital</b> {this.state.world.party.materialCapital}
+              <b>Physical Capital</b> {this.state.world.party.materialCapital.toFixed(0)}
             </span>
             <span>
               <b>Political Capital</b> {this.state.world.party.politicalCapital}

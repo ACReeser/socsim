@@ -22,18 +22,23 @@ export interface IOrganization extends ISeller{
 
 export class Charity implements IOrganization, ISeller{
     key = 0;
+    name: string = '';
     institutionKey = 1;
     cash = 0;
     seasonSinceLastSale = 0;
     seasonalBudget = 0;
     good: TraitGood = 'food';
     parentInstitution: IInstitution|null = null;
+    beansHelped: number = 0;
+    inventory: number = 0;
     
     work(law: { policies: Policy[]; }, economy: Economy): void{
-        if (this.cash > 0){
-            const bought = economy.tryTransact(this, this.good);
-            if (bought){
-                economy.addCharity(this, this.good, bought.bought);
+        while(this.cash > 0 && this.inventory < 10) {
+            const groceries = economy.tryTransact(this, this.good);
+            if (groceries){
+                economy.addCharity(this, this.good, groceries.bought);
+            } else {
+                break;
             }
         }
     }
