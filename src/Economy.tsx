@@ -36,15 +36,15 @@ export class Economy {
         this.totalSeasonalDemand[good] += demand;
         const listing = this.market.getLowestPriceListing(good, demand);
         if (listing == null){
-            console.log('agent could not find '+good);
+            //console.log('agent could not find '+good);
         }
         else if (listing.price <= buyer.cash){
             return this.market.transact(listing, good, demand, buyer);
         } else if (buyer instanceof Bean) {
-            console.log('bean couldnot afford '+good+" @ $"+listing?.price);
+            // console.log('bean couldnot afford '+good+" @ $"+listing?.price);
             const charityTicket = this.charity.getLowestPriceListing(good, demand);
             if (charityTicket && charityTicket.seller instanceof Charity) {
-                console.log('bean got '+good+" from charity");
+                // console.log('bean got '+good+" from charity");
                 buyer.partyLoyalty += PartyLoyaltyPerCharityUse;
                 charityTicket.seller.beansHelped++;
                 charityTicket.seller.inventory -= demand;

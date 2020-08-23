@@ -25,6 +25,7 @@ const ValuesHappinessWeight = 1;
 const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
 
 const BabyChance = 0.05;
+const SeasonsUntilEviction = 1;
 export class Bean implements IBean, ISeller{
     public key: number = 0;
     public cityKey: number = 0;
@@ -171,9 +172,7 @@ export class Bean implements IBean, ISeller{
         if (this.job == 'farmer'){
             this.discrete_food += 1;
         } else {
-            const groceries = economy.tryTransact(this, 'food');
-            if (groceries)
-                this.discrete_food += groceries.bought;
+            this.buyFood(economy);
         }
 
         this.discrete_food -= 1;
@@ -182,19 +181,25 @@ export class Bean implements IBean, ISeller{
 
         return this.maybeDie('starvation', 0.6);
     }
+    private buyFood(economy: Economy) {
+        const groceries = economy.tryTransact(this, 'food');
+        if (groceries)
+            this.discrete_food += groceries.bought;
+    }
+
     weather(economy: Economy): IEvent|null {
         if (!this.alive) return null;
         if (this.job == 'builder'){
             this.shelter = 'crowded';
         } else {
-            const housing = economy.tryTransact(this, 'shelter');
-            if (housing) {
-                this.seasonSinceLastRent = 0;
-                this.shelter = 'crowded';
-            } else if (this.seasonSinceLastRent > 1){
-                this.shelter = 'podless';
-            } else {
-                this.seasonSinceLastRent++;
+            const hasHousing = this.buyHousing(economy);
+            if (!hasHousing){
+                if (this.seasonSinceLastRent > SeasonsUntilEviction) {
+                    this.shelter = 'podless';
+                }
+                else {
+                    this.seasonSinceLastRent++;
+                }
             }
         }        
         
@@ -203,19 +208,42 @@ export class Bean implements IBean, ISeller{
         
         return this.maybeDie('exposure', 0.2);
     }
+    private buyHousing(economy: Economy): boolean {
+        const housing = economy.tryTransact(this, 'shelter');
+        if (housing) {
+            this.seasonSinceLastRent = 0;
+            this.shelter = 'crowded';
+        }
+        return housing != null;
+    }
+
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
         if (this.job == 'doc'){
             this.discrete_health += 0.25;
         } else {
-            const meds = economy.tryTransact(this, 'medicine');
-            if (meds)
-                this.discrete_health += meds.bought;
+            this.buyMeds(economy);
         }
         this.discrete_health -= 0.2;
         this.discrete_health = Math.min(this.discrete_health, 3);
         return this.maybeDie('sickness', 0.4);
     }
+    private buyMeds(economy: Economy) {
+        const meds = economy.tryTransact(this, 'medicine');
+        if (meds)
+            this.discrete_health += meds.bought;
+    }
+
+    maybeOverconsume(economy: Economy){
+        const threshold = economy.getCostOfLiving() * 2;
+        if (this.food != 'stuffed' && this.cash > threshold){
+            this.buyFood(economy);
+        }
+        if (this.health != 'fresh' && this.cash > threshold){
+            this.buyMeds(economy);
+        }
+    }
+
     maybeBaby(economy: Economy): IEvent | null {
         if (this.canBaby(economy.getCostOfLiving()) &&
             Math.random() <= BabyChance) {
