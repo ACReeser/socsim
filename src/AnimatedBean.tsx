@@ -1,8 +1,14 @@
 import { Bean } from "./Bean";
 import React from "react";
 
-export class AnimatedBean extends React.Component<{bean: Bean, costOfLiving: number}, {paused: boolean}> {
-    constructor(props: {bean: Bean, costOfLiving: number}) {
+interface AnimatedBeanP {
+  bean: Bean;
+  costOfLiving: number;
+  onClick: () => void;
+}
+
+export class AnimatedBean extends React.Component<AnimatedBeanP, {paused: boolean}> {
+    constructor(props: AnimatedBeanP) {
       super(props);
       this.timerID = null;
       this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
@@ -50,7 +56,9 @@ export class AnimatedBean extends React.Component<{bean: Bean, costOfLiving: num
       let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health} ${this.props.bean.community} ${this.props.bean.ideals} $${this.props.bean.cash}`
       return (
         <span className={classes+" bean-walker interactable"}
-            style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}>
+          style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}
+          onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
+        >
           {this.props.bean.getFace()} {this.getIdea()}
         </span>
       )

@@ -12,6 +12,7 @@ import { EconomyReport } from './EconomyReport';
 import { CharityPanel } from './CharityPanel';
 import { PoliticalEffect, Policy } from './Politics';
 import { EventsPanel } from './right-panel/Events';
+import { BeanPanel } from './BeanPanel';
 
 
 
@@ -68,6 +69,7 @@ interface AppPs{
 interface AppState{
   world: World,
   activeCityID: number|null;
+  activeBeanID: number|null;
   activeModal: ModalView|null;
   activeRightPanel: 'events'|'overview'|'goals';
 }
@@ -78,6 +80,7 @@ class App extends React.Component<AppPs, AppState>{
     this.state = {
       world: GenerateWorld(),
       activeCityID: null,
+      activeBeanID: null,
       activeModal: null,
       activeRightPanel: 'overview'
     };
@@ -97,9 +100,16 @@ class App extends React.Component<AppPs, AppState>{
         if (this.state.activeCityID == null) {
           return <OverviewPanel beans={this.state.world.beans} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>
         } else {
-          const city = this.state.world.cities.find((x) => x.key == this.state.activeCityID)
-          if (city)
-            return <OverviewPanel beans={city?.beans} city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>
+          const city = this.state.world.cities.find((x) => x.key == this.state.activeCityID);
+          if (city) {
+            if (this.state.activeBeanID != null) {
+              const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
+              if (bean)
+                return <BeanPanel bean={bean} city={city} clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
+            }
+
+            return <OverviewPanel beans={city?.beans} city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>            
+          }
           else
             return <div>
             </div>
@@ -131,7 +141,10 @@ class App extends React.Component<AppPs, AppState>{
     const COL = this.state.world.economy.getCostOfLiving();
     const tiles = this.state.world.cities.map((t) => {
       return (
-        <WorldTile tile={t} city={t} costOfLiving={COL} onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview'})} key={t.key}></WorldTile>
+        <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
+          onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview'})} 
+          onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
+          ></WorldTile>
       )
     });
     const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);

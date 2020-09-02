@@ -216,6 +216,10 @@ ul.boxes li{
   position: absolute;
   z-index: 1;
 }
+.bean-walker:hover:before{
+  border-color:  hsl(16, 100%, 50%);
+  box-shadow: 0 0 10px hsl(16, 100%, 50%);;
+}
 .bean-walker.doc:after{
   content: '💊';
 }

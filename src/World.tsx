@@ -23,12 +23,10 @@ export interface IEvent{
     message: string;
 }
 
-export interface IWorld {
+export interface IWorld extends IEnvironment{
     cities: City[];
     law: Law;
     party: Party;
-    year: number;
-    season: Season;
     electionIn: number;
     institutions: IInstitution[];
 }
@@ -168,6 +166,11 @@ function shuffle(array: Array<any>) {
     return array;
 }
 
+export interface IEnvironment{
+    year: number;
+    season: Season;
+}
+
 export interface Tile {
     name?: string, 
     url: string, 
@@ -190,6 +193,8 @@ export class City implements Tile, IBeanContainer {
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;
+
+    public environment?: IEnvironment;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
     getRandomCitizen(): Bean|null{
@@ -217,6 +222,8 @@ export class City implements Tile, IBeanContainer {
         bean.partyLoyalty = Math.max(parent.partyLoyalty * 0.4, 0.2);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
+        if (this.environment)
+            bean.dob = this.environment?.year * 4 + this.environment?.season;
         this.historicalBeans.push(bean);
     }
     getTaxesAndDonations(party: Party, economy: Economy){

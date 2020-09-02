@@ -8,6 +8,7 @@ interface WorldTilePs {
     city: City;
     costOfLiving: number;
     onClick: () => void;
+    onBeanClick: (b: Bean) => void;
   }
 export class WorldTile extends React.Component<WorldTilePs> {
     constructor(props: WorldTilePs) {
@@ -21,7 +22,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     render() {
       const beans = this.props.city.beans.map((b: Bean) => {
         return (
-          <AnimatedBean bean={b} key={b.key} costOfLiving={this.props.costOfLiving}></AnimatedBean>
+          <AnimatedBean bean={b} key={b.key} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
       })
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {

@@ -5,13 +5,13 @@ import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
 
-interface OverviewPanelIn{
+interface OverviewPanelP{
     city?: City,
     beans: Bean[],
     clearCity: () => void;
 }
 
-export class OverviewPanel extends React.Component<OverviewPanelIn> {
+export class OverviewPanel extends React.Component<OverviewPanelP> {
     constructor(props: any) {
         super(props);
         this.state = {

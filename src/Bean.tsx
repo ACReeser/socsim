@@ -18,6 +18,7 @@ export interface IBean{
     health: TraitHealth;
     discrete_food: number;
     cash: number;
+    dob: number;
 }
 
 const MaslowHappinessWeight = 2;
@@ -30,6 +31,7 @@ export class Bean implements IBean, ISeller{
     public key: number = 0;
     public cityKey: number = 0;
     public alive: boolean = true;
+    public dob: number = 0;
 
     public city: City|null = null;
 
@@ -130,9 +132,9 @@ export class Bean implements IBean, ISeller{
             return '🥶';
         if (this.job == 'jobless')
             return '😧';
-        if (this.lastSentiment < 0)
+        if (this.lastHappiness < 0.2)
             return '☹️';
-        if (this.lastSentiment >= 1)
+        if (this.lastHappiness >= 0.8)
             return '🙂';
         return '😐';
     }

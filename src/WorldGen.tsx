@@ -36,6 +36,7 @@ export function GenerateWorld(): World{
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
+        world.cities[i].environment = world;
 
         if (i < 2){
             const city = world.cities[i];
