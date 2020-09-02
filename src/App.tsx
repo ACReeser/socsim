@@ -63,7 +63,7 @@ function policy(p: Policy){
   )
 }
 
-export type ModalView = 'policy'|'economy'|'campaign';
+export type ModalView = 'policy'|'economy'|'campaign'|'party_creation';
 interface AppPs{
 }
 interface AppState{
@@ -81,7 +81,7 @@ class App extends React.Component<AppPs, AppState>{
       world: GenerateWorld(),
       activeCityID: null,
       activeBeanID: null,
-      activeModal: null,
+      activeModal: 'party_creation',
       activeRightPanel: 'overview'
     };
     this.state.world.calculateComputedState();
@@ -142,7 +142,7 @@ class App extends React.Component<AppPs, AppState>{
     const tiles = this.state.world.cities.map((t) => {
       return (
         <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
-          onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview'})} 
+          onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
           onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
           ></WorldTile>
       )
@@ -154,6 +154,57 @@ class App extends React.Component<AppPs, AppState>{
         {tiles}
       </div>
       <div className="overlay">
+        <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})}>
+          <h2>Found your Political Party</h2>
+          <div className="col-2">
+            <div>
+              My fellow party members believe the
+              <div>
+                <label>
+                  <input type="radio" name="community" value="state" /> <b>Government</b>
+                </label>
+                &nbsp;&nbsp;or&nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="community" value="ego" /> <b>Individual</b>
+                </label>
+              </div>
+              &nbsp;
+              is responsible for well-being.
+            </div>
+            <div>
+              My fellow party members believe in
+              <div>
+                <label>
+                  <input type="radio" name="ideal" value="trad" /> <b>Traditional</b>
+                </label>
+                &nbsp;&nbsp;or&nbsp;&nbsp;
+                <label>
+                  <input type="radio" name="ideal" value="prog" /> <b>Progressive</b>
+                </label>
+              </div>
+              &nbsp;
+              social values.
+            </div>
+          </div>
+          <hr />
+          <div className="col-2">
+            <div>
+              My party's first members are mostly <b>Low-Income</b>
+            </div>
+            <div>
+              My party's first major legislative goal is to pass <b>Food Welfare</b>
+            </div>
+          </div>
+          <hr />
+          <div className="col-2">
+            <div>
+              My party is named <input type="text" />
+            </div>
+            <div>
+              My party's slogan is <input type="text" />
+            </div>
+          </div>
+        </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <b>Active Policies</b>
           <div className="policies">

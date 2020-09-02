@@ -43,7 +43,7 @@ export class BeanPanel extends React.Component<BeanPanelP> {
                         <b>Food Security</b> 
                     </td>
                     <td>
-                    {keyToName[this.props.bean.food]}
+                        {keyToName[this.props.bean.food]}
                     </td>
                 </tr>
                 <tr>
@@ -64,6 +64,14 @@ export class BeanPanel extends React.Component<BeanPanelP> {
                 </tr>
                 <tr>
                     <td>
+                        <b>Money</b>
+                    </td>
+                    <td>
+                        ${this.props.bean.cash.toFixed(2)}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
                         <b>Happiness</b>
                     </td>
                     <td>
@@ -80,10 +88,10 @@ export class BeanPanel extends React.Component<BeanPanelP> {
                 </tr>
                 <tr>
                     <td>
-                    <b>Ideal</b>
+                        <b>Ideal</b>
                     </td>
                     <td>
-                    {keyToName[this.props.bean.ideals]}
+                        {keyToName[this.props.bean.ideals]}
                     </td>
                 </tr>
                 <tr>
