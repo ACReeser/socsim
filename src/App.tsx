@@ -13,6 +13,7 @@ import { CharityPanel } from './CharityPanel';
 import { PoliticalEffect, Policy } from './Politics';
 import { EventsPanel } from './right-panel/Events';
 import { BeanPanel } from './BeanPanel';
+import { FoundParty } from './modal-content/FoundParty';
 
 
 
@@ -155,55 +156,7 @@ class App extends React.Component<AppPs, AppState>{
       </div>
       <div className="overlay">
         <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})}>
-          <h2>Found your Political Party</h2>
-          <div className="col-2">
-            <div>
-              My fellow party members believe the
-              <div>
-                <label>
-                  <input type="radio" name="community" value="state" /> <b>Government</b>
-                </label>
-                &nbsp;&nbsp;or&nbsp;&nbsp;
-                <label>
-                  <input type="radio" name="community" value="ego" /> <b>Individual</b>
-                </label>
-              </div>
-              &nbsp;
-              is responsible for well-being.
-            </div>
-            <div>
-              My fellow party members believe in
-              <div>
-                <label>
-                  <input type="radio" name="ideal" value="trad" /> <b>Traditional</b>
-                </label>
-                &nbsp;&nbsp;or&nbsp;&nbsp;
-                <label>
-                  <input type="radio" name="ideal" value="prog" /> <b>Progressive</b>
-                </label>
-              </div>
-              &nbsp;
-              social values.
-            </div>
-          </div>
-          <hr />
-          <div className="col-2">
-            <div>
-              My party's first members are mostly <b>Low-Income</b>
-            </div>
-            <div>
-              My party's first major legislative goal is to pass <b>Food Welfare</b>
-            </div>
-          </div>
-          <hr />
-          <div className="col-2">
-            <div>
-              My party is named <input type="text" />
-            </div>
-            <div>
-              My party's slogan is <input type="text" />
-            </div>
-          </div>
+          <FoundParty></FoundParty>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <b>Active Policies</b>
