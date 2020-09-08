@@ -2,12 +2,25 @@ import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Seaso
 import { Bean } from './Bean';
 import { Policy, BaseParty, CityPartyHQ } from './Politics';
 
+export function GetRandomNumber(min: number, max: number): number{
+    const randomBuffer = new Uint32Array(1);
+    window.crypto.getRandomValues(randomBuffer);
+    const randomNumber = randomBuffer[0] / (0xffffffff + 1);
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(randomNumber * (max - min + 1)) + min;
+}
+export function GetRandomIndex(length: number): number{
+    return GetRandomNumber(0, length-1)
+}
 export function GetRandom<S>(choices: S[]):S {
     const max = choices.length;
     if (max == 1)
         return choices[0];
 
-    return choices[Math.floor(Math.random() * max)];
+    const i = GetRandomIndex(choices.length);
+    console.log(i);
+    return choices[i];
 }
 export function RandomIdeal(): TraitIdeals{
     return GetRandom(['prog', 'trad']);
@@ -60,9 +73,9 @@ function GeneratePartyHQ(city: City) {
 export function GenerateCity(previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;
-    newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', '', '', '', '', '', '']);
-    newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Iron', 'Ore', 'Liver', 'Hawk', 'Yellow', 'Blue', 'Black', 'White']);
-    newCity.name += GetRandom(['water ', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', 'land', 'burgh', 'bridge', 'ford', 'bury']);
+    newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', '']);
+    newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
+    newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
 
     const cityPopulation = 3;
     while(newCity.historicalBeans.length < cityPopulation){

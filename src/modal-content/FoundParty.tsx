@@ -1,15 +1,20 @@
 import React, { ChangeEvent } from "react";
-import { TraitCommunity, TraitIdeals } from "../World";
+import { TraitCommunity, TraitIdeals, City } from "../World";
+import { CityDropdown } from "../widgets/Dropdown";
 
 export interface FoundPartyPS
 {
+    cities: City[]
 }
 interface FoundPartyS
 {
     community: TraitCommunity|null
     ideal: TraitIdeals|null,
     name: string,
-    slogan: string
+    slogan: string,
+    members: string,
+    goal: string,
+
 }
 
 export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
@@ -19,7 +24,9 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
             community: null,
             ideal: null,
             name: "Citizen's Party",
-            slogan: "Vote for us!"
+            slogan: "Vote for us!",
+            members: "Citizens",
+            goal: "Legislation"
         }
     }
     onCommunity(val: TraitCommunity){
@@ -34,13 +41,25 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
     }
     onBigFourChange(){
         if (this.state.community === 'ego' && this.state.ideal === 'trad'){
-            this.setState({name: 'Family Liberty Party'});
+            this.setState({
+                name: 'Liberal Family Party',
+                slogan: "Father Knows Best.",
+                members: "Farmers", goal: "Tariffs"});
         } else if (this.state.community === 'ego' && this.state.ideal === 'prog') {
-            this.setState({name: "Free Labor Party"});
+            this.setState({
+                name: "Free Worker's Party",
+                slogan: "Liberty for Labor!",
+                members: "Builders", goal: "Right to Strike"});
         } else if (this.state.community === 'state' && this.state.ideal === 'trad') {
-            this.setState({name: "National Landowners's Party"});
+            this.setState({
+                name: "National Landowners' Party",
+                slogan: "For Culture & Country!",
+                members: "Homeowners", goal: "Repeal Property Tax"});
         } else if (this.state.community === 'state' && this.state.ideal === 'prog') {
-            this.setState({name: "Social People's Party"});
+            this.setState({
+                name: "Social People's Party",
+                slogan: "Equality, Guaranteed.",
+                members: "Penniless", goal: "Food Welfare"});
         }
     }
     onName = (e: ChangeEvent<HTMLInputElement>) => {
@@ -85,10 +104,10 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
           <hr />
           <div className="col-2">
             <div>
-              My party's first members are mostly <b>Low-Income</b>
+              My party's first members are mostly <b>{this.state.members}</b>
             </div>
             <div>
-              My party's first major legislative goal is to pass <b>Food Welfare</b>
+              My party's first major goal is to pass <b>{this.state.goal}</b>
             </div>
           </div>
           <hr />
@@ -98,6 +117,15 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
             </div>
             <div>
               My party's slogan is <input type="text" value={this.state.slogan} onChange={this.onSlogan}  />
+            </div>
+          </div>
+          <hr />
+          <div className="col-2">
+            <div>
+              My party is based in&nbsp;<CityDropdown options={this.props.cities}></CityDropdown>
+            </div>
+            <div>
+              
             </div>
           </div>
         </div>

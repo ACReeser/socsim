@@ -156,7 +156,7 @@ class App extends React.Component<AppPs, AppState>{
       </div>
       <div className="overlay">
         <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})}>
-          <FoundParty></FoundParty>
+          <FoundParty cities={this.state.world.cities}></FoundParty>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <b>Active Policies</b>
