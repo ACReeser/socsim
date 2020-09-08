@@ -17,6 +17,9 @@ button.important:hover{
 button.important:active{
   background: hsl(16, 100%, 60%);
 }
+button.important:disabled{
+  opacity: .5;
+}
 button.callout{
   background: hsl(16, 100%, 80%);
   border-radius: 4px;
@@ -27,6 +30,12 @@ button.callout:hover{
 }
 button.callout:active{
   background: hsl(16, 100%, 90%);
+}
+button.btn-found-party{
+  display: block;
+  width: 50%;
+  margin: auto;
+  margin-top: 10px;
 }
 
 .overlay {

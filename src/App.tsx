@@ -2,7 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 import { World, Tile, City, Season, TraitGood } from './World';
-import { GenerateWorld } from './WorldGen';
+import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
 import { Modal } from './Modal';
 import { OverviewPanel } from './OverviewPanel';
 import { Bean } from './Bean';
@@ -10,10 +10,10 @@ import { AnimatedBean } from './AnimatedBean';
 import { WorldTile } from './WorldTile';
 import { EconomyReport } from './EconomyReport';
 import { CharityPanel } from './CharityPanel';
-import { PoliticalEffect, Policy } from './Politics';
+import { PoliticalEffect, Policy, CityPartyHQ } from './Politics';
 import { EventsPanel } from './right-panel/Events';
 import { BeanPanel } from './BeanPanel';
-import { FoundParty } from './modal-content/FoundParty';
+import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
 
 
 
@@ -91,6 +91,17 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.next();
     this.setState({world: this.state.world});
   }
+  foundParty = (state: FoundPartyS) => {
+    this.state.world.party.name = state.name;
+    this.state.world.party.slogan = state.slogan;
+    const city = this.state.world.cities.find((x) => x.key == state.cityKey);
+    if (city) {
+      GeneratePartyHQ(city);
+    }
+    this.setState({
+      world: this.state.world,
+      activeModal: null});
+  }
   foundCharity = (good: TraitGood, name: string, budget: number) => {
     this.state.world.addCharity(good, name, budget);
     this.setState({world: this.state.world});
@@ -155,8 +166,8 @@ class App extends React.Component<AppPs, AppState>{
         {tiles}
       </div>
       <div className="overlay">
-        <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})}>
-          <FoundParty cities={this.state.world.cities}></FoundParty>
+        <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
+          <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <b>Active Policies</b>

@@ -53,7 +53,7 @@ export function GenerateWorld(): World{
 
         if (i < 2){
             const city = world.cities[i];
-            GeneratePartyHQ(city);
+            //GeneratePartyHQ(city);
         }
     }
     world.economy.totalSeasonalDemand.food = world.beans.length;
@@ -63,7 +63,7 @@ export function GenerateWorld(): World{
     return world;
 }
 
-function GeneratePartyHQ(city: City) {
+export function GeneratePartyHQ(city: City) {
     const hq = new CityPartyHQ();
     hq.cityKey = city.key;
     city.partyHQ = hq;

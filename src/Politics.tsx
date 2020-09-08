@@ -3,6 +3,8 @@ import { IInstitution, IOrganization } from "./simulation/Institutions";
 
 
 export interface Party extends IInstitution{
+    slogan: string;
+    
     availablePolicies: Policy[]; 
     proposedPolicy?: Policy;
     availableCampaigns: Campaign[];
@@ -18,7 +20,8 @@ export class BaseParty implements Party{
     key = 1;
     playerKey = 1;
     organizations: IOrganization[] = [];
-    public name: string = "Worker's Wheat Party";
+    public name: string = "Citizen's Party";
+    public slogan: string = "Vote for us!";
     public availablePolicies: Policy[] = [];
     public proposedPolicy?: Policy;
     public availableCampaigns: Campaign[] = [];

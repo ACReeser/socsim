@@ -4,9 +4,10 @@ import { CityDropdown } from "../widgets/Dropdown";
 
 export interface FoundPartyPS
 {
-    cities: City[]
+    cities: City[],
+    onFound: (state: FoundPartyS) => void
 }
-interface FoundPartyS
+export interface FoundPartyS
 {
     community: TraitCommunity|null
     ideal: TraitIdeals|null,
@@ -14,7 +15,7 @@ interface FoundPartyS
     slogan: string,
     members: string,
     goal: string,
-
+    cityKey: number
 }
 
 export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
@@ -26,7 +27,8 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
             name: "Citizen's Party",
             slogan: "Vote for us!",
             members: "Citizens",
-            goal: "Legislation"
+            goal: "Legislation",
+            cityKey: 0
         }
     }
     onCommunity(val: TraitCommunity){
@@ -67,6 +69,9 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
     }
     onSlogan = (e: ChangeEvent<HTMLInputElement>) => {
         this.setState({slogan: e.target.value});
+    }
+    onCity = (key: any) => {
+        this.setState({cityKey: +key});
     }
     render(){
         return <div>            
@@ -122,12 +127,13 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
           <hr />
           <div className="col-2">
             <div>
-              My party is based in&nbsp;<CityDropdown options={this.props.cities}></CityDropdown>
+              My party is based in&nbsp;<CityDropdown options={this.props.cities} onChange={this.onCity}></CityDropdown>
             </div>
             <div>
               
             </div>
           </div>
+          <button type="button" disabled={this.state.community == null || this.state.ideal == null} className="important btn-found-party" onClick={() => this.props.onFound(this.state)}>Found the {this.state.name}</button>
         </div>
     }
 }
