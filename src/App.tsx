@@ -14,6 +14,7 @@ import { PoliticalEffect, Policy, CityPartyHQ } from './Politics';
 import { EventsPanel } from './right-panel/Events';
 import { BeanPanel } from './BeanPanel';
 import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
+import { PartyOverview } from './modal-content/PartyOverview';
 
 
 
@@ -53,7 +54,7 @@ function compass(p: PoliticalEffect){
     </span>
   )
 }
-function policy(p: Policy){
+export function policy(p: Policy){
   return (
     <div className="policy" key={p.key}>
       <b>{p.key}</b>
@@ -64,7 +65,7 @@ function policy(p: Policy){
   )
 }
 
-export type ModalView = 'policy'|'economy'|'campaign'|'party_creation';
+export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party';
 interface AppPs{
 }
 interface AppState{
@@ -169,6 +170,9 @@ class App extends React.Component<AppPs, AppState>{
         <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
           <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
         </Modal>
+        <Modal show={this.state.activeModal == 'party'} onClick={() => this.setState({activeModal: null})}>
+          <PartyOverview world={this.state.world}></PartyOverview>
+        </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <b>Active Policies</b>
           <div className="policies">
@@ -224,6 +228,7 @@ class App extends React.Component<AppPs, AppState>{
             </span>
             <span>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>Situation Report</button>
+              <button type="button" className="callout" onClick={() => this.setState({activeModal:'party'})}>Party</button>
               <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button>
               <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Law</button>
             </span>
