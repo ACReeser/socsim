@@ -118,7 +118,7 @@ class App extends React.Component<AppPs, AppState>{
             if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
               if (bean)
-                return <BeanPanel bean={bean} city={city} clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
+                return <BeanPanel bean={bean} city={city} economy={this.state.world.economy} party={this.state.world.party} clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
 
             return <OverviewPanel beans={city?.beans} city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>            
@@ -132,16 +132,23 @@ class App extends React.Component<AppPs, AppState>{
           <div><b>Goals</b></div>
           <ul>
             <li>
-              Review Finances
+            ☑️ Create Party
             </li>
             <li>
-              Found a Charity
+            ⭕️ Solicit Donations
+              <span title="Select a single Bean and Solicit Donation">❔</span>
             </li>
             <li>
-              Create Propaganda
+            ⭕️ Review Party
             </li>
             <li>
-              Pass Legislation
+            ⭕️ Found a Charity
+            </li>
+            <li>
+            ⭕️ Create Propaganda
+            </li>
+            <li>
+            ⭕️ Pass Legislation
             </li>
           </ul>
         </div>

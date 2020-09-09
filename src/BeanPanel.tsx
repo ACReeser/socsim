@@ -4,10 +4,14 @@ import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
+import { Economy } from "./Economy";
+import { Party } from "./Politics";
 
 interface BeanPanelP{
     city: City,
     bean: Bean,
+    economy: Economy,
+    party: Party,
     clearCity: () => void;
 }
 
@@ -17,14 +21,34 @@ export class BeanPanel extends React.Component<BeanPanelP> {
         this.state = {
         }
     }
+    solicit(){
+
+    }
+    insult(){
+
+    }
+    support(){
+
+    }
     render(){
+        const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
+        const chanceText = (this.props.bean.chanceToDonate(this.props.economy) * 100).toFixed(0) + '% to gain Physical Capital';
         return (                
         <div>
             <div>
-                <b>Citizen of {this.props.city.name}</b>
+                <b>{this.props.bean.name}&nbsp;
+                <small>
+                    of {this.props.city.name}
+                </small>
+                </b>
                 <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
             </div>
-            <table>
+            <div className="bean-view">                
+                <span className={classes+" bean"}>
+                    {this.props.bean.getFace()}
+                </span>
+            </div>
+            <table className="width-100p"><tbody>
                 <tr>
                     <td>
                         <b>Ethnicity</b> 
@@ -109,13 +133,20 @@ export class BeanPanel extends React.Component<BeanPanelP> {
                 </tr>
                 <tr>
                     <td>
-                    <b>Party Loyalty</b>
+                        <b>Party Loyalty</b>
                     </td>
                     <td>
                         <span>{Math.round(this.props.bean.partyLoyalty * 100)}%</span>
                     </td>
-                </tr>
+                </tr></tbody>
             </table>
+            <div className="text-center">
+                <button type="button" className="important" title={chanceText}>🤲 Solicit Donation</button>
+            </div>
+            <div className="text-center">
+                <button type="button" className="callout" title="Decrease this bean's party approval to gain Political Capital">😈 Publically Insult</button>
+                <button type="button" className="callout" title="Spend Political Capital to increase this bean's party approval">🤩 Publically Support</button>
+            </div>
         </div>
         )
     }

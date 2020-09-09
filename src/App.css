@@ -1,6 +1,10 @@
 body, html {margin: 0;}
 body, html, #root, .canvas, .world{height: 100%; width: 100%;}
 
+h3.small{
+  margin-bottom: 2px;
+}
+
 button{
   margin: 1em;
 }
@@ -48,6 +52,7 @@ button.btn-found-party{
 }
 .overlay button{
   pointer-events: all;
+  margin: 4px;
 }
 .left{
   flex-grow: 2;
@@ -123,6 +128,14 @@ button.pull-r{
   vertical-align: baseline;
   vertical-align: -webkit-baseline-middle;
 }
+.text-center{
+  text-align: center;
+}
+.width-100p{
+  width: 100%;
+}
+
+
 .header{
   text-align: center;
   margin-top: 1em;
@@ -260,6 +273,31 @@ table.classic .border-t{
   bottom: 20px;
 }
 
+.bean{
+  font-size: 18px;
+  height: 20px; width: 20px;
+  text-align: center;
+  position: relative;
+}
+.bean:before{
+  content: ' ';
+  background: saddlebrown;
+  height: 20px; width: 20px;
+  border: 1px solid black;
+  border-radius: 12px;
+  position: absolute;
+  left: 1px;
+  top: 8px;
+  z-index: -2;  
+}
+.bean:after{
+  left: -12px;
+  top: 7px;
+  font-size: 16px;
+  position: absolute;
+  z-index: 1;
+}
+
 .bean-walker{
   position: absolute;
   font-size: 18px;
@@ -278,16 +316,16 @@ table.classic .border-t{
   border-color:  hsl(16, 100%, 50%);
   box-shadow: 0 0 10px hsl(16, 100%, 50%);;
 }
-.bean-walker.doc:after{
+.bean.doc:after{
   content: '💊';
 }
-.bean-walker.builder:after{
+.bean.builder:after{
   content: '🔨';
 }
-.bean-walker.farmer:after{
+.bean.farmer:after{
   content: '🌾';
 }
-.bean-walker.jobless:after{
+.bean.jobless:after{
   content: '📰';
   transform: rotate(-45deg);
   font-size: 12px;
@@ -307,10 +345,10 @@ table.classic .border-t{
   background: saddlebrown;
   z-index: -2;
 }
-.bean-walker.square:before{
+.bean.square:before{
   border-radius: 0px;
 }
-.bean-walker.triangle:before{
+.bean.triangle:before{
   border-radius: 0px;
   transform: rotate(45deg);
 }
@@ -339,6 +377,11 @@ table.classic .border-t{
 }
 .subheader button{
   margin: 4px;
+}
+.bean-view{
+  text-align: center;
+  zoom: 200%;
+  padding: 5px;
 }
 @keyframes hop {
   0% {

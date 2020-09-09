@@ -10,6 +10,7 @@ import { Policy } from "./Politics";
 export interface IBean{
     key: number;
     cityKey: number;
+    name: string;
     community: TraitCommunity;
     ideals: TraitIdeals;
     ethnicity: TraitEthno;
@@ -32,6 +33,7 @@ export class Bean implements IBean, ISeller{
     public cityKey: number = 0;
     public alive: boolean = true;
     public dob: number = 0;
+    public name: string = 'Bean Beanson';
 
     public city: City|null = null;
 
@@ -262,10 +264,21 @@ export class Bean implements IBean, ISeller{
         return this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
     }
-    maybeDonate(economy: Economy){
+    /**
+     * should return 0-1 float, with 1 meaning 100%
+     * @param economy 
+     */
+    chanceToDonate(economy: Economy): number{
         const canDonate = this.cash > economy.getCostOfLiving() * 2 && !this.isInCrisis;
-        if (canDonate){
-            const willDonate = this.partyLoyalty > 0.5 && Math.random() < (this.partyLoyalty - 0.5) / 2;
+        if (canDonate && this.partyLoyalty > 0.5){
+            return (this.partyLoyalty - 0.5) / 2;
+        }
+        return 0;
+    }
+    maybeDonate(economy: Economy): number{
+        const chance = this.chanceToDonate(economy);
+        if (chance > 0){
+            const willDonate = Math.random() < chance;
             if (willDonate){
                 const donation = 1;
                 this.cash -= donation;

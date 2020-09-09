@@ -99,6 +99,9 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.key = previousBeanCount;
     newBean.cityKey = city.key;
     newBean.city = city;
+    newBean.name = GetRandom(['Chick', 'Broad', 'Velvet', 'Jack', 'Lima', 'Whit', 'Black-Eye', 'Baker', 'Pony', 'Castor', 'Frenchy', 'Kid', 'Runner']) + ' ';
+    newBean.name += GetRandom(['Bean', 'Navy', 'Sprout', 'Soy', 'Mung', 'Lent', 'Faba', 'Wax', 'Chick', 'Green', 'Pinto']);
+    newBean.name += GetRandom(['shell', 'seed', 'pea', 'pod', 'snap', 'vine', 'leaf', 'shoot']);
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
