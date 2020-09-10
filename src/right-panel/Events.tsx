@@ -1,5 +1,5 @@
-import { IEvent } from "../World";
 import React from "react";
+import { IEvent } from "../events/Events";
 
 export interface EventsPanelPS
 {
@@ -20,7 +20,7 @@ export class EventsPanel extends React.Component<EventsPanelPS> {
             </div>
         });
         if (this.props.events.length === 0){
-            events = [<div>
+            events = [<div key={0}>
                 <small>No events yet this year</small>
             </div>]
         }

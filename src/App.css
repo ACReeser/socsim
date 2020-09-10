@@ -35,7 +35,7 @@ button.callout:hover{
 button.callout:active{
   background: hsl(16, 100%, 90%);
 }
-button.btn-found-party{
+.overlay button.btn-found-party{
   display: block;
   width: 50%;
   margin: auto;
@@ -107,6 +107,7 @@ button.pull-r{
   opacity: .6;
   z-index: 9;
   font-weight: bold;
+  cursor: pointer;
 }
 .world .tile:hover .tile-label{
   opacity: .99;
@@ -352,6 +353,12 @@ table.classic .border-t{
   border-radius: 0px;
   transform: rotate(45deg);
 }
+.bean.circle:before{
+  height: 23px;
+  width: 23px;
+  border-radius: 25px;
+  left: -1px;
+}
 .bean-walker.paused{
   animation-play-state: paused;
 }
@@ -383,6 +390,25 @@ table.classic .border-t{
   zoom: 200%;
   padding: 5px;
 }
+.bubble-parent{
+  position: relative;
+}
+.bubbler{
+  position: absolute;
+  display: block;
+  top: -2em;
+  left: 10px;
+  animation: up 1.5s, fade 1.5s;
+  font-weight: bold;
+  font-size: 1.5em;
+}
+.bubbler.pos{
+  color: darkgreen;
+}
+.bubbler.neg{
+  color: red;
+}
+
 @keyframes hop {
   0% {
     transform: translateY(0);
@@ -431,4 +457,26 @@ table.classic .border-t{
   95%  { left: 81%; top: 66%; }
   /*100% { left: 75%; top: 21%;}*/
   100% { left: 79%; top: 15%; }
+}
+@keyframes up {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-20px);
+  }
+}
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }

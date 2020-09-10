@@ -5,6 +5,7 @@ import { Bean, IBean } from './Bean';
 import { Economy } from './Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
+import { IEvent, EventBus } from './events/Events';
 
 export enum Season {Spring, Summer, Fall, Winter}
 
@@ -18,10 +19,6 @@ export interface IBeanContainer{
      */
     beans: Bean[];
 }
-export interface IEvent{
-    icon: string;
-    message: string;
-}
 
 export interface IWorld extends IEnvironment{
     cities: City[];
@@ -29,6 +26,7 @@ export interface IWorld extends IEnvironment{
     party: Party;
     electionIn: number;
     institutions: IInstitution[];
+    bus: EventBus;
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
@@ -44,6 +42,7 @@ export class World implements IWorld, IBeanContainer{
     public season = Season.Spring;
     public electionIn = 7;
     public yearsEvents: IEvent[] = [];
+    public bus = new EventBus();
 
     public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {

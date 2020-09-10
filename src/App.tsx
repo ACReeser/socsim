@@ -15,6 +15,7 @@ import { EventsPanel } from './right-panel/Events';
 import { BeanPanel } from './BeanPanel';
 import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
 import { PartyOverview } from './modal-content/PartyOverview';
+import { BubbleText } from './widgets/BubbleText';
 
 
 
@@ -107,6 +108,29 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.addCharity(good, name, budget);
     this.setState({world: this.state.world});
   }
+  insult = (bean: Bean) => {
+    this.state.world.party.politicalCapital += 1;
+    bean.lastSentiment -= .2;
+    this.setState({world: this.state.world});
+    this.state.world.bus.politicalCapital.publish({change: 1});
+  }
+  support = (bean: Bean) => {
+    this.state.world.party.politicalCapital -= 1;
+    bean.lastSentiment += .15;
+    this.setState({world: this.state.world});
+    this.state.world.bus.politicalCapital.publish({change: -1});
+  }
+  solicit = (bean: Bean) => {
+    const donation = bean.maybeDonate(this.state.world.economy, true);
+    if (donation > 0){
+      this.state.world.party.materialCapital += donation;
+      this.setState({world: this.state.world});
+      this.state.world.bus.physicalCapital.publish({change: donation});
+      return true;
+    } else {
+      return false;
+    }
+  }
   getPanel(){
     switch(this.state.activeRightPanel){
       case 'overview':
@@ -118,7 +142,10 @@ class App extends React.Component<AppPs, AppState>{
             if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
               if (bean)
-                return <BeanPanel bean={bean} city={city} economy={this.state.world.economy} party={this.state.world.party} clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
+                return <BeanPanel bean={bean} city={city} 
+                economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus}
+                solicit={this.solicit} insult={this.insult} support={this.support}
+                clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
 
             return <OverviewPanel beans={city?.beans} city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>            
@@ -227,12 +254,12 @@ class App extends React.Component<AppPs, AppState>{
             </span>
           </div>
           <div className="bottom">
-            <span>
-              <b>Physical Capital</b> {this.state.world.party.materialCapital.toFixed(0)}
-            </span>
-            <span>
-              <b>Political Capital</b> {this.state.world.party.politicalCapital}
-            </span>
+            <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="💰">
+              <b>💰 Physical Capital</b> {this.state.world.party.materialCapital.toFixed(0)}
+            </BubbleText>
+            <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🤝">
+              <b>🤝 Political Capital</b> {this.state.world.party.politicalCapital}
+            </BubbleText>
             <span>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>Situation Report</button>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'party'})}>Party</button>

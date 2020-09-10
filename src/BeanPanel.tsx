@@ -6,6 +6,7 @@ import { NeedReadout } from "./widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
 import { Economy } from "./Economy";
 import { Party } from "./Politics";
+import { IEvent, EventBus } from "./events/Events";
 
 interface BeanPanelP{
     city: City,
@@ -13,26 +14,47 @@ interface BeanPanelP{
     economy: Economy,
     party: Party,
     clearCity: () => void;
+    bus: EventBus
+    solicit: (bean: Bean) => boolean;
+    insult: (bean: Bean) => void;
+    support: (bean: Bean) => void;
 }
 
-export class BeanPanel extends React.Component<BeanPanelP> {
+interface BeanPanelS{
+    faceOverride?: string;
+}
+
+export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     constructor(props: BeanPanelP) {
         super(props);
         this.state = {
         }
     }
-    solicit(){
-
+    solicit = () => {
+        if (this.props.solicit(this.props.bean)){
+            this.setState({faceOverride: '😇'});
+            this._resetFace();
+        }
     }
-    insult(){
-
+    insult = () => {
+        this.props.insult(this.props.bean);
+        this.setState({faceOverride: '😡'});
+        this._resetFace();
     }
-    support(){
-
+    support = () => {
+        this.props.support(this.props.bean);
+        this.setState({faceOverride: '🤩'});
+        this._resetFace();
+    }
+    _resetFace(){
+        setTimeout(() => {
+            this.setState({faceOverride: undefined})
+        }, 5000);
     }
     render(){
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
-        const chanceText = (this.props.bean.chanceToDonate(this.props.economy) * 100).toFixed(0) + '% to gain Physical Capital';
+        const chance = this.props.bean.chanceToDonate(this.props.economy, true);
+        const chanceText = (chance * 100).toFixed(0) + '% to gain Physical Capital';
         return (                
         <div>
             <div>
@@ -45,7 +67,9 @@ export class BeanPanel extends React.Component<BeanPanelP> {
             </div>
             <div className="bean-view">                
                 <span className={classes+" bean"}>
-                    {this.props.bean.getFace()}
+                    {
+                        this.state.faceOverride === undefined ? this.props.bean.getFace() : this.state.faceOverride
+                    }
                 </span>
             </div>
             <table className="width-100p"><tbody>
@@ -141,11 +165,11 @@ export class BeanPanel extends React.Component<BeanPanelP> {
                 </tr></tbody>
             </table>
             <div className="text-center">
-                <button type="button" className="important" title={chanceText}>🤲 Solicit Donation</button>
+                <button type="button" disabled={chance < 0.05} className="important" onClick={this.solicit} title={chanceText}>🤲 Solicit Donation</button>
             </div>
             <div className="text-center">
-                <button type="button" className="callout" title="Decrease this bean's party approval to gain Political Capital">😈 Publically Insult</button>
-                <button type="button" className="callout" title="Spend Political Capital to increase this bean's party approval">🤩 Publically Support</button>
+                <button type="button" className="callout" onClick={this.insult} title="Decrease this bean's party approval to gain Political Capital">😈 Publically Insult</button>
+                <button type="button" className="callout" onClick={this.support} title="Spend Political Capital to increase this bean's party approval">😘 Publically Support</button>
             </div>
         </div>
         )

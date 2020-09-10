@@ -1,7 +1,8 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood, IEvent } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy } from "./Politics";
+import { IEvent } from "./events/Events";
 
 
 /**
@@ -268,15 +269,17 @@ export class Bean implements IBean, ISeller{
      * should return 0-1 float, with 1 meaning 100%
      * @param economy 
      */
-    chanceToDonate(economy: Economy): number{
+    chanceToDonate(economy: Economy, direct: boolean = false): number{
         const canDonate = this.cash > economy.getCostOfLiving() * 2 && !this.isInCrisis;
         if (canDonate && this.partyLoyalty > 0.5){
-            return (this.partyLoyalty - 0.5) / 2;
+            const threshold = direct ? 0.2 : 0.5;
+            const baseChance = this.partyLoyalty - threshold;
+            return (baseChance) / 2;
         }
         return 0;
     }
-    maybeDonate(economy: Economy): number{
-        const chance = this.chanceToDonate(economy);
+    maybeDonate(economy: Economy, direct: boolean = false): number{
+        const chance = this.chanceToDonate(economy, direct);
         if (chance > 0){
             const willDonate = Math.random() < chance;
             if (willDonate){
