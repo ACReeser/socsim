@@ -60,6 +60,10 @@ export function GenerateWorld(): World{
     world.economy.totalSeasonalDemand.shelter = world.beans.length;
     world.economy.totalSeasonalDemand.medicine = world.beans.length;
 
+    world.next();
+    world.next();
+    world.next();
+    world.next();
     return world;
 }
 

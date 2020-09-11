@@ -38,9 +38,9 @@ export class World implements IWorld, IBeanContainer{
     public economy: Economy = new Economy();
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
-    public year = 1;
+    public year = 0;
     public season = Season.Spring;
-    public electionIn = 7;
+    public electionIn = 11;
     public yearsEvents: IEvent[] = [];
     public bus = new EventBus();
 
@@ -65,6 +65,7 @@ export class World implements IWorld, IBeanContainer{
      */
     public calculateComputedState(){
         this.cities.forEach(c => {
+            c.calculate(this.economy, this.law);
             c.beans.forEach(b => b.calculateBeliefs(this.economy, c, this.law));
         });
     }
@@ -192,6 +193,7 @@ export class City implements Tile, IBeanContainer {
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;
+    public majorityEthnicity: TraitEthno = 'circle';
 
     public environment?: IEnvironment;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
@@ -234,6 +236,23 @@ export class City implements Tile, IBeanContainer {
             });
         }
     }
+    calculate(economy: Economy, law: { policies: Policy[]; }) {
+        const c = this.beans.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
+            switch(bean.ethnicity){
+                case 'circle': count.circle++;break;
+                case 'square': count.square++;break;
+                case 'triangle': count.triangle++;break;
+            }
+            return count;
+        }, {circle: 0, square: 0, triangle: 0});
+        if (c.circle > c.square && c.circle > c.triangle){
+            this.majorityEthnicity = 'circle';
+        } else if (c.square > c.circle && c.square > c.triangle){
+            this.majorityEthnicity = 'square';
+        } else {
+            this.majorityEthnicity = 'triangle';
+        }
+    }
 }
 
 export type TraitCommunity = 'state'|'ego';
@@ -248,7 +267,42 @@ export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth;
 export type Axis = 'vote'|'healthcare'|'faith'|'trade';
 
-export enum MaslowScore {Deficient= -2, Sufficient=0, Abundant=1}
+export enum MaslowScore {Deficient= -.25, Sufficient=0, Abundant=.15}
+
+export interface IHappinessModifier{
+    reason: string;
+    /**
+     * -1 to 1, where 0 is "no effect" and +/-1 is +/-100%
+     */
+    mod: number;
+}
+
+export function GetHappiness(array: IHappinessModifier[]){
+    const clampedPercent = Math.min(
+        1,
+        Math.max(
+            -1,
+            array.reduce((sum, hapMod) => {
+                sum += hapMod.mod;
+                return sum
+            }, 0)
+        )
+    );
+
+    return (clampedPercent * 100);
+}
+
+export const TraitToModifier: {[trait: string]: IHappinessModifier} = {
+    'podless': {reason: 'Homeless', mod: MaslowScore.Deficient},
+    'crowded': {reason: 'Renting', mod: MaslowScore.Sufficient},
+    'homeowner': {reason: 'Homeowner', mod: MaslowScore.Abundant},
+    'sick': {reason: 'Sick', mod: MaslowScore.Deficient},
+    'bruised': {reason: 'Bruised', mod: MaslowScore.Sufficient},
+    'fresh': {reason: 'Healthy', mod: MaslowScore.Abundant},
+    'hungry': {reason: 'Hungry', mod: MaslowScore.Deficient},
+    'sated': {reason: 'Sated', mod: MaslowScore.Sufficient},
+    'stuffed': {reason: 'Stuffed', mod: MaslowScore.Abundant},
+}
 
 export function ShelterScore(shelter: TraitShelter): number{
     switch(shelter){

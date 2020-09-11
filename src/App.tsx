@@ -143,7 +143,7 @@ class App extends React.Component<AppPs, AppState>{
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
               if (bean)
                 return <BeanPanel bean={bean} city={city} 
-                economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus}
+                economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
                 solicit={this.solicit} insult={this.insult} support={this.support}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }

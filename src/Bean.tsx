@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy } from "./Politics";
@@ -26,6 +26,7 @@ export interface IBean{
 const MaslowHappinessWeight = 2;
 const ValuesHappinessWeight = 1;
 const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
+
 
 const BabyChance = 0.05;
 const SeasonsUntilEviction = 1;
@@ -95,9 +96,26 @@ export class Bean implements IBean, ISeller{
         const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
         return (maslow + values) / TotalWeight;
     }
+    getHappinessModifiers(econ: Economy, homeCity: City, law: Law): IHappinessModifier[]{
+        const mods: IHappinessModifier[] = [
+            TraitToModifier[this.food],
+            TraitToModifier[this.shelter],
+            TraitToModifier[this.health],
+        ];
+        if (this.ideals == 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
+            mods.push({reason: 'Xenophobic', mod: -.1});
+        }
+        if (this.cash < 1) {
+            mods.push({reason: 'Penniless', mod: MaslowScore.Deficient});
+        }
+        if (this.job == 'jobless') {
+            mods.push({reason: 'Unemployed', mod: MaslowScore.Deficient});
+        }
+
+        return mods;
+    }
     calculateBeliefs(econ: Economy, homeCity: City, law: Law): void{
-        const sentiment = this.getTotalSentiment(homeCity, law);
-        this.lastHappiness = sentiment;
+        this.lastHappiness = GetHappiness(this.getHappinessModifiers(econ, homeCity, law));
         if (this.job == 'jobless'){
             this.fairGoodPrice = 1;
         } else {

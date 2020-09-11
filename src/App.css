@@ -132,6 +132,9 @@ button.pull-r{
 .text-center{
   text-align: center;
 }
+.text-right{
+  text-align: right;
+}
 .width-100p{
   width: 100%;
 }
@@ -249,6 +252,9 @@ ul.boxes li{
   margin-left: 4px;
 }
 
+td.small{
+  font-size: 11px;
+}
 table.classic{
   border-collapse: collapse;
   font-size: 12px;

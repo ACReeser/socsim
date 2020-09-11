@@ -1,5 +1,5 @@
 import React from "react";
-import { City, Trait } from "./World";
+import { City, Trait, Law } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
@@ -12,6 +12,7 @@ interface BeanPanelP{
     city: City,
     bean: Bean,
     economy: Economy,
+    law: Law,
     party: Party,
     clearCity: () => void;
     bus: EventBus
@@ -50,6 +51,14 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         setTimeout(() => {
             this.setState({faceOverride: undefined})
         }, 5000);
+    }
+    happyTable(){
+        return this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law).filter((y) => y.mod != 0).map((x, i) => {
+            return <tr key={i}>
+                <td className="small text-right">{x.reason}</td>
+                <td className="small">{Math.round(x.mod * 100)}%</td>
+            </tr>
+        });
     }
     render(){
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
@@ -123,9 +132,10 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         <b>Happiness</b>
                     </td>
                     <td>
-                        {Math.round(this.props.bean.lastHappiness * 100)}%
+                        {Math.round(this.props.bean.lastHappiness)}%
                     </td>
                 </tr>
+                {this.happyTable()}
                 <tr>
                     <td>
                         <b>Community</b>
