@@ -29,7 +29,7 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
                 ${this.props.city.yearsPartyDonations.toFixed(2)} donations this year
             </div>
         }
-        const avg_happy = this.props.beans.reduce((sum, x) => sum+x.lastHappiness, 0) / (this.props.beans.length || 1) * 100;
+        const avg_happy = this.props.beans.reduce((sum, x) => sum+x.lastHappiness, 0) / (this.props.beans.length || 1);
         const avg_loyalty = this.props.beans.reduce((sum, x) => sum+x.partyLoyalty, 0) / (this.props.beans.length || 1) * 100;
         return (                
         <div>

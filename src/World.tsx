@@ -6,8 +6,8 @@ import { Economy } from './Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus } from './events/Events';
+import { Season, IDate } from './simulation/Time';
 
-export enum Season {Spring, Summer, Fall, Winter}
 
 export interface IBeanContainer{
     /**
@@ -20,13 +20,14 @@ export interface IBeanContainer{
     beans: Bean[];
 }
 
-export interface IWorld extends IEnvironment{
+export interface IWorld{
     cities: City[];
     law: Law;
     party: Party;
     electionIn: number;
     institutions: IInstitution[];
     bus: EventBus;
+    date: IDate;
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
@@ -38,8 +39,7 @@ export class World implements IWorld, IBeanContainer{
     public economy: Economy = new Economy();
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
-    public year = 0;
-    public season = Season.Spring;
+    public date = {year: 0, season: Season.Spring};
     public electionIn = 11;
     public yearsEvents: IEvent[] = [];
     public bus = new EventBus();
@@ -66,7 +66,7 @@ export class World implements IWorld, IBeanContainer{
     public calculateComputedState(){
         this.cities.forEach(c => {
             c.calculate(this.economy, this.law);
-            c.beans.forEach(b => b.calculateBeliefs(this.economy, c, this.law));
+            c.beans.forEach(b => b.calculateBeliefs(this.economy, c, this.law, this.party));
         });
     }
 
@@ -78,12 +78,12 @@ export class World implements IWorld, IBeanContainer{
         if (this.electionIn <= 0){
             this.electionIn = 8;
         }
-        this.season++;
-        if (this.season > 3){
-            this.year++;
+        this.date.season++;
+        if (this.date.season > 3){
+            this.date.year++;
             this.inflate();
             this.resetYearlyCounters();
-            this.season = 0;
+            this.date.season = 0;
         }
         
         this.economy.resetSeasonalDemand();
@@ -195,7 +195,7 @@ export class City implements Tile, IBeanContainer {
     public yearsPartyDonations: number = 0;
     public majorityEthnicity: TraitEthno = 'circle';
 
-    public environment?: IEnvironment;
+    public environment?: IDate;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
     getRandomCitizen(): Bean|null{
@@ -224,7 +224,7 @@ export class City implements Tile, IBeanContainer {
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         if (this.environment)
-            bean.dob = this.environment?.year * 4 + this.environment?.season;
+            bean.dob = {year: this.environment?.year, season: this.environment?.season};
         this.historicalBeans.push(bean);
     }
     getTaxesAndDonations(party: Party, economy: Economy){
@@ -292,7 +292,7 @@ export function GetHappiness(array: IHappinessModifier[]){
     return (clampedPercent * 100);
 }
 
-export const TraitToModifier: {[trait: string]: IHappinessModifier} = {
+export const TraitToModifier: {[key in TraitFood|TraitShelter|TraitHealth]: IHappinessModifier} = {
     'podless': {reason: 'Homeless', mod: MaslowScore.Deficient},
     'crowded': {reason: 'Renting', mod: MaslowScore.Sufficient},
     'homeowner': {reason: 'Homeowner', mod: MaslowScore.Abundant},
@@ -304,27 +304,6 @@ export const TraitToModifier: {[trait: string]: IHappinessModifier} = {
     'stuffed': {reason: 'Stuffed', mod: MaslowScore.Abundant},
 }
 
-export function ShelterScore(shelter: TraitShelter): number{
-    switch(shelter){
-        case 'podless': return MaslowScore.Deficient;
-        default: case 'crowded': return MaslowScore.Sufficient;
-        case 'homeowner': return MaslowScore.Abundant;
-    }
-}
-export function HealthScore(health: TraitHealth): number{
-    switch(health){
-        case 'sick': return MaslowScore.Deficient;
-        default: case 'bruised': return MaslowScore.Sufficient;
-        case 'fresh': return MaslowScore.Abundant;
-    }
-}
-export function FoodScore(food: TraitFood): number{
-    switch(food){
-        case 'hungry': return MaslowScore.Deficient;
-        default: case 'sated': return MaslowScore.Sufficient;
-        case 'stuffed': return MaslowScore.Abundant;
-    }
-}
 export function JobToGood(job: TraitJob): TraitGood{
     switch(job){
         case 'builder': return 'shelter';

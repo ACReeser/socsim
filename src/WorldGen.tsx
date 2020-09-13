@@ -1,4 +1,4 @@
-import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, Season, TraitJob } from './World';
+import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
 import { Policy, BaseParty, CityPartyHQ } from './Politics';
 
@@ -49,7 +49,7 @@ export function GenerateWorld(): World{
     for (let i = 0; i < 6; i++) {
         world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
-        world.cities[i].environment = world;
+        world.cities[i].environment = world.date;
 
         if (i < 2){
             const city = world.cities[i];

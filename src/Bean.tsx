@@ -1,8 +1,9 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, ShelterScore, HealthScore, FoodScore, Law, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, Law, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
-import { Policy } from "./Politics";
+import { Policy, Party } from "./Politics";
 import { IEvent } from "./events/Events";
+import { IDate, withinLastYear } from "./simulation/Time";
 
 
 /**
@@ -20,13 +21,8 @@ export interface IBean{
     health: TraitHealth;
     discrete_food: number;
     cash: number;
-    dob: number;
+    dob: IDate;
 }
-
-const MaslowHappinessWeight = 2;
-const ValuesHappinessWeight = 1;
-const TotalWeight = MaslowHappinessWeight + ValuesHappinessWeight;
-
 
 const BabyChance = 0.05;
 const SeasonsUntilEviction = 1;
@@ -34,12 +30,13 @@ export class Bean implements IBean, ISeller{
     public key: number = 0;
     public cityKey: number = 0;
     public alive: boolean = true;
-    public dob: number = 0;
+    public dob: IDate = {year: 0, season: 0};
     public name: string = 'Bean Beanson';
 
     public city: City|null = null;
 
     public ethnicity: TraitEthno = RandomEthno();
+    public lastApproval: IDate = {year: -1, season: 0};
 
     //maslow
     public discrete_food: number = 1;
@@ -69,32 +66,27 @@ export class Bean implements IBean, ISeller{
     public faith?: TraitFaith;
     public cash: number = 3;
     public partyLoyalty: number = 0.2;
+    /**
+     * -100-100
+     */
     public lastHappiness: number = 0;
+    /**
+     * -100-100
+     */
     public lastSentiment: number = 0;
+    /**
+     * -100-100
+     */
+    public lastPartySentiment: number = 0;
     public seasonSinceLastSale: number = 0;
     public seasonSinceLastRent: number = 0;
+    public lastApprovalDate: IDate = {year: -1, season: 0};
+    public lastInsultDate: IDate = {year: -1, season: 0};
     public fairGoodPrice: number = 1;
     get isInCrisis(): boolean{
         return this.food == 'hungry' ||
         this.shelter == 'podless' ||
         this.health == 'sick';
-    }
-    /**
-     * normalized multiplier, 0-1
-     */
-    getMaslowSentiment(homeCity: City): number{
-        let maslow = ShelterScore(this.shelter) + HealthScore(this.health) + FoodScore(this.food);
-        //minimum of -6, max of 3, so 10 "buckets"
-        return maslow / 10; //so divide by 10 to normalize
-    }
-    /**
-     * non-normalized multiplier
-     */
-    getTotalSentiment(homeCity: City, law: Law): number{
-        const maslow = this.getMaslowSentiment(homeCity) * MaslowHappinessWeight;
-        const traits = this._getTraitMap();
-        const values = this.getSentimentPolicies(traits, law.policies) * ValuesHappinessWeight;
-        return (maslow + values) / TotalWeight;
     }
     getHappinessModifiers(econ: Economy, homeCity: City, law: Law): IHappinessModifier[]{
         const mods: IHappinessModifier[] = [
@@ -107,6 +99,10 @@ export class Bean implements IBean, ISeller{
         }
         if (this.cash < 1) {
             mods.push({reason: 'Penniless', mod: MaslowScore.Deficient});
+        } else if (this.cash > econ.getCostOfLiving() * 3){
+            mods.push({reason: 'Upper Class', mod: 0.3});
+        } else if (this.cash > econ.getCostOfLiving() * 2){
+            mods.push({reason: 'Middle Class', mod: 0.15});
         }
         if (this.job == 'jobless') {
             mods.push({reason: 'Unemployed', mod: MaslowScore.Deficient});
@@ -114,8 +110,29 @@ export class Bean implements IBean, ISeller{
 
         return mods;
     }
-    calculateBeliefs(econ: Economy, homeCity: City, law: Law): void{
+    getSentimentModifiers(econ: Economy, homeCity: City, law: Law, party: Party): {
+        party: IHappinessModifier[],
+        law: IHappinessModifier[]
+    }{
+        const result = {party: [] as IHappinessModifier[], law: [] as IHappinessModifier[]};
+
+        if (this.community == party.community){
+            result.party.push({reason: 'Same Community', mod: 0.15});
+        }
+        if (this.ideals == party.ideals){
+            result.party.push({reason: 'Same Values', mod: 0.15});
+        }
+        if (homeCity.environment && withinLastYear(homeCity.environment, this.lastApprovalDate)){
+            result.party.push({reason: 'Public Endorsement', mod: 0.2});   
+        }
+        return result;
+    }
+    calculateBeliefs(econ: Economy, homeCity: City, law: Law, party: Party): void{
         this.lastHappiness = GetHappiness(this.getHappinessModifiers(econ, homeCity, law));
+        const sent = this.getSentimentModifiers(econ, homeCity, law, party);
+        this.lastSentiment = GetHappiness(sent.law);
+        this.lastPartySentiment = GetHappiness(sent.party);
+
         if (this.job == 'jobless'){
             this.fairGoodPrice = 1;
         } else {
@@ -153,9 +170,9 @@ export class Bean implements IBean, ISeller{
             return '🥶';
         if (this.job == 'jobless')
             return '😧';
-        if (this.lastHappiness < 0.2)
+        if (this.lastHappiness < 0)
             return '☹️';
-        if (this.lastHappiness >= 0.8)
+        if (this.lastHappiness >= 50)
             return '🙂';
         return '😐';
     }
@@ -174,6 +191,12 @@ export class Bean implements IBean, ISeller{
         if (Math.random() > 0.5) {
             this.job = GetRandom(['builder', 'doc', 'farmer']);
         }
+    }
+    canInsult(): boolean{
+        return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastInsultDate));
+    }
+    canSupport(): boolean{
+        return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastApprovalDate));
     }
     work(law: { policies: Policy[]; }, econ: Economy) {
         if (this.job == 'jobless'){

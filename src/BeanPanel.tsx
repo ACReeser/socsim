@@ -1,5 +1,5 @@
 import React from "react";
-import { City, Trait, Law } from "./World";
+import { City, Trait, Law, IHappinessModifier } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
@@ -7,6 +7,7 @@ import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
 import { Economy } from "./Economy";
 import { Party } from "./Politics";
 import { IEvent, EventBus } from "./events/Events";
+import { withinLastYear } from "./simulation/Time";
 
 interface BeanPanelP{
     city: City,
@@ -52,8 +53,8 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             this.setState({faceOverride: undefined})
         }, 5000);
     }
-    happyTable(){
-        return this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law).filter((y) => y.mod != 0).map((x, i) => {
+    happyTable(mods: IHappinessModifier[]){
+        return mods.filter((y) => y.mod != 0).map((x, i) => {
             return <tr key={i}>
                 <td className="small text-right">{x.reason}</td>
                 <td className="small">{Math.round(x.mod * 100)}%</td>
@@ -135,7 +136,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         {Math.round(this.props.bean.lastHappiness)}%
                     </td>
                 </tr>
-                {this.happyTable()}
+                {this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law))}
                 <tr>
                     <td>
                         <b>Community</b>
@@ -162,9 +163,10 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         <b>Approval</b>
                     </td>
                     <td>
-                        {Math.round(this.props.bean.lastSentiment * 100)}%
+                        {Math.round(this.props.bean.lastPartySentiment)}%
                     </td>
                 </tr>
+                {this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party)}
                 <tr>
                     <td>
                         <b>Party Loyalty</b>
@@ -178,8 +180,12 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 <button type="button" disabled={chance < 0.05} className="important" onClick={this.solicit} title={chanceText}>🤲 Solicit Donation</button>
             </div>
             <div className="text-center">
-                <button type="button" className="callout" onClick={this.insult} title="Decrease this bean's party approval to gain Political Capital">😈 Publically Insult</button>
-                <button type="button" className="callout" onClick={this.support} title="Spend Political Capital to increase this bean's party approval">😘 Publically Support</button>
+                <button type="button" className="callout" onClick={this.insult} disabled={!this.props.bean.canInsult()}
+                    title="Decrease this bean's party approval to gain Political Capital"
+                >😈 Publically Insult</button>
+                <button type="button" className="callout" onClick={this.support} disabled={!this.props.bean.canSupport()}
+                    title="Spend Political Capital to increase this bean's party approval"
+                >😘 Publically Support</button>
             </div>
         </div>
         )

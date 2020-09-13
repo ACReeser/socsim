@@ -1,9 +1,11 @@
-import { Trait, Axis } from "./World";
+import { Trait, Axis, TraitCommunity, TraitIdeals } from "./World";
 import { IInstitution, IOrganization } from "./simulation/Institutions";
 
 
 export interface Party extends IInstitution{
     slogan: string;
+    community: TraitCommunity;
+    ideals: TraitIdeals;
     
     availablePolicies: Policy[]; 
     proposedPolicy?: Policy;
@@ -22,6 +24,8 @@ export class BaseParty implements Party{
     organizations: IOrganization[] = [];
     public name: string = "Citizen's Party";
     public slogan: string = "Vote for us!";
+    public community: TraitCommunity = 'state';
+    public ideals: TraitIdeals = 'trad';
     public availablePolicies: Policy[] = [];
     public proposedPolicy?: Policy;
     public availableCampaigns: Campaign[] = [];

@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { World, Tile, City, Season, TraitGood } from './World';
+import { World, Tile, City, TraitGood } from './World';
 import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
 import { Modal } from './Modal';
 import { OverviewPanel } from './OverviewPanel';
@@ -16,6 +16,7 @@ import { BeanPanel } from './BeanPanel';
 import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
 import { PartyOverview } from './modal-content/PartyOverview';
 import { BubbleText } from './widgets/BubbleText';
+import { Season, Now } from './simulation/Time';
 
 
 
@@ -96,10 +97,19 @@ class App extends React.Component<AppPs, AppState>{
   foundParty = (state: FoundPartyS) => {
     this.state.world.party.name = state.name;
     this.state.world.party.slogan = state.slogan;
+    if (state.community)
+      this.state.world.party.community = state.community;
+    if (state.ideal)
+      this.state.world.party.ideals = state.ideal;
     const city = this.state.world.cities.find((x) => x.key == state.cityKey);
     if (city) {
+      city.beans.forEach((b) => {
+        if(state.community) b.community = state.community;
+        if(state.ideal) b.ideals = state.ideal;
+      })
       GeneratePartyHQ(city);
     }
+    this.state.world.calculateComputedState();
     this.setState({
       world: this.state.world,
       activeModal: null});
@@ -110,13 +120,17 @@ class App extends React.Component<AppPs, AppState>{
   }
   insult = (bean: Bean) => {
     this.state.world.party.politicalCapital += 1;
-    bean.lastSentiment -= .2;
+    bean.lastInsultDate = Now(this.state.world);
+    if (bean.city)
+      bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);
     this.setState({world: this.state.world});
     this.state.world.bus.politicalCapital.publish({change: 1});
   }
   support = (bean: Bean) => {
     this.state.world.party.politicalCapital -= 1;
-    bean.lastSentiment += .15;
+    bean.lastApprovalDate = Now(this.state.world);
+    if (bean.city)
+      bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);
     this.setState({world: this.state.world});
     this.state.world.bus.politicalCapital.publish({change: -1});
   }
@@ -184,7 +198,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   render() {
-    const season = Season[this.state.world.season];
+    const season = Season[this.state.world.date.season];
     const COL = this.state.world.economy.getCostOfLiving();
     const tiles = this.state.world.cities.map((t) => {
       return (
@@ -236,7 +250,7 @@ class App extends React.Component<AppPs, AppState>{
           <div className="top">
             <span>
               &nbsp;
-              Year {this.state.world.year}, 
+              Year {this.state.world.date.year}, 
               &nbsp;
               {season}
             </span>
