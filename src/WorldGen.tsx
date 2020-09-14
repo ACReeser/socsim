@@ -1,6 +1,6 @@
 import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
-import { Policy, BaseParty, CityPartyHQ } from './Politics';
+import { Policy, BaseParty, CityPartyHQ, Party } from './Politics';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -67,11 +67,11 @@ export function GenerateWorld(): World{
     return world;
 }
 
-export function GeneratePartyHQ(city: City) {
+export function GeneratePartyHQ(city: City, party: Party) {
     const hq = new CityPartyHQ();
     hq.cityKey = city.key;
     city.partyHQ = hq;
-    city.beans.forEach((x) => x.partyLoyalty = 1);
+    party.activeHQs.push(hq.cityKey);
 }
 
 export function GenerateCity(previousCityCount: number): City{

@@ -16,6 +16,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
     render(){
         const hqs = this.props.world.cities.filter((x) => x.partyHQ != null);
         const hq_names = hqs.map((x, i) => <i>{(i > 0 ? ', ': '')}{x.name}</i>);
+        const actionLimit = this.props.world.party.activeHQs.length + 2;
         return <div>
             <div className="col-2">
             <div>
@@ -56,14 +57,18 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 </thead> */}
                 <tbody>
                 <tr>
-                    <th rowSpan={2}>Revenue</th>
+                    <th rowSpan={3}>Revenue</th>
                     <td>
-                        Megadonors
+                        Solicitations
                     </td>
                     <td> +$1 </td>
                 </tr>
                 <tr>
-                    <td>Grassroots</td>
+                    <td>Unsolicited Donations</td>
+                    <td>+$1</td>
+                </tr>
+                <tr>
+                    <td>Fundraisers</td>
                     <td>+$1</td>
                 </tr>
                 <tr>
@@ -105,12 +110,17 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             </div>
             <div>
                 <h3 className="small">Headquarters</h3>
-                <small>Party HQs are instrumental for donations and propaganda</small>
+                <small>Party HQs add Activities and cash donations</small>
                 <div>
                     <strong>HQ Locations:</strong> {hq_names}
                 </div>
+                <h3 className="small">Activities</h3>
+                <small>Number of things that can be done in one season</small>
                 <div>
-                    Individual Donation Requests per season: {hqs.length + 2}
+                    2 free actions + {this.props.world.party.activeHQs.length} Activities from party HQs
+                </div>
+                <div>
+                    {actionLimit - this.props.world.party.seasonalActions} Activities remaining this season
                 </div>
             </div>
           </div>

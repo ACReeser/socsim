@@ -16,6 +16,8 @@ export interface Party extends IInstitution{
     materialCapital: number;
 
     seasonalIncome: number;
+    seasonalActions: number;
+    activeHQs: number[];
 }
 
 export class BaseParty implements Party{
@@ -32,9 +34,10 @@ export class BaseParty implements Party{
     public activeCampaigns: Campaign[] = [];
     public politicalCapital: number = 10;
     public materialCapital: number = 20;
-
+    public activeHQs: number[] = [];
 
     public seasonalIncome: number = 0;
+    public seasonalActions: number = 0;
     fundOrganizations(): void{
         this.organizations.forEach((org) => {
             if (this.materialCapital >= org.seasonalBudget){

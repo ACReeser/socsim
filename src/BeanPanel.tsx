@@ -65,6 +65,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
         const chance = this.props.bean.chanceToDonate(this.props.economy, true);
         const chanceText = (chance * 100).toFixed(0) + '% to gain Physical Capital';
+        const actionLimit = this.props.party.activeHQs.length + 2;
         return (                
         <div>
             <div>
@@ -167,17 +168,20 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     </td>
                 </tr>
                 {this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party)}
-                <tr>
+                {/* <tr>
                     <td>
                         <b>Party Loyalty</b>
                     </td>
                     <td>
                         <span>{Math.round(this.props.bean.partyLoyalty * 100)}%</span>
                     </td>
-                </tr></tbody>
+                </tr> */}
+                </tbody>
             </table>
             <div className="text-center">
                 <button type="button" disabled={chance < 0.05} className="important" onClick={this.solicit} title={chanceText}>🤲 Solicit Donation</button>
+                <br/>
+                <small><i>Does not cost an Activity</i></small>
             </div>
             <div className="text-center">
                 <button type="button" className="callout" onClick={this.insult} disabled={!this.props.bean.canInsult()}
@@ -186,6 +190,11 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 <button type="button" className="callout" onClick={this.support} disabled={!this.props.bean.canSupport()}
                     title="Spend Political Capital to increase this bean's party approval"
                 >😘 Publically Support</button>
+            </div>
+            <div className="text-center">
+                <small>
+                    {actionLimit - this.props.party.seasonalActions} of {actionLimit} Activities remaining
+                </small>
             </div>
         </div>
         )

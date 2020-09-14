@@ -17,20 +17,33 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
         this.state = {
         }
     }
+    hq(){
+        if (this.props.city){
+            if (this.props.city.partyHQ) {
+                return <div>
+                    🏢 Has Party HQ<br/>
+                    ${this.props.city.yearsPartyDonations.toFixed(2)} donations this year
+                </div>
+            }
+            return <div className="text-center">
+                <button type="button" className="important">
+                    🏢 Add HQ for $10
+                </button><br/>
+                <small>+1 action per season &amp; chance for donations</small>
+            </div>
+        }
+        return null;
+    }
     render(){
-        let header = null; let footer = null;
+        let header = null;
         if (this.props.city){
             header = <div><b>{this.props.city.name}</b>
                 <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
             </div>;
-            let partyHQ = <span></span>
-            footer = <div>
-                {(this.props.city.partyHQ ? '🏢 Has Party HQ ' : 'No Party HQ')}<br/>
-                ${this.props.city.yearsPartyDonations.toFixed(2)} donations this year
-            </div>
         }
         const avg_happy = this.props.beans.reduce((sum, x) => sum+x.lastHappiness, 0) / (this.props.beans.length || 1);
-        const avg_loyalty = this.props.beans.reduce((sum, x) => sum+x.partyLoyalty, 0) / (this.props.beans.length || 1) * 100;
+        const avg_cash = this.props.beans.reduce((sum, x) => sum+x.cash, 0) / (this.props.beans.length || 1);
+        const avg_approval = this.props.beans.reduce((sum, x) => sum+x.lastPartySentiment, 0) / (this.props.beans.length || 1);
         return (                
         <div>
             {header}
@@ -44,20 +57,19 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
             <NeedReadout beans={this.props.beans} need={(b) => b.food} dire="hungry" abundant="stuffed">Food Security</NeedReadout>
             <NeedReadout beans={this.props.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner">Housing</NeedReadout>
             <NeedReadout beans={this.props.beans} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
-            <b>Average Happiness</b> {Math.round(avg_happy)}%
+            <b>Avg. Money</b> ${avg_cash.toFixed(2)} &nbsp;
+            <b>Avg. Happiness</b> {Math.round(avg_happy)}%
             <div className="header"><b>Electorate</b></div>
-            <AxisReadout report={reportIdeals(this.props.beans)}>Sentiment</AxisReadout>
+            {/* <AxisReadout report={reportIdeals(this.props.beans)}>Sentiment</AxisReadout> */}
             <AxisReadout report={reportCommunity(this.props.beans)}>Community</AxisReadout>
             <AxisReadout report={reportIdeals(this.props.beans)}>Ideals</AxisReadout>
             <div className="header"><b>Party</b></div>
-            {footer}
+            {
+                this.hq()
+            }
             <div>
                 <b>Approval</b>&nbsp;
-                <span>Approve (60%)</span>
-            </div>
-            <div>
-                <b>Avg. Party Loyalty</b>&nbsp;
-                <span>{avg_loyalty.toFixed(0)}%</span>
+                <span>{avg_approval.toFixed(0)}%</span>
             </div>
         </div>
         )

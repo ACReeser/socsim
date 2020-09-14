@@ -107,7 +107,7 @@ class App extends React.Component<AppPs, AppState>{
         if(state.community) b.community = state.community;
         if(state.ideal) b.ideals = state.ideal;
       })
-      GeneratePartyHQ(city);
+      GeneratePartyHQ(city, this.state.world.party);
     }
     this.state.world.calculateComputedState();
     this.setState({
@@ -234,7 +234,7 @@ class App extends React.Component<AppPs, AppState>{
                 <button type="button" className="callout" onClick={() => void(0)} >🎙️ Create New Propaganda</button>
             </div>
             <span>
-              Propaganda slightly changes beans' feelings on a wide variety of topics.
+              Propaganda changes beans' feelings on a wide variety of topics.
             </span>
             <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
             <div>

@@ -220,7 +220,6 @@ export class City implements Tile, IBeanContainer {
         let bean = GenerateBean(this, this.historicalBeans.length);
         bean.ethnicity = parent.ethnicity;
         bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
-        bean.partyLoyalty = Math.max(parent.partyLoyalty * 0.4, 0.2);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         if (this.environment)

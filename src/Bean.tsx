@@ -120,7 +120,9 @@ export class Bean implements IBean, ISeller{
             result.party.push({reason: 'Same Community', mod: 0.15});
         }
         if (this.ideals == party.ideals){
-            result.party.push({reason: 'Same Values', mod: 0.15});
+            result.party.push({reason: 'Same Ideals', mod: 0.15});
+        } else if (this.community != party.community){
+            result.party.push({reason: 'Incompatible Values', mod: -0.15});
         }
         if (homeCity.environment && withinLastYear(homeCity.environment, this.lastApprovalDate)){
             result.party.push({reason: 'Public Endorsement', mod: 0.2});   
@@ -312,9 +314,9 @@ export class Bean implements IBean, ISeller{
      */
     chanceToDonate(economy: Economy, direct: boolean = false): number{
         const canDonate = this.cash > economy.getCostOfLiving() * 2 && !this.isInCrisis;
-        if (canDonate && this.partyLoyalty > 0.5){
+        if (canDonate && this.lastPartySentiment > 0.5){
             const threshold = direct ? 0.2 : 0.5;
-            const baseChance = this.partyLoyalty - threshold;
+            const baseChance = this.lastPartySentiment - threshold;
             return (baseChance) / 2;
         }
         return 0;
