@@ -183,9 +183,6 @@ class App extends React.Component<AppPs, AppState>{
             ⭕️ Review Party
             </li>
             <li>
-            ⭕️ Found a Charity
-            </li>
-            <li>
             ⭕️ Create Propaganda
             </li>
             <li>
