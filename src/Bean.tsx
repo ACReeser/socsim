@@ -1,9 +1,10 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, Law, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, City, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
 import { IEvent } from "./events/Events";
 import { IDate, withinLastYear } from "./simulation/Time";
+import { Government } from "./simulation/Government";
 
 
 /**
@@ -88,7 +89,7 @@ export class Bean implements IBean, ISeller{
         this.shelter == 'podless' ||
         this.health == 'sick';
     }
-    getHappinessModifiers(econ: Economy, homeCity: City, law: Law): IHappinessModifier[]{
+    getHappinessModifiers(econ: Economy, homeCity: City, law: Government): IHappinessModifier[]{
         const mods: IHappinessModifier[] = [
             TraitToModifier[this.food],
             TraitToModifier[this.shelter],
@@ -110,7 +111,7 @@ export class Bean implements IBean, ISeller{
 
         return mods;
     }
-    getSentimentModifiers(econ: Economy, homeCity: City, law: Law, party: Party): {
+    getSentimentModifiers(econ: Economy, homeCity: City, law: Government, party: Party): {
         party: IHappinessModifier[],
         law: IHappinessModifier[]
     }{
@@ -127,9 +128,16 @@ export class Bean implements IBean, ISeller{
         if (homeCity.environment && withinLastYear(homeCity.environment, this.lastApprovalDate)){
             result.party.push({reason: 'Public Endorsement', mod: 0.2});   
         }
+        party.differingPolicies(law).forEach((policy) => {
+            if (policy.community && policy.community == this.community){
+                result.party.push({reason: 'Likes '+policy.name, mod: 0.1});
+            } else if (policy.ideals && policy.ideals == this.ideals){
+                result.party.push({reason: 'Likes '+policy.name, mod: 0.1});
+            }
+        });
         return result;
     }
-    calculateBeliefs(econ: Economy, homeCity: City, law: Law, party: Party): void{
+    calculateBeliefs(econ: Economy, homeCity: City, law: Government, party: Party): void{
         this.lastHappiness = GetHappiness(this.getHappinessModifiers(econ, homeCity, law));
         const sent = this.getSentimentModifiers(econ, homeCity, law, party);
         this.lastSentiment = GetHappiness(sent.law);
@@ -189,7 +197,7 @@ export class Bean implements IBean, ISeller{
             return {bad: false, idea: '👶'};
         return null;        
     }
-    tryFindRandomJob(law: { policies: Policy[]; }) {
+    tryFindRandomJob(law: Government) {
         if (Math.random() > 0.5) {
             this.job = GetRandom(['builder', 'doc', 'farmer']);
         }
@@ -200,7 +208,7 @@ export class Bean implements IBean, ISeller{
     canSupport(): boolean{
         return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastApprovalDate));
     }
-    work(law: { policies: Policy[]; }, econ: Economy) {
+    work(law: Government, econ: Economy) {
         if (this.job == 'jobless'){
             this.tryFindRandomJob(law);
         } else {

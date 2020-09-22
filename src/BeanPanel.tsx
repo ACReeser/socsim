@@ -1,5 +1,5 @@
 import React from "react";
-import { City, Trait, Law, IHappinessModifier } from "./World";
+import { City, Trait, IHappinessModifier } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
@@ -8,12 +8,13 @@ import { Economy } from "./Economy";
 import { Party } from "./Politics";
 import { IEvent, EventBus } from "./events/Events";
 import { withinLastYear } from "./simulation/Time";
+import { Government } from "./simulation/Government";
 
 interface BeanPanelP{
     city: City,
     bean: Bean,
     economy: Economy,
-    law: Law,
+    law: Government,
     party: Party,
     clearCity: () => void;
     bus: EventBus
@@ -180,8 +181,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </table>
             <div className="text-center">
                 <button type="button" disabled={chance < 0.05} className="important" onClick={this.solicit} title={chanceText}>🤲 Solicit Donation</button>
-                <br/>
-                <small><i>Does not cost an Activity</i></small>
+                <button type="button" disabled={this.props.party.materialCapital < 1} className="callout" onClick={this.solicit} title="Pay $ to increase approval">💰 Bribe</button>
             </div>
             <div className="text-center">
                 <button type="button" className="callout" onClick={this.insult} disabled={!this.props.bean.canInsult()}

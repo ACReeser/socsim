@@ -147,6 +147,7 @@ class App extends React.Component<AppPs, AppState>{
   }
   setPolicy = (axis: Axis, policy: IPolicy) => {
     this.state.world.party.platform[axis] = policy;
+    this.state.world.calculateComputedState();
     this.setState({world: this.state.world});
   }
   getPanel(){
@@ -223,9 +224,45 @@ class App extends React.Component<AppPs, AppState>{
           <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
-          <b>Active Policies</b>
-          <div className="policies">
-            {this.state.world.party.availablePolicies.map((p) => policy(p))}
+          <div className="col-2">
+            <h2>Government</h2>
+            <div>
+
+            </div>
+          </div>
+          <div className="pad-4p">
+            <h3>Policy</h3>
+            <div className="horizontal">
+              <div className="vertical">
+                <strong>Welfare</strong>
+                <div>Nutrition: {this.state.world.law.policyTree.wel_food.name}</div>
+                <div>Housing: {this.state.world.law.policyTree.wel_house.name}</div>
+                <div>Healthcare: {this.state.world.law.policyTree.wel_health.name}</div>
+              </div>
+              <div className="vertical">
+                <strong>Taxation</strong>
+                <div>{this.state.world.law.policyTree.tax_basic.name}</div>
+                <div>{this.state.world.law.policyTree.tax_second.name}</div>
+              </div>
+              <div className="vertical">
+                <strong>Economics</strong>
+                <div>External: {this.state.world.law.policyTree.econ_ex.name}</div>
+                <div>Labor: {this.state.world.law.policyTree.econ_labor.name}</div>
+                <div>Subsidies: {this.state.world.law.policyTree.econ_sub.name}</div>
+              </div>
+              <div className="vertical">
+                <strong>Culture</strong>
+                <div>Religion: {this.state.world.law.policyTree.cul_rel.name}</div>
+                {this.state.world.law.policyTree.cul_rel.key == '20' ? <div>Theocracy: {this.state.world.law.policyTree.cul_theo.name}</div>: null}
+                <div>Education: {this.state.world.law.policyTree.cul_ed.name}</div>
+              </div>
+              <div className="vertical">
+                <strong>Law</strong>
+                <div>Voting: {this.state.world.law.policyTree.law_vote.name}</div>
+                <div>Corruption: {this.state.world.law.policyTree.law_bribe.name}</div>
+                <div>Immigration: {this.state.world.law.policyTree.law_imm.name}</div>
+              </div>
+            </div>
           </div>
         </Modal>
         <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({activeModal: null})}>

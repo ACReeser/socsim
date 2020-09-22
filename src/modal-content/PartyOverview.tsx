@@ -1,5 +1,5 @@
 import React from "react";
-import { World, Axis } from "../World";
+import { World, Axis, TraitCommunityIcon, TraitIdealsIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { PolicyDropdown } from "../widgets/PolicyDropdown";
 import { PolicyTree, PolicyByKey, IPolicy } from "../Politics";
@@ -62,40 +62,48 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 <div className="horizontal">
                     <div className="vertical reverse">
                         <div className="platform-subheader">Welfare</div>
-                        <PolicyDropdown options={PolicyTree.wel_food} onChange={this.setPolicy('wel_food')} hint="Nutrition"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.wel_house} onChange={this.setPolicy('wel_house')} hint="Housing"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.wel_health} onChange={this.setPolicy('wel_health')} hint="Healthcare"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.wel_food} value={this.props.world.party.platform.wel_food} onChange={this.setPolicy('wel_food')} hint="Nutrition"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.wel_house} value={this.props.world.party.platform.wel_house} onChange={this.setPolicy('wel_house')} hint="Housing"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.wel_health} value={this.props.world.party.platform.wel_health} onChange={this.setPolicy('wel_health')} hint="Healthcare"></PolicyDropdown>
                     </div>
                     <div className="vertical reverse">
                         <div className="platform-subheader">Taxation</div>
-                        <PolicyDropdown options={PolicyTree.tax_basic} onChange={this.setPolicy('tax_basic')} hint="Basic Tax"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.tax_second} onChange={this.setPolicy('tax_second')} hint="Secondary Tax"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.tax_basic} value={this.props.world.party.platform.tax_basic} onChange={this.setPolicy('tax_basic')} hint="Basic Tax"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.tax_second} value={this.props.world.party.platform.tax_second} onChange={this.setPolicy('tax_second')} hint="Secondary Tax"></PolicyDropdown>
                     </div>
                     <div className="vertical reverse">
                         <div className="platform-subheader">Economics</div>
-                        <PolicyDropdown options={PolicyTree.econ_ex} onChange={this.setPolicy('econ_ex')} hint="External"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.econ_labor} onChange={this.setPolicy('econ_labor')} hint="Labor"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.econ_sub} onChange={this.setPolicy('econ_sub')} hint="Subsidies"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.econ_ex} value={this.props.world.party.platform.econ_ex} onChange={this.setPolicy('econ_ex')} hint="External"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.econ_labor} value={this.props.world.party.platform.econ_labor} onChange={this.setPolicy('econ_labor')} hint="Labor"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.econ_sub} value={this.props.world.party.platform.econ_sub} onChange={this.setPolicy('econ_sub')} hint="Subsidies"></PolicyDropdown>
                     </div>
                     <div className="vertical reverse">
                         <div className="platform-subheader">Culture</div>
-                        <PolicyDropdown options={PolicyTree.cul_rel} onChange={this.setPolicy('cul_rel')} hint="Religion"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.cul_rel} value={this.props.world.party.platform.cul_rel} onChange={this.setPolicy('cul_rel')} hint="Religion"></PolicyDropdown>
                         {
                             this.props.world.party.platform.cul_rel && this.props.world.party.platform.cul_rel.key == '20' ?
-                            <PolicyDropdown options={PolicyTree.cul_theo} onChange={this.setPolicy('cul_theo')} hint="Theocracy"></PolicyDropdown> : null
+                            <PolicyDropdown options={PolicyTree.cul_theo} value={this.props.world.party.platform.cul_theo} onChange={this.setPolicy('cul_theo')} hint="Theocracy"></PolicyDropdown> : null
                         }
-                        <PolicyDropdown options={PolicyTree.cul_ed} onChange={this.setPolicy('cul_ed')} hint="Education"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.cul_ed} value={this.props.world.party.platform.cul_ed} onChange={this.setPolicy('cul_ed')} hint="Education"></PolicyDropdown>
                     </div>
                     <div className="vertical reverse">
                         <div className="platform-subheader">Law</div>
-                        <PolicyDropdown options={PolicyTree.law_vote} onChange={this.setPolicy('law_vote')} hint="Voting"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.law_bribe} onChange={this.setPolicy('law_bribe')} hint="Corruption"></PolicyDropdown>
-                        <PolicyDropdown options={PolicyTree.law_imm} onChange={this.setPolicy('law_imm')} hint="Immigration"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.law_vote} value={this.props.world.party.platform.law_vote} onChange={this.setPolicy('law_vote')} hint="Voting"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.law_bribe} value={this.props.world.party.platform.law_bribe} onChange={this.setPolicy('law_bribe')} hint="Corruption"></PolicyDropdown>
+                        <PolicyDropdown options={PolicyTree.law_imm} value={this.props.world.party.platform.law_imm} onChange={this.setPolicy('law_imm')} hint="Immigration"></PolicyDropdown>
                     </div>
                 </div>
                 <div className="horizontal">
-                    <div className="grow-1 platform-identity">{ keyToName[this.props.world.party.community]}</div>
-                    <div className="grow-1 platform-identity">{ keyToName[this.props.world.party.ideals]}</div>
+                    <div className="grow-1 platform-identity">
+                        { keyToName[this.props.world.party.community]}
+                        &nbsp;
+                        {TraitCommunityIcon[this.props.world.party.community]}
+                    </div>
+                    <div className="grow-1 platform-identity">
+                        { keyToName[this.props.world.party.ideals]}
+                        &nbsp;
+                        {TraitIdealsIcon[this.props.world.party.ideals]}
+                    </div>
                 </div>
                 <div>
                     <label>

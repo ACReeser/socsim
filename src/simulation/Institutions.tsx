@@ -1,6 +1,7 @@
 import { ISeller, Economy } from "../Economy";
 import { TraitGood, GoodToJob } from "../World";
 import { Policy } from "../Politics";
+import { Government } from "./Government";
 
 export interface IInstitution{
     key: number;
@@ -12,7 +13,7 @@ export interface IInstitution{
 }
 
 export interface IOrganization extends ISeller{
-    work(law: { policies: Policy[]; }, economy: Economy): void;
+    work(law: Government, economy: Economy): void;
     key: number;
     institutionKey: number;
     seasonalBudget: number;
@@ -32,7 +33,7 @@ export class Charity implements IOrganization, ISeller{
     beansHelped: number = 0;
     inventory: number = 0;
     
-    work(law: { policies: Policy[]; }, economy: Economy): void{
+    work(law: Government, economy: Economy): void{
         while(this.cash > 0 && this.inventory < 10) {
             const groceries = economy.tryTransact(this, this.good);
             if (groceries){

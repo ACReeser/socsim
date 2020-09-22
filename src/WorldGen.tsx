@@ -1,6 +1,6 @@
 import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
-import { Policy, BaseParty, CityPartyHQ, Party } from './Politics';
+import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './Politics';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -44,6 +44,23 @@ export function StartingCash(job: TraitJob): number{
 
 export function GenerateWorld(): World{
     const world = new World();
+    world.law.policyTree = {
+        wel_food: PolicyByKey('0') as IPolicy,
+        wel_house: PolicyByKey('4') as IPolicy,
+        wel_health: PolicyByKey('8') as IPolicy,
+        econ_ex: PolicyByKey('13') as IPolicy,
+        econ_labor: PolicyByKey('15') as IPolicy,
+        econ_sub: NoPolicy,
+        cul_rel: PolicyByKey('21') as IPolicy,
+        cul_theo: NoPolicy,
+        cul_ed: NoPolicy,
+        law_vote: PolicyByKey('31') as IPolicy,
+        law_bribe: PolicyByKey('32') as IPolicy,
+        law_imm: PolicyByKey('35') as IPolicy,
+        tax_basic: PolicyByKey('38') as IPolicy,
+        tax_second: NoPolicy,
+        all: NoPolicy
+    };
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < 6; i++) {

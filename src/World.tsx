@@ -7,6 +7,7 @@ import { Policy, Party, BaseParty, ICityPartyHQ } from './Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus } from './events/Events';
 import { Season, IDate } from './simulation/Time';
+import { Government } from './simulation/Government';
 
 
 export interface IBeanContainer{
@@ -22,7 +23,7 @@ export interface IBeanContainer{
 
 export interface IWorld{
     cities: City[];
-    law: Law;
+    law: Government;
     party: Party;
     electionIn: number;
     institutions: IInstitution[];
@@ -31,11 +32,7 @@ export interface IWorld{
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
-    public law: {
-        policies: Policy[]
-    } = { 
-        policies: [] 
-    };
+    public law: Government = new Government();
     public economy: Economy = new Economy();
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
@@ -235,7 +232,7 @@ export class City implements Tile, IBeanContainer {
             });
         }
     }
-    calculate(economy: Economy, law: { policies: Policy[]; }) {
+    calculate(economy: Economy, law: Government) {
         const c = this.beans.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
             switch(bean.ethnicity){
                 case 'circle': count.circle++;break;
@@ -264,7 +261,7 @@ export type TraitHealth = 'sick'|'bruised'|'fresh';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth;
-export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm';
+export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm'|'all';
 
 export const TraitCommunityIcon: {[key in TraitCommunity]: string} = {
     'state': '🐘',
@@ -328,7 +325,3 @@ export function GoodToJob(good: TraitGood): TraitJob{
     }
 }
 export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
-
-export interface Law {
-    policies: Policy[];
-}

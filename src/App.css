@@ -198,6 +198,7 @@ button.pull-r{
   text-align: center;
   font-weight: bold;
   border: 1px solid grey;
+  border-top: 0px;
 }
 
 .tile{
@@ -443,6 +444,9 @@ table.classic .border-t{
 .horizontal{
   display: flex;
   flex-direction: row;
+}
+.horizontal > *{
+  flex-grow: 1;
 }
 
 select:invalid { color: gray; }

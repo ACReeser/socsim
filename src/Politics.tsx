@@ -1,5 +1,6 @@
 import { Trait, Axis, TraitCommunity, TraitIdeals } from "./World";
 import { IInstitution, IOrganization } from "./simulation/Institutions";
+import { Government } from "./simulation/Government";
 
 
 export interface Party extends IInstitution{
@@ -20,6 +21,8 @@ export interface Party extends IInstitution{
     seasonalIncome: number;
     seasonalActions: number;
     activeHQs: number[];
+
+    differingPolicies(law: Government): IPolicy[];
 }
 
 export class BaseParty implements Party{
@@ -37,7 +40,7 @@ export class BaseParty implements Party{
     public politicalCapital: number = 10;
     public materialCapital: number = 20;
     public activeHQs: number[] = [];
-    public platform = {} as {[key in Axis]: IPolicy};
+    public platform: {[key in Axis]: IPolicy} = {} as {[key in Axis]: IPolicy};
 
     public seasonalIncome: number = 0;
     public seasonalActions: number = 0;
@@ -50,6 +53,12 @@ export class BaseParty implements Party{
                 org.cash += org.seasonalBudget;
             }
         });
+    }
+    differingPolicies(law: Government): IPolicy[]{
+        return Object.keys(this.platform).filter((key: string) => {
+            const ax = key as Axis;
+            return this.platform[ax] != law.policyTree[ax];
+        }).map((key) => this.platform[key as Axis]);
     }
 }
 
@@ -87,7 +96,9 @@ export interface IPolicy{
     axis: Axis,
     hint?: string
 }
+export const NoPolicy: IPolicy = {key: '-1', name: 'No Policy', axis: 'all'};
 export const Policies: IPolicy[] = [
+ NoPolicy,
  {key: '0', name: 'Let Them Eat Cake', ideals: 'trad', community: 'ego', axis: 'wel_food', hint: 'No state solution for hunger'},
  {key: '1', name: 'Food Bank', ideals: 'prog', community: 'ego', axis: 'wel_food'},
  {key: '2', name: 'Food Stamps', ideals: 'trad', community: 'state', axis: 'wel_food'},

@@ -4,7 +4,8 @@ import { City } from "../World";
 export interface DropdownPS<T>{
     options: Array<T&{key: any}>,
     onChange: (key: any) => void,
-    hint?: string
+    hint?: string,
+    value?: any
 }
 interface DropdownS{
     key: any;
@@ -14,7 +15,7 @@ export abstract class Dropdown<T> extends React.Component<DropdownPS<T>, Dropdow
     constructor(props: any) {
         super(props);
         this.state = {
-            key: null
+            key: props.value || null
         }
     }
     onChange = (e: ChangeEvent<HTMLSelectElement>) => {
