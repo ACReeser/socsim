@@ -264,8 +264,16 @@ export type TraitHealth = 'sick'|'bruised'|'fresh';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth;
-export type Axis = 'vote'|'healthcare'|'faith'|'trade';
+export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm';
 
+export const TraitCommunityIcon: {[key in TraitCommunity]: string} = {
+    'state': '🐘',
+    'ego': '🦅'
+}
+export const TraitIdealsIcon: {[key in TraitIdeals]: string} = {
+    'prog': '🎓',
+    'trad': '👑'
+}
 export enum MaslowScore {Deficient= -.25, Sufficient=0, Abundant=.15}
 
 export interface IHappinessModifier{

@@ -117,16 +117,3 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     
     return newBean;
 }
-
-export class Data {
-    static AllPolicies: Policy[] = [
-        { key: "Food Welfare", fx:[{key: 'state', mag: 1}, {key: 'prog', mag:1}] },
-        { key: "Church Schooling", fx:[{key: 'state', mag:1}, {key:'trad', mag:1}] },
-        { key: "Free Trade", fx:[{key: 'ego', mag:1}, {key:'prog', mag:1}], axis: 'trade' },
-        { key: "Tariffs", fx:[{key: 'ego', mag:1}, {key:'trad', mag:1}], axis: 'trade' },
-        { key: "Secularism", fx:[{key: 'ego', mag:1}, {key:'prog', mag:2}, {key:'trad', mag:-1}], axis: 'faith' },
-        { key: "State Religion", fx:[{key: 'state', mag:1}, {key:'trad', mag:2}, {key:'prog', mag:-1}], axis: 'faith' },
-        { key: "Univ. Suffrage", fx:[{key:'prog', mag:2}], axis: 'vote' },
-        { key: "Male Suffrage", fx:[{key:'trad', mag:2}], axis: 'vote' },
-    ];
-}

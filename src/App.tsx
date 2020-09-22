@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg';
 import './App.css';
-import { World, Tile, City, TraitGood } from './World';
+import { World, Tile, City, TraitGood, Axis } from './World';
 import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
 import { Modal } from './Modal';
 import { OverviewPanel } from './OverviewPanel';
@@ -10,7 +10,7 @@ import { AnimatedBean } from './AnimatedBean';
 import { WorldTile } from './WorldTile';
 import { EconomyReport } from './EconomyReport';
 import { CharityPanel } from './CharityPanel';
-import { PoliticalEffect, Policy, CityPartyHQ } from './Politics';
+import { PoliticalEffect, Policy, CityPartyHQ, IPolicy } from './Politics';
 import { EventsPanel } from './right-panel/Events';
 import { BeanPanel } from './BeanPanel';
 import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
@@ -145,6 +145,10 @@ class App extends React.Component<AppPs, AppState>{
       return false;
     }
   }
+  setPolicy = (axis: Axis, policy: IPolicy) => {
+    this.state.world.party.platform[axis] = policy;
+    this.setState({world: this.state.world});
+  }
   getPanel(){
     switch(this.state.activeRightPanel){
       case 'overview':
@@ -216,7 +220,7 @@ class App extends React.Component<AppPs, AppState>{
           <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
         </Modal>
         <Modal show={this.state.activeModal == 'party'} onClick={() => this.setState({activeModal: null})}>
-          <PartyOverview world={this.state.world}></PartyOverview>
+          <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <b>Active Policies</b>
@@ -233,11 +237,11 @@ class App extends React.Component<AppPs, AppState>{
             <span>
               Propaganda changes beans' feelings on a wide variety of topics.
             </span>
-            <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
+            {/* <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
             <div>
               <b>Campaign Finances</b> <br/>
               <b>Expenses</b> ${seasonalCost} <b>Surplus</b> ${this.state.world.party.seasonalIncome - seasonalCost}
-            </div>
+            </div> */}
           </div>
         </Modal>
         <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({activeModal: null})}>

@@ -163,8 +163,15 @@ button.pull-r{
 .pad-20{
   padding: 20px;
 }
+.pad-4p{
+  padding-left: 4%;
+  padding-right: 4%;
+}
+.grow-1{
+  flex-grow: 1;
+}
 .policies{
-  
+
 }
 .policy{
   display: inline-block;
@@ -180,6 +187,17 @@ button.pull-r{
   border: 1px solid grey;
   padding: .25em;
   margin-left: 0;
+}
+.platform-subheader{
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid grey;
+  border-top: 0px;
+}
+.platform-identity{
+  text-align: center;
+  font-weight: bold;
+  border: 1px solid grey;
 }
 
 .tile{
@@ -414,6 +432,20 @@ table.classic .border-t{
 .bubbler.neg{
   color: red;
 }
+
+.vertical{
+  display: flex;
+  flex-direction: column;
+}
+.reverse{
+  flex-flow: column-reverse;
+}
+.horizontal{
+  display: flex;
+  flex-direction: row;
+}
+
+select:invalid { color: gray; }
 
 @keyframes hop {
   0% {
