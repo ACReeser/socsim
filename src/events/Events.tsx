@@ -23,4 +23,5 @@ export class ChangePubSub extends PubSub<{change: number}>{
 export class EventBus{
     physicalCapital = new ChangePubSub();
     politicalCapital = new ChangePubSub();
+    labor = new ChangePubSub();
 }

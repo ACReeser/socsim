@@ -67,7 +67,7 @@ export function policy(p: Policy){
   )
 }
 
-export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party';
+export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party'|'polisci';
 interface AppPs{
 }
 interface AppState{
@@ -89,6 +89,17 @@ class App extends React.Component<AppPs, AppState>{
       activeRightPanel: 'overview'
     };
     this.state.world.calculateComputedState();
+  }
+  componentDidMount(){
+    document.addEventListener("keyup", this.escFunction, false);
+  }
+  componentWillUnmount(){
+    document.removeEventListener("keyup", this.escFunction);
+  }
+  escFunction = (event: KeyboardEvent) => {
+    if(event.keyCode === 13) {
+      this.endTurn();
+    }
   }
   endTurn() {
     this.state.world.next();
@@ -223,6 +234,14 @@ class App extends React.Component<AppPs, AppState>{
         <Modal show={this.state.activeModal == 'party'} onClick={() => this.setState({activeModal: null})}>
           <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
         </Modal>
+        <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
+          <div className="col-2">
+            <h2>Political Science</h2>
+            <div>
+
+            </div>
+          </div>
+        </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <div className="col-2">
             <h2>Government</h2>
@@ -266,14 +285,96 @@ class App extends React.Component<AppPs, AppState>{
           </div>
         </Modal>
         <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({activeModal: null})}>
-          <div className="policies">
+          <div className="pad-4p">
             <div className="subheader">
                 <h3>Propaganda</h3>
-                <button type="button" className="callout" onClick={() => void(0)} >🎙️ Create New Propaganda</button>
+                <button type="button" className="callout" onClick={() => void(0)} >🎙️ Buy Propaganda</button>
             </div>
             <span>
               Propaganda changes beans' feelings on a wide variety of topics.
             </span>
+            <div className="card-parent">
+              <button type="button" className="card button">
+                <span className="h">
+                  📺 Broadcast Campaign
+                </span>
+                <small>Approval+ Cash-</small>
+                <span className="p">
+                  Small chance to increase Approval among all beans
+                </span>
+              </button>
+              <button type="button" className="card button">
+                <span className="h">
+                  👋 Canvassing
+                </span>
+                <small>Approval+ Labor-</small>
+                <span className="p">
+                  Chance to increase Approval on a few random beans
+                </span>
+              </button>
+              <button type="button" className="card button">
+                <span className="h">
+                  🗞️ Print Campaign
+                </span>
+                <small>Approval+ Cash-</small>
+                <span className="p">
+                  Chance to increase Approval on wealthy beans
+                </span>
+              </button>
+            </div>
+            <div className="subheader">
+                <h3>Appearances</h3>
+                <button type="button" className="callout" onClick={() => void(0)} >💬 Schedule Appearance</button>
+            </div>
+            <span>
+              Appearances have limited reach, but have powerful effects.
+            </span>
+            <div className="card-parent">
+              <button type="button" className="card button">
+                <span className="h">
+                🤔 Debating
+                </span>
+                <small>
+                  Labor-
+                </small>
+                <span className="p">
+                  Chance to gain or lose Influence
+                </span>
+              </button>
+              <button type="button" className="card button">
+                <span className="h">
+                📸 Photo Op
+                </span>
+                <small>
+                  Labor-
+                </small>
+                <span className="p">
+                  Increases Approval within one Social Group
+                </span>
+              </button>
+              <button type="button" className="card button">
+                <span className="h">
+                  🎤 Speechmaking
+                </span>
+                <small>
+                  Labor-
+                </small>
+                <span className="p">
+                  Increases chance of Donations in a single City
+                </span>
+              </button>
+              <button type="button" className="card button">
+                <span className="h">
+                🙋 Town Hall
+                </span>
+                <small>
+                  Labor-
+                </small>
+                <span className="p">
+                  Suppresses negative Approval in a single city                     
+                </span>
+              </button>
+            </div>
             {/* <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
             <div>
               <b>Campaign Finances</b> <br/>
@@ -307,14 +408,18 @@ class App extends React.Component<AppPs, AppState>{
           </div>
           <div className="bottom">
             <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="💰">
-              <b>💰 Physical Capital</b> {this.state.world.party.materialCapital.toFixed(0)}
+              <b>💰 Cash</b> {this.state.world.party.materialCapital.toFixed(0)}
             </BubbleText>
             <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🤝">
-              <b>🤝 Political Capital</b> {this.state.world.party.politicalCapital}
+              <b>🤝 Influence</b> {this.state.world.party.politicalCapital}
+            </BubbleText>
+            <BubbleText changeEvent={this.state.world.bus.labor} icon="🤝">
+              <b>💪 Labor</b> {this.state.world.party.labor}
             </BubbleText>
             <span>
-              <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>Situation Report</button>
+              <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>State of the Nation</button>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'party'})}>Party</button>
+              <button type="button" onClick={() => this.setState({activeModal:'polisci'})}>PoliSci</button>
               <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button>
               <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Law</button>
             </span>

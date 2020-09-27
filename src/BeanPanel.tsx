@@ -65,7 +65,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     render(){
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
         const chance = this.props.bean.chanceToDonate(this.props.economy, true);
-        const chanceText = (chance * 100).toFixed(0) + '% to gain Physical Capital';
+        const chanceText = (chance * 100).toFixed(0) + '% to gain Cash';
         const actionLimit = this.props.party.activeHQs.length + 2;
         return (                
         <div>
@@ -179,17 +179,34 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </tr> */}
                 </tbody>
             </table>
-            <div className="text-center">
-                <button type="button" disabled={chance < 0.05} className="important" onClick={this.solicit} title={chanceText}>🤲 Solicit Donation</button>
-                <button type="button" disabled={this.props.party.materialCapital < 1} className="callout" onClick={this.solicit} title="Pay $ to increase approval">💰 Bribe</button>
+            <div className="card-parent">
+                <button type="button" disabled={chance < 0.05} className="button card" onClick={this.solicit} title={chanceText}>
+                    🤲 Solicit Donation
+                    <small>+Cash -Labor</small>
+                </button>
             </div>
-            <div className="text-center">
-                <button type="button" className="callout" onClick={this.insult} disabled={!this.props.bean.canInsult()}
-                    title="Decrease this bean's party approval to gain Political Capital"
-                >😈 Publically Insult</button>
-                <button type="button" className="callout" onClick={this.support} disabled={!this.props.bean.canSupport()}
+            <div className="card-parent">
+                <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
                     title="Spend Political Capital to increase this bean's party approval"
-                >😘 Publically Support</button>
+                >😘 Endorse
+                    <small>+Approval -Influence</small>
+                </button>
+                <button type="button" className="button card" onClick={this.solicit} title={chanceText}>
+                    💪 Recruit
+                    <small>+Labor -Influence</small>
+                </button>
+            </div>
+            <div className="card-parent">
+                <button type="button" className="button card" onClick={this.insult} disabled={!this.props.bean.canInsult()}
+                    title="Decrease this bean's party approval to gain Political Capital"
+                >
+                    😈 Denounce
+                    <small>+Influence -Approval</small>
+                </button>
+                <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.solicit} title="Pay $ to increase approval">
+                    💰 Bribe
+                    <small>+Approval -Cash</small>
+                </button>
             </div>
             <div className="text-center">
                 <small>

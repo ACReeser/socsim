@@ -4,6 +4,49 @@ body, html, #root, .canvas, .world{height: 100%; width: 100%;}
 h3.small{
   margin-bottom: 2px;
 }
+.card-parent{
+  display: flex;
+  padding: 4px;
+}
+.card-parent .card{
+  background: hsl(16, 100%, 80%);
+  display: inline-block;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+  flex-grow: 1;
+  margin: 1px;
+  border: 1px solid rgba(0,0,0,0.8);
+  border-radius: 3px;
+  overflow: hidden;
+  transition: transform 0.5s;
+}
+.card-parent .card.button:hover{
+  background: hsl(16, 100%, 70%);
+  transform: translateY(-6px);
+}
+.card-parent .card.button:active{
+  background: hsl(16, 100%, 90%);
+}
+.card-parent .card small{
+  display: block;
+  margin-top: 4px;
+}
+.card-parent .card button, 
+.card-parent button.card{
+  padding: 0;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.card-parent .card button{
+  margin: 0;
+  width: 100%;
+  display: block;
+  border: none;
+  border-radius: 0;
+}
+.card span.h{
+  font-size: 1.3em;
+}
+
 
 button{
   margin: 1em;
@@ -438,6 +481,14 @@ table.classic .border-t{
   display: flex;
   flex-direction: column;
 }
+.vertical select{
+  border-radius: 0;
+  height: 2em;
+}
+.vertical select:last-child{
+  border-top-right-radius: 4px;
+  border-top-left-radius: 4px;
+}
 .reverse{
   flex-flow: column-reverse;
 }
@@ -447,6 +498,10 @@ table.classic .border-t{
 }
 .horizontal > *{
   flex-grow: 1;
+  margin-right: 2px;
+}
+.horizontal > *:last-child{
+  margin-right: 0;
 }
 
 select:invalid { color: gray; }

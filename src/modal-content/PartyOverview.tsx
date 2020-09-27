@@ -58,7 +58,12 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             {this.props.world.party.availablePolicies.map((p) => policy(p))}
           </div>
           <div className="pad-4p">
-                <h3 className="small">Platform</h3>
+                <h3 className="small">
+                    Platform
+                    <button type="button" className="pull-r">
+                    🧪 View Political Science
+                    </button>
+                </h3>
                 <div className="horizontal">
                     <div className="vertical reverse">
                         <div className="platform-subheader">Welfare</div>
@@ -107,7 +112,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 </div>
                 <div>
                     <label>
-                        Focus: &nbsp;
+                        Legislative Focus: &nbsp;
                         <PolicyDropdown 
                             options={Object.values(this.props.world.party.platform).filter(x => x != null)}
                             onChange={() => {}}

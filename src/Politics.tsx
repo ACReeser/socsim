@@ -17,6 +17,7 @@ export interface Party extends IInstitution{
 
     politicalCapital: number;
     materialCapital: number;
+    labor: number;
 
     seasonalIncome: number;
     seasonalActions: number;
@@ -39,6 +40,7 @@ export class BaseParty implements Party{
     public activeCampaigns: Campaign[] = [];
     public politicalCapital: number = 10;
     public materialCapital: number = 20;
+    public labor: number = 10;
     public activeHQs: number[] = [];
     public platform: {[key in Axis]: IPolicy} = {} as {[key in Axis]: IPolicy};
 
