@@ -287,6 +287,12 @@ ul.boxes li{
   width: 45%;
   margin-left: 4%;
 }
+.max-w-500{
+  max-width: 500px;
+}
+.m-t-2em{
+  margin-top: 2em;
+}
 
 .slogan-group{  
   color: mediumblue;

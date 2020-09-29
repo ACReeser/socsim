@@ -17,6 +17,7 @@ import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
 import { PartyOverview } from './modal-content/PartyOverview';
 import { BubbleText } from './widgets/BubbleText';
 import { Season, Now } from './simulation/Time';
+import { SocialGraph } from './widgets/SocialGraph';
 
 
 
@@ -75,6 +76,7 @@ interface AppState{
   activeCityID: number|null;
   activeBeanID: number|null;
   activeModal: ModalView|null;
+  activeMain: 'geo'|'network';
   activeRightPanel: 'events'|'overview'|'goals';
 }
 
@@ -85,6 +87,7 @@ class App extends React.Component<AppPs, AppState>{
       world: GenerateWorld(),
       activeCityID: null,
       activeBeanID: null,
+      activeMain: 'geo',
       activeModal: 'party_creation',
       activeRightPanel: 'overview'
     };
@@ -210,10 +213,9 @@ class App extends React.Component<AppPs, AppState>{
         return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
     }
   }
-  render() {
-    const season = Season[this.state.world.date.season];
+  renderGeo() {
     const COL = this.state.world.economy.getCostOfLiving();
-    const tiles = this.state.world.cities.map((t) => {
+    return this.state.world.cities.map((t) => {
       return (
         <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
           onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
@@ -221,11 +223,40 @@ class App extends React.Component<AppPs, AppState>{
           ></WorldTile>
       )
     });
+  }
+  renderNetwork(){
+    return <div>
+      <div className="horizontal max-w-500 m-t-2em">
+        <button type="button">
+        😎 Influence
+        </button>
+        <button type="button">
+        🚩 Party Preference
+        </button>
+        <button type="button">
+        📈 Demographics
+        </button>
+      </div>
+      <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} 
+        beans={this.state.world.beans}
+        onClick={(b) => this.setState({activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key})} ></SocialGraph>
+    </div>
+  }
+  main(){
+    switch(this.state.activeMain){
+      case 'network':
+        return this.renderNetwork();
+      default:
+        return this.renderGeo();
+    }
+  }
+  render() {
+    const season = Season[this.state.world.date.season];
     const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);
     return (
     <div className="canvas">
       <div className="world">
-        {tiles}
+        {this.main()}
       </div>
       <div className="overlay">
         <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
@@ -400,11 +431,15 @@ class App extends React.Component<AppPs, AppState>{
             <span>
               Budget
             </span>
-            <span className="pull-r" style={{marginRight: 2+'em'}}>
-              election in {this.state.world.electionIn} seasons
-              &nbsp;
-              <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button>
-            </span>
+            <div className="pull-r horizontal" style={{marginRight: 2+'em'}}>
+              <button type="button" onClick={() => this.setState({activeMain: 'network'})}>🌐</button>
+              <button type="button" onClick={() => this.setState({activeMain: 'geo'})}>🌎</button>
+              <span>
+                election in {this.state.world.electionIn} seasons
+                &nbsp;
+                <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button>
+              </span>
+            </div>
           </div>
           <div className="bottom">
             <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="💰">

@@ -4,6 +4,7 @@ import React from "react";
 interface AnimatedBeanP {
   bean: Bean;
   costOfLiving: number;
+  sitStill?: boolean;
   onClick: () => void;
 }
 
@@ -53,9 +54,14 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, {paused: boolea
     render() {
       let classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
       classes += this.state.paused || !this.props.bean.alive ? ' paused' : '';
+      if (this.props.sitStill){
+
+      } else {
+        classes += ' bean-walker';
+      }
       let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health} ${this.props.bean.community} ${this.props.bean.ideals} $${this.props.bean.cash}`
       return (
-        <span className={classes+" bean bean-walker interactable"}
+        <span className={classes+" bean interactable"}
           style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}
           onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
         >

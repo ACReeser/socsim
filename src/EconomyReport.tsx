@@ -54,8 +54,10 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       const meds = this.props.world.economy.market.listings['medicine'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
       const houses = this.props.world.economy.market.listings['shelter'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
       return (
-        <div className="pad-20">
-          <h3>Citizen's Health</h3>
+        <div>
+          <div className="pad-4p">
+            <h3>Citizen's Health</h3>
+          </div>
           <div className="col-2">
             <div>
               <strong>🍞 Food Security</strong> Median:{food_median} meals <br/>
@@ -78,7 +80,9 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.shelter} units
             </div>
           </div>
-          <h3>Economic Health</h3>
+          <div className="pad-4p">
+            <h3>Economic Health</h3>
+          </div>
           <div className="col-2">
             <div>
               <strong>💰 Wealth</strong> Household Wealth: {wealth_total.toFixed(2)}<br/>
