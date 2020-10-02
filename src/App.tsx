@@ -18,7 +18,10 @@ import { PartyOverview } from './modal-content/PartyOverview';
 import { BubbleText } from './widgets/BubbleText';
 import { Season, Now } from './simulation/Time';
 import { SocialGraph } from './widgets/SocialGraph';
+import { CapsuleLabel } from './widgets/CapsuleLabel';
 
+
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 
 export const keyToName = {
@@ -216,13 +219,13 @@ class App extends React.Component<AppPs, AppState>{
   renderGeo() {
     const COL = this.state.world.economy.getCostOfLiving();
     return this.state.world.cities.map((t) => {
-      return (
-        <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
-          onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
-          onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
-          ></WorldTile>
-      )
-    });
+        return (
+          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
+            onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
+            onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
+            ></WorldTile>
+        )
+      });
   }
   renderNetwork(){
     return <div>
@@ -255,9 +258,15 @@ class App extends React.Component<AppPs, AppState>{
     const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);
     return (
     <div className="canvas">
-      <div className="world">
-        {this.main()}
-      </div>
+      <TransformWrapper 
+        defaultScale={1}
+        wheel={{step: 48}}>
+        <TransformComponent>
+          <div className="world">
+            {this.main()}
+          </div>
+        </TransformComponent>
+      </TransformWrapper>
       <div className="overlay">
         <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
           <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
@@ -442,21 +451,27 @@ class App extends React.Component<AppPs, AppState>{
             </div>
           </div>
           <div className="bottom">
-            <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="💰">
-              <b>💰 Cash</b> {this.state.world.party.materialCapital.toFixed(0)}
+            <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="⚡️">
+              <CapsuleLabel icon="⚡️" label="Energy">
+                {this.state.world.party.materialCapital.toFixed(0)}
+              </CapsuleLabel>
             </BubbleText>
-            <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🤝">
-              <b>🤝 Influence</b> {this.state.world.party.politicalCapital}
+            <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🧠">
+              <CapsuleLabel icon="🧠" label="Psi">
+                {this.state.world.party.politicalCapital}
+              </CapsuleLabel>
             </BubbleText>
-            <BubbleText changeEvent={this.state.world.bus.labor} icon="🤝">
-              <b>💪 Labor</b> {this.state.world.party.labor}
+            <BubbleText changeEvent={this.state.world.bus.labor} icon="🤖">
+              <CapsuleLabel icon="🤖" label="Bots">
+                {this.state.world.party.labor}
+              </CapsuleLabel>
             </BubbleText>
             <span>
-              <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>State of the Nation</button>
+              <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>State of the Utopia</button>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'party'})}>Party</button>
-              <button type="button" onClick={() => this.setState({activeModal:'polisci'})}>PoliSci</button>
+              <button type="button" onClick={() => this.setState({activeModal:'polisci'})}>Being Tech</button>
               <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button>
-              <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Law</button>
+              <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Gov</button>
             </span>
           </div>
         </div>
@@ -466,7 +481,9 @@ class App extends React.Component<AppPs, AppState>{
             <button onClick={() => this.setState({activeRightPanel: 'events'})}>📣 Events</button>
             <button onClick={() => this.setState({activeRightPanel: 'goals'})}>🏆 Goals</button>
           </div>
-          {this.getPanel()}
+          <div className="right-panel">
+            {this.getPanel()}
+          </div>
         </div>
       </div>
     </div>

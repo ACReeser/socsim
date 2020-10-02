@@ -1,6 +1,6 @@
 {
   "name": "socsim",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "homepage": "https://acreeser.github.io/socsim",
   "dependencies": {
@@ -15,6 +15,7 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-scripts": "3.4.1",
+    "react-zoom-pan-pinch": "^1.6.1",
     "typescript": "^3.9.7"
   },
   "scripts": {

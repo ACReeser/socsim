@@ -42,6 +42,7 @@ export function StartingCash(job: TraitJob): number{
     }
 }
 
+const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
     const world = new World();
     world.law.policyTree = {
@@ -63,7 +64,7 @@ export function GenerateWorld(): World{
     };
     world.party = new BaseParty();
     world.institutions.push(world.party);
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < Number_Starting_Cities; i++) {
         world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
         world.cities[i].environment = world.date;
@@ -91,6 +92,7 @@ export function GeneratePartyHQ(city: City, party: Party) {
     party.activeHQs.push(hq.cityKey);
 }
 
+const Number_Starting_City_Pop = 10;
 export function GenerateCity(previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;
@@ -98,7 +100,7 @@ export function GenerateCity(previousCityCount: number): City{
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
 
-    const cityPopulation = 3;
+    const cityPopulation = Number_Starting_City_Pop;
     while(newCity.historicalBeans.length < cityPopulation){
         newCity.historicalBeans.push(
             GenerateBean(newCity, newCity.historicalBeans.length)

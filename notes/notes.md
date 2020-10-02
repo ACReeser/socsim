@@ -61,8 +61,77 @@ beans introduced into new environment with no existing power structure
 
 start with idyllic beans in a field
 
-change some internal structure on the beans
+change job/opinions
 
-* make one a king?
+## Working Title
+### Aliens
+> Alien Utopia Laboratory
+
+> Superbeing Society Sandbox
+
+> Plutonian Petri Politics
+
+### Lab/Sim
+> Experimental Society Simulator
+
+> Sapient Society Simulator
+
+> Utopia Laboratory
+
+> Political Petri Dish
+
+### Neologism
+> Petri-topia
+
+> Petri Proles
+
+> `PETRI-POLIS`
+
+> Petri Politics
+
+
+
+## 👽 **Plutonian**
+
+## 🧫 **Petri** 
+
+## 👎 **Politics**
+
+.
+
+## 👽 **Alien**
+
+## 🏡 **Utopia** 
+
+## 🔬 **Lab**
+
+.
+
+## 🌐 **Utopia Lab** 🔬
+## 👽 **Alien Utopia Lab** 🔬
+
+
+
+## Internal Consistency
+* resources
+  1. singular massive "society points"
+  1. cash/influence/labor
+* digetic explanation for player
+  1. deity
+  1. head-of-state (not one of beans)
+  1. head-of-state (one of beans)
+  1. "Artificial" Intelligence
+  1. meddling alien superbeing
+
+
+## Instant Gratification
+* make one a King
+  * immediately begins taxing and hiring soldiers?
 * make some a rebel?
+
+## Free Roaming Beans
 * how do they interact?
+  * area-of-influence with collision?
+
+## Sprinkle Government
+* have authority figures unlock policies

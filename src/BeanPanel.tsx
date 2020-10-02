@@ -180,38 +180,44 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </tbody>
             </table>
             <div className="card-parent">
-                <button type="button" disabled={chance < 0.05} className="button card" onClick={this.solicit} title={chanceText}>
-                    🤲 Solicit Donation
-                    <small>+Cash -Labor</small>
-                </button>
-            </div>
-            <div className="card-parent">
                 <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
-                    title="Spend Political Capital to increase this bean's party approval"
-                >😘 Endorse
-                    <small>+Approval -Influence</small>
-                </button>
-                <button type="button" className="button card" onClick={this.solicit} title={chanceText}>
-                    💪 Recruit
-                    <small>+Labor -Influence</small>
+                    title="Rewrite one of this being's beliefs"
+                >😵 Brainwash
+                    <small>-Psi -Sanity +Belief</small>
                 </button>
             </div>
             <div className="card-parent">
-                <button type="button" className="button card" onClick={this.insult} disabled={!this.props.bean.canInsult()}
-                    title="Decrease this bean's party approval to gain Political Capital"
-                >
-                    😈 Denounce
-                    <small>+Influence -Approval</small>
+                <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.solicit} 
+                    title="Increase this being's influence">
+                    🧐 Empower
+                    <small>-Psi +Influence</small>
                 </button>
-                <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.solicit} title="Pay $ to increase approval">
-                    💰 Bribe
-                    <small>+Approval -Cash</small>
+                <button type="button" className="button card" onClick={this.solicit} 
+                    title="Increase this being's wealth">
+                    🤑 Gift
+                    <small>-Energy +Money</small>
                 </button>
             </div>
-            <div className="text-center">
-                <small>
-                    {actionLimit - this.props.party.seasonalActions} of {actionLimit} Activities remaining
-                </small>
+            <div className="card-parent">
+                <button type="button" className="button card" onClick={this.solicit} 
+                    title="Drain a bit of this being's brain">
+                    🤪 Siphon
+                    <small>-Energy -Sanity +Psi</small>
+                </button>
+                <button type="button" className="button card" onClick={this.insult}
+                    title="Delete this being from the experiment"
+                >
+                    ☠️ Disappear
+                    <small>-Bots -Psi</small>
+                </button>
+            </div>
+            <div className="card-parent">
+                <button type="button" className="button card" onClick={this.insult}
+                    title="Remove this being for study"
+                >
+                    👾 Abduct
+                    <small>-Energy -Psi -Bots -Sanity +Tech</small>
+                </button>
             </div>
         </div>
         )

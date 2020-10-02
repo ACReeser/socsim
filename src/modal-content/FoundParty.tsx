@@ -24,8 +24,8 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
         this.state = {
             community: null,
             ideal: null,
-            name: "Citizen's Party",
-            slogan: "Vote for us!",
+            name: "Superbeing",
+            slogan: "Perfection is achievable.",
             members: "Citizens",
             goal: "Legislation",
             cityKey: 0
@@ -44,23 +44,23 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
     onBigFourChange(){
         if (this.state.community === 'ego' && this.state.ideal === 'trad'){
             this.setState({
-                name: 'Liberal Family Party',
-                slogan: "Father Knows Best.",
+                name: 'Arcadia',
+                slogan: "A man belongs on the farm.",
                 members: "Farmers", goal: "Tariffs"});
         } else if (this.state.community === 'ego' && this.state.ideal === 'prog') {
             this.setState({
-                name: "Free Worker's Party",
-                slogan: "Liberty for Labor!",
+                name: "Libertaria",
+                slogan: "Freedom for every being!",
                 members: "Builders", goal: "Right to Strike"});
         } else if (this.state.community === 'state' && this.state.ideal === 'trad') {
             this.setState({
-                name: "National Landowners' Party",
-                slogan: "For Culture & Country!",
+                name: "Ultimate Kingdom",
+                slogan: "Honor to King and family.",
                 members: "Homeowners", goal: "Repeal Property Tax"});
         } else if (this.state.community === 'state' && this.state.ideal === 'prog') {
             this.setState({
-                name: "Social People's Party",
-                slogan: "Equality, Guaranteed.",
+                name: "Equus",
+                slogan: "True equality is peace.",
                 members: "Penniless", goal: "Food Welfare"});
         }
     }
@@ -75,10 +75,10 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
     }
     render(){
         return <div>            
-          <h2>Found your Political Party</h2>
+          <h2>Found your Utopia</h2>
           <div className="col-2">
             <div>
-              My fellow party members believe the
+              Perfect societies rely on the
               <div>
                 <label>
                   <input type="radio" name="community" value="state" checked={this.state.community === 'state'} onChange={(e) => this.onCommunity(e.currentTarget.value as TraitCommunity)} /> <b>Government</b> 🐘 {/*🤝*/}
@@ -89,10 +89,10 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
                 </label>
               </div>
               &nbsp;
-              is responsible for well-being.
+              to guarantee well-being.
             </div>
             <div>
-              My fellow party members believe in
+              Perfect beings devote themselves to
               <div>
                 <label>
                   <input type="radio" name="ideal" value="trad" checked={this.state.ideal === 'trad'} onChange={(e) => this.onIdeal(e.currentTarget.value as TraitIdeals)}/> <b>Traditional</b> {/*🕯️ 🔮*/} 👑
@@ -109,31 +109,14 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
           <hr />
           <div className="col-2">
             <div>
-              My party's first members are mostly <b>{this.state.members}</b>
+              My Utopia is named <input type="text" value={this.state.name} onChange={this.onName} />
             </div>
             <div>
-              My party's first major goal is to pass <b>{this.state.goal}</b>
+              My Utopia's mantra is <input type="text" value={this.state.slogan} onChange={this.onSlogan}  />
             </div>
           </div>
-          <hr />
-          <div className="col-2">
-            <div>
-              My party is named <input type="text" value={this.state.name} onChange={this.onName} />
-            </div>
-            <div>
-              My party's slogan is <input type="text" value={this.state.slogan} onChange={this.onSlogan}  />
-            </div>
-          </div>
-          <hr />
-          <div className="col-2">
-            <div>
-              My party is based in&nbsp;<CityDropdown options={this.props.cities} onChange={this.onCity}></CityDropdown>
-            </div>
-            <div>
-              
-            </div>
-          </div>
-          <button type="button" disabled={this.state.community == null || this.state.ideal == null} className="important btn-found-party" onClick={() => this.props.onFound(this.state)}>Found the {this.state.name}</button>
+          <hr/>
+          <button type="button" disabled={this.state.community == null || this.state.ideal == null} className="important btn-found-party" onClick={() => this.props.onFound(this.state)}>Found the {this.state.name} Utopia</button>
         </div>
     }
 }
