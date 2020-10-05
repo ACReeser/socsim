@@ -122,9 +122,37 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.key = previousBeanCount;
     newBean.cityKey = city.key;
     newBean.city = city;
-    newBean.name = GetRandom(['Chick', 'Broad', 'Velvet', 'Jack', 'Lima', 'Whit', 'Black-Eye', 'Baker', 'Pony', 'Castor', 'Frenchy', 'Kid', 'Runner']) + ' ';
-    newBean.name += GetRandom(['Bean', 'Navy', 'Sprout', 'Soy', 'Mung', 'Lent', 'Faba', 'Wax', 'Chick', 'Green', 'Pinto']);
-    newBean.name += GetRandom(['shell', 'seed', 'pea', 'pod', 'snap', 'vine', 'leaf', 'shoot']);
+    newBean.name = GetRandom(['Joe', 'Frank', 'Jill', 'Jose',
+    'Johnny', 'Isabelle', 'Carmen', 'Ace', 'Carl', 'Zander', 'Jean',
+    'Anne', 'Leslie', 'Ben', 'Ron', 
+    'Ellen', 'Dallas', 'Kane', 'Ash', 
+    'Jim', 'James', 'Leonard', 'Nyota', 'Christine', 'Scotty', 'Tasha', 'Geordi', 'Beverly', 'Deanna', 'Wesley', 'Majel',
+    'Malcolm','River',  
+    'Luke', 
+    'Dana', 'Walter',  
+    'Rick', 
+    'Rose', 'Donna', 'Jack', 'Amy', 'Rory', 'Martha', 'Clara', 
+    'Arnold', 'Dave', 'Holly', 
+    'Kara', 'Gaius','William', 'Lee', 'Laura', 'Saul',
+    'Max', 'Edison', 'Theora', 'Bryce', 'Murray', 'Ned',
+    'Daniel', 'Samantha', 
+    'Logan', 'Francis', 'Jessica'
+    ]) + ' ';
+    newBean.name += GetRandom([
+        'Ripley', 'Bishop', 'Hicks', 'Vasquez', 'Hudson', 
+        'Rico', 'Flores', 'Ibanez', 'Levy', 'Jenkins', 'Barlow', 'Zim', 'Rasczak',
+        'Kirk', 'McCoy', 'Sulu', 'Uhura', 'Chekov', 'Chapel', 'Rand','Riker', 'Crusher', 'Barret', "O'Brien",
+        'Reynolds', 'Tam', 
+        'Scully', 'Mulder','Skinner', 
+        'Connor', 
+        'Thrace', 'Baltar', 'Smith','Adama', 'Roslin', 'Tigh', 'Song', 'Oswald', 
+        'Deckard', 
+        'Tyler', 'Harkness', 'Jones', 'Noble', 'Pond', 'Williams',
+        'Rimmer', 'Lister', 
+        'Head', 'Carter', 'Lynch', 'McKenzie', 'Grossberg',
+        "O'Neil", 'Jackson', 'Carter'
+         ]);
+    //newBean.name += GetRandom(['shell', 'seed', 'pea', 'pod', 'snap', 'vine', 'leaf', 'shoot']);
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();

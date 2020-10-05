@@ -45,7 +45,6 @@ export class WorldTile extends React.Component<WorldTilePs> {
           {houses}
           {beans}
           <span className="tile-label">{this.props.tile.name}</span>
-          <img src={this.props.tile.url} alt={this.props.tile.type} />
         </div>
       )
     }

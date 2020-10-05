@@ -182,6 +182,13 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             <div className="card-parent">
                 <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
                     title="Rewrite one of this being's beliefs"
+                >🛰️ Scan
+                    <small>-Energy +Info</small>
+                </button>
+            </div>
+            <div className="card-parent">
+                <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
+                    title="Rewrite one of this being's beliefs"
                 >😵 Brainwash
                     <small>-Psi -Sanity +Belief</small>
                 </button>
@@ -208,7 +215,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     title="Delete this being from the experiment"
                 >
                     ☠️ Disappear
-                    <small>-Bots -Psi</small>
+                    <small>-Bots -Energy</small>
                 </button>
             </div>
             <div className="card-parent">
@@ -216,7 +223,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     title="Remove this being for study"
                 >
                     👾 Abduct
-                    <small>-Energy -Psi -Bots -Sanity +Tech</small>
+                    <small>-Bots -Sanity +Tech</small>
                 </button>
             </div>
         </div>

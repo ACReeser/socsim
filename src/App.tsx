@@ -468,10 +468,9 @@ class App extends React.Component<AppPs, AppState>{
             </BubbleText>
             <span>
               <button type="button" className="callout" onClick={() => this.setState({activeModal:'economy'})}>State of the Utopia</button>
-              <button type="button" className="callout" onClick={() => this.setState({activeModal:'party'})}>Party</button>
-              <button type="button" onClick={() => this.setState({activeModal:'polisci'})}>Being Tech</button>
+              <button type="button" className="callout" onClick={() => this.setState({activeModal:'party'})}>Gov</button>
+              <button type="button" onClick={() => this.setState({activeModal:'polisci'})}>Research</button>
               <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button>
-              <button type="button" onClick={() => this.setState({activeModal:'policy'})}>Gov</button>
             </span>
           </div>
         </div>
