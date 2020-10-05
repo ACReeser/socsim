@@ -23,6 +23,7 @@ export interface IBean{
     discrete_food: number;
     cash: number;
     dob: IDate;
+    sanity: number;
 }
 
 const BabyChance = 0.05;
@@ -32,7 +33,8 @@ export class Bean implements IBean, ISeller{
     public cityKey: number = 0;
     public alive: boolean = true;
     public dob: IDate = {year: 0, season: 0};
-    public name: string = 'Bean Beanson';
+    public name: string = 'Human Bean';
+    public sanity = 1;
 
     public city: City|null = null;
 

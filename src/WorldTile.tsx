@@ -45,6 +45,9 @@ export class WorldTile extends React.Component<WorldTilePs> {
           {houses}
           {beans}
           <span className="tile-label">{this.props.tile.name}</span>
+          <svg style={{width: '100%', height: '100%'}} className="petri-lid">
+            <circle cx="300" cy="300" r="300" stroke="grey" stroke-width="2" fill="rgba(255, 255, 255, 0.2)" />
+           </svg>
         </div>
       )
     }

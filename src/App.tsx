@@ -27,7 +27,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 export const keyToName = {
   state: 'Statist', ego: 'Egoist', 
   trad: 'Traditionalist', prog: 'Progressive', 
-  circle: 'Circle', square: 'Square', triangle: 'Triangle', 
+  circle: 'Brunette', square: 'Blonde', triangle: 'Redhead', 
   book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless',
   hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
   podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',

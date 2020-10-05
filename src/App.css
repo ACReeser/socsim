@@ -122,6 +122,8 @@ button.callout:active{
   background: hsla(187, 100%, 90%, .8);
   margin: 4px;
   padding: 0px 2px 2px 2px;
+  z-index: -10;
+  opacity: .99;
 }
 .top{
   height: 2em;
@@ -163,6 +165,9 @@ button.pull-r{
 }
 .world .tile:hover{
   border-color: hsl(16, 100%, 50%);
+}
+.world .tile:hover .petri-lid circle{
+  fill: transparent;
 }
 .tile-label{
   opacity: .6;
@@ -269,6 +274,12 @@ button.pull-r{
   height: 600px;
   border-radius: 300px;
   position: relative;
+}
+.petri-lid{
+  position: absolute;
+  left: 0; top: -20px;
+  width: 600px; height: 600px;
+  pointer-events: none;
 }
 .bar{
   font-size: 8px; height: 10px;
@@ -486,16 +497,17 @@ table.classic .border-t{
 }
 .bean.square:before{
   border-radius: 0px;
+  transform: rotate(45deg);
+  background: tan;
 }
 .bean.triangle:before{
+  background: orangered;
   border-radius: 0px;
   transform: rotate(45deg);
 }
 .bean.circle:before{
-  height: 23px;
-  width: 23px;
-  border-radius: 25px;
-  left: -1px;
+  transform: rotate(45deg);
+  border-radius: 0px;
 }
 .bean-walker.paused{
   animation-play-state: paused;
