@@ -1,5 +1,5 @@
 import React from "react";
-import { World, Axis, TraitCommunityIcon, TraitIdealsIcon } from "../World";
+import { World, Axis, TraitIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { PolicyDropdown } from "../widgets/PolicyDropdown";
 import { PolicyTree, PolicyByKey, IPolicy } from "../Politics";
@@ -102,12 +102,12 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                     <div className="grow-1 platform-identity">
                         { keyToName[this.props.world.party.community]}
                         &nbsp;
-                        {TraitCommunityIcon[this.props.world.party.community]}
+                        {TraitIcon[this.props.world.party.community]}
                     </div>
                     <div className="grow-1 platform-identity">
                         { keyToName[this.props.world.party.ideals]}
                         &nbsp;
-                        {TraitIdealsIcon[this.props.world.party.ideals]}
+                        {TraitIcon[this.props.world.party.ideals]}
                     </div>
                 </div>
                 <div>

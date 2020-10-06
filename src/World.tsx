@@ -8,6 +8,7 @@ import { IInstitution, IOrganization, Charity } from './simulation/Institutions'
 import { IEvent, EventBus } from './events/Events';
 import { Season, IDate } from './simulation/Time';
 import { Government } from './simulation/Government';
+import { Player } from './simulation/Player';
 
 
 export interface IBeanContainer{
@@ -29,6 +30,7 @@ export interface IWorld{
     institutions: IInstitution[];
     bus: EventBus;
     date: IDate;
+    alien: Player;
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
@@ -40,6 +42,7 @@ export class World implements IWorld, IBeanContainer{
     public electionIn = 11;
     public yearsEvents: IEvent[] = [];
     public bus = new EventBus();
+    public alien: Player = new Player();
 
     public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {
@@ -263,13 +266,15 @@ export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth;
 export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm'|'all';
 
-export const TraitCommunityIcon: {[key in TraitCommunity]: string} = {
-    'state': '🐘',
-    'ego': '🦅'
-}
-export const TraitIdealsIcon: {[key in TraitIdeals]: string} = {
-    'prog': '🎓',
-    'trad': '👑'
+export const TraitIcon: {[key in Trait]: string} = {
+    'state': '🐘', 'ego': '🦅',
+    'prog': '🎓', 'trad': '👑',
+    'circle': '🤎', 'square': '💛', 'triangle': '🧡',
+    'book': '', 'music': '', 'heart': '',
+    'noFaith': '',
+    'hungry': '🍽️', 'sated': '🥜', 'stuffed': '🥩',
+    'podless': '🌨️', 'crowded': '🏘️', 'homeowner': '🏡',
+    'sick': '🤢', 'bruised': '🩹', 'fresh': '💪'
 }
 export enum MaslowScore {Deficient= -.25, Sufficient=0, Abundant=.15}
 

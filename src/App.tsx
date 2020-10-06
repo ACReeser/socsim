@@ -31,7 +31,7 @@ export const keyToName = {
   book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless',
   hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
   podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
-  sick: 'Sick', bruised: 'Bruised', fresh: 'Fresh'
+  sick: 'Sick', bruised: 'Bruised', fresh: 'Robust'
 };
 export const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
 function magToTextSw(magnitude: number){
@@ -120,10 +120,6 @@ class App extends React.Component<AppPs, AppState>{
       this.state.world.party.ideals = state.ideal;
     const city = this.state.world.cities.find((x) => x.key == state.cityKey);
     if (city) {
-      city.beans.forEach((b) => {
-        if(state.community) b.community = state.community;
-        if(state.ideal) b.ideals = state.ideal;
-      })
       GeneratePartyHQ(city, this.state.world.party);
     }
     this.state.world.calculateComputedState();
@@ -151,12 +147,11 @@ class App extends React.Component<AppPs, AppState>{
     this.setState({world: this.state.world});
     this.state.world.bus.politicalCapital.publish({change: -1});
   }
-  solicit = (bean: Bean) => {
-    const donation = bean.maybeDonate(this.state.world.economy, true);
-    if (donation > 0){
-      this.state.world.party.materialCapital += donation;
+  scan = (bean: Bean) => {
+    if (this.state.world.alien.energy.amount >= 2){
+      this.state.world.alien.energy.amount -= 2;
+      this.state.world.alien.scanned_bean[bean.key] = true;
       this.setState({world: this.state.world});
-      this.state.world.bus.physicalCapital.publish({change: donation});
       return true;
     } else {
       return false;
@@ -178,9 +173,9 @@ class App extends React.Component<AppPs, AppState>{
             if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
               if (bean)
-                return <BeanPanel bean={bean} city={city} 
+                return <BeanPanel bean={bean} city={city} alien={this.state.world.alien} 
                 economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
-                solicit={this.solicit} insult={this.insult} support={this.support}
+                scan={this.scan} insult={this.insult} support={this.support}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
 
@@ -195,20 +190,20 @@ class App extends React.Component<AppPs, AppState>{
           <div><b>Goals</b></div>
           <ul>
             <li>
-            ☑️ Create Party
+            ☑️ Found Utopia
             </li>
             <li>
-            ⭕️ Solicit Donations
-              <span title="Select a single Bean and Solicit Donation">❔</span>
+            ⭕️ Scan a Subject
+              <span title="Select a single earthling and Scan it">❔</span>
             </li>
             <li>
-            ⭕️ Review Party
+            ⭕️ Brainwash a Subject
             </li>
             <li>
-            ⭕️ Create Propaganda
+            ⭕️ Set Government Policy
             </li>
             <li>
-            ⭕️ Pass Legislation
+            ⭕️ Get an A+ Utopia Grade
             </li>
           </ul>
         </div>
@@ -453,17 +448,17 @@ class App extends React.Component<AppPs, AppState>{
           <div className="bottom">
             <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="⚡️">
               <CapsuleLabel icon="⚡️" label="Energy">
-                {this.state.world.party.materialCapital.toFixed(0)}
+                {this.state.world.alien.energy.amount}
               </CapsuleLabel>
             </BubbleText>
             <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🧠">
               <CapsuleLabel icon="🧠" label="Psi">
-                {this.state.world.party.politicalCapital}
+                {this.state.world.alien.psi.amount}
               </CapsuleLabel>
             </BubbleText>
             <BubbleText changeEvent={this.state.world.bus.labor} icon="🤖">
               <CapsuleLabel icon="🤖" label="Bots">
-                {this.state.world.party.labor}
+                {this.state.world.alien.bots.amount}
               </CapsuleLabel>
             </BubbleText>
             <span>

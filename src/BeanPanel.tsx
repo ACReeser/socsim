@@ -9,6 +9,8 @@ import { Party } from "./Politics";
 import { IEvent, EventBus } from "./events/Events";
 import { withinLastYear } from "./simulation/Time";
 import { Government } from "./simulation/Government";
+import { Player } from "./simulation/Player";
+import { CardButton, TraitToCard } from "./widgets/CardButton";
 
 interface BeanPanelP{
     city: City,
@@ -16,9 +18,10 @@ interface BeanPanelP{
     economy: Economy,
     law: Government,
     party: Party,
+    alien: Player,
     clearCity: () => void;
     bus: EventBus
-    solicit: (bean: Bean) => boolean;
+    scan: (bean: Bean) => boolean;
     insult: (bean: Bean) => void;
     support: (bean: Bean) => void;
 }
@@ -33,9 +36,9 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         this.state = {
         }
     }
-    solicit = () => {
-        if (this.props.solicit(this.props.bean)){
-            this.setState({faceOverride: '😇'});
+    scan = () => {
+        if (this.props.scan(this.props.bean)){
+            this.setState({faceOverride: '🤨'});
             this._resetFace();
         }
     }
@@ -62,6 +65,32 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </tr>
         });
     }
+    get scanned(){
+        return this.props.alien.scanned_bean[this.props.bean.key];
+    }
+    renderTraits(){
+        if (this.scanned){
+            return <div>
+                <div className="card-parent">
+                    {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
+                </div>
+                <div className="card-parent">
+                    {TraitToCard(this.props.bean, this.props.bean.ideals, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.community, undefined)}
+                </div>
+                <div className="card-parent">
+                    {TraitToCard(this.props.bean, this.props.bean.food, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.shelter, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.health, undefined)}
+                </div>
+            </div>
+        } else {
+            return <div className="card-parent">
+                <CardButton icon="🛰️" name="Scan" subtext="-Energy +Info" onClick={this.scan}></CardButton>
+            </div>
+        }
+    }
     render(){
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
         const chance = this.props.bean.chanceToDonate(this.props.economy, true);
@@ -84,44 +113,8 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     }
                 </span>
             </div>
+            {this.renderTraits()}
             <table className="width-100p"><tbody>
-                <tr>
-                    <td>
-                        <b>Ethnicity</b> 
-                    </td>
-                    <td>
-                        {keyToName[this.props.bean.ethnicity]}
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={2} className="header">
-                        <b>Situation</b>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Food Security</b> 
-                    </td>
-                    <td>
-                        {keyToName[this.props.bean.food]}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Shelter</b>
-                    </td>
-                    <td>
-                        {keyToName[this.props.bean.shelter]}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Healthcare</b>
-                    </td>
-                    <td>
-                        {keyToName[this.props.bean.health]}
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         <b>Money</b>
@@ -138,28 +131,8 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         {Math.round(this.props.bean.lastHappiness)}%
                     </td>
                 </tr>
-                {this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law))}
-                <tr>
-                    <td>
-                        <b>Community</b>
-                    </td>
-                    <td>
-                        {keyToName[this.props.bean.community]}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Ideal</b>
-                    </td>
-                    <td>
-                        {keyToName[this.props.bean.ideals]}
-                    </td>
-                </tr>
-                <tr>
-                    <td colSpan={2} className="header">
-                        <b>Party</b>
-                    </td>
-                </tr>
+                {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
+                
                 <tr>
                     <td>
                         <b>Approval</b>
@@ -168,24 +141,10 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         {Math.round(this.props.bean.lastPartySentiment)}%
                     </td>
                 </tr>
-                {this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party)}
-                {/* <tr>
-                    <td>
-                        <b>Party Loyalty</b>
-                    </td>
-                    <td>
-                        <span>{Math.round(this.props.bean.partyLoyalty * 100)}%</span>
-                    </td>
-                </tr> */}
+                {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null}
+
                 </tbody>
             </table>
-            <div className="card-parent">
-                <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
-                    title="Rewrite one of this being's beliefs"
-                >🛰️ Scan
-                    <small>-Energy +Info</small>
-                </button>
-            </div>
             <div className="card-parent">
                 <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
                     title="Rewrite one of this being's beliefs"
@@ -194,19 +153,19 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </button>
             </div>
             <div className="card-parent">
-                <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.solicit} 
+                <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.scan} 
                     title="Increase this being's influence">
                     🧐 Empower
                     <small>-Psi +Influence</small>
                 </button>
-                <button type="button" className="button card" onClick={this.solicit} 
+                <button type="button" className="button card" onClick={this.scan} 
                     title="Increase this being's wealth">
                     🤑 Gift
                     <small>-Energy +Money</small>
                 </button>
             </div>
             <div className="card-parent">
-                <button type="button" className="button card" onClick={this.solicit} 
+                <button type="button" className="button card" onClick={this.scan} 
                     title="Drain a bit of this being's brain">
                     🤪 Siphon
                     <small>-Energy -Sanity +Psi</small>

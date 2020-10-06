@@ -12,6 +12,9 @@ export interface IResource{
     income: number;
 }
 
-export class Player{
-
+export class Player implements IPlayerData{
+    public scanned_bean: {[beanKey: number]: boolean} = {};
+    public energy = { amount: 10, income: 1};
+    public psi = { amount: 10, income: 1};
+    public bots = { amount: 10, income: 1};
 }
