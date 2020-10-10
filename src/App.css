@@ -98,52 +98,6 @@ button.callout:active{
   margin-top: 10px;
 }
 
-.overlay {
-  display: flex;
-  height: 100%;
-  width: 100%;
-  position: fixed;
-  left: 0; top: 0;
-  pointer-events: none;
-}
-.overlay button{
-  pointer-events: all;
-  margin: 4px;
-}
-.left{
-  flex-grow: 2;
-  display: flex;
-  flex-direction: column;
-}
-.right {
-  background: hsla(187, 100%, 57%, .5);
-  /* background: hsla(16, 100%, 50%, .5); */
-  min-width: 300px;
-  height: 100%;
-}
-.right-panel{
-  display: inline-block; /*removes gap between this and sibling*/
-  background: hsla(187, 100%, 90%, .8);
-  margin: 4px;
-  padding: 0px 2px 2px 2px;
-  z-index: -10;
-  opacity: .99;
-}
-.top{
-  height: 2em;
-  width: 100%;
-}
-.bottom{
-  margin-top: auto;
-  height: 4em; width: 100%;
-  background: hsla(187, 100%, 57%, .5);
-  display: flex;
-  justify-content: space-between;
-}
-.bottom button{
-  height: 44px;
-  margin: 2px;
-}
 button.pull-r{
   margin: 0;
 }
@@ -160,7 +114,7 @@ button.pull-r{
 .world{
   width: 1920px;
   height: 1080px;
-  
+  padding: 2em;
 }
 .world .tile{
   display: inline-block;
@@ -662,4 +616,10 @@ select:invalid { color: gray; }
   100% {
     opacity: 0;
   }
+}
+
+.goals small{
+  margin-left: 10px;
+  pointer-events: visible;
+  cursor: help;
 }

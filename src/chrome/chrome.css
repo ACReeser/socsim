@@ -1,0 +1,65 @@
+
+.overlay {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    left: 0; top: 0;
+    pointer-events: none;
+  }
+  .overlay button{
+    pointer-events: all;
+    margin: 4px;
+  }
+  .left{
+    flex-grow: 2;
+    display: flex;
+    flex-direction: column;
+  }
+  .right {
+    background: hsla(187, 100%, 57%, .5);
+    /* background: hsla(16, 100%, 50%, .5); */
+    min-width: 300px;
+    height: 100%;
+  }
+  .right-panel{
+    display: inline-block; /*removes gap between this and sibling*/
+    background: hsla(187, 100%, 90%, .8);
+    margin: 4px;
+    padding: 0px 2px 2px 2px;
+    z-index: -10;
+    opacity: .99;
+  }
+  .top{
+      display: flex;
+    height: 2em;
+    width: 100%;
+  }
+  .top > span:first-child{
+    flex-direction: column-reverse;
+  }
+  .top > button, .top > span{
+    margin-left: 8px;
+    padding: 4px;
+
+  }
+  .top > span{
+      border-radius: 4px;
+      background: hsla(187, 100%, 57%, .5);
+      color: white;
+  }
+  .top > button {
+      height: 2.4em;
+      margin-top: 0
+  }
+  .bottom{
+    margin-top: auto;
+    height: 4em; width: 100%;
+    background: hsla(187, 100%, 57%, .5);
+    display: flex;
+    justify-content: space-between;
+  }
+  .bottom button{
+    height: 44px;
+    margin: 2px;
+  }

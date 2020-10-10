@@ -1,6 +1,6 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import './chrome/chrome.css';
 import { World, Tile, City, TraitGood, Axis } from './World';
 import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
 import { Modal } from './Modal';
@@ -186,7 +186,7 @@ class App extends React.Component<AppPs, AppState>{
             </div>
         }
       case 'goals':
-        return <div>
+        return <div className="goals">
           <div><b>Goals</b></div>
           <ul>
             <li>
@@ -194,7 +194,7 @@ class App extends React.Component<AppPs, AppState>{
             </li>
             <li>
             ⭕️ Scan a Subject
-              <span title="Select a single earthling and Scan it">❔</span>
+              <small title="Select a single earthling and Scan it">❔</small>
             </li>
             <li>
             ⭕️ Brainwash a Subject
@@ -203,9 +203,75 @@ class App extends React.Component<AppPs, AppState>{
             ⭕️ Set Government Policy
             </li>
             <li>
-            ⭕️ Get an A+ Utopia Grade
+            ⭕️ Get a C+ Utopia Grade
             </li>
           </ul>
+          <div><b>Report Card</b></div>
+          <p>
+            Last Grade: <b>D</b>
+          </p>
+          <p>
+            6 mo s til next grade.
+          </p>
+          <table style={{margin: 'auto'}}>
+            <tbody>
+              <tr>
+                <th>Happiness
+                </th>
+                <td>
+                  D
+                </td>
+                <td>
+                  <small title="Are your subjects happy?">❔</small>
+                </td>
+              </tr>
+              <tr>
+                <th>Prosperity</th>
+                <td>
+                  D
+                </td>
+                <td>
+                  <small title="Are your subjects fed and healthy?">❔</small>
+                </td>
+              </tr>
+              <tr>
+                <th>Stability
+                </th>
+                <td>
+                  D
+                </td>
+                <td>
+                  <small title="Are your subjects sane and civil?">❔</small>
+                </td>
+              </tr>
+              <tr>
+                <th>Dogma
+                </th>
+                <td>
+                  B
+                </td>
+                <td>
+                  <small title="Do your society's rules match your utopian ideals?">❔</small>
+                </td>
+              </tr>
+              <tr>
+                <td colSpan={3}>
+                  <hr />
+                </td>
+              </tr>
+              <tr>
+                <th>
+                </th>
+                <td>
+                  C
+                </td>
+                <td></td>
+              </tr>
+            </tbody>
+          </table>
+          <p>
+            Receive an "A" in "Prosperity" <br/> to receive 3 Psi
+          </p>
         </div>
       case 'events':
         return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
@@ -423,27 +489,21 @@ class App extends React.Component<AppPs, AppState>{
         <div className="left">
           <div className="top">
             <span>
+            👽 Alien 🌍 Utopia 🔬 Lab
+            </span>
+            <span>
               &nbsp;
               Year {this.state.world.date.year}, 
               &nbsp;
-              {season}
+              {season} 1
             </span>
-            &nbsp;
-            &nbsp;
-            &nbsp;
-            &nbsp;
             <span>
-              Budget
+              6 mo 5 days til Grade
             </span>
-            <div className="pull-r horizontal" style={{marginRight: 2+'em'}}>
-              <button type="button" onClick={() => this.setState({activeMain: 'network'})}>🌐</button>
-              <button type="button" onClick={() => this.setState({activeMain: 'geo'})}>🌎</button>
-              <span>
-                election in {this.state.world.electionIn} seasons
-                &nbsp;
-                <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button>
-              </span>
-            </div>
+            <button type="button" onClick={() => this.setState({activeMain: 'network'})}>🌐</button>
+            <button type="button" onClick={() => this.setState({activeMain: 'geo'})}>🌎</button>
+            <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button>
+            
           </div>
           <div className="bottom">
             <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="⚡️">
