@@ -1,0 +1,35 @@
+.spot{
+    display: block;
+    height: 30px;
+    width: 30px;
+    border-radius: 15px;
+    border: 1px solid dodgerblue;
+    position: absolute;
+    margin: auto;
+    left: 0; top: 0;
+}
+
+.spot.s1{
+    transform: translate(-27px, 7px);
+}
+.spot.s2{
+    transform: translate(37px, 7px);
+}
+.spot.s3{
+    transform: translate(-10px, -27px);
+}
+.spot.s4{
+    transform: translate(25px, 40px);
+}
+.spot.s5{
+    transform: translate(25px, -27px);
+}
+.spot.s6{
+    transform: translate(-10px, 40px);
+}
+.spot.s7{
+    transform: translate(-27px, 40px);
+}
+.spot.s8{
+    transform: translate(35px, 40px);
+}

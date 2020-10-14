@@ -33,8 +33,13 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             <div className="col-2">
             <div>
               <h2>
-                {this.props.world.party.name}: <i>{this.props.world.party.slogan}</i>
+                {this.props.world.party.name}
               </h2>
+            </div>
+            <div>
+                <h4>
+                <i>{this.props.world.party.slogan}</i>
+                </h4>
             </div>
           </div>
           <div className="policies">

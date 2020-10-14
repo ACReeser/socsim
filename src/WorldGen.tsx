@@ -58,23 +58,93 @@ export function GetBuildingR(type: BuildingTypes): number{
             return GetRandomNumber(80, 200);
     }
 }
-export function GenerateBuilding(geo: Geography, type: BuildingTypes){
+const spiral_points: PolarPoint[] = [
+    {r: 1, az: 1},
+    {r: 110, az: 0},
+    {r: 110, az: Math.PI*.333},
+    {r: 110, az: Math.PI*.666},
+    {r: 110, az: Math.PI},
+    {r: 110, az: Math.PI*1.333},
+    {r: 110, az: Math.PI*1.666},
+    {r: 210, az: Math.PI*1/6},
+    {r: 210, az: Math.PI*2/6},
+    {r: 210, az: Math.PI*3/6},
+    {r: 210, az: Math.PI*4/6},
+    {r: 210, az: Math.PI*5/6},
+    {r: 210, az: Math.PI*6/6},
+    {r: 210, az: Math.PI*7/6},
+    {r: 210, az: Math.PI*8/6},
+    {r: 210, az: Math.PI*9/6},
+    {r: 210, az: Math.PI*10/6},
+    {r: 210, az: Math.PI*11/6},
+    {r: 210, az: Math.PI*12/6},
+    {r: 310, az: 0},
+    {r: 310, az: Math.PI*.11},
+    {r: 310, az: Math.PI*.22},
+    {r: 310, az: Math.PI*.33},
+    {r: 310, az: Math.PI*.44},
+    {r: 310, az: Math.PI*.55},
+    {r: 310, az: Math.PI*.66},
+    {r: 310, az: Math.PI*.77},
+    {r: 310, az: Math.PI*.88},
+    {r: 310, az: Math.PI*.99},
+    {r: 310, az: Math.PI*1.10},
+    {r: 310, az: Math.PI*1.21},
+    {r: 310, az: Math.PI*1.32},
+    {r: 310, az: Math.PI*1.43},
+    {r: 310, az: Math.PI*1.54},
+    {r: 310, az: Math.PI*1.65},
+    {r: 310, az: Math.PI*1.76},
+    {r: 310, az: Math.PI*1.88},
+    {r: 410, az: 0},
+    {r: 410, az: Math.PI*8.5*1/100},
+    {r: 410, az: Math.PI*8.5*2/100},
+    {r: 410, az: Math.PI*8.5*3/100},
+    {r: 410, az: Math.PI*8.5*4/100},
+    {r: 410, az: Math.PI*8.5*5/100},
+    {r: 410, az: Math.PI*8.5*6/100},
+    {r: 410, az: Math.PI*8.5*7/100},
+    {r: 410, az: Math.PI*8.5*8/100},
+    {r: 410, az: Math.PI*8.5*9/100},
+    {r: 410, az: Math.PI*8.5*10/100},
+    {r: 410, az: Math.PI*8.5*11/100},
+    {r: 410, az: Math.PI*8.5*12/100},
+    {r: 410, az: Math.PI*8.5*13/100},
+    {r: 410, az: Math.PI*8.5*14/100},
+    {r: 410, az: Math.PI*8.5*15/100},
+    {r: 410, az: Math.PI*8.5*16/100},
+    {r: 410, az: Math.PI*8.5*17/100},
+    {r: 410, az: Math.PI*8.5*18/100},
+    {r: 410, az: Math.PI*8.5*19/100},
+    {r: 410, az: Math.PI*8.5*20/100},
+    {r: 410, az: Math.PI*8.5*21/100},
+    {r: 410, az: Math.PI*8.5*22/100},
+    {r: 410, az: Math.PI*8.5*23/100},
+    {r: 410, az: Math.PI*9*24/100},
+];
+
+export function GenerateBuilding(geo: Geography, type: BuildingTypes, i: number){
     const newBuilding: Building = {
         type: type,
         key: geo.what[type].length
     };
     geo.what[type].push(newBuilding);
-    geo.where[type][newBuilding.key] = polarToPoint(RandomPolar(GetBuildingR(type)));
+    geo.where[type][newBuilding.key] = polarToPoint( 
+        spiral_points[i]
+        //RandomPolar(GetBuildingR(type))
+    );
 }
 
 const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
     const world = new World();
  
-    GenerateBuilding(world.geo, 'farm'); GenerateBuilding(world.geo, 'farm'); GenerateBuilding(world.geo, 'farm');
-    GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house');
-    GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house');
-
+    GenerateBuilding(world.geo, 'house', 0); 
+    GenerateBuilding(world.geo, 'house', 1); GenerateBuilding(world.geo, 'house', 2);
+    GenerateBuilding(world.geo, 'house', 3 ); GenerateBuilding(world.geo, 'house', 4); GenerateBuilding(world.geo, 'house', 5);
+    for (let i = 6; i < 58; i++) {
+        GenerateBuilding(world.geo, 'farm', i);
+    }
     world.law.policyTree = {
         wel_food: PolicyByKey('0') as IPolicy,
         wel_house: PolicyByKey('4') as IPolicy,

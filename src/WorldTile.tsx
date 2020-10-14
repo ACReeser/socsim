@@ -3,6 +3,7 @@ import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
 import { Building, BuildingIcon, BuildingTypes, Geography, MatterTypes, PolarPoint, transformMatter } from "./simulation/Geography";
+import { PetriBuilding } from "./petri-ui/Building";
 
 interface WorldTilePs {
     tile: Tile;
@@ -25,8 +26,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     renderBuildings(type: BuildingTypes){
       return this.props.geo.what[type].map((b: Building, i) => {
         return (
-          <span key={i} style={transformMatter(this.props.geo, type, i)} className={"building "+type}>
-            {BuildingIcon[type]}</span>
+          <PetriBuilding geo={this.props.geo} building={b} ></PetriBuilding>
         )
       });
     }
