@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { GetRandom, RandomEthno, GenerateBean } from './WorldGen';
-import { maxHeaderSize } from 'http';
-import { Bean, IBean } from './Bean';
+import { Bean } from './Bean';
 import { Economy } from './Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
@@ -9,6 +8,7 @@ import { IEvent, EventBus } from './events/Events';
 import { Season, IDate } from './simulation/Time';
 import { Government } from './simulation/Government';
 import { Player } from './simulation/Player';
+import { Geography } from './simulation/Geography';
 
 
 export interface IBeanContainer{
@@ -31,6 +31,7 @@ export interface IWorld{
     bus: EventBus;
     date: IDate;
     alien: Player;
+    geo: Geography;
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
@@ -43,6 +44,7 @@ export class World implements IWorld, IBeanContainer{
     public yearsEvents: IEvent[] = [];
     public bus = new EventBus();
     public alien: Player = new Player();
+    public geo = new Geography();
 
     public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {

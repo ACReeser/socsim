@@ -5,36 +5,22 @@ import { Policy, Party } from "./Politics";
 import { IEvent } from "./events/Events";
 import { IDate, withinLastYear } from "./simulation/Time";
 import { Government } from "./simulation/Government";
+import { IAgent, IBean, IMover } from "./simulation/Agent";
 
-
-/**
- * a bean is a citizen with preferences
- */
-export interface IBean{
-    key: number;
-    cityKey: number;
-    name: string;
-    community: TraitCommunity;
-    ideals: TraitIdeals;
-    ethnicity: TraitEthno;
-    faith?: TraitFaith;
-    shelter: TraitShelter;
-    health: TraitHealth;
-    discrete_food: number;
-    cash: number;
-    dob: IDate;
-    sanity: number;
-}
 
 const BabyChance = 0.05;
 const SeasonsUntilEviction = 1;
-export class Bean implements IBean, ISeller{
+export class Bean implements IBean, ISeller, IMover, IAgent{
     public key: number = 0;
     public cityKey: number = 0;
     public alive: boolean = true;
     public dob: IDate = {year: 0, season: 0};
     public name: string = 'Human Bean';
     public sanity = 1;
+
+    public speed = 0;
+    public direction = {x: 0,y:0};
+    public activities = [];
 
     public city: City|null = null;
 

@@ -1,6 +1,7 @@
 import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
 import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './Politics';
+import { Building, BuildingTypes, Geography, PolarPoint, polarToPoint } from './simulation/Geography';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -41,10 +42,39 @@ export function StartingCash(job: TraitJob): number{
         default: return base;
     }
 }
+export const MAX_PETRI_RADIUS = 200;
+export const PI2 = Math.PI*2;
+export function RandomPolar(r?: number): PolarPoint{
+    return {
+        r: r || GetRandomNumber(0, MAX_PETRI_RADIUS),
+        az: GetRandomNumber(0, PI2)
+    };
+}
+export function GetBuildingR(type: BuildingTypes): number{
+    switch(type){
+        case 'farm':
+            return GetRandomNumber(200, 300);
+        default: 
+            return GetRandomNumber(80, 200);
+    }
+}
+export function GenerateBuilding(geo: Geography, type: BuildingTypes){
+    const newBuilding: Building = {
+        type: type,
+        key: geo.what[type].length
+    };
+    geo.what[type].push(newBuilding);
+    geo.where[type][newBuilding.key] = polarToPoint(RandomPolar(GetBuildingR(type)));
+}
 
 const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
     const world = new World();
+ 
+    GenerateBuilding(world.geo, 'farm'); GenerateBuilding(world.geo, 'farm'); GenerateBuilding(world.geo, 'farm');
+    GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house');
+    GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house'); GenerateBuilding(world.geo, 'house');
+
     world.law.policyTree = {
         wel_food: PolicyByKey('0') as IPolicy,
         wel_house: PolicyByKey('4') as IPolicy,
@@ -106,13 +136,6 @@ export function GenerateCity(previousCityCount: number): City{
             GenerateBean(newCity, newCity.historicalBeans.length)
         );
     }
-    const houseCount = Math.floor((cityPopulation / 2) + Math.floor(Math.random() * cityPopulation / 2));
-    for (let i = 0; i < houseCount; i++) {
-        newCity.houses.push({
-            left: Math.floor(Math.random() * 60),
-            top: Math.floor(Math.random() * 60),
-        });
-    }
 
     return newCity;
 }
@@ -152,7 +175,6 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
         'Head', 'Carter', 'Lynch', 'McKenzie', 'Grossberg',
         "O'Neil", 'Jackson', 'Carter'
          ]);
-    //newBean.name += GetRandom(['shell', 'seed', 'pea', 'pod', 'snap', 'vine', 'leaf', 'shoot']);
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
