@@ -224,15 +224,22 @@ button.pull-r{
 
 .tile{
   border: 1px solid black;
-  width: 600px;
-  height: 600px;
-  border-radius: 300px;
+  width: 900px;
+  height: 900px;
+  border-radius: 600px;
   position: relative;
+}
+.tile .hex{
+  width: 100px; height: 100px;
+  top: -50px; left: -50px;
+  border: 1px solid rgba(0, 0, 0, .2);
+  border-radius: 100px;
+  position: absolute;
 }
 .petri-lid{
   position: absolute;
   left: 0; top: -20px;
-  width: 600px; height: 600px;
+  width: 900px; height: 900px;
   pointer-events: none;
 }
 .bar{
@@ -373,8 +380,7 @@ table.classic .border-t{
   opacity: .5;
   position: absolute;
   font-size: 30px; height: 30px; width: 30px;
-  left: 0; right: 0; top: 0; bottom: 0;
-  margin: auto;
+  left: -20px; top: -20px;
 }
 .dead{
   position: absolute;

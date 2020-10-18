@@ -9,10 +9,10 @@ export class PetriBuilding extends React.Component<{
 }> {
 
     render() {
-        return <div key={this.props.building.key} style={transformMatter(this.props.geo, this.props.building.type, this.props.building.key)} 
+        return <div key={this.props.building.type+this.props.building.key} style={transformMatter(this.props.geo, this.props.building.type, this.props.building.key)} 
         className={"building "+this.props.building.type}>
         {BuildingIcon[this.props.building.type]}
-        {[1,2,3,4,5,6].map((i) => <span className={"spot s"+i}></span>)}
+        {/* {[1,2,3,4,5,6].map((i) => <span className={"spot s"+i}></span>)} */}
         </div>
     }
 }

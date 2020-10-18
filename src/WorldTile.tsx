@@ -2,7 +2,7 @@ import { Tile, City } from "./World";
 import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { Building, BuildingIcon, BuildingTypes, Geography, MatterTypes, PolarPoint, transformMatter } from "./simulation/Geography";
+import { Building, BuildingIcon, BuildingTypes, Geography, hex_to_pixel, MatterTypes, PolarPoint, transformMatter, transformPoint } from "./simulation/Geography";
 import { PetriBuilding } from "./petri-ui/Building";
 
 interface WorldTilePs {
@@ -42,20 +42,22 @@ export class WorldTile extends React.Component<WorldTilePs> {
         )
       })
       const buildings = this.renderBuildings('farm').concat(this.renderBuildings('house'));
-      // const regions = this.props.regions.map((reg, i) => {
-      //   return <svg key={i} style={{width: '100%'}}>
-      //     <circle fill="green" cx={10} cy={10}></circle>
-      //   </svg>
-      // });
+      const regions = this.props.geo.hexes.map((hex, i) => {
+        const xy = hex_to_pixel({x: 60, y: 60}, {x: 450, y: 450}, hex);
+        console.log(xy);
+        return <div className="hex" key={i} style={transformPoint(xy)}>
+
+        </div>
+      });
       return (
         <div className="tile" onClick={() => this.props.onClick()}>
-          {/* {regions} */}
+          {regions}
           {deaths}
           {buildings}
           {beans}
           <span className="tile-label">{this.props.tile.name}</span>
           <svg style={{width: '100%', height: '100%'}} className="petri-lid">
-            <circle cx="300" cy="300" r="300" stroke="grey" stroke-width="2" fill="rgba(255, 255, 255, 0.2)" />
+            <circle cx="450" cy="450" r="450" stroke="grey" stroke-width="2" fill="rgba(255, 255, 255, 0.2)" />
            </svg>
         </div>
       )
