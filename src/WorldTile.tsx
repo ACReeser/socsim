@@ -33,7 +33,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     renderBuildings(type: BuildingTypes){
       return this.props.geo.what[type].map((b: Building, i) => {
         return (
-          <PetriBuilding geo={this.props.geo} building={b} ></PetriBuilding>
+          <PetriBuilding geo={this.props.geo} building={b} key={type+i} ></PetriBuilding>
         )
       });
     }
@@ -67,7 +67,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
           {beans}
           <span className="tile-label">{this.props.tile.name}</span>
           <svg style={{width: '100%', height: '100%'}} className="petri-lid">
-            <circle cx="450" cy="450" r="450" stroke="grey" stroke-width="2" fill="rgba(255, 255, 255, 0.2)" />
+            <circle cx="450" cy="450" r="450" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />
            </svg>
         </div>
       )

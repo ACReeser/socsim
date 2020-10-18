@@ -20,7 +20,6 @@ export function GetRandom<S>(choices: S[]):S {
         return choices[0];
 
     const i = GetRandomIndex(choices.length);
-    console.log(i);
     return choices[i];
 }
 export function RandomIdeal(): TraitIdeals{
