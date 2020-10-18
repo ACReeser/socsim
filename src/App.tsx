@@ -281,7 +281,7 @@ class App extends React.Component<AppPs, AppState>{
     const COL = this.state.world.economy.getCostOfLiving();
     return this.state.world.cities.map((t) => {
         return (
-          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} regions={this.state.world.geo.regions} geo={this.state.world.geo}
+          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} geo={this.state.world.geo}
             onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
             onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
             ></WorldTile>
@@ -337,9 +337,9 @@ class App extends React.Component<AppPs, AppState>{
         </Modal>
         <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
           <div className="col-2">
-            <h2>Political Science</h2>
+            <h2>Research Lab</h2>
             <div>
-
+              Currently probing 0 Human Beings
             </div>
           </div>
         </Modal>

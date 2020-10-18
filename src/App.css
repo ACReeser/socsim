@@ -232,9 +232,15 @@ button.pull-r{
 .tile .hex{
   width: 100px; height: 100px;
   top: -50px; left: -50px;
-  border: 1px solid rgba(0, 0, 0, .2);
+  border: 1px solid rgba(0, 0, 0, .1);
   border-radius: 100px;
   position: absolute;
+}
+.tile .mtn{
+  position: absolute;
+  top: -37px; left: -20px;
+  font-size: 2em;
+  opacity: .5;
 }
 .petri-lid{
   position: absolute;

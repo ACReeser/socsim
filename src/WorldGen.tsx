@@ -75,7 +75,7 @@ export function GenerateWorld(): World{
     GenerateBuilding(world.geo, 'house', 0); 
     GenerateBuilding(world.geo, 'house', 1); GenerateBuilding(world.geo, 'house', 2);
     GenerateBuilding(world.geo, 'house', 3 ); GenerateBuilding(world.geo, 'house', 4); GenerateBuilding(world.geo, 'house', 5);
-    for (let i = 6; i < 58; i++) {
+    for (let i = 6; i < 9; i++) {
         GenerateBuilding(world.geo, 'farm', i);
     }
     world.law.policyTree = {

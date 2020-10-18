@@ -56,7 +56,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       return (
         <div>
           <div className="pad-4p">
-            <h3>Citizen's Health</h3>
+            <h3>Subject's Health</h3>
           </div>
           <div className="col-2">
             <div>
@@ -88,7 +88,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
               <strong>💰 Wealth</strong> Household Wealth: {wealth_total.toFixed(2)}<br/>
               {wealth_dire} penniless citizens &nbsp; &nbsp; Cost of Living: ${this.props.world.economy.getCostOfLiving().toFixed(2)} <br/>
               Median: ${wealth_median.toFixed(2)} Average: ${wealth_avg.toFixed(2)} <br/>
-              Top {wealthy_percentage.toFixed(1)}% of beans own {wealthy_ownership.toFixed(1)}% of the wealth
+              Top {wealthy_percentage.toFixed(1)}% of subjects own {wealthy_ownership.toFixed(1)}% of the wealth
             </div>
             <span>
               <strong>Unemployment</strong> {unemployed}% ({jobs.jobless})<br/>

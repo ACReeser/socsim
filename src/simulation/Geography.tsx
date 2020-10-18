@@ -148,9 +148,6 @@ export class Geography{
         'farm': [],
         'house': [], 'hospital': [], 'church': [], 'theater': []
     };
-    public regions: PolarPoint[] = [
-        {r: 0, az: 0}
-    ]
     public numberOfRings = 5;
     public hexes: HexPoint[] = hex_spiral({q:0, r:0}, this.numberOfRings);
     public hex_size: Point = {x: 60, y: 60};
