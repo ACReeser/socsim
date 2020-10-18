@@ -1,11 +1,11 @@
 
 import React from "react";
-import { Building, BuildingIcon, BuildingTypes, Geography, transformMatter } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, Geography, transformMatter } from "../simulation/Geography";
 import './Building.css';
 
 export class PetriBuilding extends React.Component<{
     geo: Geography,
-    building: Building
+    building: IBuilding
 }> {
 
     render() {

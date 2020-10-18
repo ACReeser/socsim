@@ -2,7 +2,7 @@ import { Tile, City } from "./World";
 import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { Building, BuildingIcon, BuildingTypes, Geography, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformMatter, transformPoint } from "./simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, Geography, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformMatter, transformPoint } from "./simulation/Geography";
 import { PetriBuilding } from "./petri-ui/Building";
 import { PI2 } from "./WorldGen";
 
@@ -22,16 +22,18 @@ export class WorldTile extends React.Component<WorldTilePs> {
         city: null,
         activeTileID: null,
       }
+      const mtnRadius = 530;
+      const worldR = 550;
       for (let i = 0; i < 360 / 5; i++) {
         const az = i*5* Math.PI / 180;
-        const pt = polarToPoint({r: 435, az: az});
-        pt.x += 450; pt.y += 450;
+        const pt = polarToPoint({r: mtnRadius, az: az});
+        pt.x += worldR; pt.y += worldR;
         this.mtn_transforms.push(transformPoint(pt));
       }
     }
     mtn_transforms: {transform: string}[] = [];
     renderBuildings(type: BuildingTypes){
-      return this.props.geo.what[type].map((b: Building, i) => {
+      return this.props.geo.what[type].map((b: IBuilding, i) => {
         return (
           <PetriBuilding geo={this.props.geo} building={b} key={type+i} ></PetriBuilding>
         )
@@ -50,7 +52,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
       })
       const buildings = this.renderBuildings('farm').concat(this.renderBuildings('house'));
       const regions = this.props.geo.hexes.map((hex, i) => {
-        const xy = hex_to_pixel({x: 60, y: 60}, {x: 450, y: 450}, hex);
+        const xy = hex_to_pixel(this.props.geo.hex_size, this.props.geo.petriOrigin, hex);
         return <div className="hex" key={i} style={transformPoint(xy)}>
 
         </div>
@@ -67,7 +69,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
           {beans}
           <span className="tile-label">{this.props.tile.name}</span>
           <svg style={{width: '100%', height: '100%'}} className="petri-lid">
-            <circle cx="450" cy="450" r="450" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />
+            <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />
            </svg>
         </div>
       )

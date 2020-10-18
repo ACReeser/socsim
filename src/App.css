@@ -224,14 +224,14 @@ button.pull-r{
 
 .tile{
   border: 1px solid black;
-  width: 900px;
-  height: 900px;
+  width: 1100px;
+  height: 1100px;
   border-radius: 600px;
   position: relative;
 }
 .tile .hex{
-  width: 100px; height: 100px;
-  top: -50px; left: -50px;
+  width: 120px; height: 120px;
+  top: -60px; left: -60px;
   border: 1px solid rgba(0, 0, 0, .1);
   border-radius: 100px;
   position: absolute;
@@ -245,7 +245,7 @@ button.pull-r{
 .petri-lid{
   position: absolute;
   left: 0; top: -20px;
-  width: 900px; height: 900px;
+  width: 1100px; height: 1100px;
   pointer-events: none;
 }
 .bar{

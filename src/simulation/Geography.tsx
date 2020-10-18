@@ -51,6 +51,62 @@ export function hex_spiral(center: HexPoint, radius: number): HexPoint[]{
     return results;
 }
 
+export function lerp(a: number, b: number, t: number): number{
+    return a + (b - a) * t
+}
+
+function cube_lerp(a: CubicPoint, b: CubicPoint, t: number): CubicPoint{
+    return {
+        x: lerp(a.x, b.x, t),
+        y: lerp(a.y, b.y, t),
+        z: lerp(a.z, b.z, t)
+    };
+}
+function cube_distance(a: CubicPoint, b: CubicPoint): number{
+    return (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z)) / 2
+}
+function cube_round(cube: CubicPoint): CubicPoint{
+    var rx = Math.round(cube.x);
+    var ry = Math.round(cube.y);
+    var rz = Math.round(cube.z);
+
+    var x_diff = Math.abs(rx - cube.x)
+    var y_diff = Math.abs(ry - cube.y)
+    var z_diff = Math.abs(rz - cube.z)
+
+    if (x_diff > y_diff && x_diff > z_diff)
+        rx = -ry-rz;
+    else if (y_diff > z_diff)
+        ry = -rx-rz;
+    else
+        rz = -rx-ry;
+
+    return {x: rx, y: ry, z: rz};
+}
+function cube_to_axial(cube: CubicPoint){
+    var q = cube.x;
+    var r = cube.z;
+    return new Hex(q, r);
+}
+function axial_to_cube(hex: HexPoint): CubicPoint{
+    return {
+        x: hex.q,
+        z: hex.r,
+        y: -hex.q-hex.r
+    };
+}
+function cube_linedraw(a: CubicPoint, b: CubicPoint): HexPoint[]{
+    var N = cube_distance(a, b);
+    var results: HexPoint[] = [];
+    for (let i = 0; i < N; i++) {
+        results.push(cube_to_axial(cube_round(cube_lerp(a, b, 1.0/N * i))))
+    }
+    return results;
+}
+export function hex_linedraw(a: HexPoint, b: HexPoint): HexPoint[]{
+    return cube_linedraw(axial_to_cube(a), axial_to_cube(b));
+}
+
 class Orientation {
     // angle is in multiples of 60°
     constructor(public f0: number, public f1: number, public  f2: number, public f3: number,
@@ -101,6 +157,9 @@ export interface Point{
 }
 export interface Vector extends Point{
 }
+export interface CubicPoint extends Point{
+    z: number;
+}
 
 
 /**
@@ -120,10 +179,19 @@ export function transformPoint(p: Point){
     return {transform:`translate(${p.x}px, ${p.y}px)`};
 }
 
-export interface Building{
+export interface IBuilding{
     key: number;
     type: BuildingTypes;
-    occupied_slots: Point[] 
+    occupied_slots: Point[],
+    empty_slots: Point[],
+    
+}
+export class Building{
+    public key: number = 0;
+    public type: BuildingTypes = 'farm';
+    public occupied_slots: Point[] = [];
+    public empty_slots: Point[] = [];
+
 }
 
 export interface AddressBook{
@@ -144,13 +212,13 @@ export class Geography{
         'farm': {},
         'house': {}, 'hospital': {}, 'church': {}, 'theater': {}
     };
-    public what: {[key in BuildingTypes]: Building[]} = {
+    public what: {[key in BuildingTypes]: IBuilding[]} = {
         'farm': [],
         'house': [], 'hospital': [], 'church': [], 'theater': []
     };
     public numberOfRings = 5;
     public hexes: HexPoint[] = hex_spiral({q:0, r:0}, this.numberOfRings);
-    public hex_size: Point = {x: 60, y: 60};
-    public readonly petriRadius = 450;
+    public hex_size: Point = {x: 70, y: 70};
+    public readonly petriRadius = 550;
     public readonly petriOrigin = {x: this.petriRadius, y: this.petriRadius};
 }

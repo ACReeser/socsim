@@ -1,7 +1,7 @@
 import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
 import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './Politics';
-import { Building, BuildingTypes, Geography, PolarPoint, polarToPoint } from './simulation/Geography';
+import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint } from './simulation/Geography';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -58,10 +58,11 @@ export function GetBuildingR(type: BuildingTypes): number{
     }
 }
 export function GenerateBuilding(geo: Geography, type: BuildingTypes, i: number){
-    const newBuilding: Building = {
+    const newBuilding: IBuilding = {
         type: type,
         key: geo.what[type].length,
-        occupied_slots: []
+        occupied_slots: [],
+        empty_slots: []
     };
     geo.what[type].push(newBuilding);
     geo.where[type][newBuilding.key] = geo.hexes[i+1];

@@ -114,33 +114,19 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </span>
             </div>
             {this.renderTraits()}
+            <div className="horizontal">
+                <span>
+                    💰 ${this.props.bean.cash.toFixed(2)}
+                </span>
+                <span>
+                    🙂 {Math.round(this.props.bean.lastHappiness)}%
+                </span>
+                <span>
+                    👍 {Math.round(this.props.bean.lastPartySentiment)}%
+                </span>
+            </div>
             <table className="width-100p"><tbody>
-                <tr>
-                    <td>
-                        <b>Money</b>
-                    </td>
-                    <td>
-                        ${this.props.bean.cash.toFixed(2)}
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <b>Happiness</b>
-                    </td>
-                    <td>
-                        {Math.round(this.props.bean.lastHappiness)}%
-                    </td>
-                </tr>
                 {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
-                
-                <tr>
-                    <td>
-                        <b>Approval</b>
-                    </td>
-                    <td>
-                        {Math.round(this.props.bean.lastPartySentiment)}%
-                    </td>
-                </tr>
                 {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null}
 
                 </tbody>
