@@ -2,6 +2,7 @@ import React from "react";
 import { Bean } from "../Bean";
 import { AnimatedBean } from "../AnimatedBean";
 import "./SocialGraph.css";
+import { origin_point } from "../simulation/Geography"; 
 
 interface BeanListP{
     beans: Bean[];
@@ -23,7 +24,7 @@ export class BeanList extends React.Component<BeanListP, BeanListS>{
             {
                 this.props.beans.map((b) => 
                 <div className="bean-node" onClick={() => this.props.onClick(b)}>
-                    <AnimatedBean bean={b} costOfLiving={this.props.costOfLiving} sitStill={true} 
+                    <AnimatedBean bean={b} where={origin_point} costOfLiving={this.props.costOfLiving} sitStill={true} 
                         onClick={() => {this.props.onClick(b);}}>
                     </AnimatedBean>
                 </div>)

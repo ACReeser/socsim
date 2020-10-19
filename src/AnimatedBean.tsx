@@ -1,10 +1,12 @@
 import { Bean } from "./Bean";
 import React from "react";
+import { Point, transformPoint } from "./simulation/Geography";
 
 interface AnimatedBeanP {
   bean: Bean;
   costOfLiving: number;
   sitStill?: boolean;
+  where: Point,
   onClick: () => void;
 }
 
@@ -59,10 +61,15 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, {paused: boolea
       } else {
         classes += ' bean-walker';
       }
-      let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health} ${this.props.bean.community} ${this.props.bean.ideals} $${this.props.bean.cash}`
+      let style = {
+        ...transformPoint(this.props.where),
+        animationDelay: '-'+this.delaySeedSec+'s'
+      };
+      style.animationDelay = '';
+      let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health}`
       return (
         <span className={classes+" bean interactable"}
-          style={{animationDelay: '-'+this.delaySeedSec+'s'}} title={title}
+          style={style} title={title}
           onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
         >
           {this.props.bean.getFace()} {this.getIdea()}

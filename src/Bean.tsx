@@ -18,9 +18,12 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public name: string = 'Human Bean';
     public sanity = 1;
 
+    public activity_queue = [];
     public speed = 0;
-    public direction = {x: 0,y:0};
-    public activities = [];
+    public direction = {x: 0,y:0}; 
+    public markers = [];
+    public destinationKey = 0;
+
 
     public city: City|null = null;
 

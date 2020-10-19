@@ -2,7 +2,7 @@ import { Tile, City } from "./World";
 import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, Geography, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformMatter, transformPoint } from "./simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, Geography, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint } from "./simulation/Geography";
 import { PetriBuilding } from "./petri-ui/Building";
 import { PI2 } from "./WorldGen";
 
@@ -42,7 +42,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     render() {
       const beans = this.props.city.beans.map((b: Bean) => {
         return (
-          <AnimatedBean bean={b} key={b.key} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
+          <AnimatedBean bean={b} key={b.key} where={this.props.geo.how.bean[b.key]} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
       })
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
@@ -62,6 +62,9 @@ export class WorldTile extends React.Component<WorldTilePs> {
       });
       return (
         <div className="tile" onClick={() => this.props.onClick()}>
+        <svg style={{width: '100%', height: '100%'}} className="petri-base">
+          <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 1)" />
+         </svg>
           {regions}
           {mtns}
           {deaths}

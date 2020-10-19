@@ -1,7 +1,7 @@
 import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
 import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './Politics';
-import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint } from './simulation/Geography';
+import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel } from './simulation/Geography';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -98,14 +98,9 @@ export function GenerateWorld(): World{
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {
-        world.cities.push(GenerateCity(world.cities.length));
+        world.cities.push(GenerateCity(world.geo, world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
         world.cities[i].environment = world.date;
-
-        if (i < 2){
-            const city = world.cities[i];
-            //GeneratePartyHQ(city);
-        }
     }
     world.economy.totalSeasonalDemand.food = world.beans.length;
     world.economy.totalSeasonalDemand.shelter = world.beans.length;
@@ -126,18 +121,20 @@ export function GeneratePartyHQ(city: City, party: Party) {
 }
 
 const Number_Starting_City_Pop = 10;
-export function GenerateCity(previousCityCount: number): City{
+export function GenerateCity(geo: Geography, previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;
     newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', '']);
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
+    newCity.geo = geo;
 
     const cityPopulation = Number_Starting_City_Pop;
     while(newCity.historicalBeans.length < cityPopulation){
         newCity.historicalBeans.push(
             GenerateBean(newCity, newCity.historicalBeans.length)
         );
+        
     }
 
     return newCity;
@@ -186,6 +183,8 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     //newBean.job = GetRandom(['farmer','builder','doc']);
     newBean.cash = StartingCash(newBean.job);
     newBean.discrete_food = 2;
+
+    city.geo.how.bean[newBean.key] = hex_to_pixel(city.geo.hex_size, city.geo.petriOrigin, city.geo.where.house[GetRandom(city.geo.what.house).key]);
     
     return newBean;
 }

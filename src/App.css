@@ -118,7 +118,6 @@ button.pull-r{
 }
 .world .tile{
   display: inline-block;
-  background: white;
   text-align: center;
 }
 .world .tile:hover{
@@ -242,11 +241,17 @@ button.pull-r{
   font-size: 2em;
   opacity: .5;
 }
-.petri-lid{
+.petri-lid, .petri-base{
   position: absolute;
-  left: 0; top: -20px;
+  left: 0; 
   width: 1100px; height: 1100px;
   pointer-events: none;
+}
+.petri-lid{
+  top: -20px;
+}
+.petri-base{
+  top: 0px;
 }
 .bar{
   font-size: 8px; height: 10px;
@@ -419,11 +424,12 @@ table.classic .border-t{
 }
 
 .bean-walker{
-  position: absolute;
+  position: absolute; left: 0;top: 0;
   font-size: 18px;
   height: 20px; width: 20px;
-  animation: hop 0.5s infinite, wander 90s infinite linear;
+  animation: hop-marg 0.5s infinite;
   text-align: center;
+  margin-left: -10px;
 }
 .bean-walker:after{
   left: -12px;
@@ -558,6 +564,17 @@ table.classic .border-t{
 
 select:invalid { color: gray; }
 
+@keyframes hop-marg {
+  0% {
+    margin-top: -10px;
+  }
+  50% {
+    margin-top: -19px;
+  }
+  100% {
+    margin-top: -10px;
+  }
+}
 @keyframes hop {
   0% {
     transform: translateY(0);

@@ -6,7 +6,7 @@ export interface HexPoint{
 export class Hex implements HexPoint{
     constructor(public q: number, public r: number){}
 }
-const hex_directions: HexPoint[] = [
+export const hex_directions: HexPoint[] = [
     new Hex(+1, 0), new Hex(+1, -1), new Hex(0, -1), 
     new Hex(-1, 0), new Hex(-1, +1), new Hex(0, +1), 
 ];
@@ -51,6 +51,20 @@ export function hex_spiral(center: HexPoint, radius: number): HexPoint[]{
     return results;
 }
 
+export function move_towards(current: Point, target: Point, maxDistanceDelta: number)
+{
+    const a: Point = {x: target.x - current.x, y: target.y - target.y};
+    const magnitude = Math.sqrt(a.x * a.x + a.y * a.y);
+    if (magnitude <= maxDistanceDelta || magnitude == 0)
+    {
+        return target;
+    }
+    return {
+        x: current.x + a.x / magnitude * maxDistanceDelta,
+        y: current.y + a.y / magnitude * maxDistanceDelta,
+    };
+}
+
 export function lerp(a: number, b: number, t: number): number{
     return a + (b - a) * t
 }
@@ -82,6 +96,10 @@ function cube_round(cube: CubicPoint): CubicPoint{
         rz = -rx-ry;
 
     return {x: rx, y: ry, z: rz};
+}
+function round_point_to_hex(hex: HexPoint): HexPoint{
+    return cube_to_axial(cube_round(axial_to_cube(hex)))
+
 }
 function cube_to_axial(cube: CubicPoint){
     var q = cube.x;
@@ -116,12 +134,21 @@ class Orientation {
 export const layout_flat: Orientation = new Orientation(3.0 / 2.0, 0.0, Math.sqrt(3.0) / 2.0, Math.sqrt(3.0),
                 2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0,
                 0.0);
-
+export const origin_point: Point = {x: 0, y: 0};
 export function hex_to_pixel(size: Point, origin: Point, h: HexPoint): Point {
     const M: Orientation = layout_flat;
     const x = (M.f0 * h.q + M.f1 * h.r) * size.x;
     const y = (M.f2 * h.q + M.f3 * h.r) * size.y;
     return {x: x + origin.x, y: y + origin.y};
+}
+export function pixel_to_hex(size: Point, origin: Point, p: Point) {
+    const M = layout_flat;
+    const pt = {x: (p.x - origin.x) / size.x,
+                y: (p.y - origin.y) / size.y
+            };
+    const q = M.b0 * pt.x + M.b1 * pt.y;
+    const r = M.b2 * pt.x + M.b3 * pt.y;
+    return new Hex(q, r);
 }
 
 
@@ -168,7 +195,7 @@ export interface CubicPoint extends Point{
  * @param type 
  * @param key 
  */
-export function transformMatter(geo: Geography, type: MatterTypes, key: number){
+export function getBuildingTransform(geo: Geography, type: BuildingTypes, key: number){
     const p = geo.where[type][key];
     if (p)
         return transformPoint(hex_to_pixel(geo.hex_size, geo.petriOrigin, p));
@@ -192,14 +219,31 @@ export class Building{
     public occupied_slots: Point[] = [];
     public empty_slots: Point[] = [];
 
+    public reserve_slot(): Point|undefined{
+        const s = this.empty_slots.pop();
+        if (s){
+            this.occupied_slots.push(s);
+        }
+        return s;
+    }
+    public free_slot(point: Point){
+        const i = this.occupied_slots.findIndex((x) => x.x == point.x && x.y == point.y);
+        if (i > -1)
+            this.occupied_slots.splice(i, 1);
+        this.empty_slots.push(point);
+    }
 }
 
-export interface AddressBook{
+export interface AddressBookHex{
     [entityKey: number]: HexPoint
+}
+export interface AddressBookPoint{
+    [entityKey: number]: Point
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater';
-export type MatterTypes = 'bean'|BuildingTypes;
+export type MoverTypes = 'bean';
+export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🎑',
@@ -207,14 +251,16 @@ export const BuildingIcon: {[key in BuildingTypes]: string} = {
 };
 
 export class Geography{
-    public where: {[key in MatterTypes]: AddressBook} = {
-        'bean': {},
+    public where: {[key in BuildingTypes]: AddressBookHex} = {
         'farm': {},
         'house': {}, 'hospital': {}, 'church': {}, 'theater': {}
     };
     public what: {[key in BuildingTypes]: IBuilding[]} = {
         'farm': [],
         'house': [], 'hospital': [], 'church': [], 'theater': []
+    };
+    public how: {[key in MoverTypes]: AddressBookPoint} = {
+        'bean': {}
     };
     public numberOfRings = 5;
     public hexes: HexPoint[] = hex_spiral({q:0, r:0}, this.numberOfRings);

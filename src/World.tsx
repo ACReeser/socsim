@@ -197,6 +197,7 @@ export class City implements Tile, IBeanContainer {
     public yearsPartyDonations: number = 0;
     public majorityEthnicity: TraitEthno = 'circle';
 
+    public geo: Geography = new Geography();
     public environment?: IDate;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
