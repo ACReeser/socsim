@@ -13,37 +13,12 @@ interface AnimatedBeanP {
 export class AnimatedBean extends React.Component<AnimatedBeanP, {paused: boolean}> {
     constructor(props: AnimatedBeanP) {
       super(props);
-      this.timerID = null;
       this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
-      this.waitSeedSec = 1 + (Math.random() * 3) + this.props.bean.key;
       this.state = {
         paused: false
       }
     }
-    timerID: number|null;
     delaySeedSec: number;
-    waitSeedSec: number;
-    componentDidMount() {
-      this.startWander();
-    }
-    startWander(){
-      this.setState({paused: false});
-      this.timerID = window.setTimeout(
-        () => this.stopWander(),
-        (1000 * this.waitSeedSec)
-      );
-    }
-    componentWillUnmount() {
-      if(this.timerID)
-        window.clearInterval(this.timerID);
-    }
-    stopWander(){
-      this.setState({paused: true});
-      this.timerID = window.setTimeout(
-        () => this.startWander(),
-        1000
-      );
-    }
     getIdea(){
         if (this.state.paused) {
             const idea = this.props.bean.getIdea(this.props.costOfLiving)

@@ -22,6 +22,11 @@ import { CapsuleLabel } from './widgets/CapsuleLabel';
 
 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
+import { GoalsPanel } from './right-panel/Goals';
+import { CampaignsPanel } from './modal-content/Campaigns';
+import { GovernmentPanel } from './modal-content/Gov';
+import { ResearchPanel } from './modal-content/Research';
+import { StopPlayFastButtons } from './widgets/StopPlayFast';
 
 
 export const keyToName = {
@@ -81,8 +86,10 @@ interface AppState{
   activeModal: ModalView|null;
   activeMain: 'geo'|'network';
   activeRightPanel: 'events'|'overview'|'goals';
+  timeScale: number;
 }
 
+const Tick_Interval_MS = 50;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -92,15 +99,26 @@ class App extends React.Component<AppPs, AppState>{
       activeBeanID: null,
       activeMain: 'geo',
       activeModal: 'party_creation',
-      activeRightPanel: 'overview'
+      activeRightPanel: 'overview',
+      timeScale: 1
     };
     this.state.world.calculateComputedState();
   }
+  private lastTick: Date = new Date();
+  private intervalID: number|undefined;
   componentDidMount(){
     document.addEventListener("keyup", this.escFunction, false);
+    this.intervalID = window.setInterval(() => this.tick(), Tick_Interval_MS);
   }
   componentWillUnmount(){
     document.removeEventListener("keyup", this.escFunction);
+    if (this.intervalID)
+      window.clearInterval(this.intervalID);
+  }
+  tick(){
+    if (this.state.timeScale > 0){
+
+    }
   }
   escFunction = (event: KeyboardEvent) => {
     if(event.keyCode === 13) {
@@ -186,93 +204,7 @@ class App extends React.Component<AppPs, AppState>{
             </div>
         }
       case 'goals':
-        return <div className="goals">
-          <div><b>Goals</b></div>
-          <ul>
-            <li>
-            ☑️ Found Utopia
-            </li>
-            <li>
-            ⭕️ Scan a Subject
-              <small title="Select a single earthling and Scan it">❔</small>
-            </li>
-            <li>
-            ⭕️ Brainwash a Subject
-            </li>
-            <li>
-            ⭕️ Set Government Policy
-            </li>
-            <li>
-            ⭕️ Get a C+ Utopia Grade
-            </li>
-          </ul>
-          <div><b>Report Card</b></div>
-          <p>
-            Last Grade: <b>D</b>
-          </p>
-          <p>
-            6 mo s til next grade.
-          </p>
-          <table style={{margin: 'auto'}}>
-            <tbody>
-              <tr>
-                <th>Happiness
-                </th>
-                <td>
-                  D
-                </td>
-                <td>
-                  <small title="Are your subjects happy?">❔</small>
-                </td>
-              </tr>
-              <tr>
-                <th>Prosperity</th>
-                <td>
-                  D
-                </td>
-                <td>
-                  <small title="Are your subjects fed and healthy?">❔</small>
-                </td>
-              </tr>
-              <tr>
-                <th>Stability
-                </th>
-                <td>
-                  D
-                </td>
-                <td>
-                  <small title="Are your subjects sane and civil?">❔</small>
-                </td>
-              </tr>
-              <tr>
-                <th>Dogma
-                </th>
-                <td>
-                  B
-                </td>
-                <td>
-                  <small title="Do your society's rules match your utopian ideals?">❔</small>
-                </td>
-              </tr>
-              <tr>
-                <td colSpan={3}>
-                  <hr />
-                </td>
-              </tr>
-              <tr>
-                <th>
-                </th>
-                <td>
-                  C
-                </td>
-                <td></td>
-              </tr>
-            </tbody>
-          </table>
-          <p>
-            Receive an "A" in "Prosperity" <br/> to receive 3 Psi
-          </p>
-        </div>
+        return <GoalsPanel></GoalsPanel>
       case 'events':
         return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
     }
@@ -316,7 +248,6 @@ class App extends React.Component<AppPs, AppState>{
   }
   render() {
     const season = Season[this.state.world.date.season];
-    const seasonalCost = this.state.world.party.activeCampaigns.reduce((sum, x) => sum +x.seasonalCost, 0);
     return (
     <div className="canvas">
       <TransformWrapper 
@@ -336,152 +267,13 @@ class App extends React.Component<AppPs, AppState>{
           <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
         </Modal>
         <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
-          <div className="col-2">
-            <h2>Research Lab</h2>
-            <div>
-              Currently probing 0 Human Beings
-            </div>
-          </div>
+          <ResearchPanel></ResearchPanel>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
-          <div className="col-2">
-            <h2>Government</h2>
-            <div>
-
-            </div>
-          </div>
-          <div className="pad-4p">
-            <h3>Policy</h3>
-            <div className="horizontal">
-              <div className="vertical">
-                <strong>Welfare</strong>
-                <div>Nutrition: {this.state.world.law.policyTree.wel_food.name}</div>
-                <div>Housing: {this.state.world.law.policyTree.wel_house.name}</div>
-                <div>Healthcare: {this.state.world.law.policyTree.wel_health.name}</div>
-              </div>
-              <div className="vertical">
-                <strong>Taxation</strong>
-                <div>{this.state.world.law.policyTree.tax_basic.name}</div>
-                <div>{this.state.world.law.policyTree.tax_second.name}</div>
-              </div>
-              <div className="vertical">
-                <strong>Economics</strong>
-                <div>External: {this.state.world.law.policyTree.econ_ex.name}</div>
-                <div>Labor: {this.state.world.law.policyTree.econ_labor.name}</div>
-                <div>Subsidies: {this.state.world.law.policyTree.econ_sub.name}</div>
-              </div>
-              <div className="vertical">
-                <strong>Culture</strong>
-                <div>Religion: {this.state.world.law.policyTree.cul_rel.name}</div>
-                {this.state.world.law.policyTree.cul_rel.key == '20' ? <div>Theocracy: {this.state.world.law.policyTree.cul_theo.name}</div>: null}
-                <div>Education: {this.state.world.law.policyTree.cul_ed.name}</div>
-              </div>
-              <div className="vertical">
-                <strong>Law</strong>
-                <div>Voting: {this.state.world.law.policyTree.law_vote.name}</div>
-                <div>Corruption: {this.state.world.law.policyTree.law_bribe.name}</div>
-                <div>Immigration: {this.state.world.law.policyTree.law_imm.name}</div>
-              </div>
-            </div>
-          </div>
+          <GovernmentPanel world={this.state.world}></GovernmentPanel>
         </Modal>
         <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({activeModal: null})}>
-          <div className="pad-4p">
-            <div className="subheader">
-                <h3>Propaganda</h3>
-                <button type="button" className="callout" onClick={() => void(0)} >🎙️ Buy Propaganda</button>
-            </div>
-            <span>
-              Propaganda changes beans' feelings on a wide variety of topics.
-            </span>
-            <div className="card-parent">
-              <button type="button" className="card button">
-                <span className="h">
-                  📺 Broadcast Campaign
-                </span>
-                <small>Approval+ Cash-</small>
-                <span className="p">
-                  Small chance to increase Approval among all beans
-                </span>
-              </button>
-              <button type="button" className="card button">
-                <span className="h">
-                  👋 Canvassing
-                </span>
-                <small>Approval+ Labor-</small>
-                <span className="p">
-                  Chance to increase Approval on a few random beans
-                </span>
-              </button>
-              <button type="button" className="card button">
-                <span className="h">
-                  🗞️ Print Campaign
-                </span>
-                <small>Approval+ Cash-</small>
-                <span className="p">
-                  Chance to increase Approval on wealthy beans
-                </span>
-              </button>
-            </div>
-            <div className="subheader">
-                <h3>Appearances</h3>
-                <button type="button" className="callout" onClick={() => void(0)} >💬 Schedule Appearance</button>
-            </div>
-            <span>
-              Appearances have limited reach, but have powerful effects.
-            </span>
-            <div className="card-parent">
-              <button type="button" className="card button">
-                <span className="h">
-                🤔 Debating
-                </span>
-                <small>
-                  Labor-
-                </small>
-                <span className="p">
-                  Chance to gain or lose Influence
-                </span>
-              </button>
-              <button type="button" className="card button">
-                <span className="h">
-                📸 Photo Op
-                </span>
-                <small>
-                  Labor-
-                </small>
-                <span className="p">
-                  Increases Approval within one Social Group
-                </span>
-              </button>
-              <button type="button" className="card button">
-                <span className="h">
-                  🎤 Speechmaking
-                </span>
-                <small>
-                  Labor-
-                </small>
-                <span className="p">
-                  Increases chance of Donations in a single City
-                </span>
-              </button>
-              <button type="button" className="card button">
-                <span className="h">
-                🙋 Town Hall
-                </span>
-                <small>
-                  Labor-
-                </small>
-                <span className="p">
-                  Suppresses negative Approval in a single city                     
-                </span>
-              </button>
-            </div>
-            {/* <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
-            <div>
-              <b>Campaign Finances</b> <br/>
-              <b>Expenses</b> ${seasonalCost} <b>Surplus</b> ${this.state.world.party.seasonalIncome - seasonalCost}
-            </div> */}
-          </div>
+          <CampaignsPanel></CampaignsPanel>
         </Modal>
         <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({activeModal: null})}>
           {(this.state.activeModal == 'economy'? <EconomyReport world={this.state.world}></EconomyReport> : '')}
@@ -502,8 +294,8 @@ class App extends React.Component<AppPs, AppState>{
             </span>
             <button type="button" onClick={() => this.setState({activeMain: 'network'})}>🌐</button>
             <button type="button" onClick={() => this.setState({activeMain: 'geo'})}>🌎</button>
-            <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button>
-            
+            {/* <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button> */}
+            <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => {this.setState({timeScale: n})}}></StopPlayFastButtons>
           </div>
           <div className="bottom">
             <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="⚡️">
