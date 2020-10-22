@@ -39,7 +39,7 @@ export class World implements IWorld, IBeanContainer{
     public economy: Economy = new Economy();
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
-    public date = {year: 0, season: Season.Spring};
+    public date: IDate = {year: 1, season: Season.Spring, day: 1};
     public electionIn = 11;
     public yearsEvents: IEvent[] = [];
     public bus = new EventBus();
@@ -80,13 +80,21 @@ export class World implements IWorld, IBeanContainer{
         if (this.electionIn <= 0){
             this.electionIn = 8;
         }
-        this.date.season++;
+        this.date.day++;
+        if (this.date.day > 30){
+            this.date.day = 1;
+            this.date.season++;
+        }
         if (this.date.season > 3){
             this.date.year++;
             this.inflate();
             this.resetYearlyCounters();
             this.date.season = 0;
         }
+
+        this.alien.bots.amount += this.alien.bots.income / 30;
+        this.alien.energy.amount += this.alien.energy.income / 30;
+        this.alien.psi.amount += this.alien.psi.income / 30;
         
         this.economy.resetSeasonalDemand();
 
@@ -226,7 +234,7 @@ export class City implements Tile, IBeanContainer {
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         if (this.environment)
-            bean.dob = {year: this.environment?.year, season: this.environment?.season};
+            bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day};
         this.historicalBeans.push(bean);
     }
     getTaxesAndDonations(party: Party, economy: Economy){

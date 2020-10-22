@@ -3,12 +3,13 @@ import { World } from "../World";
 export enum Season {Spring, Summer, Fall, Winter}
 
 export interface IDate{
+    day: number;
     season: Season;
     year: number;
 }
 
 export function Now(world: World){
-    return {year: world.date.year, season: world.date.season};
+    return {year: world.date.year, season: world.date.season, day: world.date.day};
 }
 
 export function withinLastYear(current: IDate, last: IDate): boolean{

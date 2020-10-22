@@ -89,7 +89,7 @@ interface AppState{
   timeScale: number;
 }
 
-const Tick_Interval_MS = 50;
+const LogicTickMS = 2000;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -104,21 +104,32 @@ class App extends React.Component<AppPs, AppState>{
     };
     this.state.world.calculateComputedState();
   }
-  private lastTick: Date = new Date();
-  private intervalID: number|undefined;
+  private previousTimeMS: DOMHighResTimeStamp = 0;
+  private logicTickAccumulatorMS: number = 0;
   componentDidMount(){
     document.addEventListener("keyup", this.escFunction, false);
-    this.intervalID = window.setInterval(() => this.tick(), Tick_Interval_MS);
+    window.requestAnimationFrame((time: DOMHighResTimeStamp) => {
+      this.previousTimeMS = time;
+      window.requestAnimationFrame(this.tick);
+    });
   }
   componentWillUnmount(){
     document.removeEventListener("keyup", this.escFunction);
-    if (this.intervalID)
-      window.clearInterval(this.intervalID);
   }
-  tick(){
-    if (this.state.timeScale > 0){
-
+  tick = (timeMS: DOMHighResTimeStamp) => {
+    // Compute the delta-time against the previous time
+    const deltaTimeMS = (timeMS - this.previousTimeMS) * this.state.timeScale;
+  
+    // Update the previous time
+    this.previousTimeMS = timeMS;
+    if (deltaTimeMS > 0){
+      this.logicTickAccumulatorMS += deltaTimeMS;
+      if (this.logicTickAccumulatorMS > LogicTickMS){
+        this.endTurn();
+        this.logicTickAccumulatorMS -= LogicTickMS;
+      }
     }
+    window.requestAnimationFrame(this.tick);
   }
   escFunction = (event: KeyboardEvent) => {
     if(event.keyCode === 13) {
@@ -287,7 +298,7 @@ class App extends React.Component<AppPs, AppState>{
               &nbsp;
               Year {this.state.world.date.year}, 
               &nbsp;
-              {season} 1
+              {season} {this.state.world.date.day}
             </span>
             <span>
               6 mo 5 days til Grade
@@ -300,17 +311,17 @@ class App extends React.Component<AppPs, AppState>{
           <div className="bottom">
             <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="⚡️">
               <CapsuleLabel icon="⚡️" label="Energy">
-                {this.state.world.alien.energy.amount}
+                {this.state.world.alien.energy.amount.toFixed(1)}
               </CapsuleLabel>
             </BubbleText>
             <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🧠">
               <CapsuleLabel icon="🧠" label="Psi">
-                {this.state.world.alien.psi.amount}
+                {this.state.world.alien.psi.amount.toFixed(1)}
               </CapsuleLabel>
             </BubbleText>
             <BubbleText changeEvent={this.state.world.bus.labor} icon="🤖">
               <CapsuleLabel icon="🤖" label="Bots">
-                {this.state.world.alien.bots.amount}
+                {this.state.world.alien.bots.amount.toFixed(1)}
               </CapsuleLabel>
             </BubbleText>
             <span>

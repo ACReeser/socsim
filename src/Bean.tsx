@@ -14,7 +14,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public key: number = 0;
     public cityKey: number = 0;
     public alive: boolean = true;
-    public dob: IDate = {year: 0, season: 0};
+    public dob: IDate = {year: 0, season: 0, day: 1};
     public name: string = 'Human Bean';
     public sanity = 1;
 
@@ -28,7 +28,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public city: City|null = null;
 
     public ethnicity: TraitEthno = RandomEthno();
-    public lastApproval: IDate = {year: -1, season: 0};
+    public lastApproval: IDate = {year: -1, season: 0, day: 0};
 
     //maslow
     public discrete_food: number = 1;
@@ -72,8 +72,8 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public lastPartySentiment: number = 0;
     public seasonSinceLastSale: number = 0;
     public seasonSinceLastRent: number = 0;
-    public lastApprovalDate: IDate = {year: -1, season: 0};
-    public lastInsultDate: IDate = {year: -1, season: 0};
+    public lastApprovalDate: IDate = {year: -1, season: 0, day: 0};
+    public lastInsultDate: IDate = {year: -1, season: 0, day: 0};
     public fairGoodPrice: number = 1;
     get isInCrisis(): boolean{
         return this.food == 'hungry' ||
