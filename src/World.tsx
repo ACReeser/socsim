@@ -26,12 +26,11 @@ export interface IWorld{
     cities: City[];
     law: Government;
     party: Party;
-    electionIn: number;
+
     institutions: IInstitution[];
     bus: EventBus;
     date: IDate;
     alien: Player;
-    geo: Geography;
 }
 export class World implements IWorld, IBeanContainer{
     public cities: City[] = [];
@@ -40,11 +39,10 @@ export class World implements IWorld, IBeanContainer{
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
     public date: IDate = {year: 1, season: Season.Spring, day: 1};
-    public electionIn = 11;
+
     public yearsEvents: IEvent[] = [];
     public bus = new EventBus();
     public alien: Player = new Player();
-    public geo = new Geography();
 
     public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {
@@ -76,10 +74,7 @@ export class World implements IWorld, IBeanContainer{
      * simulates a season passing, setting a lot of state
      */
     public next(){
-        this.electionIn--;
-        if (this.electionIn <= 0){
-            this.electionIn = 8;
-        }
+        
         this.date.day++;
         if (this.date.day > 30){
             this.date.day = 1;
@@ -188,7 +183,7 @@ export interface Tile {
     key: number
 }
 
-export class City implements Tile, IBeanContainer {
+export class City extends Geography implements Tile, IBeanContainer {
     public name: string = '';
     public url: string = '';
     public type: string = '';
@@ -205,7 +200,6 @@ export class City implements Tile, IBeanContainer {
     public yearsPartyDonations: number = 0;
     public majorityEthnicity: TraitEthno = 'circle';
 
-    public geo: Geography = new Geography();
     public environment?: IDate;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 

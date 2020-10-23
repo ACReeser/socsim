@@ -9,7 +9,7 @@ const slot_size = {
 }
 
 export class PetriBuilding extends React.Component<{
-    geo: Geography,
+    city: Geography,
     building: IBuilding
 }> {
     slots() {
@@ -20,7 +20,7 @@ export class PetriBuilding extends React.Component<{
         });
     }
     render() {
-        return <div key={this.props.building.type+this.props.building.key} style={getBuildingTransform(this.props.geo, this.props.building.type, this.props.building.key)} 
+        return <div key={this.props.building.type+this.props.building.key} style={getBuildingTransform(this.props.city, this.props.building.type, this.props.building.key)} 
         className={"building "+this.props.building.type}>
         {BuildingIcon[this.props.building.type]}
         {this.slots()}

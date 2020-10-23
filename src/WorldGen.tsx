@@ -72,12 +72,6 @@ const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
     const world = new World();
  
-    GenerateBuilding(world.geo, 'house', 0); 
-    GenerateBuilding(world.geo, 'house', 1); GenerateBuilding(world.geo, 'house', 2);
-    GenerateBuilding(world.geo, 'house', 3 ); GenerateBuilding(world.geo, 'house', 4); GenerateBuilding(world.geo, 'house', 5);
-    for (let i = 6; i < 9; i++) {
-        GenerateBuilding(world.geo, 'farm', i);
-    }
     world.law.policyTree = {
         wel_food: PolicyByKey('0') as IPolicy,
         wel_house: PolicyByKey('4') as IPolicy,
@@ -98,7 +92,7 @@ export function GenerateWorld(): World{
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {
-        world.cities.push(GenerateCity(world.geo, world.cities.length));
+        world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
         world.cities[i].environment = world.date;
     }
@@ -121,13 +115,19 @@ export function GeneratePartyHQ(city: City, party: Party) {
 }
 
 const Number_Starting_City_Pop = 10;
-export function GenerateCity(geo: Geography, previousCityCount: number): City{
+export function GenerateCity(previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;
     newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', '']);
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
-    newCity.geo = geo;
+    
+    GenerateBuilding(newCity, 'house', 0); 
+    GenerateBuilding(newCity, 'house', 1); GenerateBuilding(newCity, 'house', 2);
+    GenerateBuilding(newCity, 'house', 3 ); GenerateBuilding(newCity, 'house', 4); GenerateBuilding(newCity, 'house', 5);
+    for (let i = 6; i < 9; i++) {
+        GenerateBuilding(newCity, 'farm', i);
+    }
 
     const cityPopulation = Number_Starting_City_Pop;
     while(newCity.historicalBeans.length < cityPopulation){
@@ -184,7 +184,7 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.cash = StartingCash(newBean.job);
     newBean.discrete_food = 2;
 
-    city.geo.how.bean[newBean.key] = hex_to_pixel(city.geo.hex_size, city.geo.petriOrigin, city.geo.where.house[GetRandom(city.geo.what.house).key]);
+    city.how.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, city.where.house[GetRandom(city.what.house).key]);
     
     return newBean;
 }

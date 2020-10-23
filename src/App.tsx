@@ -224,7 +224,7 @@ class App extends React.Component<AppPs, AppState>{
     const COL = this.state.world.economy.getCostOfLiving();
     return this.state.world.cities.map((t) => {
         return (
-          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} geo={this.state.world.geo}
+          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
             onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
             onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
             ></WorldTile>

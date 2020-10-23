@@ -2,7 +2,7 @@ import { Tile, City } from "./World";
 import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, Geography, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint } from "./simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint } from "./simulation/Geography";
 import { PetriBuilding } from "./petri-ui/Building";
 import { PI2 } from "./WorldGen";
 
@@ -10,7 +10,6 @@ interface WorldTilePs {
     tile: Tile;
     city: City;
     costOfLiving: number;
-    geo: Geography;
     onClick: () => void;
     onBeanClick: (b: Bean) => void;
   }
@@ -33,16 +32,16 @@ export class WorldTile extends React.Component<WorldTilePs> {
     }
     mtn_transforms: {transform: string}[] = [];
     renderBuildings(type: BuildingTypes){
-      return this.props.geo.what[type].map((b: IBuilding, i) => {
+      return this.props.city.what[type].map((b: IBuilding, i) => {
         return (
-          <PetriBuilding geo={this.props.geo} building={b} key={type+i} ></PetriBuilding>
+          <PetriBuilding city={this.props.city} building={b} key={type+i} ></PetriBuilding>
         )
       });
     }
     render() {
       const beans = this.props.city.beans.map((b: Bean) => {
         return (
-          <AnimatedBean bean={b} key={b.key} where={this.props.geo.how.bean[b.key]} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
+          <AnimatedBean bean={b} key={b.key} where={this.props.city.how.bean[b.key]} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
       })
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
@@ -51,8 +50,8 @@ export class WorldTile extends React.Component<WorldTilePs> {
         )
       })
       const buildings = this.renderBuildings('farm').concat(this.renderBuildings('house'));
-      const regions = this.props.geo.hexes.map((hex, i) => {
-        const xy = hex_to_pixel(this.props.geo.hex_size, this.props.geo.petriOrigin, hex);
+      const regions = this.props.city.hexes.map((hex, i) => {
+        const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
         return <div className="hex" key={i} style={transformPoint(xy)}>
 
         </div>

@@ -5,7 +5,8 @@ import { Policy, Party } from "./Politics";
 import { IEvent } from "./events/Events";
 import { IDate, withinLastYear } from "./simulation/Time";
 import { Government } from "./simulation/Government";
-import { IAgent, IBean, IMover } from "./simulation/Agent";
+import { Act, AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./simulation/Agent";
+import { Point } from "./simulation/Geography";
 
 
 const BabyChance = 0.05;
@@ -18,10 +19,10 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public name: string = 'Human Bean';
     public sanity = 1;
 
-    public activity_queue = [];
+    public activity_queue: IActivityData[] = [];
     public speed = 0;
     public direction = {x: 0,y:0}; 
-    public markers = [];
+    public markers: Point[] = [];
     public destinationKey = 0;
 
 
@@ -343,5 +344,23 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     die(){
         this.alive = false;
         this.city?.onCitizenDie(this);
+    }
+
+    schedule(){
+        //if current activities len === 0
+        //push copies of common_activity_ring
+    }
+
+    state: AgentState = IdleState.create();
+    tick(){
+        Act(this);
+        //if travel, move towards marker
+        //if at-or-near marker, dequeue marker
+        
+        //if 'buy', attempt to transact
+
+        //if 'work', add transactions
+
+        //if 'sleep', sleep
     }
 }
