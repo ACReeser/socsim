@@ -1,3 +1,4 @@
+import { TraitGood } from "../World";
 
 export interface HexPoint{
     q: number;
@@ -248,6 +249,10 @@ export type MatterTypes = MoverTypes|BuildingTypes;
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🎑',
     'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️'
+};
+export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
+    'food': 'farm',
+    'shelter': 'house', 'medicine':'hospital', 'fun': 'theater'
 };
 
 export class Geography{

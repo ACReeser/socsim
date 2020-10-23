@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -21,7 +21,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public sanity = 1;
 
     public activity_queue: IActivityData[] = [];
-    public speed = 0;
+    public speed = 10;
     public direction = {x: 0,y:0}; 
     public markers: Point[] = [];
     public destinationKey = 0;
@@ -35,9 +35,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     //maslow
     public discrete_food: number = 1;
     public get food(): TraitFood {
-        if (this.discrete_food >= 3)
+        if (this.discrete_food >= GoodToThreshold['food'].abundant)
         return 'stuffed';
-        else if (this.discrete_food >= 1)
+        else if (this.discrete_food >= GoodToThreshold['food'].sufficient)
         return 'sated'
         else
         return 'hungry';
@@ -45,9 +45,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public shelter: TraitShelter = 'crowded';
     public discrete_health: number = 2;
     public get health(): TraitHealth {
-        if (this.discrete_health >= 3)
+        if (this.discrete_health >= GoodToThreshold['medicine'].abundant)
         return 'fresh';
-        else if (this.discrete_health >= 1)
+        else if (this.discrete_health >= GoodToThreshold['medicine'].sufficient)
         return 'bruised'
         else
         return 'sick';
@@ -224,10 +224,6 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             this.buyFood(economy);
         }
 
-        this.discrete_food -= 1;
-        if (this.discrete_food < 0)
-            this.discrete_health -= 0.3;
-
         return this.maybeDie('starvation', 0.6);
     }
     private buyFood(economy: Economy) {
@@ -251,11 +247,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                 }
             }
         }        
-        
-        if (this.shelter == 'podless')
-            this.discrete_health -= 0.1;
-        
-        return this.maybeDie('exposure', 0.2);
+        return null;
     }
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
@@ -268,14 +260,32 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
 
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
+        
         if (this.job == 'doc'){
             this.discrete_health += 0.25;
         } else {
             this.buyMeds(economy);
         }
+
+        this.discrete_food -= 1;
+        if (this.discrete_food < 0)
+            this.discrete_health -= 0.3;
+
+        const starve = this.maybeDie('starvation', 0.6);
+        if (starve)
+            return starve;
+            
+        if (this.shelter == 'podless')
+            this.discrete_health -= 0.1;
+    
+        const exposure = this.maybeDie('exposure', 0.2);
+        if (exposure)
+            return exposure;
+
         this.discrete_health -= 0.2;
         this.discrete_health = Math.min(this.discrete_health, 3);
-        return this.maybeDie('sickness', 0.4);
+        const sick = this.maybeDie('sickness', 0.4);
+        return sick;
     }
     private buyMeds(economy: Economy) {
         const meds = economy.tryTransact(this, 'medicine');
@@ -353,15 +363,4 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     }
 
     state: AgentState = IdleState.create();
-    tick(){
-        Act(this);
-        //if travel, move towards marker
-        //if at-or-near marker, dequeue marker
-        
-        //if 'buy', attempt to transact
-
-        //if 'work', add transactions
-
-        //if 'sleep', sleep
-    }
 }

@@ -124,6 +124,7 @@ class App extends React.Component<AppPs, AppState>{
     this.previousTimeMS = timeMS;
     if (deltaTimeMS > 0){
       this.logicTickAccumulatorMS += deltaTimeMS;
+      //todo: add animate hook to beans
       if (this.logicTickAccumulatorMS > LogicTickMS){
         this.endTurn();
         this.logicTickAccumulatorMS -= LogicTickMS;

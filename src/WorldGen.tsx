@@ -183,7 +183,7 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
     //newBean.job = GetRandom(['farmer','builder','doc']);
     newBean.cash = StartingCash(newBean.job);
-    newBean.discrete_food = 2;
+    newBean.discrete_food = 1;
 
     city.how.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, city.where.house[GetRandom(city.what.house).key]);
     

@@ -11,6 +11,7 @@ import { Player } from './simulation/Player';
 import { Geography } from './simulation/Geography';
 import { City } from './simulation/City';
 import { shuffle } from './simulation/Utils';
+import { Act } from './simulation/Agent';
 
 
 export interface IBeanContainer{
@@ -97,15 +98,15 @@ export class World implements IWorld, IBeanContainer{
 
         this.institutions.forEach((i) => i.fundOrganizations());
 
+        this.beans.forEach((b) => {
+            Act(b);
+        })
         shuffle(this.beans).forEach((b: Bean) => {
             b.work(this.law, this.economy);
         });
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
-        // console.log(JSON.stringify(this.economy.book, (key, value) => {
-        //     if (key != 'seller') return value;
-        //     else return undefined;
-        // }, ' '));
+        
         shuffle(this.beans).forEach((b: Bean) => {
             let e = b.eat(this.economy);
             if (e) this.yearsEvents.push(e);
@@ -224,6 +225,12 @@ export const TraitToModifier: {[key in TraitFood|TraitShelter|TraitHealth]: IHap
     'hungry': {reason: 'Hungry', mod: MaslowScore.Deficient},
     'sated': {reason: 'Sated', mod: MaslowScore.Sufficient},
     'stuffed': {reason: 'Stuffed', mod: MaslowScore.Abundant},
+}
+export const GoodToThreshold: {[key in TraitGood]: {sufficient: number, abundant: number}} = {
+    'food': {sufficient: 1, abundant: 3},
+    'shelter': {sufficient: 1, abundant: 3},
+    'medicine': {sufficient: 1, abundant: 3},
+    'fun': {sufficient: 1, abundant: 3},
 }
 
 export function JobToGood(job: TraitJob): TraitGood{

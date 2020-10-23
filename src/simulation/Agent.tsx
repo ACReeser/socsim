@@ -1,7 +1,8 @@
 import { Agent } from "https";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood } from "../World";
+import { Bean } from "../Bean";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold } from "../World";
 import { GetRandom } from "../WorldGen";
-import { BuildingTypes, Geography, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
+import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy';
@@ -15,7 +16,7 @@ export type Travel = 'cruise'|'approach';
 
 export interface IActivityData {
     act: Act;
-    point?: Point; //point to travel to??
+    points?: Point[]; //point to travel to??
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
     timeSpent?: number; //time spent on this action
@@ -49,19 +50,41 @@ export abstract class AgentState{
     exit(agent: IAgent){
 
     }
+    //todo: add an animate() that gets called in between logic ticks
 }
 export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
     act(agent: IAgent): AgentState{
-        
+        if (agent instanceof Bean && agent.city){
+            if (agent.discrete_food < GoodToThreshold['food'].sufficient){
+                const points = RouteRandom(agent.city, agent, GoodToBuilding['food']) 
+                return TravelState.create(points, {act: 'buy', good: 'food'});
+            }
+        }
         return this;
     }
 }
 export class TravelState extends AgentState{
-    static create(point: Point, intent: IActivityData, good?: TraitGood){ 
-        return new TravelState({act: 'travel', point: point, intent: intent, good: good})}
+    static create(points: Point[], intent: IActivityData){ 
+        return new TravelState({act: 'travel', points: points, intent: intent})}
     act(agent: IAgent): AgentState{
-        
+        if (agent instanceof Bean && agent.city){
+            
+            if (this.data.points && this.data.points.length){
+                const pos = agent.city.how['bean'][agent.key];
+                const target = this.data.points[0];
+                const newPos = move_towards(pos, target, agent.speed);
+                console.log({x: pos.x-newPos.x, y: pos.y-newPos.y});
+                if (agent.key === 0){
+                }
+                agent.city.how['bean'][agent.key] = newPos;
+                if (newPos.x == target.x && newPos.y == target.y){
+                    this.data.points.shift();
+                }
+            } else if (this.data.intent){
+                return ActToState[this.data.intent.act](this.data.intent);
+            }
+        }
         return this;
     }
 }
@@ -98,10 +121,6 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
     'sleep': (data) => new BuyState(data),
     'soapbox': (data) => new BuyState(data),
 }
-
-/**
- * targetLocations: []
- */
 
 /**
  * a bean is a citizen with preferences
@@ -164,7 +183,7 @@ export function Route(geo: Geography, mover: IMover, destination: IBuilding){
     const address: HexPoint = geo.where[destination.type][destination.key];
     const start = geo.how['bean'][mover.key];
     const nearestHex = pixel_to_hex(geo.hex_size, geo.petriOrigin, start);
-    mover.markers = hex_linedraw(nearestHex, address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h));
+    return hex_linedraw(nearestHex, address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h));
 }
 export function Approach(geo: Geography, mover: IMover){
 
