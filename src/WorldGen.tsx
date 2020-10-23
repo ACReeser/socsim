@@ -1,7 +1,8 @@
-import { City, TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
+import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './Bean';
 import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './Politics';
 import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel } from './simulation/Geography';
+import { City } from './simulation/City';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);

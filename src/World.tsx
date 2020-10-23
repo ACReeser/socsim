@@ -9,6 +9,8 @@ import { Season, IDate } from './simulation/Time';
 import { Government } from './simulation/Government';
 import { Player } from './simulation/Player';
 import { Geography } from './simulation/Geography';
+import { City } from './simulation/City';
+import { shuffle } from './simulation/Utils';
 
 
 export interface IBeanContainer{
@@ -151,25 +153,6 @@ export class World implements IWorld, IBeanContainer{
         this.party.organizations.push(charity);
     }
 }
-function shuffle(array: Array<any>) {
-    let counter = array.length;
-
-    // While there are elements in the array
-    while (counter > 0) {
-        // Pick a random index
-        let index = Math.floor(Math.random() * counter);
-
-        // Decrease counter by 1
-        counter--;
-
-        // And swap the last element with it
-        let temp = array[counter];
-        array[counter] = array[index];
-        array[index] = temp;
-    }
-
-    return array;
-}
 
 export interface IEnvironment{
     year: number;
@@ -183,81 +166,6 @@ export interface Tile {
     key: number
 }
 
-export class City extends Geography implements Tile, IBeanContainer {
-    public name: string = '';
-    public url: string = '';
-    public type: string = '';
-    public key: number = 0;
-    public get beans(): Bean[] {
-        return this.historicalBeans.filter((x) => x.alive);
-    }
-    public set beans(beans: Bean[]){
-        throw "can't set city beans";
-    }
-    public historicalBeans: Bean[] = [];
-    public houses: any[] = [];
-    public partyHQ?: ICityPartyHQ;
-    public yearsPartyDonations: number = 0;
-    public majorityEthnicity: TraitEthno = 'circle';
-
-    public environment?: IDate;
-    public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
-
-    getRandomCitizen(): Bean|null{
-        const shuffled = shuffle(this.beans);
-        if (shuffled.length > 0) {
-            return shuffled[0];
-        } else {
-            return null;
-        }
-    }
-    onCitizenDie(deadBean: Bean){
-        if (deadBean.cash > 0){
-            const lucky = this.getRandomCitizen();
-            if (lucky) {
-                lucky.cash = lucky.cash + deadBean.cash;
-                deadBean.cash = 0;
-            }
-        }
-        this.doOnCitizenDie.forEach((x) => x(deadBean, this));
-    }
-    breedBean(parent: Bean) {
-        let bean = GenerateBean(this, this.historicalBeans.length);
-        bean.ethnicity = parent.ethnicity;
-        bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
-        bean.cash = parent.cash / 2;
-        parent.cash /= 2;
-        if (this.environment)
-            bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day};
-        this.historicalBeans.push(bean);
-    }
-    getTaxesAndDonations(party: Party, economy: Economy){
-        if (this.partyHQ){
-            this.beans.forEach((b) => {
-                const donation = b.maybeDonate(economy);
-                party.materialCapital += donation;
-                this.yearsPartyDonations += donation;
-            });
-        }
-    }
-    calculate(economy: Economy, law: Government) {
-        const c = this.beans.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
-            switch(bean.ethnicity){
-                case 'circle': count.circle++;break;
-                case 'square': count.square++;break;
-                case 'triangle': count.triangle++;break;
-            }
-            return count;
-        }, {circle: 0, square: 0, triangle: 0});
-        if (c.circle > c.square && c.circle > c.triangle){
-            this.majorityEthnicity = 'circle';
-        } else if (c.square > c.circle && c.square > c.triangle){
-            this.majorityEthnicity = 'square';
-        } else {
-            this.majorityEthnicity = 'triangle';
-        }
-    }
-}
 
 export type TraitCommunity = 'state'|'ego';
 export type TraitIdeals = 'prog'|'trad';

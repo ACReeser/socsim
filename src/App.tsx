@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import './chrome/chrome.css';
-import { World, Tile, City, TraitGood, Axis } from './World';
+import { World, TraitGood, Axis } from './World';
 import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
 import { Modal } from './Modal';
 import { OverviewPanel } from './OverviewPanel';

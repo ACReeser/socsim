@@ -1,9 +1,9 @@
 import React from "react";
-import { City, Trait } from "./World";
+import { Trait } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
-import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
+import { reportIdeals, reportCommunity, reportEthno, City } from "./simulation/City";
 
 interface OverviewPanelP{
     city?: City,

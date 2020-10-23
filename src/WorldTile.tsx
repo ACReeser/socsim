@@ -1,10 +1,11 @@
-import { Tile, City } from "./World";
+import { Tile } from "./World";
 import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
 import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint } from "./simulation/Geography";
 import { PetriBuilding } from "./petri-ui/Building";
 import { PI2 } from "./WorldGen";
+import { City } from "./simulation/City";
 
 interface WorldTilePs {
     tile: Tile;

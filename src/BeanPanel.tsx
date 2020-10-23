@@ -1,9 +1,9 @@
 import React from "react";
-import { City, Trait, IHappinessModifier } from "./World";
+import { IHappinessModifier } from "./World";
 import { keyToName } from "./App";
 import { Bean } from "./Bean";
 import { NeedReadout } from "./widgets/NeedReadout";
-import { reportIdeals, reportCommunity, reportEthno } from "./simulation/City";
+import { reportIdeals, reportCommunity, reportEthno, City } from "./simulation/City";
 import { Economy } from "./Economy";
 import { Party } from "./Politics";
 import { IEvent, EventBus } from "./events/Events";

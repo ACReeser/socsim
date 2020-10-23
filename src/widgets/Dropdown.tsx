@@ -1,5 +1,5 @@
 import React, { ChangeEvent } from "react";
-import { City } from "../World";
+import { City } from "../simulation/City";
 
 export interface DropdownPS<T>{
     options: Array<T&{key: any}>,
