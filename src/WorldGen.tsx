@@ -96,6 +96,8 @@ export function GenerateWorld(): World{
         world.cities.push(GenerateCity(world.cities.length));
         world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
         world.cities[i].environment = world.date;
+        world.cities[i].economy = world.economy;
+        world.cities[i].law = world.law;
     }
     world.economy.totalSeasonalDemand.food = world.beans.length;
     world.economy.totalSeasonalDemand.shelter = world.beans.length;
@@ -115,7 +117,7 @@ export function GeneratePartyHQ(city: City, party: Party) {
     party.activeHQs.push(hq.cityKey);
 }
 
-const Number_Starting_City_Pop = 10;
+const Number_Starting_City_Pop = 9;
 export function GenerateCity(previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;
@@ -125,7 +127,7 @@ export function GenerateCity(previousCityCount: number): City{
     
     GenerateBuilding(newCity, 'house', 0); 
     GenerateBuilding(newCity, 'house', 1); GenerateBuilding(newCity, 'house', 2);
-    GenerateBuilding(newCity, 'house', 3 ); GenerateBuilding(newCity, 'house', 4); GenerateBuilding(newCity, 'house', 5);
+    GenerateBuilding(newCity, 'house', 3 ); GenerateBuilding(newCity, 'hospital', 4); GenerateBuilding(newCity, 'house', 5);
     for (let i = 6; i < 9; i++) {
         GenerateBuilding(newCity, 'farm', i);
     }
@@ -183,7 +185,7 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
     //newBean.job = GetRandom(['farmer','builder','doc']);
     newBean.cash = StartingCash(newBean.job);
-    newBean.discrete_food = 1;
+    newBean.discrete_food = 2;
 
     city.how.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, city.where.house[GetRandom(city.what.house).key]);
     

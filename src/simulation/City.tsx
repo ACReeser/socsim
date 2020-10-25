@@ -54,6 +54,8 @@ export class City extends Geography implements Tile, IBeanContainer {
     public yearsPartyDonations: number = 0;
     public majorityEthnicity: TraitEthno = 'circle';
 
+    public economy?: Economy;
+    public law?: Government;
     public environment?: IDate;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 

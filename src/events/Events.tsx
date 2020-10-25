@@ -5,8 +5,11 @@ export interface IEvent{
 }
 
 export class PubSub<T>{
+    constructor(private onPublish?: (args: T) => void){}
     private callbacks: Array<(args: T) => void> = [];
     public publish(args: T){
+        if (this.onPublish)
+            this.onPublish(args);
         this.callbacks.forEach((c) => c(args));
     }
     public subscribe(callback: (args: T) => void){

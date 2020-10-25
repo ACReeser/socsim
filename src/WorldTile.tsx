@@ -42,7 +42,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     render() {
       const beans = this.props.city.beans.map((b: Bean) => {
         return (
-          <AnimatedBean bean={b} key={b.key} where={this.props.city.how.bean[b.key]} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
+          <AnimatedBean bean={b} key={b.key} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
       })
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
@@ -50,7 +50,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
           <span key={i} className="dead" style={{left: (i*10)+'px'}}>⚰️</span>
         )
       })
-      const buildings = this.renderBuildings('farm').concat(this.renderBuildings('house'));
+      const buildings = this.renderBuildings('farm').concat(this.renderBuildings('hospital')).concat(this.renderBuildings('house'));
       const regions = this.props.city.hexes.map((hex, i) => {
         const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
         return <div className="hex" key={i} style={transformPoint(xy)}>

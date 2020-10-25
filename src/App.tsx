@@ -89,7 +89,7 @@ interface AppState{
   timeScale: number;
 }
 
-const LogicTickMS = 2000;
+const LogicTickMS = 1000;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -124,6 +124,9 @@ class App extends React.Component<AppPs, AppState>{
     this.previousTimeMS = timeMS;
     if (deltaTimeMS > 0){
       this.logicTickAccumulatorMS += deltaTimeMS;
+      this.state.world.beans.forEach((x) => {
+        x.animate.publish(deltaTimeMS);
+      })
       //todo: add animate hook to beans
       if (this.logicTickAccumulatorMS > LogicTickMS){
         this.endTurn();

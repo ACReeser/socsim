@@ -1,8 +1,8 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold, TraitGood } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
-import { IEvent } from "./events/Events";
+import { IEvent, PubSub } from "./events/Events";
 import { IDate, withinLastYear } from "./simulation/Time";
 import { Government } from "./simulation/Government";
 import { Act, AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./simulation/Agent";
@@ -21,7 +21,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public sanity = 1;
 
     public activity_queue: IActivityData[] = [];
-    public speed = 10;
+    public speed = 60;
     public direction = {x: 0,y:0}; 
     public markers: Point[] = [];
     public destinationKey = 0;
@@ -205,6 +205,17 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (this.job == 'jobless'){
             this.tryFindRandomJob(law);
         } else {
+            switch(this.job){
+                case 'farmer':
+                    this.discrete_food += 2.5;
+                    break;
+                case 'doc':
+                    this.discrete_health += 2.5;
+                    break;
+                case 'builder': 
+                    this.shelter = 'crowded';
+                    break;
+            }
             this.seasonSinceLastSale++;
             if (this.seasonSinceLastSale > 2){
                 //underemployment
@@ -217,26 +228,26 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             econ.produceAndPrice(this, JobToGood(this.job), 2.5, this.fairGoodPrice);
         }
     }
-    eat(economy: Economy): IEvent|null {
-        if (this.job == 'farmer'){
-            this.discrete_food += 1;
-        } else {
-            this.buyFood(economy);
-        }
-
-        return this.maybeDie('starvation', 0.6);
-    }
     private buyFood(economy: Economy) {
         const groceries = economy.tryTransact(this, 'food');
         if (groceries)
             this.discrete_food += groceries.bought;
     }
-
-    weather(economy: Economy): IEvent|null {
-        if (!this.alive) return null;
-        if (this.job == 'builder'){
-            this.shelter = 'crowded';
-        } else {
+    public buy: {[key in TraitGood]: (econ: Economy)=> void} = {
+        food: (economy: Economy) =>{
+            const groceries = economy.tryTransact(this, 'food');
+            if (groceries)
+                this.discrete_food += groceries.bought;
+        },
+        medicine:  (economy: Economy) =>{
+            const meds = economy.tryTransact(this, 'medicine');
+            if (meds)
+                this.discrete_health += meds.bought;
+        },
+        fun:  (economy: Economy) =>{
+            
+        },
+        shelter: (economy: Economy) => {
             const hasHousing = this.buyHousing(economy);
             if (!hasHousing){
                 if (this.seasonSinceLastRent > SeasonsUntilEviction) {
@@ -246,8 +257,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                     this.seasonSinceLastRent++;
                 }
             }
-        }        
-        return null;
+        }
     }
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
@@ -260,29 +270,23 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
 
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
-        
-        if (this.job == 'doc'){
-            this.discrete_health += 0.25;
-        } else {
-            this.buyMeds(economy);
-        }
 
         this.discrete_food -= 1;
         if (this.discrete_food < 0)
-            this.discrete_health -= 0.3;
+            this.discrete_health -= 0.2;
 
         const starve = this.maybeDie('starvation', 0.6);
         if (starve)
             return starve;
             
         if (this.shelter == 'podless')
-            this.discrete_health -= 0.1;
+            this.discrete_health -= 0.05;
     
         const exposure = this.maybeDie('exposure', 0.2);
         if (exposure)
             return exposure;
 
-        this.discrete_health -= 0.2;
+        this.discrete_health -= 0.1;
         this.discrete_health = Math.min(this.discrete_health, 3);
         const sick = this.maybeDie('sickness', 0.4);
         return sick;
@@ -363,4 +367,8 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     }
 
     state: AgentState = IdleState.create();
+
+    animate = new PubSub<number>((deltaTime: number) => {
+        this.state.animate(this, deltaTime);
+    });
 }

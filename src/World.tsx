@@ -108,11 +108,7 @@ export class World implements IWorld, IBeanContainer{
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
         shuffle(this.beans).forEach((b: Bean) => {
-            let e = b.eat(this.economy);
-            if (e) this.yearsEvents.push(e);
-            e = b.weather(this.economy);
-            if (e) this.yearsEvents.push(e);
-            e = b.age(this.economy);
+            let e = b.age(this.economy);
             if (e) this.yearsEvents.push(e);
             e = b.maybeBaby(this.economy);
             if (e) this.yearsEvents.push(e);

@@ -1,8 +1,8 @@
 import { Agent } from "https";
 import { Bean } from "../Bean";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood } from "../World";
 import { GetRandom } from "../WorldGen";
-import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
+import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy';
@@ -16,7 +16,8 @@ export type Travel = 'cruise'|'approach';
 
 export interface IActivityData {
     act: Act;
-    points?: Point[]; //point to travel to??
+    location?: Point, //FROM Point
+    destinations?: Point[]; //point to travel to??
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
     timeSpent?: number; //time spent on this action
@@ -34,14 +35,19 @@ export function ChangeState(agent: IAgent, newState: AgentState){
 export function Act(agent: IAgent): void{
     const result = agent.state.act(agent);
     if (result != agent.state){
+        console.log({old: agent.state.data.act, new: result.data.act})
         ChangeState(agent, result);
     }
 }
 
 export abstract class AgentState{
     constructor(public data: IActivityData){}
+    /**
+     * elapsed time in MS
+     */
+    protected elapsed: number = 0;
     enter(agent: IAgent){
-
+        this.elapsed = 0;
     }
     act(agent: IAgent): AgentState{
         
@@ -50,6 +56,9 @@ export abstract class AgentState{
     exit(agent: IAgent){
 
     }
+    animate(agent: IAgent, deltaMS: number){
+        this.elapsed += deltaMS;
+    }
     //todo: add an animate() that gets called in between logic ticks
 }
 export class IdleState extends AgentState{
@@ -57,40 +66,54 @@ export class IdleState extends AgentState{
     act(agent: IAgent): AgentState{
         if (agent instanceof Bean && agent.city){
             if (agent.discrete_food < GoodToThreshold['food'].sufficient){
-                const points = RouteRandom(agent.city, agent, GoodToBuilding['food']) 
+                const points = RouteRandom(agent.city, agent, GoodToBuilding['food']);
                 return TravelState.create(points, {act: 'buy', good: 'food'});
+            }
+            if (agent.discrete_food < GoodToThreshold['shelter'].sufficient){
+                const points = RouteRandom(agent.city, agent, GoodToBuilding['shelter']) 
+                return TravelState.create(points, {act: 'buy', good: 'shelter'});
+            }
+            if (agent.job != 'jobless'){
+                const points = RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
+                return TravelState.create(points, {act: 'work', good: JobToGood(agent.job)});
             }
         }
         return this;
     }
 }
 export class TravelState extends AgentState{
-    static create(points: Point[], intent: IActivityData){ 
-        return new TravelState({act: 'travel', points: points, intent: intent})}
+    static create(destinations: Point[], intent: IActivityData){ 
+        return new TravelState({act: 'travel', destinations: destinations, intent: intent})}
     act(agent: IAgent): AgentState{
-        if (agent instanceof Bean && agent.city){
-            
-            if (this.data.points && this.data.points.length){
-                const pos = agent.city.how['bean'][agent.key];
-                const target = this.data.points[0];
-                const newPos = move_towards(pos, target, agent.speed);
-                console.log({x: pos.x-newPos.x, y: pos.y-newPos.y});
-                if (agent.key === 0){
-                }
-                agent.city.how['bean'][agent.key] = newPos;
-                if (newPos.x == target.x && newPos.y == target.y){
-                    this.data.points.shift();
-                }
+        if (agent instanceof Bean && agent.city){            
+            if (this.data.destinations && this.data.destinations.length){
             } else if (this.data.intent){
                 return ActToState[this.data.intent.act](this.data.intent);
             }
         }
         return this;
     }
+    animate(agent: IAgent, deltaMS: number){
+        if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
+            const pos = agent.city.how['bean'][agent.key];
+            const target = this.data.destinations[0];
+            const newPos = move_towards(pos, target, deltaMS / 1000 * agent.speed);
+            //console.log({x: pos.x - newPos.x, y: pos.y - newPos.y})
+            agent.city.how['bean'][agent.key] = newPos;
+            if (newPos.x == target.x && newPos.y == target.y){
+                this.data.location = newPos;
+                this.data.destinations.shift();
+            }
+        }
+    }
 }
 export class WorkState extends AgentState{
     static create(good: TraitGood){ return new WorkState({act: 'work', good: good})}
     act(agent: IAgent): AgentState{
+        if (this.elapsed > 1000 && agent instanceof Bean && this.data.good && agent.city?.economy && agent.city?.law){
+            agent.work(agent.city.law, agent.city.economy);
+            return IdleState.create();
+        }
         
         return this;
     }
@@ -98,7 +121,10 @@ export class WorkState extends AgentState{
 export class BuyState extends AgentState{
     static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
     act(agent: IAgent): AgentState{
-        
+        if (this.elapsed > 1000 && agent instanceof Bean && this.data.good && agent.city?.economy){
+            agent.buy[this.data.good](agent.city.economy);
+            return IdleState.create();
+        }
         return this;
     }
 }

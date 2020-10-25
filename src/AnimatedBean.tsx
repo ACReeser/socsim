@@ -1,22 +1,34 @@
 import { Bean } from "./Bean";
 import React from "react";
-import { Point, transformPoint } from "./simulation/Geography";
+import { origin_point, Point, transformPoint } from "./simulation/Geography";
 
 interface AnimatedBeanP {
   bean: Bean;
   costOfLiving: number;
   sitStill?: boolean;
-  where: Point,
   onClick: () => void;
+  static?: boolean;
 }
 
-export class AnimatedBean extends React.Component<AnimatedBeanP, {paused: boolean}> {
+interface AnimatedBeanS{
+  paused: boolean,
+  point: Point
+}
+
+export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> {
     constructor(props: AnimatedBeanP) {
       super(props);
       this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
       this.state = {
-        paused: false
-      }
+        paused: false,
+        point: props.static ? origin_point : props.bean.city ? props.bean.city.how.bean[props.bean.key] : {x: 0, y: 0}
+      };
+      props.bean.animate.subscribe(this.animate);
+    }
+    animate = (deltaMS: number) => {
+      this.setState({
+        point: this.props.bean.city ? this.props.bean.city.how.bean[this.props.bean.key] : {x: 0, y: 0}
+      })
     }
     delaySeedSec: number;
     getIdea(){
@@ -37,7 +49,7 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, {paused: boolea
         classes += ' bean-walker';
       }
       let style = {
-        ...transformPoint(this.props.where),
+        ...transformPoint(this.state.point),
         animationDelay: '-'+this.delaySeedSec+'s'
       };
       style.animationDelay = '';

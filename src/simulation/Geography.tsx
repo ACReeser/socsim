@@ -1,4 +1,4 @@
-import { TraitGood } from "../World";
+import { TraitGood, TraitJob } from "../World";
 
 export interface HexPoint{
     q: number;
@@ -54,7 +54,7 @@ export function hex_spiral(center: HexPoint, radius: number): HexPoint[]{
 
 export function move_towards(current: Point, target: Point, maxDistanceDelta: number)
 {
-    const a: Point = {x: target.x - current.x, y: target.y - target.y};
+    const a: Point = {x: target.x - current.x, y: target.y - current.y};
     const magnitude = Math.sqrt(a.x * a.x + a.y * a.y);
     if (magnitude <= maxDistanceDelta || magnitude == 0)
     {
@@ -70,6 +70,12 @@ export function lerp(a: number, b: number, t: number): number{
     return a + (b - a) * t
 }
 
+export function vector_lerp(a: Point, b: Point, t: number): Point{
+    return {
+        x: lerp(a.x, b.x, t),
+        y: lerp(a.y, b.y, t)
+    };
+}
 function cube_lerp(a: CubicPoint, b: CubicPoint, t: number): CubicPoint{
     return {
         x: lerp(a.x, b.x, t),
@@ -117,7 +123,7 @@ function axial_to_cube(hex: HexPoint): CubicPoint{
 function cube_linedraw(a: CubicPoint, b: CubicPoint): HexPoint[]{
     var N = cube_distance(a, b);
     var results: HexPoint[] = [];
-    for (let i = 0; i < N; i++) {
+    for (let i = 0; i <= N; i++) {
         results.push(cube_to_axial(cube_round(cube_lerp(a, b, 1.0/N * i))))
     }
     return results;
@@ -253,6 +259,11 @@ export const BuildingIcon: {[key in BuildingTypes]: string} = {
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',
     'shelter': 'house', 'medicine':'hospital', 'fun': 'theater'
+};
+export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
+    'farmer': 'farm',
+    'builder': 'house', 'doc':'hospital', 'entertainer': 'theater',
+    'cleric': 'church', 'jobless': 'house', 'polit': 'house'
 };
 
 export class Geography{
