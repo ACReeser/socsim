@@ -10,8 +10,9 @@ import { Point } from "./simulation/Geography";
 import { City } from "./simulation/City";
 
 
-const BabyChance = 0.05;
-const SeasonsUntilEviction = 1;
+const BabyChance = 0.01;
+export const DaysUntilSleepy = 7;
+const DaysUntilHomeless = DaysUntilSleepy * 2;
 export class Bean implements IBean, ISeller, IMover, IAgent{
     public key: number = 0;
     public cityKey: number = 0;
@@ -21,7 +22,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public sanity = 1;
 
     public activity_queue: IActivityData[] = [];
-    public speed = 60;
+    public speed = 100;
     public direction = {x: 0,y:0}; 
     public markers: Point[] = [];
     public destinationKey = 0;
@@ -72,8 +73,8 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
      * -100-100
      */
     public lastPartySentiment: number = 0;
-    public seasonSinceLastSale: number = 0;
-    public seasonSinceLastRent: number = 0;
+    public ticksSinceLastSale: number = 0;
+    public daysSinceSlept: number = 0;
     public lastApprovalDate: IDate = {year: -1, season: 0, day: 0};
     public lastInsultDate: IDate = {year: -1, season: 0, day: 0};
     public fairGoodPrice: number = 1;
@@ -165,6 +166,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     getFace(): string{
         if (!this.alive)
             return '💀';
+        if (this.state.data.act == 'buy' && this.state.data.good == 'shelter'){
+            return '😴';
+        }
         if (this.food == 'hungry')
             return '😫';
         if (this.health == 'sick')
@@ -207,17 +211,18 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         } else {
             switch(this.job){
                 case 'farmer':
-                    this.discrete_food += 2.5;
+                    this.discrete_food = Math.min(this.discrete_food, GoodToThreshold.food.sufficient*3);
                     break;
                 case 'doc':
-                    this.discrete_health += 2.5;
+                    this.discrete_health = Math.min(this.discrete_health, GoodToThreshold.medicine.sufficient*3);
                     break;
                 case 'builder': 
                     this.shelter = 'crowded';
+                    this.daysSinceSlept = 0;
                     break;
             }
-            this.seasonSinceLastSale++;
-            if (this.seasonSinceLastSale > 2){
+            this.ticksSinceLastSale++;
+            if (this.ticksSinceLastSale > 7){
                 //underemployment
                 if (Math.random() > 0.5) {
                     const newJob = econ.mostInDemandJob();
@@ -225,7 +230,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                         this.job = newJob;
                 }
             }
-            econ.produceAndPrice(this, JobToGood(this.job), 2.5, this.fairGoodPrice);
+            econ.produceAndPrice(this, JobToGood(this.job), 3, this.fairGoodPrice);
         }
     }
     private buyFood(economy: Economy) {
@@ -235,35 +240,33 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     }
     public buy: {[key in TraitGood]: (econ: Economy)=> void} = {
         food: (economy: Economy) =>{
-            const groceries = economy.tryTransact(this, 'food');
-            if (groceries)
-                this.discrete_food += groceries.bought;
+            this.buyFood(economy);
+            
+            if (this.food != 'stuffed' && this.cash > economy.getCostOfLiving()){
+                this.buyFood(economy);
+            }
         },
         medicine:  (economy: Economy) =>{
-            const meds = economy.tryTransact(this, 'medicine');
-            if (meds)
-                this.discrete_health += meds.bought;
+            this.buyMeds(economy);
+            
+            if (this.health != 'fresh' && this.cash > economy.getCostOfLiving()){
+                this.buyMeds(economy);
+            }
         },
         fun:  (economy: Economy) =>{
             
         },
         shelter: (economy: Economy) => {
-            const hasHousing = this.buyHousing(economy);
-            if (!hasHousing){
-                if (this.seasonSinceLastRent > SeasonsUntilEviction) {
-                    this.shelter = 'podless';
-                }
-                else {
-                    this.seasonSinceLastRent++;
-                }
-            }
+            this.buyHousing(economy);
         }
     }
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
         if (housing) {
-            this.seasonSinceLastRent = 0;
+            this.daysSinceSlept = 0;
             this.shelter = 'crowded';
+        } else if (this.daysSinceSlept >= DaysUntilHomeless){
+            this.shelter = 'podless';
         }
         return housing != null;
     }
@@ -271,7 +274,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
 
-        this.discrete_food -= 1;
+        this.discrete_food -= 1/7;
         if (this.discrete_food < 0)
             this.discrete_health -= 0.2;
 
@@ -280,13 +283,15 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             return starve;
             
         if (this.shelter == 'podless')
-            this.discrete_health -= 0.05;
+            this.discrete_health -= 1/14;
+        
+        this.daysSinceSlept++;
     
         const exposure = this.maybeDie('exposure', 0.2);
         if (exposure)
             return exposure;
 
-        this.discrete_health -= 0.1;
+        this.discrete_health -= 1/14;
         this.discrete_health = Math.min(this.discrete_health, 3);
         const sick = this.maybeDie('sickness', 0.4);
         return sick;
@@ -297,23 +302,13 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             this.discrete_health += meds.bought;
     }
 
-    maybeOverconsume(economy: Economy){
-        const threshold = economy.getCostOfLiving() * 2;
-        if (this.food != 'stuffed' && this.cash > threshold){
-            this.buyFood(economy);
-        }
-        if (this.health != 'fresh' && this.cash > threshold){
-            this.buyMeds(economy);
-        }
-    }
-
     maybeBaby(economy: Economy): IEvent | null {
         if (this.canBaby(economy.getCostOfLiving()) &&
             Math.random() <= BabyChance) {
             if (this.city)
                 this.city.breedBean(this);
             else
-                throw 'bean doesnot have city object';
+                throw 'bean does not have city object';
             return {icon: '🎉', message: 'A new bean is born!'}
         } else {
             return null;

@@ -12,7 +12,8 @@ interface AnimatedBeanP {
 
 interface AnimatedBeanS{
   paused: boolean,
-  point: Point
+  point: Point,
+  spin: boolean;
 }
 
 export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> {
@@ -21,13 +22,15 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
       this.state = {
         paused: false,
-        point: props.static ? origin_point : props.bean.city ? props.bean.city.how.bean[props.bean.key] : {x: 0, y: 0}
+        point: props.static ? origin_point : props.bean.city ? props.bean.city.how.bean[props.bean.key] : {x: 0, y: 0},
+        spin: false
       };
       props.bean.animate.subscribe(this.animate);
     }
     animate = (deltaMS: number) => {
       this.setState({
-        point: this.props.bean.city ? this.props.bean.city.how.bean[this.props.bean.key] : {x: 0, y: 0}
+        point: this.props.bean.city ? this.props.bean.city.how.bean[this.props.bean.key] : {x: 0, y: 0},
+        spin: this.props.bean.state.data.act == 'work'
       })
     }
     delaySeedSec: number;
@@ -47,7 +50,12 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
 
       } else {
         classes += ' bean-walker';
+        if (this.state.spin)
+          classes += ' spin';
+        if (this.props.bean.state.data.act != 'travel')
+          classes += ' paused';
       }
+
       let style = {
         ...transformPoint(this.state.point),
         animationDelay: '-'+this.delaySeedSec+'s'

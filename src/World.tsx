@@ -114,9 +114,6 @@ export class World implements IWorld, IBeanContainer{
             if (e) this.yearsEvents.push(e);
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
-        shuffle(this.beans).forEach((b: Bean) => {
-            b.maybeOverconsume(this.economy);
-        });
         this.calculateComputedState();
     }
     inflate() {

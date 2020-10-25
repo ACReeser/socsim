@@ -26,7 +26,7 @@ export class Charity implements IOrganization, ISeller{
     name: string = '';
     institutionKey = 1;
     cash = 0;
-    seasonSinceLastSale = 0;
+    ticksSinceLastSale = 0;
     seasonalBudget = 0;
     good: TraitGood = 'food';
     parentInstitution: IInstitution|null = null;

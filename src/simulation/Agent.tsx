@@ -1,5 +1,6 @@
 import { Agent } from "https";
-import { Bean } from "../Bean";
+import { Bean, DaysUntilSleepy } from "../Bean";
+import { getRandomSlotOffset } from "../petri-ui/Building";
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood } from "../World";
 import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
@@ -46,6 +47,7 @@ export abstract class AgentState{
      * elapsed time in MS
      */
     protected elapsed: number = 0;
+    public get Elapsed(): number {return this.elapsed;}
     enter(agent: IAgent){
         this.elapsed = 0;
     }
@@ -65,13 +67,17 @@ export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
     act(agent: IAgent): AgentState{
         if (agent instanceof Bean && agent.city){
-            if (agent.discrete_food < GoodToThreshold['food'].sufficient){
+            if (agent.discrete_food <= GoodToThreshold['food'].sufficient){
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['food']);
                 return TravelState.create(points, {act: 'buy', good: 'food'});
             }
-            if (agent.discrete_food < GoodToThreshold['shelter'].sufficient){
+            if (agent.daysSinceSlept >= DaysUntilSleepy){
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['shelter']) 
                 return TravelState.create(points, {act: 'buy', good: 'shelter'});
+            }
+            if (agent.discrete_health <= GoodToThreshold['medicine'].sufficient){
+                const points = RouteRandom(agent.city, agent, GoodToBuilding['medicine']) 
+                return TravelState.create(points, {act: 'buy', good: 'medicine'});
             }
             if (agent.job != 'jobless'){
                 const points = RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
@@ -121,7 +127,7 @@ export class WorkState extends AgentState{
 export class BuyState extends AgentState{
     static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
     act(agent: IAgent): AgentState{
-        if (this.elapsed > 1000 && agent instanceof Bean && this.data.good && agent.city?.economy){
+        if (this.elapsed > 600 && agent instanceof Bean && this.data.good && agent.city?.economy){
             agent.buy[this.data.good](agent.city.economy);
             return IdleState.create();
         }
@@ -209,7 +215,17 @@ export function Route(geo: Geography, mover: IMover, destination: IBuilding){
     const address: HexPoint = geo.where[destination.type][destination.key];
     const start = geo.how['bean'][mover.key];
     const nearestHex = pixel_to_hex(geo.hex_size, geo.petriOrigin, start);
-    return hex_linedraw(nearestHex, address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h));
+    return hex_linedraw(nearestHex, address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h)).map((x, i, a) => {
+        if (i === a.length-1){
+            const offset = getRandomSlotOffset();
+            return {
+                x: x.x + offset.x,
+                y: x.y + offset.y
+            }
+        } else {
+            return x;
+        }
+    });
 }
 export function Approach(geo: Geography, mover: IMover){
 

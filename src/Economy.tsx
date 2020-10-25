@@ -6,7 +6,7 @@ export interface IEconomicAgent{
     cash: number;
 }
 export interface ISeller extends IEconomicAgent{
-    seasonSinceLastSale: number;
+    ticksSinceLastSale: number;
 }
 export interface Listing{
     sellerCityKey?: number;
@@ -154,7 +154,7 @@ export class OrderBook{
         }
         buyer.cash -= listing.price;
         listing.seller.cash += listing.price;
-        listing.seller.seasonSinceLastSale--;
+        listing.seller.ticksSinceLastSale--;
         return {
             bought: demand,
             price: listing.price

@@ -427,9 +427,9 @@ table.classic .border-t{
   position: absolute; left: 0;top: 0;
   font-size: 18px;
   height: 20px; width: 20px;
-  animation: hop-marg 0.5s infinite;
   text-align: center;
   margin-left: -10px;
+  animation: hop-marg 0.5s infinite;
 }
 .bean-walker:after{
   left: -12px;
@@ -437,6 +437,9 @@ table.classic .border-t{
   font-size: 16px;
   position: absolute;
   z-index: 1;
+}
+.bean-walker.spin:after{
+  animation: spin 1s infinite;
 }
 .bean-walker:hover:before{
   border-color:  hsl(16, 100%, 50%);
@@ -586,19 +589,10 @@ select:invalid { color: gray; }
     transform: translateY(0);
   }
 }
-@keyframes handwritten_wander {
-  0%   { left:  0%; top:  0%; }
-  10%  { left: 90%; top: 90%; }
-  20%  { left: 90%; top:  0%; }
-  30%  { left:  0%; top: 90%; }
-  40%  { left: 50%; top: 90%; }
-  50%  { left: 90%; top: 90%; }
-  60%  { left:  0%; top:  0%; }
-  70%  { left: 90%; top:  0%; }
-  80%  { left: 90%; top: 50%; }
-  90%  { left:  0%; top: 90%; }
-  95%  { left: 60%; top: 77%; }
-  100% { left:  0%; top:  0%;}
+@keyframes spin {
+  0%   { transform: spin(0) }
+  50%  { transform: spin(180) }
+  100% { transform: spin(360)}
 }
 @keyframes wander {
   0%   { left: 79%; top: 15%; }

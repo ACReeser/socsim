@@ -60,7 +60,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           </div>
           <div className="col-2">
             <div>
-              <strong>🍞 Food Security</strong> Median:{food_median} meals <br/>
+              <strong>🍞 Food Security</strong> Median:{food_median.toFixed(1)} meals <br/>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
               Supply: {food.supply} meals. Avg. price ${food.avg.toFixed(2)} <br/>
               Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.food} meals
