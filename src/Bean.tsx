@@ -234,24 +234,16 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         }
     }
     private buyFood(economy: Economy) {
-        const groceries = economy.tryTransact(this, 'food');
+        const groceries = economy.tryTransact(this, 'food', 0.5, 3);
         if (groceries)
             this.discrete_food += groceries.bought;
     }
     public buy: {[key in TraitGood]: (econ: Economy)=> void} = {
         food: (economy: Economy) =>{
             this.buyFood(economy);
-            
-            if (this.food != 'stuffed' && this.cash > economy.getCostOfLiving()){
-                this.buyFood(economy);
-            }
         },
         medicine:  (economy: Economy) =>{
             this.buyMeds(economy);
-            
-            if (this.health != 'fresh' && this.cash > economy.getCostOfLiving()){
-                this.buyMeds(economy);
-            }
         },
         fun:  (economy: Economy) =>{
             
@@ -297,7 +289,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         return sick;
     }
     private buyMeds(economy: Economy) {
-        const meds = economy.tryTransact(this, 'medicine');
+        const meds = economy.tryTransact(this, 'medicine', 0.5, 3);
         if (meds)
             this.discrete_health += meds.bought;
     }
@@ -332,15 +324,15 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         return 0;
     }
     maybeDonate(economy: Economy, direct: boolean = false): number{
-        const chance = this.chanceToDonate(economy, direct);
-        if (chance > 0){
-            const willDonate = Math.random() < chance;
-            if (willDonate){
-                const donation = 1;
-                this.cash -= donation;
-                return donation;
-            }
-        }
+        // const chance = this.chanceToDonate(economy, direct);
+        // if (chance > 0){
+        //     const willDonate = Math.random() < chance;
+        //     if (willDonate){
+        //         const donation = 1;
+        //         this.cash -= donation;
+        //         return donation;
+        //     }
+        // }
         return 0;
     }
     maybeDie(cause: string, chance = 0.5): IEvent|null{

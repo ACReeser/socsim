@@ -67,7 +67,7 @@ export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
     act(agent: IAgent): AgentState{
         if (agent instanceof Bean && agent.city){
-            if (agent.discrete_food <= GoodToThreshold['food'].sufficient){
+            if (agent.discrete_food <= GoodToThreshold['food'].sufficient*2){
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['food']);
                 return TravelState.create(points, {act: 'buy', good: 'food'});
             }
@@ -75,7 +75,7 @@ export class IdleState extends AgentState{
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['shelter']) 
                 return TravelState.create(points, {act: 'buy', good: 'shelter'});
             }
-            if (agent.discrete_health <= GoodToThreshold['medicine'].sufficient){
+            if (agent.discrete_health <= GoodToThreshold['medicine'].sufficient*2){
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['medicine']) 
                 return TravelState.create(points, {act: 'buy', good: 'medicine'});
             }

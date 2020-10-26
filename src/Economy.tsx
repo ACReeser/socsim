@@ -32,27 +32,35 @@ export class Economy {
         this.totalSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
         this.totalSeasonalSupply = { food: 0, shelter: 0, medicine: 0, fun: 0, };
     }
-    tryTransact(buyer: IEconomicAgent, good: TraitGood): {bought: number, price: number}|null {
-        const demand = 1;
-        this.totalSeasonalDemand[good] += demand;
-        const listing = this.market.getLowestPriceListing(good, demand);
+    tryTransact(
+        buyer: IEconomicAgent, 
+        good: TraitGood,
+        minDemand: number = 1,
+        maxDemand: number = 1
+        ): {bought: number, price: number}|null {
+        this.totalSeasonalDemand[good] += maxDemand;
+        const listing = this.market.getLowestPriceListing(good, minDemand);
         if (listing == null){
             //console.log('agent could not find '+good);
+            this.unfulfilledSeasonalDemand[good] += maxDemand;
+            return null;
         }
-        else if (listing.price <= buyer.cash){
-            return this.market.transact(listing, good, demand, buyer);
+        const actualDemand = Math.min(listing.quantity, maxDemand);
+        if (listing.price <= buyer.cash * actualDemand){
+            return this.market.transact(listing, good, actualDemand, buyer);
         } else if (buyer instanceof Bean) {
             // console.log('bean couldnot afford '+good+" @ $"+listing?.price);
-            const charityTicket = this.charity.getLowestPriceListing(good, demand);
-            if (charityTicket && charityTicket.seller instanceof Charity) {
-                // console.log('bean got '+good+" from charity");
-                buyer.partyLoyalty += PartyLoyaltyPerCharityUse;
-                charityTicket.seller.beansHelped++;
-                charityTicket.seller.inventory -= demand;
-                return this.charity.transact(charityTicket, good, demand, buyer);
-            }
+            // const charityTicket = this.charity.getLowestPriceListing(good, minDemand);
+            // if (charityTicket && charityTicket.seller instanceof Charity) {
+            //     // console.log('bean got '+good+" from charity");
+            //     const actualDemand = Math.min(charityTicket.quantity, maxDemand);
+            //     buyer.partyLoyalty += PartyLoyaltyPerCharityUse;
+            //     charityTicket.seller.beansHelped++;
+            //     charityTicket.seller.inventory -= actualDemand;
+            //     return this.charity.transact(charityTicket, good, actualDemand, buyer);
+            // }
         }
-        this.unfulfilledSeasonalDemand[good] += demand;
+        this.unfulfilledSeasonalDemand[good] += actualDemand;
         return null;
     }
     produceAndPrice(seller: Bean, good: TraitGood, quantity: number, price: number) {
@@ -152,12 +160,13 @@ export class OrderBook{
         if (listing.quantity <= 0){
             this.listings[good].splice(0, 1);
         }
-        buyer.cash -= listing.price;
-        listing.seller.cash += listing.price;
-        listing.seller.ticksSinceLastSale--;
+        const sale = listing.price * demand;
+        buyer.cash -= sale;
+        listing.seller.cash += sale;
+        listing.seller.ticksSinceLastSale = 0;
         return {
             bought: demand,
-            price: listing.price
+            price: sale
         }
     }
     public addNewListing(good: TraitGood, quantity: number, price: number, bean: Bean){

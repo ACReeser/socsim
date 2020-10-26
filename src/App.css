@@ -438,8 +438,8 @@ table.classic .border-t{
   position: absolute;
   z-index: 1;
 }
-.bean-walker.spin:after{
-  animation: spin 1s infinite;
+.bean-walker.spin::after{
+  animation: wiggle 0.5s infinite ease-in-out;
 }
 .bean-walker:hover:before{
   border-color:  hsl(16, 100%, 50%);
@@ -589,10 +589,12 @@ select:invalid { color: gray; }
     transform: translateY(0);
   }
 }
-@keyframes spin {
-  0%   { transform: spin(0) }
-  50%  { transform: spin(180) }
-  100% { transform: spin(360)}
+@keyframes wiggle {
+  0%   { transform: rotate(0) }
+  25%  { transform: rotate(-30deg) }
+  50%  { transform: rotate(0deg) }
+  75%  { transform: rotate(30deg) }
+  100% { transform: rotate(0)}
 }
 @keyframes wander {
   0%   { left: 79%; top: 15%; }
