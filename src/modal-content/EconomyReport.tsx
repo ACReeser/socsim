@@ -1,8 +1,8 @@
-import { Bean } from "./Bean";
+import { Bean } from "../simulation/Bean";
 import React from "react";
-import { World, TraitJob } from "./World";
-import { NeedReadout } from "./widgets/NeedReadout";
-import { Listing } from "./Economy";
+import { World, TraitJob } from "../World";
+import { NeedReadout } from "../widgets/NeedReadout";
+import { Listing } from "../simulation/Economy";
 
 function median(values: Array<number>){
   if(values.length ===0) return 0;

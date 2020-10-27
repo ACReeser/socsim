@@ -1,6 +1,6 @@
-import { Trait, Axis, TraitCommunity, TraitIdeals } from "./World";
-import { IInstitution, IOrganization } from "./simulation/Institutions";
-import { Government } from "./simulation/Government";
+import { Trait, Axis, TraitCommunity, TraitIdeals } from "../World";
+import { IInstitution, IOrganization } from "./Institutions";
+import { Government } from "./Government";
 
 
 export interface Party extends IInstitution{

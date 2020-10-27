@@ -2,7 +2,7 @@ import React from "react";
 import { World, Axis, TraitIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { PolicyDropdown } from "../widgets/PolicyDropdown";
-import { PolicyTree, PolicyByKey, IPolicy } from "../Politics";
+import { PolicyTree, PolicyByKey, IPolicy } from "../simulation/Politics";
 
 export interface PartyOverviewPS{
     world: World;

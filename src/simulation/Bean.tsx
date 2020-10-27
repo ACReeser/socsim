@@ -1,13 +1,13 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity } from "./World";
-import { RandomEthno, GetRandom } from "./WorldGen";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity } from "../World";
+import { RandomEthno, GetRandom } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
-import { IEvent, PubSub } from "./events/Events";
-import { IDate, withinLastYear } from "./simulation/Time";
-import { Government } from "./simulation/Government";
-import { Act, AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./simulation/Agent";
-import { Point } from "./simulation/Geography";
-import { City } from "./simulation/City";
+import { IEvent, PubSub } from "../events/Events";
+import { IDate, withinLastYear } from "./Time";
+import { Government } from "./Government";
+import { Act, AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./Agent";
+import { Point } from "./Geography";
+import { City } from "./City";
 
 
 const BabyChance = 0.01;

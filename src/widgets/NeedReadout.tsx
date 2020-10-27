@@ -1,5 +1,5 @@
 import React from "react";
-import { Bean } from "../Bean";
+import { Bean } from "../simulation/Bean";
 import { Trait } from "../World";
 import { keyToName } from "../App";
 

@@ -1,7 +1,7 @@
 import React, { SyntheticEvent, ChangeEvent } from "react";
-import { World, TraitGood } from "./World";
+import { World, TraitGood } from "../World";
 import './panels.css';
-import { Charity } from "./simulation/Institutions";
+import { Charity } from "../simulation/Institutions";
 
 export interface charityPS{
     world: World,

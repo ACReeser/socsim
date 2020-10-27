@@ -1,16 +1,16 @@
 import React from "react";
-import { IHappinessModifier } from "./World";
-import { keyToName } from "./App";
-import { Bean } from "./Bean";
-import { NeedReadout } from "./widgets/NeedReadout";
-import { reportIdeals, reportCommunity, reportEthno, City } from "./simulation/City";
-import { Economy } from "./Economy";
-import { Party } from "./Politics";
-import { IEvent, EventBus } from "./events/Events";
-import { withinLastYear } from "./simulation/Time";
-import { Government } from "./simulation/Government";
-import { Player } from "./simulation/Player";
-import { CardButton, TraitToCard } from "./widgets/CardButton";
+import { IHappinessModifier } from "../World";
+import { keyToName } from "../App";
+import { Bean } from "../simulation/Bean";
+import { NeedReadout } from "../widgets/NeedReadout";
+import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";
+import { Economy } from "../simulation/Economy";
+import { Party } from "../simulation/Politics";
+import { IEvent, EventBus } from "../events/Events";
+import { withinLastYear } from "../simulation/Time";
+import { Government } from "../simulation/Government";
+import { Player } from "../simulation/Player";
+import { CardButton, TraitToCard } from "../widgets/CardButton";
 
 interface BeanPanelP{
     city: City,

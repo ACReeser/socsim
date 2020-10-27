@@ -1,7 +1,7 @@
-import { TraitGood, TraitJob, GoodToJob, Trait } from "./World";
+import { TraitGood, TraitJob, GoodToJob, Trait } from "../World";
 import { Bean } from "./Bean";
-import { IOrganization, Charity } from "./simulation/Institutions";
-import { City } from "./simulation/City";
+import { IOrganization, Charity } from "./Institutions";
+import { City } from "./City";
 export interface IEconomicAgent{
     cash: number;
 }

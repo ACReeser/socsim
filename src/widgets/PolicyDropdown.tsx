@@ -1,5 +1,5 @@
 import React from "react";
-import { IPolicy } from "../Politics";
+import { IPolicy } from "../simulation/Politics";
 import { Dropdown } from "./Dropdown";
 import { TraitIcon } from "../World";
 

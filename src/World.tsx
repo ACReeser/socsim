@@ -1,8 +1,8 @@
 import * as React from 'react';
 import { GetRandom, RandomEthno, GenerateBean } from './WorldGen';
-import { Bean } from './Bean';
-import { Economy } from './Economy';
-import { Policy, Party, BaseParty, ICityPartyHQ } from './Politics';
+import { Bean } from './simulation/Bean';
+import { Economy } from './simulation/Economy';
+import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus } from './events/Events';
 import { Season, IDate } from './simulation/Time';

@@ -1,7 +1,7 @@
 import { ReactComponent } from "*.svg";
 import React from "react";
 import { keyToName } from "../App";
-import { Bean } from "../Bean";
+import { Bean } from "../simulation/Bean";
 import { Trait, TraitIcon } from "../World";
 
 export class CardButton extends React.Component<{

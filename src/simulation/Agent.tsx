@@ -1,5 +1,5 @@
 import { Agent } from "https";
-import { Bean, DaysUntilSleepy } from "../Bean";
+import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity } from "../World";
 import { GetRandom } from "../WorldGen";

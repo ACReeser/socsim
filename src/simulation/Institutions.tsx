@@ -1,6 +1,6 @@
-import { ISeller, Economy } from "../Economy";
+import { ISeller, Economy } from "./Economy";
 import { TraitGood, GoodToJob } from "../World";
-import { Policy } from "../Politics";
+import { Policy } from "./Politics";
 import { Government } from "./Government";
 
 export interface IInstitution{

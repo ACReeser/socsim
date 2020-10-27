@@ -1,9 +1,9 @@
 import { IBeanContainer, Tile, Trait, TraitEthno } from "../World";
-import { Bean } from "../Bean";
-import { Economy } from "../Economy";
+import { Bean } from "./Bean";
+import { Economy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom } from "../WorldGen";
-import { ICityPartyHQ, Party } from "../Politics";
+import { ICityPartyHQ, Party } from "./Politics";
 import { Geography } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";

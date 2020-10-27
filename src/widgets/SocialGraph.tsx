@@ -1,6 +1,6 @@
 import React from "react";
-import { Bean } from "../Bean";
-import { AnimatedBean } from "../AnimatedBean";
+import { Bean } from "../simulation/Bean";
+import { AnimatedBean } from "../petri-ui/AnimatedBean";
 import "./SocialGraph.css";
 import { origin_point } from "../simulation/Geography";
 

@@ -1,6 +1,6 @@
-import { Bean } from "./Bean";
+import { Bean } from "../simulation/Bean";
 import React from "react";
-import { origin_point, Point, transformPoint } from "./simulation/Geography";
+import { origin_point, Point, transformPoint } from "../simulation/Geography";
 
 interface AnimatedBeanP {
   bean: Bean;

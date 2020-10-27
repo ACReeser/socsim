@@ -1,4 +1,4 @@
-import { IPolicy } from "../Politics";
+import { IPolicy } from "./Politics";
 import { Axis } from "../World";
 
 export class Government{
