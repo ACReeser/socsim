@@ -9,7 +9,9 @@ body{
   background-image: url('./background-imgs/cyan-stars.png');
   background-size: cover;
 }
-
+h2.inline{
+  display: inline-block;
+}
 h3.small{
   margin-bottom: 2px;
 }

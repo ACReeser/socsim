@@ -165,7 +165,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 <button type="button" className="button card" onClick={this.insult}
                     title="Remove this being for study"
                 >
-                    👾 Abduct
+                    👾 Abduct for Research
                     <small>-Bots -Sanity +Tech</small>
                 </button>
             </div>

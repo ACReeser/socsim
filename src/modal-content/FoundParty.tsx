@@ -25,7 +25,7 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
         this.state = {
             community: null,
             ideal: null,
-            name: "Superbeing",
+            name: "Goodplace",
             slogan: "Perfection is achievable.",
             members: "Citizens",
             goal: "Legislation",

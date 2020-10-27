@@ -13,14 +13,20 @@ export class GoalsPanel extends React.Component<GoalPanelPS> {
           ☑️ Found Utopia
           </li>
           <li>
-          ⭕️ Scan a Subject
-            <small title="Select a single earthling and Scan it">❔</small>
+          ⭕️ Build House, Farm, and Hospital
           </li>
           <li>
-          ⭕️ Brainwash a Subject
+          ⭕️ Kidnap 3 new Subjects
+          </li>
+          <li>
+          ⭕️ Scan a Subject
+            <small title="Select a single being and Scan it">❔</small>
           </li>
           <li>
           ⭕️ Set Government Policy
+          </li>
+          <li>
+          ⭕️ Brainwash a Subject
           </li>
           <li>
           ⭕️ Get a C+ Utopia Grade

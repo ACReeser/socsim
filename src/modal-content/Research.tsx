@@ -8,7 +8,7 @@ export class ResearchPanel extends React.Component<{
             <div className="col-2">
             <h2>Research Lab</h2>
             <div>
-              Currently probing 0 Human Beings
+              Currently probing 0 beings
             </div>
           </div>
         </div>

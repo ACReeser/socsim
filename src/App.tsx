@@ -134,20 +134,21 @@ class App extends React.Component<AppPs, AppState>{
       })
       //todo: add animate hook to beans
       if (this.logicTickAccumulatorMS > LogicTickMS){
-        this.endTurn();
-        this.logicTickAccumulatorMS -= LogicTickMS;
+        this.state.world.next();
+        this.setState({world: this.state.world});
+        this.logicTickAccumulatorMS = 0;
       }
     }
     window.requestAnimationFrame(this.tick);
   }
   escFunction = (event: KeyboardEvent) => {
-    if(event.keyCode === 13) {
-      this.endTurn();
+    if(event.key === ' ') {
+      if (this.state.timeScale > 0){
+        this.setState({timeScale: 0});
+      } else {
+        this.setState({timeScale: 1});
+      }
     }
-  }
-  endTurn() {
-    this.state.world.next();
-    this.setState({world: this.state.world});
   }
   foundParty = (state: FoundPartyS) => {
     this.state.world.party.name = state.name;
@@ -210,7 +211,7 @@ class App extends React.Component<AppPs, AppState>{
           if (city) {
             
             if (this.state.activeHex != null){
-              return <HexPanel city={city} hex={this.state.activeHex}></HexPanel>
+              return <HexPanel city={city} hex={this.state.activeHex} clearHex={() => this.setState({activeHex: null})}></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
@@ -240,7 +241,7 @@ class App extends React.Component<AppPs, AppState>{
           <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
             onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null})} 
             onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key})} 
-            onHexClick={(hex) => {this.setState({activeHex: hex, activeBeanID: null, activeRightPanel: 'overview'})}}
+            onHexClick={(hex) => {this.setState({activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview'})}}
             ></WorldTile>
         )
       });
@@ -319,7 +320,7 @@ class App extends React.Component<AppPs, AppState>{
             </span>
             <button type="button" onClick={() => this.setState({activeMain: 'network'})}>🌐</button>
             <button type="button" onClick={() => this.setState({activeMain: 'geo'})}>🌎</button>
-            {/* <button type="button" className="important" onClick={() => this.endTurn()}>End Turn</button> */}
+            
             <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => {this.setState({timeScale: n})}}></StopPlayFastButtons>
           </div>
           <div className="bottom">
