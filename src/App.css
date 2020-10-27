@@ -39,6 +39,10 @@ h3.small{
   display: block;
   margin-top: 4px;
 }
+.card-parent .card.single small{
+  display: inline;
+  margin: 0;
+}
 .card-parent .card button, 
 .card-parent button.card{
   padding: 0;
@@ -235,6 +239,13 @@ button.pull-r{
   border-radius: 100px;
   position: absolute;
 }
+.tile .hex:hover{
+  border-color: hsl(16, 100%, 50%);
+  cursor: pointer;
+}
+.tile .hex:hover .building{
+  opacity: 1;
+}
 .tile .mtn{
   position: absolute;
   top: -37px; left: -20px;
@@ -392,6 +403,7 @@ table.classic .border-t{
   position: absolute;
   font-size: 30px; height: 30px; width: 30px;
   left: -20px; top: -20px;
+  pointer-events: none;
 }
 .dead{
   position: absolute;

@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import './chrome/chrome.css';
-import { World, TraitGood, Axis } from './World';
+import { World, TraitGood, Axis, Trait } from './World';
 import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
 import { Modal } from './Modal';
 import { OverviewPanel } from './OverviewPanel';
@@ -27,16 +27,18 @@ import { CampaignsPanel } from './modal-content/Campaigns';
 import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
+import { HexPoint } from './simulation/Geography';
 
 
-export const keyToName = {
+export const keyToName: {[key in Trait]: string} = {
   state: 'Statist', ego: 'Egoist', 
   trad: 'Traditionalist', prog: 'Progressive', 
   circle: 'Brunette', square: 'Blonde', triangle: 'Redhead', 
   book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless',
   hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
   podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
-  sick: 'Sick', bruised: 'Bruised', fresh: 'Robust'
+  sick: 'Sick', bruised: 'Bruised', fresh: 'Robust',
+  sane: 'Sane', confused: 'Confused', mad: 'Mad'
 };
 export const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
 function magToTextSw(magnitude: number){
@@ -83,6 +85,7 @@ interface AppState{
   world: World,
   activeCityID: number|null;
   activeBeanID: number|null;
+  activeHex: HexPoint|null;
   activeModal: ModalView|null;
   activeMain: 'geo'|'network';
   activeRightPanel: 'events'|'overview'|'goals';
@@ -97,6 +100,7 @@ class App extends React.Component<AppPs, AppState>{
       world: GenerateWorld(),
       activeCityID: null,
       activeBeanID: null,
+      activeHex: null,
       activeMain: 'geo',
       activeModal: 'party_creation',
       activeRightPanel: 'overview',
@@ -231,6 +235,7 @@ class App extends React.Component<AppPs, AppState>{
           <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
             onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
             onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
+            onHexClick={(hex) => {this.setState({activeHex: hex, activeRightPanel: 'overview'})}}
             ></WorldTile>
         )
       });

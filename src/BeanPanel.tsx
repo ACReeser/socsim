@@ -73,7 +73,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             return <div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.sanity, undefined)}
                 </div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.ideals, undefined)}
@@ -94,8 +94,6 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     render(){
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
         const chance = this.props.bean.chanceToDonate(this.props.economy, true);
-        const chanceText = (chance * 100).toFixed(0) + '% to gain Cash';
-        const actionLimit = this.props.party.activeHQs.length + 2;
         return (                
         <div>
             <div>

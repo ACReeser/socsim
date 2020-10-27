@@ -29,6 +29,7 @@
     padding: 0px 2px 2px 2px;
     z-index: -10;
     opacity: .99;
+    min-width: 300px;
   }
   .top{
       display: flex;

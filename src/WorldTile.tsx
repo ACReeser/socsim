@@ -2,7 +2,7 @@ import { Tile } from "./World";
 import { Bean } from "./Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint } from "./simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint, HexPoint } from "./simulation/Geography";
 import { PetriBuilding } from "./petri-ui/Building";
 import { PI2 } from "./WorldGen";
 import { City } from "./simulation/City";
@@ -13,6 +13,7 @@ interface WorldTilePs {
     costOfLiving: number;
     onClick: () => void;
     onBeanClick: (b: Bean) => void;
+    onHexClick: (hex: HexPoint) => void;
   }
 export class WorldTile extends React.Component<WorldTilePs> {
     constructor(props: WorldTilePs) {
@@ -50,7 +51,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
           <span key={i} className="dead" style={{left: (i*10)+'px'}}>⚰️</span>
         )
       })
-      const buildings = this.renderBuildings('farm').concat(this.renderBuildings('hospital')).concat(this.renderBuildings('house'));
+      const buildings = this.renderBuildings('farm').concat(this.renderBuildings('hospital')).concat(this.renderBuildings('house')).concat(this.renderBuildings('courthouse'));
       const regions = this.props.city.hexes.map((hex, i) => {
         const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
         return <div className="hex" key={i} style={transformPoint(xy)}>

@@ -10,11 +10,13 @@ export class CardButton extends React.Component<{
     onClick?: () => void,
     title?: string,
     subtext?: string,
-    thin?: boolean
+    thin?: boolean,
+    singleLine?: boolean
 }>{
     render(){
         let classes = "card button";
         if (this.props.thin) classes += ' thin';
+        if (this.props.singleLine) classes += ' single';
         return <button className={classes} title={this.props.title} onClick={() => {
             if (this.props.onClick) this.props.onClick()
         }} type="button">
@@ -41,7 +43,10 @@ export function TraitToCard(bean: Bean, trait: Trait, onClick?: () => void){
         case 'circle':
         case 'square':
         case 'triangle':
-            return <CardButton icon={TraitIcon[trait]} name="" subtext={keyToName[trait]} thin={true} onClick={onClick}></CardButton>
+        case 'sane':
+        case 'confused':
+        case 'mad':
+            return <CardButton icon={TraitIcon[trait]} title={keyToName[trait]} name="" subtext={keyToName[trait]} thin={true} singleLine={true} onClick={onClick}></CardButton>
         default:
             return null;
     }

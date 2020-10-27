@@ -248,13 +248,13 @@ export interface AddressBookPoint{
     [entityKey: number]: Point
 }
 
-export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater';
+export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse';
 export type MoverTypes = 'bean';
 export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🎑',
-    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️'
+    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
 };
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',
@@ -269,11 +269,11 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
 export class Geography{
     public where: {[key in BuildingTypes]: AddressBookHex} = {
         'farm': {},
-        'house': {}, 'hospital': {}, 'church': {}, 'theater': {}
+        'house': {}, 'hospital': {}, 'church': {}, 'theater': {}, courthouse: {}
     };
     public what: {[key in BuildingTypes]: IBuilding[]} = {
         'farm': [],
-        'house': [], 'hospital': [], 'church': [], 'theater': []
+        'house': [], 'hospital': [], 'church': [], 'theater': [], courthouse: []
     };
     public how: {[key in MoverTypes]: AddressBookPoint} = {
         'bean': {}

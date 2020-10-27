@@ -168,9 +168,22 @@ export type TraitFaith = 'book'|'music'|'heart'|'noFaith';
 export type TraitFood = 'hungry'|'sated'|'stuffed';
 export type TraitShelter = 'podless'|'crowded'|'homeowner';
 export type TraitHealth = 'sick'|'bruised'|'fresh';
+export type TraitSanity = 'mad'|'confused'|'sane';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
+export type TraitQuirk = 'diligent'| //125% productive
+'gossip'| // 100% chance to stop and talk
+'fit'| // takes less health damage
+'parental'| // increased % of having kids
+'gullible'| // beliefs are easily changed
+'fragile'| // takes extra sanity damage
+'partisan'| // doesn't like beings that don't share ideals 
+'affable'| // likes all beings more
+'unruly'| // breaks rules easily
+'merry'| // extra happiness
+'glum'| // lower happiness
+'';
 
-export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth;
+export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth|TraitSanity;
 export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm'|'all';
 
 export const TraitIcon: {[key in Trait]: string} = {
@@ -181,7 +194,8 @@ export const TraitIcon: {[key in Trait]: string} = {
     'noFaith': '',
     'hungry': '🍽️', 'sated': '🥜', 'stuffed': '🥩',
     'podless': '🌨️', 'crowded': '🏘️', 'homeowner': '🏡',
-    'sick': '🤢', 'bruised': '🩹', 'fresh': '💪'
+    'sick': '🤢', 'bruised': '🩹', 'fresh': '💪',
+    'mad': '🤪', 'confused': '🤤', 'sane': '🧠',
 }
 export enum MaslowScore {Deficient= -.25, Sufficient=0, Abundant=.15}
 

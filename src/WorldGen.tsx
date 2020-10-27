@@ -121,6 +121,7 @@ export function GenerateCity(previousCityCount: number): City{
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
     
+    GenerateBuilding(newCity, 'courthouse', -1); 
     GenerateBuilding(newCity, 'house', 0); 
     GenerateBuilding(newCity, 'house', 1); GenerateBuilding(newCity, 'house', 2);
     GenerateBuilding(newCity, 'house', 3 ); GenerateBuilding(newCity, 'hospital', 4); GenerateBuilding(newCity, 'house', 5);

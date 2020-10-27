@@ -1,7 +1,7 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "../Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity } from "../World";
 import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
@@ -170,7 +170,7 @@ export interface IBean{
     discrete_food: number;
     cash: number;
     dob: IDate;
-    sanity: number;
+    sanity: TraitSanity;
 }
 
 export interface IMover{

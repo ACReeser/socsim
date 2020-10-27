@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold, TraitGood } from "./World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity } from "./World";
 import { RandomEthno, GetRandom } from "./WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -19,7 +19,8 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public alive: boolean = true;
     public dob: IDate = {year: 0, season: 0, day: 1};
     public name: string = 'Human Bean';
-    public sanity = 1;
+    public sanity: TraitSanity = 'sane'
+    public discrete_sanity: number = 10;
 
     public activity_queue: IActivityData[] = [];
     public speed = 100;
@@ -283,7 +284,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (exposure)
             return exposure;
 
-        this.discrete_health -= 1/14;
+        this.discrete_health -= 1/20;
         this.discrete_health = Math.min(this.discrete_health, 3);
         const sick = this.maybeDie('sickness', 0.4);
         return sick;
