@@ -28,6 +28,7 @@ import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
 import { HexPoint } from './simulation/Geography';
+import { HexPanel } from './right-panel/HexPanel';
 
 
 export const keyToName: {[key in Trait]: string} = {
@@ -207,7 +208,11 @@ class App extends React.Component<AppPs, AppState>{
         } else {
           const city = this.state.world.cities.find((x) => x.key == this.state.activeCityID);
           if (city) {
-            if (this.state.activeBeanID != null) {
+            
+            if (this.state.activeHex != null){
+              return <HexPanel city={city} hex={this.state.activeHex}></HexPanel>
+            }
+            else if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
               if (bean)
                 return <BeanPanel bean={bean} city={city} alien={this.state.world.alien} 
@@ -233,9 +238,9 @@ class App extends React.Component<AppPs, AppState>{
     return this.state.world.cities.map((t) => {
         return (
           <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
-            onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: null})} 
-            onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeBeanID: b.key})} 
-            onHexClick={(hex) => {this.setState({activeHex: hex, activeRightPanel: 'overview'})}}
+            onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null})} 
+            onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key})} 
+            onHexClick={(hex) => {this.setState({activeHex: hex, activeBeanID: null, activeRightPanel: 'overview'})}}
             ></WorldTile>
         )
       });

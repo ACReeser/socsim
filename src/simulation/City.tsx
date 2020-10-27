@@ -4,7 +4,7 @@ import { Economy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
-import { Geography } from "./Geography";
+import { Geography, HexPoint, IBuilding } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 
@@ -38,6 +38,9 @@ export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) 
 
 
 export class City extends Geography implements Tile, IBeanContainer {
+    lookupBuilding(hex: HexPoint): null|IBuilding {
+        return null;
+    }
     public name: string = '';
     public url: string = '';
     public type: string = '';

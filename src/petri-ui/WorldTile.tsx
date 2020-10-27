@@ -54,7 +54,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
       const buildings = this.renderBuildings('farm').concat(this.renderBuildings('hospital')).concat(this.renderBuildings('house')).concat(this.renderBuildings('courthouse'));
       const regions = this.props.city.hexes.map((hex, i) => {
         const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
-        return <div className="hex" key={i} style={transformPoint(xy)}>
+        return <div className="hex" key={i} style={transformPoint(xy)} onClick={(e) => {this.props.onHexClick(hex); e.stopPropagation(); return false;}}>
 
         </div>
       });
