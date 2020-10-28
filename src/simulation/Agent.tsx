@@ -101,11 +101,11 @@ export class TravelState extends AgentState{
     }
     animate(agent: IAgent, deltaMS: number){
         if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
-            const pos = agent.city.how['bean'][agent.key];
+            const pos = agent.city.movers['bean'][agent.key];
             const target = this.data.destinations[0];
             const newPos = move_towards(pos, target, deltaMS / 1000 * agent.speed);
             //console.log({x: pos.x - newPos.x, y: pos.y - newPos.y})
-            agent.city.how['bean'][agent.key] = newPos;
+            agent.city.movers['bean'][agent.key] = newPos;
             if (newPos.x == target.x && newPos.y == target.y){
                 this.data.location = newPos;
                 this.data.destinations.shift();
@@ -183,10 +183,10 @@ export interface IMover{
 
 export function Step(geo: Geography, mover: IMover){
     if (mover.markers.length){
-        const pos = geo.how['bean'][mover.key];
+        const pos = geo.movers['bean'][mover.key];
         const target = mover.markers[0];
         const newPos = move_towards(pos, target, mover.speed);
-        geo.how['bean'][mover.key] = newPos;
+        geo.movers['bean'][mover.key] = newPos;
         if (newPos.x == target.x && newPos.y == target.y){
             mover.markers.pop();
         }
@@ -200,7 +200,7 @@ export function Step(geo: Geography, mover: IMover){
  * @param buildingType 
  */
 export function RouteRandom(geo: Geography, mover: IMover, buildingType: BuildingTypes){
-    const destination: IBuilding = GetRandom(geo.what[buildingType]);
+    const destination: IBuilding = GetRandom(geo.byType[buildingType].all);
     mover.destinationKey = destination.key;
     return Route(geo, mover, destination);
 }
@@ -212,8 +212,8 @@ export function RouteRandom(geo: Geography, mover: IMover, buildingType: Buildin
  * @param buildingType 
  */
 export function Route(geo: Geography, mover: IMover, destination: IBuilding){
-    const address: HexPoint = geo.where[destination.type][destination.key];
-    const start = geo.how['bean'][mover.key];
+    const address: HexPoint = geo.byType[destination.type].coordByID[destination.key];
+    const start = geo.movers['bean'][mover.key];
     const nearestHex = pixel_to_hex(geo.hex_size, geo.petriOrigin, start);
     return hex_linedraw(nearestHex, address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h)).map((x, i, a) => {
         if (i === a.length-1){

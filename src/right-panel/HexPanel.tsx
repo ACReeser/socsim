@@ -52,7 +52,7 @@ export class HexPanel extends React.Component<{
         </div>
     }
     render(){
-        const building: IBuilding|null = this.props.city.lookupBuilding(this.props.hex);
+        const building: IBuilding|undefined = this.props.city.lookupBuilding(this.props.hex);
         if (building){
             return this.buildingPanel(building)
         } else {

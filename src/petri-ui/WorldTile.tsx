@@ -34,7 +34,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     }
     mtn_transforms: {transform: string}[] = [];
     renderBuildings(type: BuildingTypes){
-      return this.props.city.what[type].map((b: IBuilding, i) => {
+      return this.props.city.byType[type].all.map((b: IBuilding, i) => {
         return (
           <PetriBuilding city={this.props.city} building={b} key={type+i} ></PetriBuilding>
         )

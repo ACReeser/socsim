@@ -112,14 +112,14 @@ class App extends React.Component<AppPs, AppState>{
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
   componentDidMount(){
-    document.addEventListener("keyup", this.escFunction, false);
+    document.addEventListener("keyup", this.keyupHandler, false);
     window.requestAnimationFrame((time: DOMHighResTimeStamp) => {
       this.previousTimeMS = time;
       window.requestAnimationFrame(this.tick);
     });
   }
   componentWillUnmount(){
-    document.removeEventListener("keyup", this.escFunction);
+    document.removeEventListener("keyup", this.keyupHandler);
   }
   tick = (timeMS: DOMHighResTimeStamp) => {
     // Compute the delta-time against the previous time
@@ -131,8 +131,8 @@ class App extends React.Component<AppPs, AppState>{
       this.logicTickAccumulatorMS += deltaTimeMS;
       this.state.world.beans.forEach((x) => {
         x.animate.publish(deltaTimeMS);
-      })
-      //todo: add animate hook to beans
+      });
+      
       if (this.logicTickAccumulatorMS > LogicTickMS){
         this.state.world.next();
         this.setState({world: this.state.world});
@@ -141,7 +141,7 @@ class App extends React.Component<AppPs, AppState>{
     }
     window.requestAnimationFrame(this.tick);
   }
-  escFunction = (event: KeyboardEvent) => {
+  keyupHandler = (event: KeyboardEvent) => {
     if(event.key === ' ') {
       if (this.state.timeScale > 0){
         this.setState({timeScale: 0});

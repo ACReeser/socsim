@@ -203,7 +203,7 @@ export interface CubicPoint extends Point{
  * @param key 
  */
 export function getBuildingTransform(geo: Geography, type: BuildingTypes, key: number){
-    const p = geo.where[type][key];
+    const p = geo.byType[type].coordByID[key];
     if (p)
         return transformPoint(hex_to_pixel(geo.hex_size, geo.petriOrigin, p));
     else
@@ -241,11 +241,29 @@ export class Building{
     }
 }
 
+/**
+ * address books allow lookups from entity "name" to location
+ */
 export interface AddressBookHex{
     [entityKey: number]: HexPoint
 }
 export interface AddressBookPoint{
     [entityKey: number]: Point
+}
+/**
+ * address grids allow lookups from location to entity
+ * 
+ * note: coordinates are of form "X,Y"
+ * and the map cannot distinguish between hex and cartesian points
+ */
+export interface AddressGrid<T>{
+    [coordinate: string]: T|undefined
+}
+export interface AddressBuildingGrid extends AddressGrid<IBuilding>{}
+
+export interface BuildingMap{
+    coordByID: AddressBookHex;
+    all: IBuilding[];
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse';
@@ -267,17 +285,38 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
 };
 
 export class Geography{
-    public where: {[key in BuildingTypes]: AddressBookHex} = {
-        'farm': {},
-        'house': {}, 'hospital': {}, 'church': {}, 'theater': {}, courthouse: {}
-    };
-    public what: {[key in BuildingTypes]: IBuilding[]} = {
-        'farm': [],
-        'house': [], 'hospital': [], 'church': [], 'theater': [], courthouse: []
-    };
-    public how: {[key in MoverTypes]: AddressBookPoint} = {
+    public byCoord: AddressBuildingGrid = {};
+    public byType: {[type in BuildingTypes]: BuildingMap} = {
+        house: {coordByID: {}, all: []},
+        farm: {coordByID: {}, all: []},
+        hospital: {coordByID: {}, all: []},
+        theater: {coordByID: {}, all: []},
+        courthouse: {coordByID: {}, all: []},
+        church: {coordByID: {}, all: []},
+    }
+     
+    public movers: {[key in MoverTypes]: AddressBookPoint} = {
         'bean': {}
     };
+    public numberOf(type: BuildingTypes): number {
+        return this.byType[type].all.length;
+    }
+    lookupBuilding(hex: HexPoint): undefined|IBuilding {
+        return this.byCoord[hex.q+','+hex.r];
+    }
+    addBuilding(where: HexPoint, building: IBuilding) {
+        this.byType[building.type].all.push(building);
+        this.byType[building.type].coordByID[building.key] = where;
+        this.byCoord[where.q+','+where.r] = building;
+        return null;
+    }
+    removeBuilding(where: HexPoint, building: IBuilding) {
+        const i = this.byType[building.type].all.indexOf(building);
+        this.byType[building.type].all.splice(i, 1);
+        delete this.byType[building.type].coordByID[building.key];
+        this.byCoord[where.q+','+where.r] = undefined;
+        return null;
+    }
     public numberOfRings = 5;
     public hexes: HexPoint[] = hex_spiral({q:0, r:0}, this.numberOfRings);
     public hex_size: Point = {x: 70, y: 70};

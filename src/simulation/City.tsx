@@ -38,9 +38,6 @@ export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) 
 
 
 export class City extends Geography implements Tile, IBeanContainer {
-    lookupBuilding(hex: HexPoint): null|IBuilding {
-        return null;
-    }
     public name: string = '';
     public url: string = '';
     public type: string = '';
