@@ -5,7 +5,8 @@ import { BuildingIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/
 export class HexPanel extends React.Component<{
     city: City,
     hex: HexPoint,
-    clearHex: () => void
+    clearHex: () => void,
+    build: (where: HexPoint, what: BuildingTypes) => void
 }, {
 
 }> {
@@ -17,7 +18,7 @@ export class HexPanel extends React.Component<{
             </div>
             <h3>Build:</h3>
             <div className="card-parent">
-                <button className="card button" type="button">
+                <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'house')}>
                     {BuildingIcon['house']} House
                     <small>-3 Energy -3 Bots</small>
                 </button>

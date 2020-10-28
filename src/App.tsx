@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import './chrome/chrome.css';
 import { World, TraitGood, Axis, Trait } from './World';
-import { GenerateWorld, GeneratePartyHQ } from './WorldGen';
+import { GenerateWorld, GeneratePartyHQ, GenerateBuilding } from './WorldGen';
 import { Modal } from './widgets/Modal';
 import { OverviewPanel } from './right-panel/OverviewPanel';
 import { Bean } from './simulation/Bean';
@@ -27,8 +27,9 @@ import { CampaignsPanel } from './modal-content/Campaigns';
 import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
-import { HexPoint } from './simulation/Geography';
+import { BuildingTypes, HexPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
+import { City } from './simulation/City';
 
 
 export const keyToName: {[key in Trait]: string} = {
@@ -166,6 +167,18 @@ class App extends React.Component<AppPs, AppState>{
       world: this.state.world,
       activeModal: null});
   }
+  get difficulty(){
+    return this.state.world.alien.difficulty;
+  }
+  build = (city: City, where: HexPoint, what: BuildingTypes) => {
+    const cost = this.difficulty.cost.emptyHex.build[what];
+    if (this.state.world.alien.canAfford(cost)){
+      this.state.world.alien.purchase(cost);
+      GenerateBuilding(city, what, where);
+    }
+    
+    this.setState({world: this.state.world});
+  }
   foundCharity = (good: TraitGood, name: string, budget: number) => {
     this.state.world.addCharity(good, name, budget);
     this.setState({world: this.state.world});
@@ -211,7 +224,8 @@ class App extends React.Component<AppPs, AppState>{
           if (city) {
             
             if (this.state.activeHex != null){
-              return <HexPanel city={city} hex={this.state.activeHex} clearHex={() => this.setState({activeHex: null})}></HexPanel>
+              return <HexPanel city={city} hex={this.state.activeHex} clearHex={() => this.setState({activeHex: null})} 
+                build={(where, what) => {this.build(city, where, what)}}></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
