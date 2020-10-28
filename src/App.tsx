@@ -32,7 +32,7 @@ import { HexPanel } from './right-panel/HexPanel';
 import { City } from './simulation/City';
 
 
-export const keyToName: {[key in Trait]: string} = {
+export const keyToName: {[key in Trait|BuildingTypes]: string} = {
   state: 'Statist', ego: 'Egoist', 
   trad: 'Traditionalist', prog: 'Progressive', 
   circle: 'Brunette', square: 'Blonde', triangle: 'Redhead', 
@@ -40,7 +40,8 @@ export const keyToName: {[key in Trait]: string} = {
   hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
   podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
   sick: 'Sick', bruised: 'Bruised', fresh: 'Robust',
-  sane: 'Sane', confused: 'Confused', mad: 'Mad'
+  sane: 'Sane', confused: 'Confused', mad: 'Mad',
+  house:'House', hospital:'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse'
 };
 export const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
 function magToTextSw(magnitude: number){
@@ -200,8 +201,8 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.bus.politicalCapital.publish({change: -1});
   }
   scan = (bean: Bean) => {
-    if (this.state.world.alien.energy.amount >= 2){
-      this.state.world.alien.energy.amount -= 2;
+    if (this.state.world.alien.canAfford(this.state.world.alien.difficulty.cost.bean.scan)){
+      this.state.world.alien.purchase(this.state.world.alien.difficulty.cost.bean.scan);
       this.state.world.alien.scanned_bean[bean.key] = true;
       this.setState({world: this.state.world});
       return true;
@@ -224,7 +225,8 @@ class App extends React.Component<AppPs, AppState>{
           if (city) {
             
             if (this.state.activeHex != null){
-              return <HexPanel city={city} hex={this.state.activeHex} clearHex={() => this.setState({activeHex: null})} 
+              return <HexPanel city={city} hex={this.state.activeHex} difficulty={this.state.world.alien.difficulty}
+                clearHex={() => this.setState({activeHex: null})} 
                 build={(where, what) => {this.build(city, where, what)}}></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
@@ -338,17 +340,17 @@ class App extends React.Component<AppPs, AppState>{
             <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => {this.setState({timeScale: n})}}></StopPlayFastButtons>
           </div>
           <div className="bottom">
-            <BubbleText changeEvent={this.state.world.bus.physicalCapital} icon="⚡️">
+            <BubbleText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
               <CapsuleLabel icon="⚡️" label="Energy">
                 {this.state.world.alien.energy.amount.toFixed(1)}
               </CapsuleLabel>
             </BubbleText>
-            <BubbleText changeEvent={this.state.world.bus.politicalCapital} icon="🧠">
+            <BubbleText changeEvent={this.state.world.alien.psi.change} icon="🧠">
               <CapsuleLabel icon="🧠" label="Psi">
                 {this.state.world.alien.psi.amount.toFixed(1)}
               </CapsuleLabel>
             </BubbleText>
-            <BubbleText changeEvent={this.state.world.bus.labor} icon="🤖">
+            <BubbleText changeEvent={this.state.world.alien.bots.change} icon="🤖">
               <CapsuleLabel icon="🤖" label="Bots">
                 {this.state.world.alien.bots.amount.toFixed(1)}
               </CapsuleLabel>

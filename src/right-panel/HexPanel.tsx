@@ -1,16 +1,21 @@
 import React from "react";
+import { keyToName } from "../App";
+import { IDifficulty } from "../Game";
 import { City } from "../simulation/City";
 import { BuildingIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
+import { CostSmall } from "../widgets/CostSmall";
 
 export class HexPanel extends React.Component<{
     city: City,
     hex: HexPoint,
+    difficulty: IDifficulty,
     clearHex: () => void,
     build: (where: HexPoint, what: BuildingTypes) => void
 }, {
 
 }> {
     emptyPanel(){
+        const eHex = this.props.difficulty.cost.emptyHex;
         return <div>
             <div>
                 <strong>Empty Lot</strong> in <strong>{this.props.city.name}</strong>
@@ -20,28 +25,28 @@ export class HexPanel extends React.Component<{
             <div className="card-parent">
                 <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'house')}>
                     {BuildingIcon['house']} House
-                    <small>-3 Energy -3 Bots</small>
+                    <CostSmall cost={eHex.build.house}></CostSmall>
                 </button>
-                <button className="card button" type="button">
+                <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'farm')}>
                     {BuildingIcon['farm']} Farm
-                    <small>-3 Energy -3 Bots</small>
+                    <CostSmall cost={eHex.build.farm}></CostSmall>
                 </button>
             </div>
             <div className="card-parent">
-                <button className="card button" type="button">
+                <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'hospital')}>
                     {BuildingIcon['hospital']} Hospital
-                    <small>-4 Energy -4 Bots</small>
+                    <CostSmall cost={eHex.build.hospital}></CostSmall>
                 </button>
-                <button className="card button" type="button">
+                <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'theater')}>
                     {BuildingIcon['theater']} Theater
-                    <small>-4 Energy -4 Bots</small>
+                    <CostSmall cost={eHex.build.theater}></CostSmall>
                 </button>
             </div>
             <h3>Beings:</h3>
             <div className="card-parent">
                 <button className="card button" type="button">
                     🛸 Kidnap New Subject
-                    <small>-4 Energy</small>
+                    <CostSmall cost={this.props.difficulty.cost.hex.kidnap}></CostSmall>
                 </button>
             </div>
         </div>
@@ -49,7 +54,7 @@ export class HexPanel extends React.Component<{
     }
     buildingPanel(b: IBuilding){
         return <div>
-
+            <strong>{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
         </div>
     }
     render(){

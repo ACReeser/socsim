@@ -55,7 +55,7 @@ export const DefaultDifficulty: IDifficulty = {
         },
         bean: {
             scan: {
-    
+                energy: 1
             },
             brainwash: {},
             abduct: {},
@@ -65,8 +65,4 @@ export const DefaultDifficulty: IDifficulty = {
             siphon: {},
         }
     }
-}
-
-function a(){
-
-}
+};

@@ -16,6 +16,14 @@ export interface IResource{
     change: ChangePubSub;
 }
 
+export type GoalKey = 'found_utopia'|'build_house_n_farm'|'kidnap_3'|'scan'|'set_policy'|'brainwash'|'c+_grade';
+export interface IGoal{
+    key: GoalKey;
+    text: string;
+    tooltip?: string;
+    completed: boolean;
+}
+
 export class Player implements IPlayerData{
     public scanned_bean: {[beanKey: number]: boolean} = {};
     public energy = { amount: 10, income: 2, change: new ChangePubSub()};
