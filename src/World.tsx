@@ -101,9 +101,9 @@ export class World implements IWorld, IBeanContainer{
         this.beans.forEach((b) => {
             Act(b);
         })
-        shuffle(this.beans).forEach((b: Bean) => {
-            b.work(this.law, this.economy);
-        });
+        // shuffle(this.beans).forEach((b: Bean) => {
+        //     b.work(this.law, this.economy);
+        // });
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
@@ -115,6 +115,7 @@ export class World implements IWorld, IBeanContainer{
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
+        this.alien.checkGoals(this);
     }
     inflate() {
         const allMoney = this.beans.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);

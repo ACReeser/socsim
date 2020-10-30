@@ -97,6 +97,12 @@ export function GenerateWorld(): World{
         world.cities[i].environment = world.date;
         world.cities[i].economy = world.economy;
         world.cities[i].law = world.law;
+        for (let j = 0; j < world.cities[i].beans.length; j++) {
+            const bean = world.cities[i].beans[j];
+            bean.work(world.law, world.economy);
+            if (bean.job == 'farmer')
+                bean.work(world.law, world.economy);
+        }
     }
     world.economy.totalSeasonalDemand.food = world.beans.length;
     world.economy.totalSeasonalDemand.shelter = world.beans.length;
@@ -128,7 +134,6 @@ export function GenerateCity(previousCityCount: number): City{
         newCity.historicalBeans.push(
             GenerateBean(newCity, newCity.historicalBeans.length)
         );
-        
     }
 
     return newCity;

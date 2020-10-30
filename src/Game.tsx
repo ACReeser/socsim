@@ -11,6 +11,23 @@ export interface ResourceTriad{
     bots?: number;
     psi?: number;
 }
+export function triadToString(cost: ResourceTriad, sign: '+'|''|'-'){
+    const costs = [];
+    if (cost.energy){
+        costs.push(sign+cost.energy+' Energy');
+    }
+    if (cost.bots){
+        costs.push(sign+cost.bots+' Bots');
+    }
+    if (cost.psi){
+        costs.push(sign+cost.psi+' Psi');
+    }
+    return costs.join(' ');
+}
+export interface SecondaryResources{
+    research?: number;
+    leadership?: number;
+}
 export interface IDifficulty{
     cost: {
         emptyHex: {[key in PlayerEmptyHexAction]: {[key in BuildingTypes]: ResourceTriad}},

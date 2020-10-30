@@ -245,7 +245,7 @@ class App extends React.Component<AppPs, AppState>{
             </div>
         }
       case 'goals':
-        return <GoalsPanel></GoalsPanel>
+        return <GoalsPanel player={this.state.world.alien} progress={this.state.world.alien}></GoalsPanel>
       case 'events':
         return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
     }

@@ -231,7 +231,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                         this.job = newJob;
                 }
             }
-            econ.produceAndPrice(this, JobToGood(this.job), 3, this.fairGoodPrice);
+            econ.produceAndPrice(this, JobToGood(this.job), 4, this.fairGoodPrice);
         }
     }
     private buyFood(economy: Economy) {

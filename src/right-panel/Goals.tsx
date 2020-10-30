@@ -1,36 +1,35 @@
 import React from "react";
+import { triadToString } from "../Game";
+import { Goals, IGoal, IPlayerData, IProgressable } from "../simulation/Player";
 
 export interface GoalPanelPS
 {
+  player: IPlayerData;
+  progress: IProgressable;
 }
 
 export class GoalsPanel extends React.Component<GoalPanelPS> {
+  renderReward(g: IGoal){
+    return <div>
+      🎁 {triadToString(g.reward || {}, '+')}
+    </div>
+  }
+  renderGoal(g: IGoal){
+    const done = this.props.progress.goalProgress[g.key] != null && this.props.progress.goalProgress[g.key].done;
+    return <li>
+      {done ? '☑️': '⭕️'}
+      {g.text}
+      {g.tooltip != null ? <small title={g.tooltip}>❔</small> : null}
+      {done || g.reward == null ? null : this.renderReward(g)}
+    </li>
+  }
     render(){
         return (<div className="goals">
         <div><b>Goals</b></div>
         <ul>
-          <li>
-          ☑️ Found Utopia
-          </li>
-          <li>
-          ⭕️ Build House, Farm, and Hospital
-          </li>
-          <li>
-          ⭕️ Kidnap 3 new Subjects
-          </li>
-          <li>
-          ⭕️ Scan a Subject
-            <small title="Select a single being and Scan it">❔</small>
-          </li>
-          <li>
-          ⭕️ Set Government Policy
-          </li>
-          <li>
-          ⭕️ Brainwash a Subject
-          </li>
-          <li>
-          ⭕️ Get a C+ Utopia Grade
-          </li>
+          {this.props.progress.goals.map((key) => {
+            return this.renderGoal(Goals[key]);
+          })}
         </ul>
         <div><b>Report Card</b></div>
         <p>
