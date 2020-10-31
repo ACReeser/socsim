@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import './chrome/chrome.css';
 import { World, TraitGood, Axis, Trait } from './World';
-import { GenerateWorld, GeneratePartyHQ, GenerateBuilding } from './WorldGen';
+import { GenerateWorld, GeneratePartyHQ, GenerateBuilding, GenerateBean } from './WorldGen';
 import { Modal } from './widgets/Modal';
 import { OverviewPanel } from './right-panel/OverviewPanel';
 import { Bean } from './simulation/Bean';
@@ -180,6 +180,15 @@ class App extends React.Component<AppPs, AppState>{
     
     this.setState({world: this.state.world});
   }
+  kidnap = (city: City, where: HexPoint) => {
+    const cost = this.difficulty.cost.hex.kidnap;
+    if (this.state.world.alien.canAfford(cost)){
+      this.state.world.alien.purchase(cost);
+      city.historicalBeans.push(GenerateBean(city, city.historicalBeans.length));
+    }
+    
+    this.setState({world: this.state.world});
+  }
   foundCharity = (good: TraitGood, name: string, budget: number) => {
     this.state.world.addCharity(good, name, budget);
     this.setState({world: this.state.world});
@@ -226,7 +235,8 @@ class App extends React.Component<AppPs, AppState>{
             
             if (this.state.activeHex != null){
               return <HexPanel city={city} hex={this.state.activeHex} difficulty={this.state.world.alien.difficulty}
-                clearHex={() => this.setState({activeHex: null})} 
+                clearHex={() => this.setState({activeHex: null})}
+                kidnap={(where) => this.kidnap(city, where)} 
                 build={(where, what) => {this.build(city, where, what)}}></HexPanel>
             }
             else if (this.state.activeBeanID != null) {

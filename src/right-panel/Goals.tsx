@@ -11,7 +11,9 @@ export interface GoalPanelPS
 export class GoalsPanel extends React.Component<GoalPanelPS> {
   renderReward(g: IGoal){
     return <div>
+      <small>
       🎁 {triadToString(g.reward || {}, '+')}
+      </small>
     </div>
   }
   renderGoal(g: IGoal){

@@ -43,6 +43,9 @@ export const Goals: {[key in GoalKey]: IGoal} = {
         check: (world) => {
             return world.cities[0].byType.house.all.length > 1 &&
             world.cities[0].byType.farm.all.length > 1;
+        },
+        reward: {
+            energy: 3, bots: 3
         }
     }, 
     kidnap_3: {
@@ -117,11 +120,14 @@ export class Player implements IPlayerData, IProgressable{
     public checkGoals(world: World){
         for (let i = 0; i < this.goals.length; i++) {
             const goal = this.goals[i];
-            if (this.goalProgress[goal] == null || !this.goalProgress[goal].done) {
+            if (this.goalProgress[goal] == null){
+                this.goalProgress[goal] = {done: false, step: 0};
+            }
+            if (!this.goalProgress[goal].done) {
                 const done = Goals[goal].check(world);
                 const reward = Goals[goal].reward;
+                this.goalProgress[goal].done = done;
                 if (done && reward != null){
-                    this.goalProgress[goal].done = true;
                     this.reward(reward);
                 }
             }
