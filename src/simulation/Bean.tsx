@@ -23,7 +23,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public discrete_sanity: number = 10;
 
     public activity_queue: IActivityData[] = [];
-    public speed = 100;
+    public speed = 30;
     public direction = {x: 0,y:0}; 
     public markers: Point[] = [];
     public destinationKey = 0;
@@ -356,7 +356,5 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
 
     state: AgentState = IdleState.create();
 
-    animate = new PubSub<number>((deltaTime: number) => {
-        this.state.animate(this, deltaTime);
-    });
+    onAct = new PubSub<number>();
 }

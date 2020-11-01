@@ -76,7 +76,7 @@ export class World implements IWorld, IBeanContainer{
     /**
      * simulates a season passing, setting a lot of state
      */
-    public next(){
+    public simulate_world(){
         
         this.date.day++;
         if (this.date.day > 30){
@@ -98,13 +98,6 @@ export class World implements IWorld, IBeanContainer{
 
         this.institutions.forEach((i) => i.fundOrganizations());
 
-        this.beans.forEach((b) => {
-            Act(b);
-        })
-        // shuffle(this.beans).forEach((b: Bean) => {
-        //     b.work(this.law, this.economy);
-        // });
-
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
         shuffle(this.beans).forEach((b: Bean) => {
@@ -116,6 +109,11 @@ export class World implements IWorld, IBeanContainer{
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
         this.alien.checkGoals(this);
+    }
+    simulate_beans(deltaMS: number){
+        this.beans.forEach((b) => {
+            Act(b, deltaMS);
+        })
     }
     inflate() {
         const allMoney = this.beans.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);

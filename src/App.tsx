@@ -95,7 +95,7 @@ interface AppState{
   timeScale: number;
 }
 
-const LogicTickMS = 1000;
+const LogicTickMS = 2000;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -132,11 +132,11 @@ class App extends React.Component<AppPs, AppState>{
     if (deltaTimeMS > 0){
       this.logicTickAccumulatorMS += deltaTimeMS;
       this.state.world.beans.forEach((x) => {
-        x.animate.publish(deltaTimeMS);
+        this.state.world.simulate_beans(deltaTimeMS);
       });
       
       if (this.logicTickAccumulatorMS > LogicTickMS){
-        this.state.world.next();
+        this.state.world.simulate_world();
         this.setState({world: this.state.world});
         this.logicTickAccumulatorMS = 0;
       }

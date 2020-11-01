@@ -14,6 +14,7 @@ interface AnimatedBeanS{
   paused: boolean,
   point: Point,
   spin: boolean;
+  face: string;
 }
 
 export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> {
@@ -23,14 +24,16 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       this.state = {
         paused: false,
         point: props.static ? origin_point : props.bean.city ? props.bean.city.movers.bean[props.bean.key] : {x: 0, y: 0},
-        spin: false
+        spin: false,
+        face: props.bean.getFace()
       };
-      props.bean.animate.subscribe(this.animate);
+      props.bean.onAct.subscribe(this.animate);
     }
     animate = (deltaMS: number) => {
       this.setState({
         point: this.props.bean.city ? this.props.bean.city.movers.bean[this.props.bean.key] : {x: 0, y: 0},
-        spin: this.props.bean.state.data.act == 'work'
+        spin: this.props.bean.state.data.act == 'work',
+        face: this.props.bean.getFace()
       })
     }
     delaySeedSec: number;
@@ -61,13 +64,14 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
         animationDelay: '-'+this.delaySeedSec+'s'
       };
       style.animationDelay = '';
-      let title = `${this.props.bean.food} ${this.props.bean.shelter} ${this.props.bean.health}`
+      let title = '';
       return (
         <span className={classes+" bean interactable"}
           style={style} title={title}
           onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
         >
-          {this.props.bean.getFace()} {this.getIdea()}
+          {this.state.face}
+          <span>{this.props.bean.state.Elapsed.toFixed(0)}</span>
         </span>
       )
     }

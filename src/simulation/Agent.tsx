@@ -5,6 +5,7 @@ import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, Trai
 import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
+import { PubSub } from "../events/Events";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy';
 
@@ -17,6 +18,7 @@ export type Travel = 'cruise'|'approach';
 
 export interface IActivityData {
     act: Act;
+    elapsed?: number;
     location?: Point, //FROM Point
     destinations?: Point[]; //point to travel to??
     intent?: IActivityData; //when travelling, what do you intend to do next
@@ -27,45 +29,43 @@ export interface IActivityData {
 
 export interface IAgent {
     state: AgentState;
+    onAct?: PubSub<number>;
 }
 export function ChangeState(agent: IAgent, newState: AgentState){
+    if ((agent as any)['key'] === 0)
+    console.log(`from ${agent.state.data.act} to ${newState.data.act} in ${agent.state.Elapsed}`);
     agent.state.exit(agent);
     agent.state = newState;
     agent.state.enter(agent);
 }
-export function Act(agent: IAgent): void{
-    const result = agent.state.act(agent);
+export function Act(agent: IAgent, deltaMS: number): void{
+    const result = agent.state.act(agent, deltaMS);
+    if (agent.onAct)
+        agent.onAct.publish(deltaMS);
     if (result != agent.state){
-        console.log({old: agent.state.data.act, new: result.data.act})
         ChangeState(agent, result);
     }
 }
 
 export abstract class AgentState{
     constructor(public data: IActivityData){}
-    /**
-     * elapsed time in MS
-     */
-    protected elapsed: number = 0;
-    public get Elapsed(): number {return this.elapsed;}
+    public get Elapsed(): number {return this.data.elapsed || 0;}
     enter(agent: IAgent){
-        this.elapsed = 0;
+        this.data.elapsed = 0;
     }
-    act(agent: IAgent): AgentState{
-        
-        return this;
+    act(agent: IAgent, deltaMS: number): AgentState{
+        const newState = this._act(agent, deltaMS);
+        this.data.elapsed = this.Elapsed + deltaMS;
+        return newState;
     }
+    abstract _act(agent: IAgent, deltaMS: number): AgentState;
     exit(agent: IAgent){
 
     }
-    animate(agent: IAgent, deltaMS: number){
-        this.elapsed += deltaMS;
-    }
-    //todo: add an animate() that gets called in between logic ticks
 }
 export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
-    act(agent: IAgent): AgentState{
+    _act(agent: IAgent, deltaMS: number): AgentState{
         if (agent instanceof Bean && agent.city){
             if (agent.discrete_food <= GoodToThreshold['food'].sufficient*2){
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['food']);
@@ -79,44 +79,43 @@ export class IdleState extends AgentState{
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['medicine']) 
                 return TravelState.create(points, {act: 'buy', good: 'medicine'});
             }
-            if (agent.job != 'jobless'){
-                const points = RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
-                return TravelState.create(points, {act: 'work', good: JobToGood(agent.job)});
-            }
+            const points = RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
+            return TravelState.create(points, {act: 'work', good: JobToGood(agent.job)});
         }
         return this;
     }
 }
+
 export class TravelState extends AgentState{
     static create(destinations: Point[], intent: IActivityData){ 
         return new TravelState({act: 'travel', destinations: destinations, intent: intent})}
-    act(agent: IAgent): AgentState{
-        if (agent instanceof Bean && agent.city){            
-            if (this.data.destinations && this.data.destinations.length){
-            } else if (this.data.intent){
-                return ActToState[this.data.intent.act](this.data.intent);
-            }
-        }
-        return this;
-    }
-    animate(agent: IAgent, deltaMS: number){
+    _act(agent: IAgent, deltaMS: number){
+        
         if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
             const pos = agent.city.movers['bean'][agent.key];
             const target = this.data.destinations[0];
             const newPos = move_towards(pos, target, deltaMS / 1000 * agent.speed);
-            //console.log({x: pos.x - newPos.x, y: pos.y - newPos.y})
+            
             agent.city.movers['bean'][agent.key] = newPos;
             if (newPos.x == target.x && newPos.y == target.y){
                 this.data.location = newPos;
                 this.data.destinations.shift();
             }
         }
+        if (this.data.destinations == null || this.data.destinations.length === 0){
+            if (this.data.intent)
+                return ActToState[this.data.intent.act](this.data.intent);
+            else
+                return IdleState.create();
+        } else {
+            return this;
+        }
     }
 }
 export class WorkState extends AgentState{
     static create(good: TraitGood){ return new WorkState({act: 'work', good: good})}
-    act(agent: IAgent): AgentState{
-        if (this.elapsed > 1000 && agent instanceof Bean && this.data.good && agent.city?.economy && agent.city?.law){
+    _act(agent: IAgent, deltaMS: number): AgentState{
+        if (this.Elapsed > 2000 && agent instanceof Bean && this.data.good && agent.city?.economy && agent.city?.law){
             agent.work(agent.city.law, agent.city.economy);
             return IdleState.create();
         }
@@ -126,8 +125,8 @@ export class WorkState extends AgentState{
 }
 export class BuyState extends AgentState{
     static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
-    act(agent: IAgent): AgentState{
-        if (this.elapsed > 600 && agent instanceof Bean && this.data.good && agent.city?.economy){
+    _act(agent: IAgent, deltaMS: number): AgentState{
+        if (this.Elapsed > 2000 && agent instanceof Bean && this.data.good && agent.city?.economy){
             agent.buy[this.data.good](agent.city.economy);
             return IdleState.create();
         }
@@ -136,7 +135,7 @@ export class BuyState extends AgentState{
 }
 export class ChatState extends AgentState{
     static create(intent: IActivityData){ return new ChatState({act: 'chat', intent: intent})}
-    act(agent: IAgent): AgentState{
+    _act(agent: IAgent, deltaMS: number): AgentState{
         
         return this;
     }
