@@ -131,9 +131,7 @@ class App extends React.Component<AppPs, AppState>{
     this.previousTimeMS = timeMS;
     if (deltaTimeMS > 0){
       this.logicTickAccumulatorMS += deltaTimeMS;
-      this.state.world.beans.forEach((x) => {
-        this.state.world.simulate_beans(deltaTimeMS);
-      });
+      this.state.world.simulate_beans(deltaTimeMS);
       
       if (this.logicTickAccumulatorMS > LogicTickMS){
         this.state.world.simulate_world();

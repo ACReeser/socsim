@@ -33,7 +33,7 @@ export interface IAgent {
 }
 export function ChangeState(agent: IAgent, newState: AgentState){
     if ((agent as any)['key'] === 0)
-    console.log(`from ${agent.state.data.act} to ${newState.data.act} in ${agent.state.Elapsed}`);
+    //console.log(`from ${agent.state.data.act} to ${newState.data.act} in ${agent.state.Elapsed}`);
     agent.state.exit(agent);
     agent.state = newState;
     agent.state.enter(agent);
@@ -66,6 +66,9 @@ export abstract class AgentState{
 export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
     _act(agent: IAgent, deltaMS: number): AgentState{
+        if (this.Elapsed < 200){
+            return this;
+        }
         if (agent instanceof Bean && agent.city){
             if (agent.discrete_food <= GoodToThreshold['food'].sufficient*2){
                 const points = RouteRandom(agent.city, agent, GoodToBuilding['food']);
@@ -126,7 +129,7 @@ export class WorkState extends AgentState{
 export class BuyState extends AgentState{
     static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
     _act(agent: IAgent, deltaMS: number): AgentState{
-        if (this.Elapsed > 2000 && agent instanceof Bean && this.data.good && agent.city?.economy){
+        if (this.Elapsed > 1500 && agent instanceof Bean && this.data.good && agent.city?.economy){
             agent.buy[this.data.good](agent.city.economy);
             return IdleState.create();
         }

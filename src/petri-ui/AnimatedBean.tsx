@@ -1,6 +1,7 @@
 import { Bean } from "../simulation/Bean";
 import React from "react";
 import { origin_point, Point, transformPoint } from "../simulation/Geography";
+import { GoodIcon } from "../World";
 
 interface AnimatedBeanP {
   bean: Bean;
@@ -15,6 +16,11 @@ interface AnimatedBeanS{
   point: Point,
   spin: boolean;
   face: string;
+  good?: string;
+}
+
+function BeanIsBuying(bean: Bean){
+  return bean.state.data.act == 'buy' && bean.state.data.good != 'shelter';
 }
 
 export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> {
@@ -25,7 +31,7 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
         paused: false,
         point: props.static ? origin_point : props.bean.city ? props.bean.city.movers.bean[props.bean.key] : {x: 0, y: 0},
         spin: false,
-        face: props.bean.getFace()
+        face: props.bean.getFace(),
       };
       props.bean.onAct.subscribe(this.animate);
     }
@@ -33,7 +39,8 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       this.setState({
         point: this.props.bean.city ? this.props.bean.city.movers.bean[this.props.bean.key] : {x: 0, y: 0},
         spin: this.props.bean.state.data.act == 'work',
-        face: this.props.bean.getFace()
+        face: this.props.bean.getFace(),
+        good: BeanIsBuying(this.props.bean) ? GoodIcon[this.props.bean.state.data.good || 'food'] : undefined
       })
     }
     delaySeedSec: number;
@@ -45,6 +52,14 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
             }
         }
         return null;
+    }
+    getPurchase(){
+      if (this.state.good){
+        return <span className="purchase">
+          <span className="money">💸</span>
+          <span className="purchase-good">{this.state.good}</span>
+        </span>
+      }
     }
     render() {
       let classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
@@ -70,8 +85,7 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
           style={style} title={title}
           onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
         >
-          {this.state.face}
-          <span>{this.props.bean.state.Elapsed.toFixed(0)}</span>
+          {this.state.face} {this.getPurchase()}
         </span>
       )
     }

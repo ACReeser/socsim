@@ -5,7 +5,7 @@ import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
 import { IDate, withinLastYear } from "./Time";
 import { Government } from "./Government";
-import { Act, AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./Agent";
+import { AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./Agent";
 import { Point } from "./Geography";
 import { City } from "./City";
 
@@ -23,7 +23,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public discrete_sanity: number = 10;
 
     public activity_queue: IActivityData[] = [];
-    public speed = 30;
+    public speed = 60;
     public direction = {x: 0,y:0}; 
     public markers: Point[] = [];
     public destinationKey = 0;
@@ -302,7 +302,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                 this.city.breedBean(this);
             else
                 throw 'bean does not have city object';
-            return {icon: '🎉', message: 'A new bean is born!'}
+            return {icon: '🎉', message: 'A new subject is born!'}
         } else {
             return null;
         }

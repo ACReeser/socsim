@@ -460,7 +460,7 @@ table.classic .border-t{
   box-shadow: 0 0 10px hsl(16, 100%, 50%);;
 }
 .bean.doc:after{
-  content: '💊';
+  content: '🩺';
 }
 .bean.builder:after{
   content: '🔨';
@@ -508,6 +508,34 @@ table.classic .border-t{
 .bean-walker.interactable:hover{
   cursor: pointer;
   animation-play-state: paused;
+}
+.purchase{
+  position: absolute;
+  left: 22px;
+  top: 2px;
+  width: 1em;
+}
+.purchase .money, .purchase .purchase-good{
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+.purchase .money{
+  animation: spend 1.5s;
+  animation-fill-mode: forwards; /*pause after execution*/
+}
+.purchase .purchase-good{
+  animation: get 1.5s;
+}
+@keyframes spend{
+  0%{opacity: 1; transform: translateY(0)}
+  60%{opacity: 0; transform: translateY(-20px)}
+  100%{opacity: 0; transform: translateY(-20px)}
+}
+@keyframes get{
+  0%{opacity: 0; transform: translateY(20px)}
+  5%{opacity: 0; transform: translateY(20px)}
+  50%{opacity: 1; transform: translateY(0)}
 }
 .idea{
   position: absolute;
