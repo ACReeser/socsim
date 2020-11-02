@@ -1,22 +1,23 @@
 {
   "files": {
-    "main.css": "/socsim/static/css/main.b60253d3.chunk.css",
-    "main.js": "/socsim/static/js/main.ca9177eb.chunk.js",
-    "main.js.map": "/socsim/static/js/main.ca9177eb.chunk.js.map",
+    "main.css": "/socsim/static/css/main.c31cf8af.chunk.css",
+    "main.js": "/socsim/static/js/main.6307f491.chunk.js",
+    "main.js.map": "/socsim/static/js/main.6307f491.chunk.js.map",
     "runtime-main.js": "/socsim/static/js/runtime-main.a6aea435.js",
     "runtime-main.js.map": "/socsim/static/js/runtime-main.a6aea435.js.map",
-    "static/js/2.d64d293d.chunk.js": "/socsim/static/js/2.d64d293d.chunk.js",
-    "static/js/2.d64d293d.chunk.js.map": "/socsim/static/js/2.d64d293d.chunk.js.map",
+    "static/js/2.2ac009e7.chunk.js": "/socsim/static/js/2.2ac009e7.chunk.js",
+    "static/js/2.2ac009e7.chunk.js.map": "/socsim/static/js/2.2ac009e7.chunk.js.map",
     "index.html": "/socsim/index.html",
-    "precache-manifest.db111f4bb827cc07e287b55819a1c11a.js": "/socsim/precache-manifest.db111f4bb827cc07e287b55819a1c11a.js",
+    "precache-manifest.ea787d806b3cdfd5473987698f9c6e40.js": "/socsim/precache-manifest.ea787d806b3cdfd5473987698f9c6e40.js",
     "service-worker.js": "/socsim/service-worker.js",
-    "static/css/main.b60253d3.chunk.css.map": "/socsim/static/css/main.b60253d3.chunk.css.map",
-    "static/js/2.d64d293d.chunk.js.LICENSE.txt": "/socsim/static/js/2.d64d293d.chunk.js.LICENSE.txt"
+    "static/css/main.c31cf8af.chunk.css.map": "/socsim/static/css/main.c31cf8af.chunk.css.map",
+    "static/js/2.2ac009e7.chunk.js.LICENSE.txt": "/socsim/static/js/2.2ac009e7.chunk.js.LICENSE.txt",
+    "static/media/App.css": "/socsim/static/media/cyan-stars.825b4cc5.png"
   },
   "entrypoints": [
     "static/js/runtime-main.a6aea435.js",
-    "static/js/2.d64d293d.chunk.js",
-    "static/css/main.b60253d3.chunk.css",
-    "static/js/main.ca9177eb.chunk.js"
+    "static/js/2.2ac009e7.chunk.js",
+    "static/css/main.c31cf8af.chunk.css",
+    "static/js/main.6307f491.chunk.js"
   ]
 }
