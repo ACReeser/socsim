@@ -526,16 +526,17 @@ table.classic .border-t{
 }
 .purchase .purchase-good{
   animation: get 1.5s;
+  animation-fill-mode: forwards; /*pause after execution*/
 }
 @keyframes spend{
   0%{opacity: 1; transform: translateY(0)}
-  60%{opacity: 0; transform: translateY(-20px)}
+  60%{opacity: 1; transform: translateY(-20px)}
   100%{opacity: 0; transform: translateY(-20px)}
 }
 @keyframes get{
   0%{opacity: 0; transform: translateY(20px)}
-  5%{opacity: 0; transform: translateY(20px)}
-  50%{opacity: 1; transform: translateY(0)}
+  60%{opacity: 1; transform: translateY(0)}
+  100%{opacity: 0; transform: translateX(-8px)}
 }
 .idea{
   position: absolute;

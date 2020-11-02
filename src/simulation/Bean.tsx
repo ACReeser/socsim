@@ -170,6 +170,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (this.state.data.act == 'buy' && this.state.data.good == 'shelter'){
             return '😴';
         }
+        if (this.state.data.act == 'crime'){
+            return '😈';
+        }
         if (this.food == 'hungry')
             return '😫';
         if (this.health == 'sick')
@@ -195,8 +198,22 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             return {bad: false, idea: '👶'};
         return null;        
     }
+    getCrimeDecision(
+        good: TraitGood,
+        crimeReason: 'desperation'|'greed',
+    ){
+        const roll = Math.random();
+        let chance = 0.05;
+        if (this.community == 'ego'){
+            chance += .1;
+        }
+        if (crimeReason === 'desperation' && this.health === 'sick' || this.food === 'hungry'){
+            chance += .15;
+        }
+        return chance <= roll;
+    }
     tryFindRandomJob(law: Government) {
-        if (Math.random() > 0.5) {
+        if (Math.random() <= 0.5) {
             this.job = GetRandom(['builder', 'doc', 'farmer']);
         }
     }
@@ -212,10 +229,10 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         } else {
             switch(this.job){
                 case 'farmer':
-                    this.discrete_food = Math.min(this.discrete_food, GoodToThreshold.food.sufficient*3);
+                    this.discrete_food = Math.min(this.discrete_food+1, GoodToThreshold.food.sufficient*2);
                     break;
                 case 'doc':
-                    this.discrete_health = Math.min(this.discrete_health, GoodToThreshold.medicine.sufficient*3);
+                    this.discrete_health = Math.min(this.discrete_health+1, GoodToThreshold.medicine.sufficient*2);
                     break;
                 case 'builder': 
                     this.shelter = 'crowded';
@@ -238,20 +255,24 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         const groceries = economy.tryTransact(this, 'food', 0.5, 3);
         if (groceries)
             this.discrete_food += groceries.bought;
+        return groceries;
     }
-    public buy: {[key in TraitGood]: (econ: Economy)=> void} = {
+    public buy: {[key in TraitGood]: (econ: Economy)=> boolean} = {
         food: (economy: Economy) =>{
-            this.buyFood(economy);
+            return this.buyFood(economy) != null;
         },
         medicine:  (economy: Economy) =>{
-            this.buyMeds(economy);
+            return this.buyMeds(economy) != null;
         },
         fun:  (economy: Economy) =>{
-            
+            return false;
         },
         shelter: (economy: Economy) => {
-            this.buyHousing(economy);
+            return this.buyHousing(economy);
         }
+    }
+    public steal(good: 'food'|'medicine', econ: Economy){
+        econ.steal(good, 3);
     }
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
@@ -293,6 +314,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         const meds = economy.tryTransact(this, 'medicine', 0.5, 3);
         if (meds)
             this.discrete_health += meds.bought;
+        return meds;
     }
 
     maybeBaby(economy: Economy): IEvent | null {

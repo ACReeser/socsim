@@ -7,7 +7,7 @@ import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_t
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 
-export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy';
+export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
 
 /**
  * cruise == interruptible travel towards destination
@@ -128,12 +128,36 @@ export class WorkState extends AgentState{
 }
 export class BuyState extends AgentState{
     static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
-    _act(agent: IAgent, deltaMS: number): AgentState{
-        if (this.Elapsed > 1500 && agent instanceof Bean && this.data.good && agent.city?.economy){
-            agent.buy[this.data.good](agent.city.economy);
-            return IdleState.create();
+    private sinceLastAttemptMS: number = 0;
+    private attempts: number = 0;
+    tryBuy(agent: IAgent){
+        if (agent instanceof Bean && this.data.good && agent.city?.economy)
+        {
+            this._bought = agent.buy[this.data.good](agent.city.economy);
         }
-        return this;
+        this.sinceLastAttemptMS = 0;
+        this.attempts++;
+    }
+    enter(agent: IAgent){
+        this.tryBuy(agent);
+    }
+    private _bought: boolean = false;
+    _act(agent: IAgent, deltaMS: number): AgentState{
+        if (!this._bought){
+            if (this.sinceLastAttemptMS > 250)
+            {
+                this.tryBuy(agent);
+                if(this.attempts >= 3 && (this.data.good == 'food' || this.data.good == 'medicine') &&
+                    agent instanceof Bean &&
+                    agent.getCrimeDecision(this.data.good, 'desperation')){
+                    return CrimeState.create(this.data.good);
+                }
+            }
+        }
+        if (this.Elapsed > 1500)
+            return IdleState.create();
+        else
+            return this;
     }
 }
 export class ChatState extends AgentState{
@@ -143,8 +167,19 @@ export class ChatState extends AgentState{
         return this;
     }
 }
+export class CrimeState extends AgentState{
+    static create(good: 'food'|'medicine'){ return new CrimeState({act: 'crime', good: good})}
+    _act(agent: IAgent, deltaMS: number): AgentState{
+        if (this.Elapsed > 1500 && agent instanceof Bean && agent.city?.economy && 
+            (this.data.good === 'food' ||
+            this.data.good === 'medicine')){
+            agent.steal(this.data.good, agent.city?.economy);
+            return IdleState.create();
+        }
+        return this;
+    }
+}
 
-// ISSUE! can't use the "generic" constructor if the "specific" constructor exists!
 const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
     'idle': (data) => new IdleState(data),
     'work': (data) => new WorkState(data),
@@ -154,6 +189,7 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
     'buy': (data) => new BuyState(data),
     'sleep': (data) => new BuyState(data),
     'soapbox': (data) => new BuyState(data),
+    'crime': (data) => new BuyState(data)
 }
 
 /**

@@ -2,6 +2,7 @@ import { TraitGood, TraitJob, GoodToJob, Trait } from "../World";
 import { Bean } from "./Bean";
 import { IOrganization, Charity } from "./Institutions";
 import { City } from "./City";
+import { GetRandom } from "../WorldGen";
 export interface IEconomicAgent{
     cash: number;
 }
@@ -62,6 +63,19 @@ export class Economy {
         }
         this.unfulfilledSeasonalDemand[good] += actualDemand;
         return null;
+    }
+    steal(
+        good: TraitGood,
+        maxDemand: number = 1
+        ): number|null {
+        const listing = GetRandom(this.market.listings[good]);
+        if (listing == null){
+            return null;
+        }
+        const actualDemand = Math.min(listing.quantity, maxDemand);
+        this.market.subtractFromListing(listing, good, actualDemand);
+        
+        return actualDemand;
     }
     produceAndPrice(seller: Bean, good: TraitGood, quantity: number, price: number) {
         this.totalSeasonalSupply[good] += quantity;
@@ -155,11 +169,8 @@ export class OrderBook{
     public getOrgsListings(b: IOrganization, g: TraitGood): Listing|undefined{
         return this.listings[g].find((x) => x.sellerOrganizationKey == b.key);
     }
-    public transact(listing: Listing, good: TraitGood, demand: number, buyer: IEconomicAgent){        
-        listing.quantity -= demand;
-        if (listing.quantity <= 0){
-            this.listings[good].splice(0, 1);
-        }
+    public transact(listing: Listing, good: TraitGood, demand: number, buyer: IEconomicAgent){    
+        this.subtractFromListing(listing, good, demand);
         const sale = listing.price * demand;
         buyer.cash -= sale;
         listing.seller.cash += sale;
@@ -167,6 +178,12 @@ export class OrderBook{
         return {
             bought: demand,
             price: sale
+        }
+    }
+    public subtractFromListing(listing: Listing, good: TraitGood, demand: number){     
+        listing.quantity -= demand;
+        if (listing.quantity <= 0){
+            this.listings[good].splice(0, 1);
         }
     }
     public addNewListing(good: TraitGood, quantity: number, price: number, bean: Bean){
