@@ -30,12 +30,14 @@ interface BeanPanelP{
 
 interface BeanPanelS{
     faceOverride?: string;
+    innerView: 'priorities'|'feelings'|'beliefs';
 }
 
 export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     constructor(props: BeanPanelP) {
         super(props);
         this.state = {
+            innerView: 'feelings'
         }
     }
     scan = () => {
@@ -66,6 +68,17 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 <td className="small">{Math.round(x.mod * 100)}%</td>
             </tr>
         });
+    }
+    renderInner(){
+        switch(this.state.innerView){
+            case 'feelings':
+                return <table className="width-100p"><tbody>
+                    {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
+                    {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null}
+
+                    </tbody>
+                </table>
+        }
     }
     get scanned(){
         return this.props.alien.scanned_bean[this.props.bean.key];
@@ -114,7 +127,6 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         }
                     </span>
                 </div>
-                {this.renderTraits()}
                 <div className="horizontal">
                     <span>
                         💰 ${this.props.bean.cash.toFixed(2)}
@@ -126,13 +138,22 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         👍 {Math.round(this.props.bean.lastPartySentiment)}%
                     </span>
                 </div>
+                {this.renderTraits()}
             </div>
-            <table className="width-100p grow-1"><tbody>
-                {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
-                {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null}
-
-                </tbody>
-            </table>
+            <div className="width-100p grow-1">
+                <div className="cylinder blue-orange horizontal">
+                    <button type="button" className={this.state.innerView=='priorities'?'active':''} onClick={()=>this.setState({innerView:'priorities'})}>
+                        💪 Priorities
+                    </button>
+                    <button type="button" className={this.state.innerView=='feelings'?'active':''} onClick={()=>this.setState({innerView:'feelings'})}>
+                        😐 Feelings
+                    </button>
+                    <button type="button" className={this.state.innerView=='beliefs'?'active':''} onClick={()=>this.setState({innerView:'beliefs'})}>
+                        😇 Beliefs
+                    </button>
+                </div>
+                {this.renderInner()}
+            </div>
             <div className="bean-action-card-parent">
                 <div className="card-parent">
                     <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}

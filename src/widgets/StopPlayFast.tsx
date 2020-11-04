@@ -6,7 +6,8 @@ export class StopPlayFastButtons extends React.Component<{
     setTimeScale: (s: number) => void
 }>{
     render(){
-        return <div className="s-p-f button-group">
+        return <div className="s-p-f button-group cylinder blue-orange">
+            ⌛️
             <button type="button" className={this.props.timeScale == 0 ? 'active': ''} onClick={() => this.props.setTimeScale(0)}>⏹</button>
             <button type="button" className={this.props.timeScale == 1 ? 'active': ''} onClick={() => this.props.setTimeScale(1)}>▶️</button>
             <button type="button" className={this.props.timeScale == 2 ? 'active': ''} onClick={() => this.props.setTimeScale(2)}>⏩</button>

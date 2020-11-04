@@ -9,7 +9,6 @@
   }
   .overlay button{
     pointer-events: all;
-    margin: 4px;
   }
   .left{
     flex-grow: 2;
@@ -54,6 +53,15 @@
       height: 2.4em;
       margin-top: 0
   }
+  
+.full-width-tabs{
+  display: flex;
+}
+.overlay .full-width-tabs > button{
+  flex-grow: 1;
+  margin: 0;
+  height: 3em;
+}
   .bottom{
     margin-top: auto;
     height: 4em; width: 100%;

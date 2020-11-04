@@ -3,6 +3,6 @@
     justify-content: space-between;
 }
 
-.bean-action-card-parent{
-    
+.bean-view .bean{
+    top: -6px;
 }
