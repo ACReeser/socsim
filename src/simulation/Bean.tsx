@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity } from "../World";
 import { RandomEthno, GetRandom } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -8,6 +8,7 @@ import { Government } from "./Government";
 import { AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./Agent";
 import { Point } from "./Geography";
 import { City } from "./City";
+import { PriorityQueue } from "./Priorities";
 
 
 const BabyChance = 0.01;
@@ -94,14 +95,14 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             mods.push({reason: 'Xenophobic', mod: -.1});
         }
         if (this.cash < 1) {
-            mods.push({reason: 'Penniless', mod: MaslowScore.Deficient});
+            mods.push({reason: 'Penniless', mod: MaslowHappinessScore.Deficient});
         } else if (this.cash > econ.getCostOfLiving() * 3){
             mods.push({reason: 'Upper Class', mod: 0.3});
         } else if (this.cash > econ.getCostOfLiving() * 2){
             mods.push({reason: 'Middle Class', mod: 0.15});
         }
         if (this.job == 'jobless') {
-            mods.push({reason: 'Unemployed', mod: MaslowScore.Deficient});
+            mods.push({reason: 'Unemployed', mod: MaslowHappinessScore.Deficient});
         }
 
         return mods;
@@ -377,6 +378,6 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     }
 
     state: AgentState = IdleState.create();
-
+    jobQueue: PriorityQueue<AgentState> = new PriorityQueue<AgentState>([]);
     onAct = new PubSub<number>();
 }

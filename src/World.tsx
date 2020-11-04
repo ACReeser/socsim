@@ -196,7 +196,7 @@ export const TraitIcon: {[key in Trait]: string} = {
     'sick': '🤢', 'bruised': '🩹', 'fresh': '💪',
     'mad': '🤪', 'confused': '🤤', 'sane': '🧠',
 }
-export enum MaslowScore {Deficient= -.25, Sufficient=0, Abundant=.15}
+export enum MaslowHappinessScore {Deficient= -.25, Sufficient=0, Abundant=.15}
 
 export interface IHappinessModifier{
     reason: string;
@@ -222,15 +222,15 @@ export function GetHappiness(array: IHappinessModifier[]){
 }
 
 export const TraitToModifier: {[key in TraitFood|TraitShelter|TraitHealth]: IHappinessModifier} = {
-    'podless': {reason: 'Homeless', mod: MaslowScore.Deficient},
-    'crowded': {reason: 'Renting', mod: MaslowScore.Sufficient},
-    'homeowner': {reason: 'Homeowner', mod: MaslowScore.Abundant},
-    'sick': {reason: 'Sick', mod: MaslowScore.Deficient},
-    'bruised': {reason: 'Bruised', mod: MaslowScore.Sufficient},
-    'fresh': {reason: 'Healthy', mod: MaslowScore.Abundant},
-    'hungry': {reason: 'Hungry', mod: MaslowScore.Deficient},
-    'sated': {reason: 'Sated', mod: MaslowScore.Sufficient},
-    'stuffed': {reason: 'Stuffed', mod: MaslowScore.Abundant},
+    'podless': {reason: 'Homeless', mod: MaslowHappinessScore.Deficient},
+    'crowded': {reason: 'Renting', mod: MaslowHappinessScore.Sufficient},
+    'homeowner': {reason: 'Homeowner', mod: MaslowHappinessScore.Abundant},
+    'sick': {reason: 'Sick', mod: MaslowHappinessScore.Deficient},
+    'bruised': {reason: 'Bruised', mod: MaslowHappinessScore.Sufficient},
+    'fresh': {reason: 'Healthy', mod: MaslowHappinessScore.Abundant},
+    'hungry': {reason: 'Hungry', mod: MaslowHappinessScore.Deficient},
+    'sated': {reason: 'Sated', mod: MaslowHappinessScore.Sufficient},
+    'stuffed': {reason: 'Stuffed', mod: MaslowHappinessScore.Abundant},
 }
 export const GoodToThreshold: {[key in TraitGood]: {sufficient: number, abundant: number}} = {
     'food': {sufficient: 1, abundant: 3},

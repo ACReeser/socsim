@@ -5,13 +5,3 @@
     border-radius: 0;
     height: 2.4em;
 }
-.blue-orange button{
-    background: hsla(187, 100%, 57%, .5);
-}
-.blue-orange button:hover{
-    background: hsla(187, 100%, 57%, 1);
-}
-.blue-orange button.active, .blue-orange button:active{
-    background: hsl(16, 100%, 60%);
-    outline: none;
-}

@@ -52,6 +52,8 @@ export class City extends Geography implements Tile, IBeanContainer {
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;
+
+    /// computed properties
     public majorityEthnicity: TraitEthno = 'circle';
 
     public economy?: Economy;

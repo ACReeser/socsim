@@ -207,6 +207,10 @@ button.pull-r{
   padding-left: 4%;
   padding-right: 4%;
 }
+.pad-4{
+  padding-left: 4px;
+  padding-right: 4px;
+}
 .grow-1{
   flex-grow: 1;
 }

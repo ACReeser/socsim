@@ -6,6 +6,7 @@ import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
+import { PriorityNode, PriorityQueue } from "./Priorities";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
 
@@ -30,6 +31,7 @@ export interface IActivityData {
 export interface IAgent {
     state: AgentState;
     onAct?: PubSub<number>;
+    jobQueue: PriorityQueue<AgentState>;
 }
 export function ChangeState(agent: IAgent, newState: AgentState){
     if ((agent as any)['key'] === 0)
@@ -71,28 +73,46 @@ export class IdleState extends AgentState{
         }
         if (agent instanceof Bean && agent.city){
             if (agent.discrete_food <= GoodToThreshold['food'].sufficient*2){
-                const points = RouteRandom(agent.city, agent, GoodToBuilding['food']);
-                return TravelState.create(points, {act: 'buy', good: 'food'});
+                
+                return TravelState.createFromIntent(agent, {act: 'buy', good: 'food'});
             }
             if (agent.daysSinceSlept >= DaysUntilSleepy){
-                const points = RouteRandom(agent.city, agent, GoodToBuilding['shelter']) 
-                return TravelState.create(points, {act: 'buy', good: 'shelter'});
+                
+                return TravelState.createFromIntent(agent, {act: 'buy', good: 'shelter'});
             }
             if (agent.discrete_health <= GoodToThreshold['medicine'].sufficient*2){
-                const points = RouteRandom(agent.city, agent, GoodToBuilding['medicine']) 
-                return TravelState.create(points, {act: 'buy', good: 'medicine'});
+                
+                return TravelState.createFromIntent(agent, {act: 'buy', good: 'medicine'});
             }
-            const points = RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
-            return TravelState.create(points, {act: 'work', good: JobToGood(agent.job)});
+            
+            return TravelState.createFromIntent(agent, {act: 'work', good: JobToGood(agent.job)});
         }
         return this;
     }
 }
 
+export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]{
+    if (!(agent instanceof Bean) || agent.city == null)
+        return [];
+
+    switch(intent.act){
+        case 'buy':
+            if (intent.good)
+                return RouteRandom(agent.city, agent, GoodToBuilding[intent.good]);
+        case 'work':
+            return RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
+    }
+    return [];
+}
+
 export class TravelState extends AgentState{
-    static create(destinations: Point[], intent: IActivityData){ 
-        return new TravelState({act: 'travel', destinations: destinations, intent: intent})}
-    _act(agent: IAgent, deltaMS: number){
+    static createFromIntent(agent: IAgent, intent: IActivityData){
+        return this.createFromDestination(IntentToDestination(agent, intent), intent);
+    }
+    static createFromDestination(destinations: Point[], intent: IActivityData){ 
+        return new TravelState({act: 'travel', destinations: destinations, intent: intent});
+    }
+    _act(agent: IAgent, deltaMS: number): AgentState{
         
         if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
             const pos = agent.city.movers['bean'][agent.key];
@@ -190,6 +210,13 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
     'sleep': (data) => new BuyState(data),
     'soapbox': (data) => new BuyState(data),
     'crime': (data) => new BuyState(data)
+}
+
+
+export function GetPriorities(bean: Bean): PriorityQueue<PriorityNode<AgentState>>{
+    const queue = new PriorityQueue<PriorityNode<AgentState>>([]);
+
+    return queue;
 }
 
 /**

@@ -70,11 +70,18 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         });
     }
     renderInner(){
+        if (!this.scanned){
+            return <div className="width-100p text-center">
+                <small>
+                    Subject need a Scan to reveal their thoughts
+                </small>
+            </div>
+        }
         switch(this.state.innerView){
             case 'feelings':
                 return <table className="width-100p"><tbody>
                     {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
-                    {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null}
+                    {/* {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null} */}
 
                     </tbody>
                 </table>
@@ -128,19 +135,19 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     </span>
                 </div>
                 <div className="horizontal">
-                    <span>
+                    <span className="text-center">
                         💰 ${this.props.bean.cash.toFixed(2)}
                     </span>
-                    <span>
+                    <span className="text-center">
                         🙂 {Math.round(this.props.bean.lastHappiness)}%
                     </span>
-                    <span>
+                    <span className="text-center">
                         👍 {Math.round(this.props.bean.lastPartySentiment)}%
                     </span>
                 </div>
                 {this.renderTraits()}
             </div>
-            <div className="width-100p grow-1">
+            <div className="grow-1 pad-4">
                 <div className="cylinder blue-orange horizontal">
                     <button type="button" className={this.state.innerView=='priorities'?'active':''} onClick={()=>this.setState({innerView:'priorities'})}>
                         💪 Priorities
