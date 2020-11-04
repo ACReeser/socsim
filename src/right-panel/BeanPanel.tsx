@@ -12,6 +12,8 @@ import { Government } from "../simulation/Government";
 import { Player } from "../simulation/Player";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
 
+import './BeanPanel.css';
+
 interface BeanPanelP{
     city: City,
     bean: Bean,
@@ -95,79 +97,83 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
         const chance = this.props.bean.chanceToDonate(this.props.economy, true);
         return (                
-        <div>
-            <div>
-                <b>{this.props.bean.name}&nbsp;
-                <small>
-                    of {this.props.city.name}
-                </small>
-                </b>
-                <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+        <div className="vertical bean-panel">
+            <div className="bean-panel-header">
+                <div>
+                    <b>{this.props.bean.name}&nbsp;
+                    <small>
+                        of {this.props.city.name}
+                    </small>
+                    </b>
+                    <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+                </div>
+                <div className="bean-view">                
+                    <span className={classes+" bean"}>
+                        {
+                            this.state.faceOverride === undefined ? this.props.bean.getFace() : this.state.faceOverride
+                        }
+                    </span>
+                </div>
+                {this.renderTraits()}
+                <div className="horizontal">
+                    <span>
+                        💰 ${this.props.bean.cash.toFixed(2)}
+                    </span>
+                    <span>
+                        🙂 {Math.round(this.props.bean.lastHappiness)}%
+                    </span>
+                    <span>
+                        👍 {Math.round(this.props.bean.lastPartySentiment)}%
+                    </span>
+                </div>
             </div>
-            <div className="bean-view">                
-                <span className={classes+" bean"}>
-                    {
-                        this.state.faceOverride === undefined ? this.props.bean.getFace() : this.state.faceOverride
-                    }
-                </span>
-            </div>
-            {this.renderTraits()}
-            <div className="horizontal">
-                <span>
-                    💰 ${this.props.bean.cash.toFixed(2)}
-                </span>
-                <span>
-                    🙂 {Math.round(this.props.bean.lastHappiness)}%
-                </span>
-                <span>
-                    👍 {Math.round(this.props.bean.lastPartySentiment)}%
-                </span>
-            </div>
-            <table className="width-100p"><tbody>
+            <table className="width-100p grow-1"><tbody>
                 {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
                 {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null}
 
                 </tbody>
             </table>
-            <div className="card-parent">
-                <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
-                    title="Rewrite one of this being's beliefs"
-                >😵 Brainwash
-                    <small>-Psi -Sanity +Belief</small>
-                </button>
-            </div>
-            <div className="card-parent">
-                <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.scan} 
-                    title="Increase this being's influence">
-                    🧐 Empower
-                    <small>-Psi +Influence</small>
-                </button>
-                <button type="button" className="button card" onClick={this.scan} 
-                    title="Increase this being's wealth">
-                    🤑 Gift
-                    <small>-Energy +Money</small>
-                </button>
-            </div>
-            <div className="card-parent">
-                <button type="button" className="button card" onClick={this.scan} 
-                    title="Drain a bit of this being's brain">
-                    🤪 Siphon
-                    <small>-Energy -Sanity +Psi</small>
-                </button>
-                <button type="button" className="button card" onClick={this.insult}
-                    title="Delete this being from the experiment"
-                >
-                    ☠️ Disappear
-                    <small>-Bots -Energy</small>
-                </button>
-            </div>
-            <div className="card-parent">
-                <button type="button" className="button card" onClick={this.insult}
-                    title="Remove this being for study"
-                >
-                    👾 Abduct for Research
-                    <small>-Bots -Sanity +Tech</small>
-                </button>
+            <div className="bean-action-card-parent">
+                <div className="card-parent">
+                    <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
+                        title="Rewrite one of this being's beliefs"
+                    >😵 Brainwash
+                        <small>-Psi -Sanity +Belief</small>
+                    </button>
+                </div>
+                <div className="card-parent">
+                    <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.scan} 
+                        title="Increase this being's influence">
+                        🧐 Empower
+                        <small>-Psi +Influence</small>
+                    </button>
+                    <button type="button" className="button card" onClick={this.scan} 
+                        title="Increase this being's wealth">
+                        🤑 Gift
+                        <small>-Energy +Money</small>
+                    </button>
+                </div>
+                <div className="card-parent">
+                    <button type="button" className="button card" onClick={this.scan} 
+                        title="Drain a bit of this being's brain">
+                        🤪 Siphon
+                        <small>-Energy -Sanity +Psi</small>
+                    </button>
+                    <button type="button" className="button card" onClick={this.insult}
+                        title="Delete this being from the experiment"
+                    >
+                        ☠️ Disappear
+                        <small>-Bots -Energy</small>
+                    </button>
+                </div>
+                <div className="card-parent">
+                    <button type="button" className="button card" onClick={this.insult}
+                        title="Remove this being for study"
+                    >
+                        👾 Abduct for Research
+                        <small>-Bots -Sanity +Tech</small>
+                    </button>
+                </div>
             </div>
         </div>
         )

@@ -39,7 +39,7 @@ h3.small{
 }
 .card-parent .card small{
   display: block;
-  margin-top: 4px;
+  /* margin-top: 4px; */
 }
 .card-parent .card.single small{
   display: inline;
@@ -48,8 +48,8 @@ h3.small{
 .card-parent .card button, 
 .card-parent button.card{
   padding: 0;
-  padding-top: 8px;
-  padding-bottom: 8px;
+  padding-top: 2px;
+  padding-bottom: 2px;
 }
 .card-parent .card.thin{
   padding-top: 2px;
@@ -164,7 +164,9 @@ button.pull-r{
 .width-100p{
   width: 100%;
 }
-
+.grow-1{
+  flex-grow: 1;
+}
 
 .header{
   text-align: center;
