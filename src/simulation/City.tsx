@@ -55,6 +55,7 @@ export class City extends Geography implements Tile, IBeanContainer {
 
     /// computed properties
     public majorityEthnicity: TraitEthno = 'circle';
+    public costOfLiving: number = 1;
 
     public economy?: Economy;
     public law?: Government;
@@ -99,6 +100,7 @@ export class City extends Geography implements Tile, IBeanContainer {
         }
     }
     calculate(economy: Economy, law: Government) {
+        this.costOfLiving = economy.getCostOfLiving();
         const c = this.beans.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
             switch(bean.ethnicity){
                 case 'circle': count.circle++;break;

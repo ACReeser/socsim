@@ -13,6 +13,7 @@ import { Player } from "../simulation/Player";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
 
 import './BeanPanel.css';
+import { ActivityIcon, GetPriorities } from "../simulation/Agent";
 
 interface BeanPanelP{
     city: City,
@@ -83,6 +84,18 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
                     {/* {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null} */}
 
+                    </tbody>
+                </table>
+            case 'priorities':
+                return <table className="width-100p">
+                    <tbody>
+                        {
+                            GetPriorities(this.props.bean, this.props.alien.difficulty).values.map((x) => {
+                                return <div>
+                                    {ActivityIcon(x.value)}
+                                </div>
+                            })
+                        }
                     </tbody>
                 </table>
         }

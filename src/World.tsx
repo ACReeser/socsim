@@ -232,7 +232,8 @@ export const TraitToModifier: {[key in TraitFood|TraitShelter|TraitHealth]: IHap
     'sated': {reason: 'Sated', mod: MaslowHappinessScore.Sufficient},
     'stuffed': {reason: 'Stuffed', mod: MaslowHappinessScore.Abundant},
 }
-export const GoodToThreshold: {[key in TraitGood]: {sufficient: number, abundant: number}} = {
+export interface IThreshold {sufficient: number, abundant: number}
+export const GoodToThreshold: {[key in TraitGood]: IThreshold} = {
     'food': {sufficient: 1, abundant: 3},
     'shelter': {sufficient: 1, abundant: 3},
     'medicine': {sufficient: 1, abundant: 3},

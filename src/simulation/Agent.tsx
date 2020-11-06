@@ -1,12 +1,13 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon } from "../World";
 import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { PriorityNode, PriorityQueue } from "./Priorities";
+import { IDifficulty } from "../Game";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
 
@@ -212,11 +213,54 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
     'crime': (data) => new BuyState(data)
 }
 
+export const GetPriority = {
+    work: function(bean:Bean): number{
+        if (bean.city){
+            return bean.cash / bean.city.costOfLiving / 2;
+        } else {
+            return 0;
+        }
+    },
+    food: function(bean:Bean, difficulty: IDifficulty): number{
+        return 0.5 + (bean.discrete_food / difficulty.bean_life.vital_thresh.food.sufficient )
+    },
+    shelter: function(bean:Bean, difficulty: IDifficulty): number{
+        return 1 + (1/bean.daysSinceSlept / difficulty.bean_life.vital_thresh.shelter.sufficient )
+    },
+    medicine:function(bean:Bean, difficulty: IDifficulty): number{
+        return 1 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
+    },
+}
 
-export function GetPriorities(bean: Bean): PriorityQueue<PriorityNode<AgentState>>{
-    const queue = new PriorityQueue<PriorityNode<AgentState>>([]);
-
+export function GetPriorities(bean: Bean, difficulty: IDifficulty): PriorityQueue<IActivityData>{
+    const queue = new PriorityQueue<IActivityData>([]);
+    let node = new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean));
+    queue.enqueue(node)
+    node = new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, difficulty));
+    queue.enqueue(node)
+    node = new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.shelter(bean, difficulty));
+    queue.enqueue(node)
+    node = new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, difficulty));
+    queue.enqueue(node)
     return queue;
+}
+
+export function ActivityIcon(data: IActivityData): string{
+    switch(data.act){
+        case 'work':
+            if (data.good)
+                return '💪 '+ GoodIcon[data.good];
+            else
+                return '💪';
+        case 'buy':
+            if (data.good == 'shelter')
+                return '😴';
+            if (data.good)
+                return '💸 '+ GoodIcon[data.good];
+            else
+                return '💸';
+    }
+    return '';
 }
 
 /**

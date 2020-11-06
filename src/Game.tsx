@@ -1,4 +1,5 @@
 import { BuildingTypes } from "./simulation/Geography";
+import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
 export type PlayerHexAction = 'kidnap';
@@ -33,6 +34,9 @@ export interface IDifficulty{
         emptyHex: {[key in PlayerEmptyHexAction]: {[key in BuildingTypes]: ResourceTriad}},
         hex: {[key in PlayerHexAction]: ResourceTriad} 
         bean: {[key in PlayerBeanAction]: ResourceTriad}
+    },
+    bean_life: {
+        vital_thresh: {[key in TraitGood]: IThreshold}
     }
 }
 export const DefaultDifficulty: IDifficulty = {
@@ -80,6 +84,14 @@ export const DefaultDifficulty: IDifficulty = {
             empower: {},
             disappear: {},
             siphon: {},
+        }
+    },
+    bean_life: {
+        vital_thresh: {
+            'food': {sufficient: 1, abundant: 3},
+            'shelter': {sufficient: 1, abundant: 3},
+            'medicine': {sufficient: 1, abundant: 3},
+            'fun': {sufficient: 1, abundant: 3},
         }
     }
 };
