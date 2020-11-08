@@ -12,6 +12,7 @@ import { Geography } from './simulation/Geography';
 import { City } from './simulation/City';
 import { shuffle } from './simulation/Utils';
 import { Act } from './simulation/Agent';
+import { IDifficulty } from './Game';
 
 
 export interface IBeanContainer{
@@ -112,7 +113,7 @@ export class World implements IWorld, IBeanContainer{
     }
     simulate_beans(deltaMS: number){
         this.beans.forEach((b) => {
-            Act(b, deltaMS);
+            Act(b, deltaMS, this.alien.difficulty);
         })
     }
     inflate() {
@@ -235,7 +236,7 @@ export const TraitToModifier: {[key in TraitFood|TraitShelter|TraitHealth]: IHap
 export interface IThreshold {sufficient: number, abundant: number}
 export const GoodToThreshold: {[key in TraitGood]: IThreshold} = {
     'food': {sufficient: 1, abundant: 3},
-    'shelter': {sufficient: 1, abundant: 3},
+    'shelter': {sufficient: 1, abundant: 7},
     'medicine': {sufficient: 1, abundant: 3},
     'fun': {sufficient: 1, abundant: 3},
 }

@@ -6,7 +6,7 @@ import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
-import { PriorityNode, PriorityQueue } from "./Priorities";
+import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
 import { IDifficulty } from "../Game";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
@@ -41,8 +41,8 @@ export function ChangeState(agent: IAgent, newState: AgentState){
     agent.state = newState;
     agent.state.enter(agent);
 }
-export function Act(agent: IAgent, deltaMS: number): void{
-    const result = agent.state.act(agent, deltaMS);
+export function Act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): void{
+    const result = agent.state.act(agent, deltaMS, difficulty);
     if (agent.onAct)
         agent.onAct.publish(deltaMS);
     if (result != agent.state){
@@ -56,37 +56,28 @@ export abstract class AgentState{
     enter(agent: IAgent){
         this.data.elapsed = 0;
     }
-    act(agent: IAgent, deltaMS: number): AgentState{
-        const newState = this._act(agent, deltaMS);
+    act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
+        const newState = this._act(agent, deltaMS, difficulty);
         this.data.elapsed = this.Elapsed + deltaMS;
         return newState;
     }
-    abstract _act(agent: IAgent, deltaMS: number): AgentState;
+    abstract _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState;
     exit(agent: IAgent){
 
     }
 }
 export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
-    _act(agent: IAgent, deltaMS: number): AgentState{
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         if (this.Elapsed < 200){
             return this;
         }
         if (agent instanceof Bean && agent.city){
-            if (agent.discrete_food <= GoodToThreshold['food'].sufficient*2){
-                
-                return TravelState.createFromIntent(agent, {act: 'buy', good: 'food'});
+            const priorities = GetPriorities(agent, difficulty);
+            const top = priorities.dequeue();
+            if (top){
+                return TravelState.createFromIntent(agent, top.value);
             }
-            if (agent.daysSinceSlept >= DaysUntilSleepy){
-                
-                return TravelState.createFromIntent(agent, {act: 'buy', good: 'shelter'});
-            }
-            if (agent.discrete_health <= GoodToThreshold['medicine'].sufficient*2){
-                
-                return TravelState.createFromIntent(agent, {act: 'buy', good: 'medicine'});
-            }
-            
-            return TravelState.createFromIntent(agent, {act: 'work', good: JobToGood(agent.job)});
         }
         return this;
     }
@@ -113,7 +104,7 @@ export class TravelState extends AgentState{
     static createFromDestination(destinations: Point[], intent: IActivityData){ 
         return new TravelState({act: 'travel', destinations: destinations, intent: intent});
     }
-    _act(agent: IAgent, deltaMS: number): AgentState{
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         
         if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
             const pos = agent.city.movers['bean'][agent.key];
@@ -138,7 +129,7 @@ export class TravelState extends AgentState{
 }
 export class WorkState extends AgentState{
     static create(good: TraitGood){ return new WorkState({act: 'work', good: good})}
-    _act(agent: IAgent, deltaMS: number): AgentState{
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         if (this.Elapsed > 2000 && agent instanceof Bean && this.data.good && agent.city?.economy && agent.city?.law){
             agent.work(agent.city.law, agent.city.economy);
             return IdleState.create();
@@ -163,7 +154,7 @@ export class BuyState extends AgentState{
         this.tryBuy(agent);
     }
     private _bought: boolean = false;
-    _act(agent: IAgent, deltaMS: number): AgentState{
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         if (!this._bought){
             if (this.sinceLastAttemptMS > 250)
             {
@@ -183,14 +174,14 @@ export class BuyState extends AgentState{
 }
 export class ChatState extends AgentState{
     static create(intent: IActivityData){ return new ChatState({act: 'chat', intent: intent})}
-    _act(agent: IAgent, deltaMS: number): AgentState{
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         
         return this;
     }
 }
 export class CrimeState extends AgentState{
     static create(good: 'food'|'medicine'){ return new CrimeState({act: 'crime', good: good})}
-    _act(agent: IAgent, deltaMS: number): AgentState{
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         if (this.Elapsed > 1500 && agent instanceof Bean && agent.city?.economy && 
             (this.data.good === 'food' ||
             this.data.good === 'medicine')){
@@ -215,8 +206,17 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
 
 export const GetPriority = {
     work: function(bean:Bean): number{
-        if (bean.city){
-            return bean.cash / bean.city.costOfLiving / 2;
+        if (bean.job == 'jobless'){
+            return 0;
+        }
+        else if (bean.city){
+            let inventory_priority = 99;
+            if (bean.city.economy){
+                let quant = bean.city.economy.market.getBeansListings(bean, JobToGood(bean.job))?.quantity || 0;
+                inventory_priority = quant;
+            }
+            let wealth_priority = bean.cash / bean.city.costOfLiving / 2;
+            return Math.min(inventory_priority, wealth_priority);
         } else {
             return 0;
         }
@@ -225,15 +225,15 @@ export const GetPriority = {
         return 0.5 + (bean.discrete_food / difficulty.bean_life.vital_thresh.food.sufficient )
     },
     shelter: function(bean:Bean, difficulty: IDifficulty): number{
-        return 1 + (1/bean.daysSinceSlept / difficulty.bean_life.vital_thresh.shelter.sufficient )
+        return 1 + (bean.discrete_stamina / difficulty.bean_life.vital_thresh.shelter.sufficient )
     },
     medicine:function(bean:Bean, difficulty: IDifficulty): number{
         return 1 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
     },
 }
 
-export function GetPriorities(bean: Bean, difficulty: IDifficulty): PriorityQueue<IActivityData>{
-    const queue = new PriorityQueue<IActivityData>([]);
+export function GetPriorities(bean: Bean, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
+    const queue = new DumbPriorityQueue<IActivityData>([]);
     let node = new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean));
     queue.enqueue(node)
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, difficulty));

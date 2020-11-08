@@ -1,8 +1,33 @@
 export class PriorityNode<T>{
     constructor(public value: T, public priority: number){}
 }
+export interface IPriorityQueue<T>{
+    enqueue(value: PriorityNode<T>): void;
+    values: PriorityNode<T>[];
+    dequeue(): PriorityNode<T>|undefined;
+}
+export class DumbPriorityQueue<T> implements IPriorityQueue<T>{
+    
+    public values: PriorityNode<T>[] = [];
 
-export class PriorityQueue<T>{
+    constructor(_values: PriorityNode<T>[]){this.values = _values;}
+    
+    enqueue(value: PriorityNode<T>): void{
+        this.values.push(value);
+        this.values = this.values.sort((a, b) => a.priority - b.priority);
+    }
+
+    enqueueMany(values: PriorityNode<T>[]){
+        this.values = values;
+        this.values = this.values.sort((a, b) => a.priority - b.priority);
+    }
+    
+    dequeue(): PriorityNode<T>|undefined{
+        return this.values.shift();
+    }
+}
+
+export class PriorityQueue<T> implements IPriorityQueue<T>{
     public values: PriorityNode<T>[] = [];
 
     constructor(_values: PriorityNode<T>[]){this.values = _values;}
@@ -87,7 +112,7 @@ export class PriorityQueue<T>{
         }  
     }
 
-    dequeue(){
+    dequeue(): PriorityNode<T>|undefined{
         //swap first and last element
         this.swap(0, this.values.length - 1);
         //pop max value off of values

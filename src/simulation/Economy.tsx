@@ -18,7 +18,7 @@ export interface Listing{
     quantity: number;
 }
 const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
-const PartyLoyaltyPerCharityUse = 0.2;
+
 export class Economy {
     market = new OrderBook();
     charity = new OrderBook();

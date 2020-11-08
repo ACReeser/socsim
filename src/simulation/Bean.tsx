@@ -76,7 +76,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
      */
     public lastPartySentiment: number = 0;
     public ticksSinceLastSale: number = 0;
-    public daysSinceSlept: number = 0;
+    public discrete_stamina: number = 7;
     public lastApprovalDate: IDate = {year: -1, season: 0, day: 0};
     public lastInsultDate: IDate = {year: -1, season: 0, day: 0};
     public fairGoodPrice: number = 1;
@@ -237,7 +237,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                     break;
                 case 'builder': 
                     this.shelter = 'crowded';
-                    this.daysSinceSlept = 0;
+                    this.discrete_stamina = 7;
                     break;
             }
             this.ticksSinceLastSale++;
@@ -278,9 +278,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
         if (housing) {
-            this.daysSinceSlept = 0;
+            this.discrete_stamina = 7;
             this.shelter = 'crowded';
-        } else if (this.daysSinceSlept >= DaysUntilHomeless){
+        } else if (this.discrete_stamina <= 0){
             this.shelter = 'podless';
         }
         return housing != null;
@@ -300,7 +300,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (this.shelter == 'podless')
             this.discrete_health -= 1/14;
         
-        this.daysSinceSlept++;
+        this.discrete_stamina--;
     
         const exposure = this.maybeDie('exposure', 0.2);
         if (exposure)
@@ -370,11 +370,6 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     die(){
         this.alive = false;
         this.city?.onCitizenDie(this);
-    }
-
-    schedule(){
-        //if current activities len === 0
-        //push copies of common_activity_ring
     }
 
     state: AgentState = IdleState.create();
