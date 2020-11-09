@@ -1,0 +1,15 @@
+.fancy-header{
+    font-size: 2em;
+    text-align: center;
+    font-weight: bold;
+}
+.fancy-header .emoji-3{
+    width: 5em;
+    flex-grow: 0;
+}
+.fancy-header *:first-child{
+    text-align: right;
+}
+.fancy-header *:last-child{
+    text-align: left;
+}

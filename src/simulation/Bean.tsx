@@ -278,7 +278,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
         if (housing) {
-            this.discrete_stamina = 7;
+            this.discrete_stamina = 10;
             this.shelter = 'crowded';
         } else if (this.discrete_stamina <= 0){
             this.shelter = 'podless';

@@ -27,6 +27,7 @@ interface BeanPanelP{
     scan: (bean: Bean) => boolean;
     insult: (bean: Bean) => void;
     support: (bean: Bean) => void;
+    brainwash: () => void;
 }
 
 interface BeanPanelS{
@@ -176,7 +177,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </div>
             <div className="bean-action-card-parent">
                 <div className="card-parent">
-                    <button type="button" className="button card" onClick={this.support} disabled={!this.props.bean.canSupport()}
+                    <button type="button" className="button card" onClick={() => this.props.brainwash()} disabled={!this.props.bean.canSupport()}
                         title="Rewrite one of this being's beliefs"
                     >😵 Brainwash
                         <small>-Psi -Sanity +Belief</small>

@@ -30,6 +30,7 @@ import { StopPlayFastButtons } from './widgets/StopPlayFast';
 import { BuildingTypes, HexPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City } from './simulation/City';
+import { BrainwashingContent } from './modal-content/Brainwashing';
 
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
@@ -81,7 +82,7 @@ export function policy(p: Policy){
   )
 }
 
-export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party'|'polisci';
+export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party'|'polisci'|'brainwash';
 interface AppPs{
 }
 interface AppState{
@@ -243,6 +244,7 @@ class App extends React.Component<AppPs, AppState>{
                 return <BeanPanel bean={bean} city={city} alien={this.state.world.alien} 
                 economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
                 scan={this.scan} insult={this.insult} support={this.support}
+                brainwash={() => this.setState({activeModal:'brainwash'})}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
 
@@ -327,6 +329,9 @@ class App extends React.Component<AppPs, AppState>{
         </Modal>
         <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({activeModal: null})}>
           {(this.state.activeModal == 'economy'? <EconomyReport world={this.state.world}></EconomyReport> : '')}
+        </Modal>
+        <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({activeModal: null})}>
+          {(this.state.activeModal == 'brainwash'? <BrainwashingContent world={this.state.world}></BrainwashingContent> : '')}
         </Modal>
         <div className="left">
           <div className="top">
