@@ -13,6 +13,7 @@ import { City } from './simulation/City';
 import { shuffle } from './simulation/Utils';
 import { Act } from './simulation/Agent';
 import { IDifficulty } from './Game';
+import { type } from 'os';
 
 
 export interface IBeanContainer{
@@ -170,18 +171,6 @@ export type TraitShelter = 'podless'|'crowded'|'homeowner';
 export type TraitHealth = 'sick'|'bruised'|'fresh';
 export type TraitSanity = 'mad'|'confused'|'sane';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
-export type TraitQuirk = 'diligent'| //125% productive
-'gossip'| // 100% chance to stop and talk
-'fit'| // takes less health damage
-'parental'| // increased % of having kids
-'gullible'| // beliefs are easily changed
-'fragile'| // takes extra sanity damage
-'partisan'| // doesn't like beings that don't share ideals 
-'affable'| // likes all beings more
-'unruly'| // breaks rules easily
-'merry'| // extra happiness
-'glum'| // lower happiness
-'';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth|TraitSanity;
 export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm'|'all';

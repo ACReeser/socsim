@@ -30,6 +30,9 @@ h3.small{
   overflow: hidden;
   transition: transform 0.5s;
 }
+.card-parent .card.grow-0{
+  flex-grow: 0;
+}
 .card-parent .card.button:hover{
   background: hsl(16, 100%, 70%);
   transform: translateY(-6px);
@@ -176,9 +179,6 @@ button.pull-r{
 .width-100p{
   width: 100%;
 }
-.grow-1{
-  flex-grow: 1;
-}
 
 .header{
   text-align: center;
@@ -213,6 +213,9 @@ button.pull-r{
 }
 .grow-1{
   flex-grow: 1;
+}
+.grow-0{
+  flex-grow: 0;
 }
 .policies{
 
@@ -327,6 +330,9 @@ ul.boxes li{
 }
 .m-t-2em{
   margin-top: 2em;
+}
+.marg-0{
+  margin: 0;
 }
 
 .capsule-label{
@@ -624,6 +630,9 @@ table.classic .border-t{
 }
 .horizontal > *:last-child{
   margin-right: 0;
+}
+.horizontal > .grow-0{
+  flex-grow: 0;
 }
 
 select:invalid { color: gray; }
