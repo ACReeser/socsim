@@ -29,11 +29,11 @@ export const BeliefVerbIcon: {[key in BeliefVerb]: string} ={
     arenot: '🛑'
 }
 export const BeliefVerbText: BeliefSubjectVerbTree ={
-    other: {
+    self: {
         are: 'can be',
         arenot: "shouldn't be"
     },
-    self: {
+    other: {
         are: 'should be',
         arenot: 'cannot be'
     }
@@ -82,3 +82,17 @@ export const BeliefAdjData: {[key in TraitBelief]: BeliefData} = {
         text: 'Talkative'
     },
 };
+
+export interface BeliefSubjectOption {key: BeliefSubject};
+export interface BeliefVerbOption {key: BeliefVerb};
+export interface BeliefAdjOption {key: TraitBelief};
+
+export const BeliefSubjectOptions: BeliefSubjectOption[] = [{key:'self' as BeliefSubject}, {key:'other' as BeliefSubject}];
+export const BeliefVerbOptions: BeliefVerbOption[] = [{key:'are' as BeliefVerb}, {key:'arenot' as BeliefVerb}];
+export const BeliefOptions = Object.keys(BeliefAdjData).map((x) => {return {key: x as TraitBelief}});
+
+export interface Belief{
+    subject: BeliefSubject;
+    verb: BeliefVerb;
+    adj: TraitBelief;
+}

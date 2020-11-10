@@ -1,6 +1,6 @@
 import React, { ChangeEvent } from "react";
 import { City } from "../simulation/City";
-import { BeliefAdjData, BeliefSubjectIcon, BeliefSubjectText, BeliefVerbIcon, BeliefVerbText, TraitBelief, BeliefSubject, BeliefVerb } from "../simulation/Beliefs";
+import { BeliefAdjData, BeliefSubjectIcon, BeliefSubjectText, BeliefVerbIcon, BeliefVerbText, TraitBelief, BeliefSubject, BeliefVerb, BeliefAdjOption, BeliefSubjectOption, BeliefVerbOption } from "../simulation/Beliefs";
 
 export interface DropdownPS<T>{
     options: Array<T&{key: any}>,
@@ -52,29 +52,25 @@ export class CityDropdown extends Dropdown<City>{
     }
 }
 
-export interface TraitBeliefSubjectOption {key: BeliefSubject};
-export class BeliefSubjectDropdown extends Dropdown<TraitBeliefSubjectOption>{
-    getTextForOption(data: TraitBeliefSubjectOption): string{
+export class BeliefSubjectDropdown extends Dropdown<BeliefSubjectOption>{
+    getTextForOption(data: BeliefSubjectOption): string{
         return BeliefSubjectIcon[data.key] + ' ' +BeliefSubjectText[data.key];
     }
 }
 
-export interface TraitBeliefVerbOption {key: BeliefVerb};
-export class SelfVerbDropdown extends Dropdown<TraitBeliefVerbOption>{
-    getTextForOption(data: TraitBeliefVerbOption): string{
+export class SelfVerbDropdown extends Dropdown<BeliefVerbOption>{
+    getTextForOption(data: BeliefVerbOption): string{
         return BeliefVerbIcon[data.key]+' '+BeliefVerbText['self'][data.key];
     }
 }
-export interface TraitBeliefVerbOption {key: BeliefVerb};
-export class OtherVerbDropdown extends Dropdown<TraitBeliefVerbOption>{
-    getTextForOption(data: TraitBeliefVerbOption): string{
+export class OtherVerbDropdown extends Dropdown<BeliefVerbOption>{
+    getTextForOption(data: BeliefVerbOption): string{
         return BeliefVerbIcon[data.key]+' '+BeliefVerbText['other'][data.key];
     }
 }
 
-export interface TraitBeliefAdjOption {key: TraitBelief};
-export class BeliefAdjDropdown extends Dropdown<TraitBeliefAdjOption>{
-    getTextForOption(data: TraitBeliefAdjOption): string{
+export class BeliefAdjDropdown extends Dropdown<BeliefAdjOption>{
+    getTextForOption(data: BeliefAdjOption): string{
         return BeliefAdjData[data.key].text;
     }
 }
