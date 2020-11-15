@@ -87,9 +87,9 @@ export interface BeliefSubjectOption {key: BeliefSubject};
 export interface BeliefVerbOption {key: BeliefVerb};
 export interface BeliefAdjOption {key: TraitBelief};
 
-export const BeliefSubjectOptions: BeliefSubjectOption[] = [{key:'self' as BeliefSubject}, {key:'other' as BeliefSubject}];
-export const BeliefVerbOptions: BeliefVerbOption[] = [{key:'are' as BeliefVerb}, {key:'arenot' as BeliefVerb}];
-export const BeliefOptions = Object.keys(BeliefAdjData).map((x) => {return {key: x as TraitBelief}});
+export const BeliefSubjectAll: BeliefSubject[] = ['self', 'other'];
+export const BeliefVerbAll: BeliefVerb[] = ['are', 'arenot'];
+export const BeliefsAll = Object.keys(BeliefAdjData).map((x) => x as TraitBelief);
 
 export interface Belief{
     subject: BeliefSubject;

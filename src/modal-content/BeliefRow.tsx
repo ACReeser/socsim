@@ -1,6 +1,7 @@
 import React from "react";
-import { BeliefSubject, BeliefVerb, BeliefAdjData, TraitBelief, BeliefSubjectOptions, BeliefOptions, BeliefVerbOptions, Belief } from "../simulation/Beliefs";
-import { BeliefAdjDropdown, BeliefSubjectDropdown, OtherVerbDropdown, SelfVerbDropdown } from "../widgets/Dropdown";
+import { BeliefSubject, BeliefVerb, BeliefAdjData, TraitBelief, Belief, BeliefSubjectOption, BeliefVerbOption, BeliefAdjOption, BeliefsAll, BeliefSubjectAll, BeliefVerbAll } from "../simulation/Beliefs";
+
+import { BeliefSubjectDropdown, OtherVerbDropdown, SelfVerbDropdown, StringDropdown } from "../widgets/StringDropdown";
 
 export class EditBeliefInput extends React.Component<{
 
@@ -34,28 +35,33 @@ export class NewBeliefInput extends React.Component<NewBeliefInputP, {
     }
     render_verbs_other(){
         return <OtherVerbDropdown 
-            options={BeliefVerbOptions} 
+            options={BeliefVerbAll} 
             value={this.state.verb}
-            onChange={(v) => {this.setState({verb: v as BeliefVerb}, () => this.props.change(this.state));}}
+            onChange={(v) => {this.setState({verb: v});}}
         ></OtherVerbDropdown>
     };
     render_verbs_self(){
         return <SelfVerbDropdown 
-            options={BeliefVerbOptions}
+            options={BeliefVerbAll}
             value={this.state.verb}
-            onChange={(v) => {this.setState({verb: v as BeliefVerb}, () => this.props.change(this.state));}}
+            onChange={(v) => {this.setState({verb: v});}}
         ></SelfVerbDropdown>
     }
     
     render(){
         return <div>
-            <BeliefSubjectDropdown options={BeliefSubjectOptions} value={this.state.subject}
-            onChange={(e) => { this.setState({subject: e as BeliefSubject}, () => this.props.change(this.state));}}
+            <BeliefSubjectDropdown options={BeliefSubjectAll} value={this.state.subject}
+            onChange={(e) => { this.setState({subject: e});}}
             ></BeliefSubjectDropdown>
             {this.state.subject == 'self' ? this.render_verbs_self(): this.render_verbs_other()}
-            <BeliefAdjDropdown options={BeliefOptions} value={this.state.adj}
-            onChange={(a) => {this.setState({adj: a as TraitBelief}, () => this.props.change(this.state));}}
-            ></BeliefAdjDropdown>
+            <StringDropdown titleCase={true}
+            options={BeliefsAll} 
+            value={this.state.adj}
+            onChange={(a: string) => {
+                console.log(a);
+                this.setState({adj: a as TraitBelief})
+            }}
+            ></StringDropdown>
         </div>
     }
 }

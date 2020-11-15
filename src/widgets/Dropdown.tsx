@@ -51,26 +51,3 @@ export class CityDropdown extends Dropdown<City>{
         return data.name;
     }
 }
-
-export class BeliefSubjectDropdown extends Dropdown<BeliefSubjectOption>{
-    getTextForOption(data: BeliefSubjectOption): string{
-        return BeliefSubjectIcon[data.key] + ' ' +BeliefSubjectText[data.key];
-    }
-}
-
-export class SelfVerbDropdown extends Dropdown<BeliefVerbOption>{
-    getTextForOption(data: BeliefVerbOption): string{
-        return BeliefVerbIcon[data.key]+' '+BeliefVerbText['self'][data.key];
-    }
-}
-export class OtherVerbDropdown extends Dropdown<BeliefVerbOption>{
-    getTextForOption(data: BeliefVerbOption): string{
-        return BeliefVerbIcon[data.key]+' '+BeliefVerbText['other'][data.key];
-    }
-}
-
-export class BeliefAdjDropdown extends Dropdown<BeliefAdjOption>{
-    getTextForOption(data: BeliefAdjOption): string{
-        return BeliefAdjData[data.key].text;
-    }
-}

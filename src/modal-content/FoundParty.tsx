@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from "react";
 import { TraitCommunity, TraitIdeals } from "../World";
-import { CityDropdown } from "../widgets/Dropdown";
 import { City } from "../simulation/City";
 
 export interface FoundPartyPS

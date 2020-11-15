@@ -1,5 +1,4 @@
 import React from "react";
-import { BeliefAdjDropdown, BeliefSubjectDropdown, SelfVerbDropdown } from "../widgets/Dropdown";
 import { BeliefSubject, BeliefVerb, TraitBelief, BeliefAdjData, Belief } from "../simulation/Beliefs";
 import './modals.css';
 import { World } from "../World";
