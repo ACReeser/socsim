@@ -117,20 +117,23 @@ subjects have a set of beliefs.
 the petri dish will automatically 🚨 alert when subjects think about or talk about things that violate the foundational beliefs of the utopia
 
 ```
-🚨Thoughtcrime!🚨 *Joe Shmoe* thinks *people should be religious*
-🚨Speechcrime!🚨 *Joe Shmoe* says *people should be religious*
+🚨Thoughtcrime!🚨 *Joe Shmoe* is thinking about *Theocracy*
+🚨Speechcrime!🚨 *Joe Shmoe* is talking about *Anarchy*
 ```
 
-
+beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe likes X"
 
 | belief | traits  | desc | actions |
 | --- | --- | --- | --- |
-| **United** | state | depend on others | high % to talk  |
-| **Independent** | ego | depend on oneself | low % to talk  |
-| **Elite** | trad | strive for power | can bully lower classes  |
-| **Equitable** | prog | strive for equality | can bully higher classes  |
-| **Industrious** | | work more | % to work instead of buying entertainment, can bully jobless subjects  |
-| **Chaotic** | ego | disregard authority | +25% to crime %, ????????? |
-| **P** | state |  |  |
-| **P** | trad |  |  |
-| **P** | prog |  |  |
+| **Collectivism** | state | depend on others | high % to talk  |
+| **Independence** | ego | depend on oneself | low % to talk  |
+| **Elitism** | trad | strive for power | can bully lower classes  |
+| **Progressivism** | prog | strive for equality | can bully higher classes  |
+
+| **Anarchy** | ego | disregard authority | +25% to crime %, **?** |
+| **Authority** | state |  | -25% to crime %, **?**  |
+| **Greed** | trad |  | purchases more goods |
+| **?** | prog |  |  |
+
+| **Industry** | | work more | % to work instead of buying entertainment, can bully jobless subjects  |
+| **Leisure** | | work less | % to buy entertainment instead of work  |

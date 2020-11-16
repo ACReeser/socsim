@@ -34,8 +34,8 @@ import { BrainwashingContent } from './modal-content/Brainwashing';
 
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
-  state: 'Statist', ego: 'Egoist', 
-  trad: 'Traditionalist', prog: 'Progressive', 
+  state: 'Collectivist', ego: 'Independent', 
+  trad: 'Elitist', prog: 'Progressive', 
   circle: 'Brunette', square: 'Blonde', triangle: 'Redhead', 
   book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless',
   hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',

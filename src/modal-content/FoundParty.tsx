@@ -81,11 +81,11 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
               Perfect societies rely on the
               <div>
                 <label>
-                  <input type="radio" name="community" value="state" checked={this.state.community === 'state'} onChange={(e) => this.onCommunity(e.currentTarget.value as TraitCommunity)} /> <b>Government</b> 🐘 {/*🤝*/}
+                  <input type="radio" name="community" value="state" checked={this.state.community === 'state'} onChange={(e) => this.onCommunity(e.currentTarget.value as TraitCommunity)} /> <b>Collective</b> 🕊️ {/* 🐘 🤝*/}
                 </label>
                 &nbsp;&nbsp;or&nbsp;&nbsp;
                 <label>
-                  <input type="radio" name="community" value="ego" checked={this.state.community === 'ego'} onChange={(e) => this.onCommunity(e.currentTarget.value as TraitCommunity)}/> <b>Individual</b> 🦅 {/*✌️*/}
+                  <input type="radio" name="community" value="ego" checked={this.state.community === 'ego'} onChange={(e) => this.onCommunity(e.currentTarget.value as TraitCommunity)}/> <b>Independent</b> 🦅 {/*✌️*/}
                 </label>
               </div>
               &nbsp;
@@ -95,11 +95,11 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
               Perfect beings devote themselves to
               <div>
                 <label>
-                  <input type="radio" name="ideal" value="trad" checked={this.state.ideal === 'trad'} onChange={(e) => this.onIdeal(e.currentTarget.value as TraitIdeals)}/> <b>Traditional</b> {/*🕯️ 🔮*/} 👑
+                  <input type="radio" name="ideal" value="trad" checked={this.state.ideal === 'trad'} onChange={(e) => this.onIdeal(e.currentTarget.value as TraitIdeals)}/> <b>Elitist</b> {/*🕯️ 🔮*/} 👑
                 </label>
                 &nbsp;&nbsp;or&nbsp;&nbsp;
                 <label>
-                  <input type="radio" name="ideal" value="prog" checked={this.state.ideal === 'prog'} onChange={(e) => this.onIdeal(e.currentTarget.value as TraitIdeals)} /> <b>Progressive</b> {/*💡 🔬*/} 🎓
+                  <input type="radio" name="ideal" value="prog" checked={this.state.ideal === 'prog'} onChange={(e) => this.onIdeal(e.currentTarget.value as TraitIdeals)} /> <b>Progressive</b> {/*💡 🔬 🎓*/} ⚖️
                 </label>
               </div>
               &nbsp;
