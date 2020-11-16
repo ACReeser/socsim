@@ -245,6 +245,7 @@ class App extends React.Component<AppPs, AppState>{
                 economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
                 scan={this.scan} insult={this.insult} support={this.support}
                 brainwash={() => this.setState({activeModal:'brainwash'})}
+                gift={() => this.setState({activeModal:'brainwash'})}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
 

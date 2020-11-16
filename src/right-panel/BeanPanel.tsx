@@ -28,6 +28,7 @@ interface BeanPanelP{
     insult: (bean: Bean) => void;
     support: (bean: Bean) => void;
     brainwash: () => void;
+    gift: () => void;
 }
 
 interface BeanPanelS{
@@ -177,22 +178,17 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </div>
             <div className="bean-action-card-parent">
                 <div className="card-parent">
-                    <button type="button" className="button card" onClick={() => this.props.brainwash()} disabled={!this.props.bean.canSupport()}
+                    <button type="button" className="button card" onClick={() => this.props.brainwash()}
                         title="Rewrite one of this being's beliefs"
                     >😵 Brainwash
                         <small>-Psi -Sanity +Belief</small>
                     </button>
                 </div>
                 <div className="card-parent">
-                    <button type="button" disabled={this.props.party.materialCapital < 1} className="button card" onClick={this.scan} 
-                        title="Increase this being's influence">
-                        🧐 Empower
-                        <small>-Psi +Influence</small>
-                    </button>
-                    <button type="button" className="button card" onClick={this.scan} 
-                        title="Increase this being's wealth">
-                        🤑 Gift
-                        <small>-Energy +Money</small>
+                    <button type="button" className="button card"  onClick={() => this.props.brainwash()}
+                        title="Give this being food or meds or cash">
+                        🎁 Gift
+                        <small>-Energy +Things</small>
                     </button>
                 </div>
                 <div className="card-parent">
