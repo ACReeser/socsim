@@ -242,8 +242,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
             }
             this.ticksSinceLastSale++;
             if (this.ticksSinceLastSale > 7){
+                const cityHasOtherWorkers = this.city ? this.city.beans.filter(x => x.job == this.job).length > 1 : false;
                 //underemployment
-                if (Math.random() > 0.5) {
+                if (cityHasOtherWorkers && Math.random() > 0.5) {
                     const newJob = econ.mostInDemandJob();
                     if (newJob)
                         this.job = newJob;
