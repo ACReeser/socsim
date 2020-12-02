@@ -165,7 +165,7 @@ export interface Tile {
 export type TraitCommunity = 'state'|'ego';
 export type TraitIdeals = 'prog'|'trad';
 export type TraitEthno = 'circle'|'square'|'triangle';
-export type TraitFaith = 'book'|'music'|'heart'|'noFaith';
+export type TraitFaith = 'rocket'|'music'|'dragon'|'noFaith';
 export type TraitFood = 'hungry'|'sated'|'stuffed';
 export type TraitShelter = 'podless'|'crowded'|'homeowner';
 export type TraitHealth = 'sick'|'bruised'|'fresh';
@@ -179,8 +179,8 @@ export const TraitIcon: {[key in Trait]: string} = {
     'state': '🕊️', 'ego': '🦅',
     'prog': '⚖️', 'trad': '👑',
     'circle': '🤎', 'square': '💛', 'triangle': '🧡',
-    'book': '', 'music': '', 'heart': '',
-    'noFaith': '',
+    'rocket': '🚀', 'music': '🎵', 'dragon': '🐲',
+    'noFaith': '⚫️',
     'hungry': '🍽️', 'sated': '🥜', 'stuffed': '🥩',
     'podless': '🌨️', 'crowded': '🏘️', 'homeowner': '🏡',
     'sick': '🤢', 'bruised': '🩹', 'fresh': '💪',

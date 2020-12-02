@@ -9,6 +9,7 @@ import { AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./A
 import { Point } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
+import { TraitBelief } from "./Beliefs";
 
 
 const BabyChance = 0.01;
@@ -60,7 +61,8 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public ideals: TraitIdeals = 'trad';
     //other
     public job: TraitJob = 'jobless';
-    public faith?: TraitFaith;
+    public faith: TraitFaith = 'noFaith';
+    public beliefs: TraitBelief[] = [];
     public cash: number = 3;
     public partyLoyalty: number = 0.2;
     /**
@@ -161,7 +163,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     }
     _getTraitMap(){
         let traits = {[this.community]: true, [this.ideals]:  true, [this.ethnicity]: true};
-        if (this.faith)
+        if (this.faith != 'noFaith')
             traits[this.faith] = true;
         return traits;
     }

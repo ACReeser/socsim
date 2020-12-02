@@ -37,7 +37,7 @@ export const keyToName: {[key in Trait|BuildingTypes]: string} = {
   state: 'Collectivist', ego: 'Independent', 
   trad: 'Elitist', prog: 'Progressive', 
   circle: 'Brunette', square: 'Blonde', triangle: 'Redhead', 
-  book: 'Book', heart: 'Heart', music: 'Music', noFaith: 'Faithless',
+  rocket: 'Futuristic', dragon: 'Mythical', music: 'Dramatic', noFaith: 'Nihilistic',
   hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
   podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
   sick: 'Sick', bruised: 'Bruised', fresh: 'Robust',
@@ -332,7 +332,7 @@ class App extends React.Component<AppPs, AppState>{
           {(this.state.activeModal == 'economy'? <EconomyReport world={this.state.world}></EconomyReport> : '')}
         </Modal>
         <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({activeModal: null})}>
-          {(this.state.activeModal == 'brainwash'? <BrainwashingContent world={this.state.world}></BrainwashingContent> : '')}
+          {(this.state.activeModal == 'brainwash'? <BrainwashingContent world={this.state.world} beanID={this.state.activeBeanID}></BrainwashingContent> : '')}
         </Modal>
         <div className="left">
           <div className="top">

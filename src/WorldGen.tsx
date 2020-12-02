@@ -33,7 +33,7 @@ export function RandomEthno(): TraitEthno{
     return GetRandom(['circle','square','triangle']);
 }
 export function RandomFaith(): TraitFaith{
-    return GetRandom(['book','music','heart', 'noFaith']);
+    return GetRandom(['rocket','music','dragon', 'noFaith']);
 }
 export function StartingCash(job: TraitJob): number{
     let base = 4 + Math.floor(Math.random() * 3);

@@ -1,11 +1,13 @@
 import React from "react";
-import { BeliefSubject, BeliefVerb, TraitBelief, BeliefAdjData, Belief } from "../simulation/Beliefs";
+import { BeliefSubject, BeliefVerb, TraitBelief, SecondaryBeliefData, Belief, PrimaryBeliefData, NarrativeBeliefData } from "../simulation/Beliefs";
 import './modals.css';
-import { World } from "../World";
-import { NewBeliefInput } from "./BeliefRow";
+import { TraitIcon, World } from "../World";
+import { AddBeliefInput, EditBeliefInput } from "./BeliefRow";
+import { Bean } from "../simulation/Bean";
 
 export class BrainwashingContent extends React.Component<{
-    world: World
+    world: World,
+    beanID: number|null
 }, {
     newBelief: Belief
 }>{
@@ -15,11 +17,13 @@ export class BrainwashingContent extends React.Component<{
             newBelief: {
                 subject: 'other',
                 verb: 'are',
-                adj: 'afraid'
+                adj: 'Paranoia'
             }
         }
     }
     render(){
+        const bean = this.props.world.beans.find(x => x.key == this.props.beanID);
+        if (bean == null) return;
         return <div>
             <div className="horizontal fancy-header">
                 <div>
@@ -33,38 +37,22 @@ export class BrainwashingContent extends React.Component<{
                 </div>
             </div>
             <div>
-                <div className="horizontal">
-                    <button className="callout grow-0 pad-4 marg-0">
-                        🚿 <small>Warp Belief</small>
-                    </button>
-                    <div>
-                        {/* <BeliefSubjectDropdown options={[{key:'self' as BeliefSubject}, {key:'other' as BeliefSubject}]}
-                        onChange={() => {}}
-                        ></BeliefSubjectDropdown>
-                        <SelfVerbDropdown options={[{key:'are' as BeliefVerb}, {key:'arenot' as BeliefVerb}]}
-                        onChange={() => {}}
-                        ></SelfVerbDropdown>
-                        <BeliefAdjDropdown options={Object.keys(BeliefAdjData).map((x) => {return {key: x as TraitBelief}})}
-                        onChange={() => {}}
-                        ></BeliefAdjDropdown> */}
-                    </div>
-                    <div>
-                        Crime chance +25%
-                    </div>
-                    <div>
-                    </div>
+                <div>
+                    <strong>{bean.name}</strong> believes in:
                 </div>
                 <div className="horizontal">
-                    <button className="callout grow-0 pad-4 marg-0">
-                        💉 <small>Implant Belief</small>
-                    </button>
                     <div>
-                        <NewBeliefInput change={(b)=> {}}></NewBeliefInput>
-                    </div>
-                    <div>
-                        {
-                            BeliefAdjData[this.state.newBelief.adj].description
-                        }
+                        <EditBeliefInput
+                            data={PrimaryBeliefData[bean.community]}
+                        ></EditBeliefInput>
+                        <EditBeliefInput
+                            data={PrimaryBeliefData[bean.ideals]}
+                        ></EditBeliefInput>
+                        <EditBeliefInput
+                            data={NarrativeBeliefData[bean.faith]}
+                        ></EditBeliefInput>
+                        <AddBeliefInput
+                        ></AddBeliefInput>
                     </div>
                 </div>
             </div>

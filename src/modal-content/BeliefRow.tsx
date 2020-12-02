@@ -1,67 +1,70 @@
 import React from "react";
-import { BeliefSubject, BeliefVerb, BeliefAdjData, TraitBelief, Belief, BeliefSubjectOption, BeliefVerbOption, BeliefAdjOption, BeliefsAll, BeliefSubjectAll, BeliefVerbAll } from "../simulation/Beliefs";
+import './beliefs.css';
+import { BeliefSubject, BeliefVerb, SecondaryBeliefData, TraitBelief, Belief, BeliefSubjectOption, BeliefVerbOption, BeliefAdjOption, BeliefsAll, BeliefSubjectAll, BeliefVerbAll, IBeliefData } from "../simulation/Beliefs";
 
 import { BeliefSubjectDropdown, OtherVerbDropdown, SelfVerbDropdown, StringDropdown } from "../widgets/StringDropdown";
 
 export class EditBeliefInput extends React.Component<{
-
+    data: IBeliefData
 }, {
 
 }>{
 
     render(){
-        return <div>
-            
-        </div>
+        return <div className="belief"><div className="horizontal badger">
+            <div className="circular">
+                {this.props.data.icon}
+            </div>
+            <div className="vertical">
+                <div className="text-center">
+                    <strong title={this.props.data.description}>
+                        {this.props.data.noun}
+                    </strong>
+                </div>
+                <small>{this.props.data.description}</small>
+                <div>
+                </div>
+            </div>
+            <button className="callout grow-0 pad-4 marg-0">
+                🚿 <small>Warp</small>
+            </button>
+        </div></div>
     }
 }
 
-interface NewBeliefInputP {
-    change: (b: Belief) => void
-}
-
-export class NewBeliefInput extends React.Component<NewBeliefInputP, {
-    subject: BeliefSubject,
-    verb: BeliefVerb,
-    adj: TraitBelief
+const SortedBeliefs = BeliefsAll.slice().sort((a, b) => a.localeCompare(b));
+export class AddBeliefInput extends React.Component<{
+}, {
+    belief: TraitBelief
 }>{
-    constructor(props: NewBeliefInputP) {
+    constructor(props: any){
         super(props);
         this.state = {
-            subject: 'other',
-            verb: 'are',
-            adj: 'afraid'
+            belief: 'Paranoia'
         }
     }
-    render_verbs_other(){
-        return <OtherVerbDropdown 
-            options={BeliefVerbAll} 
-            value={this.state.verb}
-            onChange={(v) => {this.setState({verb: v});}}
-        ></OtherVerbDropdown>
-    };
-    render_verbs_self(){
-        return <SelfVerbDropdown 
-            options={BeliefVerbAll}
-            value={this.state.verb}
-            onChange={(v) => {this.setState({verb: v});}}
-        ></SelfVerbDropdown>
-    }
-    
     render(){
-        return <div>
-            <BeliefSubjectDropdown options={BeliefSubjectAll} value={this.state.subject}
-            onChange={(e) => { this.setState({subject: e});}}
-            ></BeliefSubjectDropdown>
-            {this.state.subject == 'self' ? this.render_verbs_self(): this.render_verbs_other()}
-            <StringDropdown titleCase={true}
-            options={BeliefsAll} 
-            value={this.state.adj}
-            onChange={(a: string) => {
-                console.log(a);
-                this.setState({adj: a as TraitBelief})
-            }}
-            ></StringDropdown>
-        </div>
+        const data = SecondaryBeliefData[this.state.belief]
+        return <div className="belief"><div className="horizontal badger add">
+            <div className="circular">
+                {data.icon}
+            </div>
+            <div className="vertical">
+                <div className="text-center">                    
+                    <StringDropdown titleCase={true}
+                    options={SortedBeliefs} 
+                    value={this.state.belief}
+                    onChange={(a: string) => {
+                        console.log(a);
+                        this.setState({belief: a as TraitBelief})
+                    }}
+                    ></StringDropdown>
+                </div>
+                <small>{data.description}</small>
+            </div>
+            <button className="callout grow-0 pad-4 marg-0">
+                💉 <small>Implant</small>
+            </button>
+        </div></div>
     }
 }

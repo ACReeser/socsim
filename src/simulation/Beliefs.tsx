@@ -1,17 +1,28 @@
-import { TraitCommunity, TraitIdeals } from "../World";
+import { TraitCommunity, TraitFaith, TraitIdeals } from "../World";
 
-export type TraitBelief = 'diligent'| //125% productive
-'talkative'| // 100% chance to stop and talk
-'athletic'| // takes less health damage
-'parental'| // increased % of having kids
-'open-minded'| // beliefs are easily changed
-'afraid'| // takes extra sanity damage
-'partisan'| // doesn't like beings that don't share ideals 
-'friendly'| // likes all beings more
-'chaotic'| // breaks rules easily
-'optimistic'| // extra happiness
-'realistic'| // lower happiness
-'greedy'; // steal easier
+export type TraitBelief = 'Diligence'| // happy from work
+'Natalism'| // increased % of having kids
+'Authority'| 
+'Hedonism'| 
+'Tribalism'| 
+'Globalism'| 
+'Pacifism'| 
+'Neuroticism'| // takes extra sanity damage
+'Dogmatism'| 
+'Mysticism'| 
+'Paranoia'| 
+'Evangelism'| 
+'Fanaticism'| // doesn't like beings that don't share narrative 
+'Anarchism'| // breaks rules easily
+'Sadism'| 
+'Charity'| // % to donate
+'Greed'; // steal easier
+
+// 'talkative'|
+// 'friendly'| // likes all beings more
+// 'realistic'| // lower happiness
+// 'athletic'| // takes less health damage
+// 'open-minded'| // beliefs are easily changed
 
 export type BeliefSubject = 'self'|'other';
 export const BeliefSubjectText: {[key in BeliefSubject]: string} ={
@@ -38,48 +49,102 @@ export const BeliefVerbText: BeliefSubjectVerbTree ={
         arenot: 'cannot be'
     }
 }
-export interface BeliefData {
-    text: string,
-    description?: BeliefSubjectVerbTree,
-    community?: TraitCommunity,
-    ideal?: TraitIdeals
+export interface IBeliefData {
+    noun: string,
+    adj: string,
+    icon: string,
+    description?: string,
+    idealPro?: Array<TraitIdeals|TraitCommunity>,
+    idealCon?: Array<TraitIdeals|TraitCommunity>
 }
-export const BeliefAdjData: {[key in TraitBelief]: BeliefData} = {
-    diligent: {
-        text: 'Diligent'
+export const PrimaryBeliefData: {[key in TraitIdeals|TraitCommunity]: IBeliefData} = {
+    prog: {
+        noun: 'Progressivism', adj: 'Progressive', icon: '⚖️'
     },
-    greedy: {
-        text: 'Greedy'
+    trad: {
+        noun: 'Elitism', adj: 'Elitist', icon: '👑'
     },
-    afraid: {
-        text: 'Afraid'
+    state: {
+        noun: 'Collectivism', adj: 'Collectivist', icon: '🕊️'
     },
-    athletic: {
-        text: 'Athletic'
+    ego: {
+        noun: 'Independence', adj: 'Independent', icon: '🦅'
     },
-    chaotic: {
-        text: 'Chaotic'
+}
+export const NarrativeBeliefData: {[key in TraitFaith]: IBeliefData} = {
+    rocket: {
+        noun: 'Futurism', adj: 'Futuristic', icon: '🚀',
+        description: "Enjoys stories about the far future"
     },
-    friendly: {
-        text: 'Friendly'
+    dragon: {
+        noun: 'Mythology', adj: 'Mythical', icon: '🐲',
+        description: "Enjoys stories about the legendary past"
     },
-    optimistic: {
-        text: 'Optimistic'
+    music: {
+        noun: 'Drama', adj: 'Dramatic', icon: '🎵',
+        description: "Enjoys stories about emotional bonding"
     },
-    "open-minded": {
-        text: 'Open-Minded'
+    noFaith: {
+        noun: 'Nihilism', adj: 'Nihilist', icon: '⚫️',
+        description: "Derives no pleasure from fairy tales"
     },
-    parental: {
-        text: 'Parental'
+}
+export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
+    Diligence: {
+        noun: 'Diligence', adj: 'Diligence', icon: '💪',
+        description: "🎲 to gain 🙂 while working"
     },
-    partisan: {
-        text: 'Partisan'
+    Greed: {
+        noun: 'Greed', adj: 'Greedy', icon: '💰',
+        description: "+10% Crime 🎲"
     },
-    realistic: {
-        text: 'Realistic'
+    Neuroticism: {
+        noun: 'Neuroticism', adj: 'Neurotic', icon: '😱',
+        description: "🎲 to 👎 in any conversation"
     },
-    talkative: {
-        text: 'Talkative'
+    Anarchism: {
+        noun: 'Anarchism', adj: 'Anarchist', icon: '🖕',
+        description: "+33% Crime 🎲"
+    },
+    Charity: {
+        noun: 'Charity', adj: 'Charitable', icon: '😇',
+        description: "🎲 to gift 💰 to the penniless"
+    },
+    Globalism: {
+        noun: 'Globalism', adj: 'Globalist', icon: '🌍'
+    },
+    Natalism: {
+        noun: 'Natalism', adj: 'Natalist', icon: '👶'
+    },
+    Authority: {
+        noun: 'Authority', adj: 'Authoritarian', icon: '👢'
+    },
+    Hedonism: {
+        noun: 'Hedonism', adj: 'Hedonistic', icon: '💋'
+    },
+    Tribalism: {
+        noun: 'Tribalism', adj: 'Tribal', icon: '🏰'
+    },
+    Dogmatism: {
+        noun: 'Dogmatism', adj: 'Dogmatic', icon: '🐶'
+    },
+    Mysticism: {
+        noun: 'Mysticism', adj: 'Mystical', icon: '🔮'
+    },
+    Pacifism: {
+        noun: 'Pacifism', adj: 'Pacifist', icon: '😘'
+    },
+    Paranoia: {
+        noun: 'Paranoia', adj: 'Paranoid', icon: '👽'
+    },
+    Evangelism: {
+        noun: 'Evangelism', adj: 'Evangelist', icon: '📣'
+    },
+    Fanaticism: {
+        noun: 'Fanaticism', adj: 'Fanatical', icon: '👺'
+    },
+    Sadism: {
+        noun: 'Sadism', adj: 'Sadistic', icon: '😈'
     },
 };
 
@@ -89,7 +154,7 @@ export interface BeliefAdjOption {key: TraitBelief};
 
 export const BeliefSubjectAll: BeliefSubject[] = ['self', 'other'];
 export const BeliefVerbAll: BeliefVerb[] = ['are', 'arenot'];
-export const BeliefsAll = Object.keys(BeliefAdjData).map((x) => x as TraitBelief);
+export const BeliefsAll = Object.keys(SecondaryBeliefData).map((x) => x as TraitBelief);
 
 export interface Belief{
     subject: BeliefSubject;

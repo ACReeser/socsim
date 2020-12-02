@@ -273,7 +273,7 @@ export interface IBean{
     community: TraitCommunity;
     ideals: TraitIdeals;
     ethnicity: TraitEthno;
-    faith?: TraitFaith;
+    faith: TraitFaith;
     shelter: TraitShelter;
     health: TraitHealth;
     discrete_food: number;

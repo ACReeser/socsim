@@ -1,0 +1,35 @@
+.circular{
+    border-radius: 100%;
+    border: 1px solid black;
+    font-size: 2em;
+    width: 2em;
+    height: 2em;
+    display: block;
+    flex-grow: 0;
+    text-align: center;
+    line-height: 2em;
+    margin-left: -0.75em;
+    background: white;
+}
+.badger{
+    border-radius: 10px;
+    border: 1px solid grey;
+    margin-left: 1.5em;
+}
+.badger.add{
+    border-style: dashed;
+}
+
+.belief{
+    /* width: 300px; */
+    display: inline-block;
+    margin-right: 2px;
+    height: 4em;
+}
+.belief small{
+    font-size: 11px;
+}
+.belief button{
+    border-radius: 10px;
+    width: 54px;
+}
