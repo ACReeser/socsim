@@ -3,6 +3,7 @@ import { Bean } from './simulation/Bean';
 import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './simulation/Politics';
 import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint } from './simulation/Geography';
 import { City } from './simulation/City';
+import { BeliefsAll } from './simulation/Beliefs';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -177,6 +178,10 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
+    const beanBeliefCount = Math.ceil(Math.random() * 2);
+    for (let i = 0; i < beanBeliefCount; i++) {
+        newBean.beliefs.push(GetRandom(BeliefsAll));
+    }
     const mod = previousBeanCount % 3;
     newBean.job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
     //newBean.job = GetRandom(['farmer','builder','doc']);

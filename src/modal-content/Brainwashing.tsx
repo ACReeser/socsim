@@ -51,6 +51,12 @@ export class BrainwashingContent extends React.Component<{
                         <EditBeliefInput
                             data={NarrativeBeliefData[bean.faith]}
                         ></EditBeliefInput>
+                        {
+                            bean.beliefs.map((b) => <EditBeliefInput
+                                data={SecondaryBeliefData[b]}
+                            >
+                            </EditBeliefInput>)
+                        }
                         <AddBeliefInput
                         ></AddBeliefInput>
                     </div>
