@@ -43,21 +43,26 @@ export class BrainwashingContent extends React.Component<{
                 <div className="horizontal">
                     <div>
                         <EditBeliefInput
+                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0}
                             data={PrimaryBeliefData[bean.community]}
                         ></EditBeliefInput>
                         <EditBeliefInput
+                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0}
                             data={PrimaryBeliefData[bean.ideals]}
                         ></EditBeliefInput>
                         <EditBeliefInput
+                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0}
                             data={NarrativeBeliefData[bean.faith]}
                         ></EditBeliefInput>
                         {
                             bean.beliefs.map((b) => <EditBeliefInput
+                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_secondary.psi || 0}
                                 data={SecondaryBeliefData[b]}
                             >
                             </EditBeliefInput>)
                         }
-                        <AddBeliefInput
+                        <AddBeliefInput 
+                            cost={this.props.world.alien.difficulty.cost.bean.brainimplant_secondary.psi || 0}
                         ></AddBeliefInput>
                     </div>
                 </div>

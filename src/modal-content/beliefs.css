@@ -8,28 +8,34 @@
     flex-grow: 0;
     text-align: center;
     line-height: 2em;
-    margin-left: -0.75em;
     background: white;
 }
 .badger{
     border-radius: 10px;
     border: 1px solid grey;
     margin-left: 1.5em;
+    height: 100%;
 }
 .badger.add{
     border-style: dashed;
+}
+.badger > div:first-child{
+    margin-left: -1.7em;
 }
 
 .belief{
     /* width: 300px; */
     display: inline-block;
     margin-right: 2px;
-    height: 4em;
+    height: 5em;
+    margin-bottom: 6px;
+    margin-left: 1em;
 }
 .belief small{
     font-size: 11px;
 }
 .belief button{
     border-radius: 10px;
-    width: 54px;
+    margin-top: -12px;
+    padding: 2px;
 }

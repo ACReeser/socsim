@@ -3,7 +3,7 @@ import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
 export type PlayerHexAction = 'kidnap';
-export type PlayerBeanAction = 'scan'|'brainwash'|'abduct'|'disappear'|'siphon'|'empower'|'gift';
+export type PlayerBeanAction = 'scan'|'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary'|'abduct'|'disappear'|'siphon'|'empower'|'gift';
 export type PlayerGovernmentAction = '';
 export type PlayerAction = PlayerHexAction|PlayerBeanAction;
 
@@ -78,7 +78,9 @@ export const DefaultDifficulty: IDifficulty = {
             scan: {
                 energy: 1
             },
-            brainwash: {},
+            ['brainwash_ideal']: { psi: 4},
+            ['brainimplant_secondary']: { psi: 3},
+            ['brainwash_secondary']: {psi: 2},
             abduct: {},
             gift: {},
             empower: {},
