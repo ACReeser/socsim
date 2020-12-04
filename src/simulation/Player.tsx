@@ -101,6 +101,14 @@ export class Player implements IPlayerData, IProgressable{
         }
     }
 
+    public tryPurchase(cost: ResourceTriad): boolean{
+        if (this.canAfford(cost)){
+            this.purchase(cost);
+            return true;
+        }
+        return false;
+    }
+
     public reward(reward: ResourceTriad){
         if (reward.bots){
             this.bots.amount += reward.bots;

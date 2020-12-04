@@ -27,7 +27,6 @@ interface BeanPanelP{
     bus: EventBus
     scan: (bean: Bean) => boolean;
     insult: (bean: Bean) => void;
-    support: (bean: Bean) => void;
     brainwash: () => void;
     gift: () => void;
 }
@@ -56,7 +55,6 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         this._resetFace();
     }
     support = () => {
-        this.props.support(this.props.bean);
         this.setState({faceOverride: '🤩'});
         this._resetFace();
     }
@@ -120,14 +118,15 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     }
     renderTraits(){
         if (this.scanned){
+            const brainwash = this.props.brainwash.bind(this);
             return <div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.faith, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.faith, brainwash)}
                 </div>
                 <div className="card-parent">
-                    {TraitToCard(this.props.bean, this.props.bean.ideals, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.community, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.ideals, brainwash)}
+                    {TraitToCard(this.props.bean, this.props.bean.community, brainwash)}
                 </div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.food, undefined)}

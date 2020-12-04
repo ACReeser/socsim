@@ -8,8 +8,10 @@ import { IDifficulty } from "../Game";
 
 export class EditBeliefInput extends React.Component<{
     data: IBeliefData,
+    frozen?: boolean,
+    available: number,
     cost: number,
-    frozen?: boolean
+    wash: () => void
 }, {
 
 }>{
@@ -21,7 +23,7 @@ export class EditBeliefInput extends React.Component<{
                     {this.props.data.icon}
                 </div>
                 {
-                    this.props.frozen ? null : <button className="callout pad-4 marg-0">
+                    this.props.frozen ? null : <button className="callout pad-4 marg-0" disabled={this.props.available < this.props.cost} onClick={this.props.wash}>
                     🚿 <small>Wash</small>
                     </button>
                 }
@@ -49,7 +51,9 @@ export class EditBeliefInput extends React.Component<{
 
 const SortedBeliefs = BeliefsAll.slice().sort((a, b) => a.localeCompare(b));
 export class AddBeliefInput extends React.Component<{
-    cost: number
+    available: number,
+    cost: number,
+    add: (b: TraitBelief) => void
 }, {
     belief: TraitBelief,
 }>{
@@ -66,7 +70,8 @@ export class AddBeliefInput extends React.Component<{
                 <div className="circular">
                     {data.icon}
                 </div>
-                <button className="callout grow-0 pad-4 marg-0">
+                <button className="callout grow-0 pad-4 marg-0" disabled={this.props.available < this.props.cost} 
+                    onClick={() => this.props.add(this.state.belief)}>
                     💉 <small>Implant</small>
                 </button>
             </div>

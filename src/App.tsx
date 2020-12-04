@@ -1,8 +1,8 @@
 import React from 'react';
 import './App.css';
 import './chrome/chrome.css';
-import { World, TraitGood, Axis, Trait } from './World';
-import { GenerateWorld, GeneratePartyHQ, GenerateBuilding, GenerateBean } from './WorldGen';
+import { World, TraitGood, Axis, Trait, TraitCommunity, TraitIdeals, TraitFaith } from './World';
+import { GenerateWorld, GeneratePartyHQ, GenerateBuilding, GenerateBean, GetRandom } from './WorldGen';
 import { Modal } from './widgets/Modal';
 import { OverviewPanel } from './right-panel/OverviewPanel';
 import { Bean } from './simulation/Bean';
@@ -31,6 +31,7 @@ import { BuildingTypes, HexPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
+import { TraitBelief } from './simulation/Beliefs';
 
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
@@ -218,6 +219,49 @@ class App extends React.Component<AppPs, AppState>{
       return false;
     }
   }
+  washCommunity = (bean: Bean, a: TraitCommunity) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)){
+      if (bean.community === 'ego')
+        bean.community = 'state';
+      else bean.community = 'ego';
+      this.setState({world: this.state.world});
+      return true;
+    }
+  }
+  washMotive = (bean: Bean, a: TraitIdeals) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)){
+      if (bean.ideals === 'prog')
+        bean.ideals = 'trad';
+      else bean.ideals = 'prog';
+      this.setState({world: this.state.world});
+      return true;
+    }
+  }
+  washNarrative = (bean: Bean, a: TraitFaith) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)){
+      const oldFaith = bean.faith;
+      while (bean.faith === oldFaith)
+        bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
+      this.setState({world: this.state.world});
+      return true;
+    }
+  }
+  washBelief = (bean: Bean, a: TraitBelief) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_secondary)){
+      bean.beliefs.splice(
+        bean.beliefs.indexOf(a), 1
+      );
+      this.setState({world: this.state.world});
+      return true;
+    }
+  }
+  implantBelief = (bean: Bean, a: TraitBelief) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainimplant_secondary)){
+      bean.beliefs.push(a);
+      this.setState({world: this.state.world});
+      return true;
+    }
+  }
   setPolicy = (axis: Axis, policy: IPolicy) => {
     this.state.world.party.platform[axis] = policy;
     this.state.world.calculateComputedState();
@@ -243,7 +287,7 @@ class App extends React.Component<AppPs, AppState>{
               if (bean)
                 return <BeanPanel bean={bean} city={city} alien={this.state.world.alien} 
                 economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
-                scan={this.scan} insult={this.insult} support={this.support}
+                scan={this.scan} insult={this.insult}
                 brainwash={() => this.setState({activeModal:'brainwash'})}
                 gift={() => this.setState({activeModal:'brainwash'})}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
@@ -332,7 +376,14 @@ class App extends React.Component<AppPs, AppState>{
           {(this.state.activeModal == 'economy'? <EconomyReport world={this.state.world}></EconomyReport> : '')}
         </Modal>
         <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({activeModal: null})}>
-          {(this.state.activeModal == 'brainwash'? <BrainwashingContent world={this.state.world} beanID={this.state.activeBeanID}></BrainwashingContent> : '')}
+          {(this.state.activeModal == 'brainwash'? <BrainwashingContent 
+            world={this.state.world} beanID={this.state.activeBeanID}
+            washCommunity={this.washCommunity}
+            washMotive={this.washMotive}
+            washNarrative={this.washNarrative}
+            washBelief={this.washBelief}
+            implantBelief={this.implantBelief}>
+          </BrainwashingContent> : '')}
         </Modal>
         <div className="left">
           <div className="top">
