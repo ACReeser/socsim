@@ -35,8 +35,8 @@ export class EditBeliefInput extends React.Component<{
                     </strong>
                     <span className="pull-r">{this.props.cost}🧠</span>
                 </div>
-                <small>{this.props.data.description}</small>
-                <div className="flex-g-1 text-center">
+                <small className="marg-b-6">{this.props.data.description}</small>
+                <div className="grow-1 text-center">
                     {
                         (this.props.data.idealPro || []).map((x) => <span className="pos badge align-mid">+{TraitIcon[x]}</span>)
                     }
@@ -87,8 +87,8 @@ export class AddBeliefInput extends React.Component<{
                     ></StringDropdown>
                     <span className="pull-r">{this.props.cost}🧠</span>
                 </div>
-                <small>{data.description}</small>
-                <div className="flex-g-1 text-center">
+                <small className="marg-b-6">{data.description}</small>
+                <div className="grow-1 text-center">
                     {
                         (data.idealPro || []).map((x) => <span className="pos badge align-mid">+{TraitIcon[x]}</span>)
                     }

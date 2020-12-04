@@ -105,7 +105,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     beliefTable(beliefs: TraitBelief[]): React.ReactNode {
         return beliefs.map((b) => <table className="width-100p" key={b}><tbody><tr>
             <th className="text-left">
-                {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].noun}
+                {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
             </th>
             <td className="text-right">
                 {(SecondaryBeliefData[b].idealPro || []).map(y => <span>+{TraitIcon[y]}</span>)}
