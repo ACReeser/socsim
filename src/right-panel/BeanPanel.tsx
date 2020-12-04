@@ -1,5 +1,5 @@
 import React from "react";
-import { IHappinessModifier } from "../World";
+import { IHappinessModifier, TraitIcon } from "../World";
 import { keyToName } from "../App";
 import { Bean } from "../simulation/Bean";
 import { NeedReadout } from "../widgets/NeedReadout";
@@ -14,6 +14,7 @@ import { CardButton, TraitToCard } from "../widgets/CardButton";
 
 import './BeanPanel.css';
 import { ActivityIcon, GetPriorities } from "../simulation/Agent";
+import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 
 interface BeanPanelP{
     city: City,
@@ -76,16 +77,17 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         if (!this.scanned){
             return <div className="width-100p text-center">
                 <small>
-                    Subject need a Scan to reveal their thoughts
+                    Subject needs a Scan to reveal their thoughts
                 </small>
             </div>
         }
         switch(this.state.innerView){
+            case 'beliefs':
+                return this.scanned ? this.beliefTable(this.props.bean.beliefs) : null
             case 'feelings':
                 return <table className="width-100p"><tbody>
                     {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
                     {/* {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null} */}
-
                     </tbody>
                 </table>
             case 'priorities':
@@ -102,6 +104,17 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </table>
         }
     }
+    beliefTable(beliefs: TraitBelief[]): React.ReactNode {
+        return beliefs.map((b) => <table className="width-100p" key={b}><tbody><tr>
+            <th className="text-left">
+                {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].noun}
+            </th>
+            <td className="text-right">
+                {(SecondaryBeliefData[b].idealPro || []).map(y => <span>+{TraitIcon[y]}</span>)}
+                {(SecondaryBeliefData[b].idealCon || []).map(y => <span>-{TraitIcon[y]}</span>)}
+            </td>
+    </tr><tr><td className="small text-center" colSpan={2}>{SecondaryBeliefData[b].description}</td></tr></tbody></table>);
+    }
     get scanned(){
         return this.props.alien.scanned_bean[this.props.bean.key];
     }
@@ -110,7 +123,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             return <div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.sanity, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.faith, undefined)}
                 </div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.ideals, undefined)}

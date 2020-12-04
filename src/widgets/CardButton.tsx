@@ -2,6 +2,7 @@ import { ReactComponent } from "*.svg";
 import React from "react";
 import { keyToName } from "../App";
 import { Bean } from "../simulation/Bean";
+import { NarrativeBeliefData, PrimaryBeliefData } from "../simulation/Beliefs";
 import { Trait, TraitIcon } from "../World";
 
 export class CardButton extends React.Component<{
@@ -30,12 +31,13 @@ export class CardButton extends React.Component<{
 
 export function TraitToCard(bean: Bean, trait: Trait, onClick?: () => void){
     switch(trait){
-        case 'ego':
-        case 'state':
-        case 'fresh':
-        case 'sick':
         case 'trad':
         case 'prog':
+        case 'ego':
+        case 'state':
+            return <CardButton icon={TraitIcon[trait]} title={PrimaryBeliefData[trait].description} name="" subtext={keyToName[trait]} thin={true} singleLine={true} onClick={onClick}></CardButton>
+        case 'fresh':
+        case 'sick':
         case 'hungry':
         case 'stuffed':
         case 'podless':
@@ -47,6 +49,11 @@ export function TraitToCard(bean: Bean, trait: Trait, onClick?: () => void){
         case 'confused':
         case 'mad':
             return <CardButton icon={TraitIcon[trait]} title={keyToName[trait]} name="" subtext={keyToName[trait]} thin={true} singleLine={true} onClick={onClick}></CardButton>
+        case 'noFaith':
+        case 'rocket':
+        case 'dragon':
+        case 'music':
+            return <CardButton icon={TraitIcon[trait]} title={NarrativeBeliefData[trait].description} name="" subtext={keyToName[trait]} thin={true} singleLine={true} onClick={onClick}></CardButton>
         default:
             return null;
     }

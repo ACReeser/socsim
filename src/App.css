@@ -170,6 +170,9 @@ button.pull-r{
   vertical-align: baseline;
   vertical-align: -webkit-baseline-middle;
 }
+.text-left{
+  text-align: left;
+}
 .text-center{
   text-align: center;
 }
@@ -410,7 +413,7 @@ ul.boxes li{
   margin-left: 4px;
 }
 
-td.small{
+td.small, th.small{
   font-size: 11px;
 }
 table.classic{
