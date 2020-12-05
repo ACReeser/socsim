@@ -1,6 +1,7 @@
 import { ChangePubSub } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, ResourceTriad } from "../Game";
 import { World } from "../World";
+import { Number_Starting_City_Pop } from "../WorldGen";
 import { IDate } from "./Time";
 
 
@@ -50,7 +51,9 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     }, 
     kidnap_3: {
         key: 'kidnap_3', text: 'Kidnap 3 new beings', 
-        check: (world) => false
+        check: (world) => {
+            return world.beans.filter(b => !b.bornInPetri).length > (3 + Number_Starting_City_Pop)
+        }
     }, 
     scan: {
         key: 'scan', text: 'Scan a Subject',

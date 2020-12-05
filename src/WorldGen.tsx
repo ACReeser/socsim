@@ -116,7 +116,7 @@ export function GeneratePartyHQ(city: City, party: Party) {
     
 }
 
-const Number_Starting_City_Pop = 3;
+export const Number_Starting_City_Pop = 3;
 export function GenerateCity(previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;

@@ -17,6 +17,7 @@ interface AnimatedBeanS{
   spin: boolean;
   face: string;
   good?: string;
+  speech?: string;
 }
 
 function BeanIsBuying(bean: Bean){
@@ -40,7 +41,8 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
         point: this.props.bean.city ? this.props.bean.city.movers.bean[this.props.bean.key] : {x: 0, y: 0},
         spin: this.props.bean.state.data.act == 'work',
         face: this.props.bean.getFace(),
-        good: BeanIsBuying(this.props.bean) ? GoodIcon[this.props.bean.state.data.good || 'food'] : undefined
+        good: BeanIsBuying(this.props.bean) ? GoodIcon[this.props.bean.state.data.good || 'food'] : undefined,
+        speech: this.props.bean.getSpeech()
       })
     }
     delaySeedSec: number;
@@ -58,6 +60,13 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
         return <span className="purchase">
           <span className="money">💸</span>
           <span className="purchase-good">{this.state.good}</span>
+        </span>
+      }
+    }
+    getSpeech(){
+      if (this.state.speech){
+        return <span className="speech">
+          <span className="">{this.state.speech}</span>
         </span>
       }
     }
@@ -85,7 +94,7 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
           style={style} title={title}
           onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
         >
-          {this.state.face} {this.getPurchase()}
+          {this.state.face} {this.getPurchase()} {this.getSpeech()}
         </span>
       )
     }

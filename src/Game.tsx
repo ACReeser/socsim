@@ -71,7 +71,7 @@ export const DefaultDifficulty: IDifficulty = {
         },
         hex: {
             kidnap: {
-                energy: 4
+                energy: 3
             },
         },
         bean: {

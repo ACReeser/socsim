@@ -86,6 +86,7 @@ export class City extends Geography implements Tile, IBeanContainer {
         bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
+        bean.bornInPetri = true;
         if (this.environment)
             bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day};
         this.historicalBeans.push(bean);

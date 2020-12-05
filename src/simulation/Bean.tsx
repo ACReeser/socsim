@@ -9,18 +9,18 @@ import { AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover 
 import { Point } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
-import { TraitBelief } from "./Beliefs";
+import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 
 
 const BabyChance = 0.01;
 export const DaysUntilSleepy = 7;
-const DaysUntilHomeless = DaysUntilSleepy * 2;
 const ChatCooldownMS = 4000;
 export class Bean implements IBean, ISeller, IMover, IAgent{
     public key: number = 0;
     public cityKey: number = 0;
     public alive: boolean = true;
     public dob: IDate = {year: 0, season: 0, day: 1};
+    public bornInPetri: boolean = false;
     public name: string = 'Human Bean';
     public sanity: TraitSanity = 'sane'
     public discrete_sanity: number = 10;
@@ -205,6 +205,14 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (this.canBaby(costOfLiving))
             return {bad: false, idea: '👶'};
         return null;        
+    }
+    getSpeech(): string | undefined {
+        if (this.state.data.act === 'chat'){
+            if (this.state.data.chat?.participation === 'speaker' && this.state.data.chat.preachBelief){
+                return '💬'+SecondaryBeliefData[this.state.data.chat.preachBelief].icon;
+            }
+        }
+        return undefined;
     }
     getCrimeDecision(
         good: TraitGood,
