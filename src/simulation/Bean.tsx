@@ -5,7 +5,7 @@ import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
 import { IDate, withinLastYear } from "./Time";
 import { Government } from "./Government";
-import { AgentState, IActivityData, IAgent, IBean, IdleState, IMover } from "./Agent";
+import { AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover } from "./Agent";
 import { Point } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
@@ -176,6 +176,9 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (this.state.data.act == 'crime'){
             return '😈';
         }
+        if (this.state.data.act == 'chat'){
+            return this.state.data.chat?.participation === 'speaker' ? '😃' : '🤨';
+        }
         if (this.food == 'hungry')
             return '😫';
         if (this.health == 'sick')
@@ -225,6 +228,26 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     }
     canSupport(): boolean{
         return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastApprovalDate));
+    }
+    public maybeChat(): boolean {
+        const roll = Math.random();
+        const chance = (this.community === 'state') ? 0.1 : 0.05;
+        return roll < chance;
+    }
+    public getRandomChat(nearby: Bean[]): IChatData {
+        const canPreach = this.beliefs.length;
+        if (canPreach){
+            return {
+                participation: 'speaker',
+                type: 'preach',
+                preachBelief: GetRandom(this.beliefs)
+            }
+        } else {
+            return {
+                participation: 'speaker',
+                type: 'praise'
+            }
+        }
     }
     work(law: Government, econ: Economy) {
         if (this.job == 'jobless'){

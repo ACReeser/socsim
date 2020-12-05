@@ -117,4 +117,15 @@ export class City extends Geography implements Tile, IBeanContainer {
             this.majorityEthnicity = 'triangle';
         }
     }
+    getNearestNeighbors(source: Bean): Bean[] {
+        return this.beans.filter((b) => {
+            if (b.key == source.key) return false;
+
+            const p = this.movers.bean[b.key];
+            const q = this.movers.bean[source.key];
+            const squared = Math.pow(p.x - q.x, 2)+Math.pow(p.y - q.y, 2);
+
+            return squared < 3600 && squared > 400;
+        });
+    }
 }

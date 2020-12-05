@@ -8,6 +8,7 @@ import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
 import { IDifficulty } from "../Game";
+import { TraitBelief } from "./Beliefs";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
 
@@ -27,6 +28,21 @@ export interface IActivityData {
     good?: TraitGood; //good to buy or work
     timeSpent?: number; //time spent on this action
     travel?: Travel;
+    chat?: IChatData;
+}
+
+export interface IChatData{
+    participation: 'speaker'|'listener';
+    type: 'praise'|'bully'|'preach';
+    preachBelief?: TraitBelief;
+    /**
+     * strength of the preacher's persuasion
+     */
+    persuasionStrength?: number;
+    /**
+     * target key of the bean who is targeted for praise or bully
+     */
+    targetBeanKey?: number;
 }
 
 export interface IAgent {
@@ -98,10 +114,10 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
 }
 
 export class TravelState extends AgentState{
-    static createFromIntent(agent: IAgent, intent: IActivityData){
+    static createFromIntent(agent: IAgent, intent: IActivityData): TravelState{
         return this.createFromDestination(IntentToDestination(agent, intent), intent);
     }
-    static createFromDestination(destinations: Point[], intent: IActivityData){ 
+    static createFromDestination(destinations: Point[], intent: IActivityData): TravelState{ 
         return new TravelState({act: 'travel', destinations: destinations, intent: intent});
     }
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
@@ -122,6 +138,15 @@ export class TravelState extends AgentState{
                 return ActToState[this.data.intent.act](this.data.intent);
             else
                 return IdleState.create();
+        } else if (agent instanceof Bean && agent.city) {
+            const nearby = agent.city.getNearestNeighbors(agent).filter((nn) => nn.state.data.act != 'chat');
+            if (nearby.length && agent.maybeChat()){
+                const chat: IChatData = agent.getRandomChat(nearby);
+                nearby.forEach((z) => z.state = ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
+                return ChatState.create(this.data, chat);
+            } else {
+                return this;
+            }
         } else {
             return this;
         }
@@ -173,10 +198,20 @@ export class BuyState extends AgentState{
     }
 }
 export class ChatState extends AgentState{
-    static create(intent: IActivityData){ return new ChatState({act: 'chat', intent: intent})}
+    static create(intent: IActivityData|undefined, chat: IChatData){ 
+        return new ChatState({act: 'chat', intent: intent, chat: chat})
+    }
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         
+        if (this.Elapsed > 1000 && this.data.intent){
+            return TravelState.createFromIntent(agent, this.data.intent);
+        }
         return this;
+    }
+    exit(agent: IAgent){
+        if (this.data.chat){
+
+        }
     }
 }
 export class CrimeState extends AgentState{
@@ -210,12 +245,14 @@ export const GetPriority = {
             return 0;
         }
         else if (bean.city){
+            //beans with no inventory prioritize work higher
             let inventory_priority = 99;
             if (bean.city.economy){
-                let quant = bean.city.economy.market.getBeansListings(bean, JobToGood(bean.job))?.quantity || 0;
+                const quant = bean.city.economy.market.getBeansListings(bean, JobToGood(bean.job))?.quantity || 0;
                 inventory_priority = quant;
             }
-            let wealth_priority = bean.cash / bean.city.costOfLiving / 2;
+            //beans with lots of cash prioritize work higher
+            const wealth_priority = bean.cash / bean.city.costOfLiving / 2;
             return Math.min(inventory_priority, wealth_priority);
         } else {
             return 0;
