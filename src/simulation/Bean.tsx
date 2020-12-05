@@ -15,6 +15,7 @@ import { TraitBelief } from "./Beliefs";
 const BabyChance = 0.01;
 export const DaysUntilSleepy = 7;
 const DaysUntilHomeless = DaysUntilSleepy * 2;
+const ChatCooldownMS = 4000;
 export class Bean implements IBean, ISeller, IMover, IAgent{
     public key: number = 0;
     public cityKey: number = 0;
@@ -82,6 +83,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public lastApprovalDate: IDate = {year: -1, season: 0, day: 0};
     public lastInsultDate: IDate = {year: -1, season: 0, day: 0};
     public fairGoodPrice: number = 1;
+    public lastChatMS: number = Date.now();
     get isInCrisis(): boolean{
         return this.food == 'hungry' ||
         this.shelter == 'podless' ||
@@ -230,8 +232,12 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastApprovalDate));
     }
     public maybeChat(): boolean {
+        if (this.lastChatMS + ChatCooldownMS > Date.now()) 
+            return false;
+        if (this.state.data.act === 'chat')
+            return false;
         const roll = Math.random();
-        const chance = (this.community === 'state') ? 0.1 : 0.05;
+        const chance = (this.community === 'state') ? 0.2 : 0.1;
         return roll < chance;
     }
     public getRandomChat(nearby: Bean[]): IChatData {

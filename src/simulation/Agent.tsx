@@ -51,7 +51,7 @@ export interface IAgent {
     jobQueue: PriorityQueue<AgentState>;
 }
 export function ChangeState(agent: IAgent, newState: AgentState){
-    if ((agent as any)['key'] === 0)
+    //if ((agent as any)['key'] === 0)
     //console.log(`from ${agent.state.data.act} to ${newState.data.act} in ${agent.state.Elapsed}`);
     agent.state.exit(agent);
     agent.state = newState;
@@ -139,10 +139,13 @@ export class TravelState extends AgentState{
             else
                 return IdleState.create();
         } else if (agent instanceof Bean && agent.city) {
-            const nearby = agent.city.getNearestNeighbors(agent).filter((nn) => nn.state.data.act != 'chat');
+            const nearby = agent.city.getNearestNeighbors(agent);
             if (nearby.length && agent.maybeChat()){
-                const chat: IChatData = agent.getRandomChat(nearby);
-                nearby.forEach((z) => z.state = ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
+                const targets = nearby.filter((nn) => nn.maybeChat());
+                if (targets.length < 1)
+                    return this;
+                const chat: IChatData = agent.getRandomChat(targets);
+                targets.forEach((z) => z.state = ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
                 return ChatState.create(this.data, chat);
             } else {
                 return this;
@@ -209,8 +212,8 @@ export class ChatState extends AgentState{
         return this;
     }
     exit(agent: IAgent){
-        if (this.data.chat){
-
+        if (agent instanceof Bean && this.data.chat){
+            agent.lastChatMS = Date.now();
         }
     }
 }

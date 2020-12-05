@@ -125,7 +125,7 @@ export class City extends Geography implements Tile, IBeanContainer {
             const q = this.movers.bean[source.key];
             const squared = Math.pow(p.x - q.x, 2)+Math.pow(p.y - q.y, 2);
 
-            return squared < 3600 && squared > 400;
+            return squared < 1600 && squared > 600;
         });
     }
 }
