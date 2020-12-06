@@ -3,7 +3,8 @@ import { IEvent } from "../events/Events";
 
 export interface EventsPanelPS
 {
-    events: IEvent[]
+    events: IEvent[],
+    selectBean: (beanKey?: number) => void
 }
 
 export class EventsPanel extends React.Component<EventsPanelPS> {
@@ -14,9 +15,12 @@ export class EventsPanel extends React.Component<EventsPanelPS> {
     }
     render(){
         let events = this.props.events.map((e, i) => {
-            return <div key={i}>
-                <span>{e.icon}</span>&nbsp;
-                <span>{e.message}</span>
+            const speechcrime = e.icon === '🚨';
+            return <div key={i} className={speechcrime ? 'tall': ''}>
+                <span className={speechcrime ? 'police-siren': ''}>{e.icon}</span>&nbsp;
+                {
+                    e.beanKey ? <a onClick={() => this.props.selectBean(e.beanKey)} href="javascript:void(0)">{e.message}</a> : <span>{e.message}</span>
+                }
             </div>
         });
         if (this.props.events.length === 0){
@@ -25,7 +29,7 @@ export class EventsPanel extends React.Component<EventsPanelPS> {
             </div>]
         }
         return (                
-        <div>
+        <div className="events-panel">
             <div>
                 <b>Events</b>
             </div>

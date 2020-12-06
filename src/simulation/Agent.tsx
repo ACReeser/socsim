@@ -19,6 +19,10 @@ export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|
  */
 export type Travel = 'cruise'|'approach';
 
+export interface IActListener{
+    onChat: (b: Bean, speech: IChatData) => void;
+}
+
 export interface IActivityData {
     act: Act;
     elapsed?: number;
@@ -57,12 +61,15 @@ export function ChangeState(agent: IAgent, newState: AgentState){
     agent.state = newState;
     agent.state.enter(agent);
 }
-export function Act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): void{
+export function Act(agent: IAgent, deltaMS: number, difficulty: IDifficulty, listener: IActListener): void{
     const result = agent.state.act(agent, deltaMS, difficulty);
     if (agent.onAct)
         agent.onAct.publish(deltaMS);
     if (result != agent.state){
         ChangeState(agent, result);
+        if (result.data.act === 'chat' && result.data.chat?.participation === 'speaker'){
+            listener.onChat(agent as Bean, result.data.chat);
+        }
     }
 }
 

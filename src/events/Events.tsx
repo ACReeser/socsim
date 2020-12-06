@@ -2,6 +2,7 @@
 export interface IEvent{
     icon: string;
     message: string;
+    beanKey?: number;
 }
 
 export class PubSub<T>{

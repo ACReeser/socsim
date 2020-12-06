@@ -11,9 +11,10 @@ import { Player } from './simulation/Player';
 import { Geography } from './simulation/Geography';
 import { City } from './simulation/City';
 import { shuffle } from './simulation/Utils';
-import { Act } from './simulation/Agent';
+import { Act, IActListener, IChatData } from './simulation/Agent';
 import { IDifficulty } from './Game';
 import { type } from 'os';
+import { IsBeliefDivergent, SecondaryBeliefData } from './simulation/Beliefs';
 
 
 export interface IBeanContainer{
@@ -37,7 +38,7 @@ export interface IWorld{
     date: IDate;
     alien: Player;
 }
-export class World implements IWorld, IBeanContainer{
+export class World implements IWorld, IBeanContainer, IActListener{
     public cities: City[] = [];
     public law: Government = new Government();
     public economy: Economy = new Economy();
@@ -114,8 +115,19 @@ export class World implements IWorld, IBeanContainer{
     }
     simulate_beans(deltaMS: number){
         this.beans.forEach((b) => {
-            Act(b, deltaMS, this.alien.difficulty);
+            Act(b, deltaMS, this.alien.difficulty, this);
         })
+    }
+    onChat = (b: Bean, chat: IChatData) => {
+        if (this.party && chat.preachBelief){
+            if (IsBeliefDivergent(chat.preachBelief, this.party.ideals, this.party.community)){
+                this.yearsEvents.push({
+                    icon: '🚨',
+                    message: `Speechcrime! ${b.name} \n is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
+                    beanKey: b.key
+                });
+            }
+        }
     }
     inflate() {
         const allMoney = this.beans.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);

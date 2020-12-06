@@ -302,7 +302,10 @@ class App extends React.Component<AppPs, AppState>{
       case 'goals':
         return <GoalsPanel player={this.state.world.alien} progress={this.state.world.alien}></GoalsPanel>
       case 'events':
-        return <EventsPanel events={this.state.world.yearsEvents}></EventsPanel>
+        return <EventsPanel events={this.state.world.yearsEvents} selectBean={(beankey?: number) => {
+          if (beankey)
+            this.setState({activeCityID: this.state.world.cities[0].key, activeBeanID: beankey, activeHex: null, activeRightPanel: 'overview'})
+        }}></EventsPanel>
     }
   }
   renderGeo() {

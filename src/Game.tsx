@@ -44,23 +44,23 @@ export const DefaultDifficulty: IDifficulty = {
         emptyHex: {
             build: {
                 house: {
-                    energy: 3,
+                    energy: 1,
                     bots: 3
                 },
                 farm: {
-                    energy: 3,
+                    energy: 1,
                     bots: 3
                 },
                 theater: {
-                    energy: 4,
+                    energy: 1,
                     bots: 4
                 },
                 hospital: {
-                    energy: 4,
+                    energy: 1,
                     bots: 4
                 },
                 church: {
-                    energy: 4,
+                    energy: 1,
                     bots: 4
                 },
                 courthouse: {

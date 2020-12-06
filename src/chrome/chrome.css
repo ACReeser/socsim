@@ -7,7 +7,7 @@
     left: 0; top: 0;
     pointer-events: none;
   }
-  .overlay button{
+  .overlay button, .overlay a{
     pointer-events: all;
   }
   .left{
@@ -30,6 +30,15 @@
     opacity: .99;
     min-width: 300px;
     height: calc(100% - 62px);
+  }
+  .right-panel .tall{
+    height: 3em;
+    max-width: 280px;
+  }
+  .events-panel{
+    max-height: 100%;
+    overflow: auto;
+    pointer-events: all;
   }
   .top{
       display: flex;

@@ -184,6 +184,24 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
 };
 
+export function IsIdealDivergent(con: TraitCommunity|TraitIdeals, utopiaMotive: TraitIdeals, utopiaCommunity: TraitCommunity): boolean{
+    switch(con){
+        case 'trad':
+        case 'prog':
+            return con != utopiaMotive;
+        case 'state':
+        case 'ego':
+            return con != utopiaCommunity;
+    }
+}
+
+export function IsBeliefDivergent(belief: TraitBelief, utopiaMotive: TraitIdeals, utopiaCommunity: TraitCommunity): boolean{
+    const data = SecondaryBeliefData[belief];
+    return data.idealCon != null && data.idealCon.reduce((isDivergent: boolean, con) => {
+        return isDivergent || IsIdealDivergent(con, utopiaMotive, utopiaCommunity);
+    }, false);
+}
+
 export interface BeliefSubjectOption {key: BeliefSubject};
 export interface BeliefVerbOption {key: BeliefVerb};
 export interface BeliefAdjOption {key: TraitBelief};
