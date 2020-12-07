@@ -1,8 +1,12 @@
+import { IChatData } from "../simulation/Agent";
+
+export type EventTrigger = 'speechcrime'|'birth'|'death';
 
 export interface IEvent{
     icon: string;
     message: string;
     beanKey?: number;
+    trigger: EventTrigger;
 }
 
 export class PubSub<T>{
@@ -24,8 +28,10 @@ export class PubSub<T>{
 export class ChangePubSub extends PubSub<{change: number}>{
 }
 
-export class EventBus{
-    physicalCapital = new ChangePubSub();
-    politicalCapital = new ChangePubSub();
-    labor = new ChangePubSub();
+export type IEventBus = {[key in EventTrigger]: PubSub<IEvent>};
+
+export class EventBus implements IEventBus{
+    speechcrime = new PubSub<IEvent>();
+    birth = new PubSub<IEvent>();
+    death = new PubSub<IEvent>();
 }

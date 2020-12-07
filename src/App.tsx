@@ -199,7 +199,6 @@ class App extends React.Component<AppPs, AppState>{
     if (bean.city)
       bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);
     this.setState({world: this.state.world});
-    this.state.world.bus.politicalCapital.publish({change: 1});
   }
   support = (bean: Bean) => {
     this.state.world.party.politicalCapital -= 1;
@@ -207,7 +206,6 @@ class App extends React.Component<AppPs, AppState>{
     if (bean.city)
       bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);
     this.setState({world: this.state.world});
-    this.state.world.bus.politicalCapital.publish({change: -1});
   }
   scan = (bean: Bean) => {
     if (this.state.world.alien.canAfford(this.state.world.alien.difficulty.cost.bean.scan)){

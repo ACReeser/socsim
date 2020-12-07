@@ -365,7 +365,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
                 this.city.breedBean(this);
             else
                 throw 'bean does not have city object';
-            return {icon: '🎉', message: 'A new subject is born!'}
+            return {icon: '🎉', trigger: 'birth', message: 'A new subject is born!'}
         } else {
             return null;
         }
@@ -402,7 +402,7 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     maybeDie(cause: string, chance = 0.5): IEvent|null{
         if (this.discrete_health < 0 && Math.random() <= chance) {
             this.die();
-            return {icon: '☠️', message: `A bean died of ${cause}!`};
+            return {icon: '☠️', trigger: 'death', message: `A bean died of ${cause}!`};
         } else {
             return null;
         }
