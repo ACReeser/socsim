@@ -34,11 +34,15 @@ export class GoalsPanel extends React.Component<GoalPanelPS> {
           })}
         </ul>
         <div><b>Report Card</b></div>
-        <p>
-          Last Grade: <b>D</b>
+        <p className="horizontal">
+          <span>
+            Last Grade: <b>D</b>
+          </span>
+          <span>
+            Next Grade in: <b>2 mo.</b>
+          </span>
         </p>
         <p>
-          6 mo s til next grade.
         </p>
         <table style={{margin: 'auto'}}>
           <tbody>
@@ -88,6 +92,7 @@ export class GoalsPanel extends React.Component<GoalPanelPS> {
             </tr>
             <tr>
               <th>
+                Avg. Grade
               </th>
               <td>
                 C

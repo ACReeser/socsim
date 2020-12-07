@@ -14,7 +14,7 @@ import { CardButton, TraitToCard } from "../widgets/CardButton";
 
 import './BeanPanel.css';
 import { ActivityIcon, GetPriorities } from "../simulation/Agent";
-import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
+import { IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 
 interface BeanPanelP{
     city: City,
@@ -103,15 +103,17 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         }
     }
     beliefTable(beliefs: TraitBelief[]): React.ReactNode {
-        return beliefs.map((b) => <table className="width-100p" key={b}><tbody><tr>
-            <th className="text-left">
+        return beliefs.map((b) => {
+            const divergent = IsBeliefDivergent(b, this.props.party.ideals, this.props.party.community);
+            return <table className="width-100p" key={b}><tbody><tr>
+            <th className={divergent ? 'divergent text-left': "text-left"}>
                 {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
             </th>
             <td className="text-right">
                 {(SecondaryBeliefData[b].idealPro || []).map(y => <span>+{TraitIcon[y]}</span>)}
                 {(SecondaryBeliefData[b].idealCon || []).map(y => <span>-{TraitIcon[y]}</span>)}
             </td>
-    </tr><tr><td className="small text-center" colSpan={2}>{SecondaryBeliefData[b].description}</td></tr></tbody></table>);
+        </tr><tr><td className="small text-center" colSpan={2}>{SecondaryBeliefData[b].description}</td></tr></tbody></table>});
     }
     get scanned(){
         return this.props.alien.scanned_bean[this.props.bean.key];

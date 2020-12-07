@@ -19,7 +19,7 @@ export class EventsPanel extends React.Component<EventsPanelPS> {
             return <div key={i} className={speechcrime ? 'tall': ''}>
                 <span className={speechcrime ? 'police-siren': ''}>{e.icon}</span>&nbsp;
                 {
-                    e.beanKey ? <a onClick={() => this.props.selectBean(e.beanKey)} href="javascript:void(0)">{e.message}</a> : <span>{e.message}</span>
+                    e.beanKey != null ? <a onClick={() => this.props.selectBean(e.beanKey)} href="javascript:void(0)">{e.message}</a> : <span>{e.message}</span>
                 }
             </div>
         });

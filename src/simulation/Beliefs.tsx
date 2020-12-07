@@ -188,10 +188,10 @@ export function IsIdealDivergent(con: TraitCommunity|TraitIdeals, utopiaMotive: 
     switch(con){
         case 'trad':
         case 'prog':
-            return con != utopiaMotive;
+            return con == utopiaMotive;
         case 'state':
         case 'ego':
-            return con != utopiaCommunity;
+            return con == utopiaCommunity;
     }
 }
 
