@@ -79,19 +79,19 @@ export const PrimaryBeliefData: {[key in TraitIdeals|TraitCommunity]: IBeliefDat
 export const NarrativeBeliefData: {[key in TraitFaith]: IBeliefData} = {
     rocket: {
         noun: 'Futurism', adj: 'Futuristic', icon: '🚀',
-        description: "Enjoys stories about the far future"
+        description: "Loves stories of the far future"
     },
     dragon: {
         noun: 'Mythology', adj: 'Mythical', icon: '🐲',
-        description: "Enjoys stories about the legendary past"
+        description: "Loves stories of the legendary past"
     },
     music: {
         noun: 'Drama', adj: 'Dramatic', icon: '🎵',
-        description: "Enjoys stories about emotional bonding"
+        description: "Loves stories of emotional bonding"
     },
     noFaith: {
         noun: 'Nihilism', adj: 'Nihilist', icon: '⚫️',
-        description: "Derives no pleasure from fairy tales"
+        description: "Hates fairy tales"
     },
 }
 export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {

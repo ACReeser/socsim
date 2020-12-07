@@ -9,6 +9,7 @@ import { IDifficulty } from "../Game";
 export class EditBeliefInput extends React.Component<{
     data: IBeliefData,
     frozen?: boolean,
+    divergent?: boolean,
     available: number,
     cost: number,
     wash: () => void
@@ -30,7 +31,7 @@ export class EditBeliefInput extends React.Component<{
             </div>
             <div className="vertical">
                 <div className="text-center">
-                    <strong title={this.props.data.description} className=" marg-r-6">
+                    <strong title={this.props.data.description} className={this.props.divergent ? 'divergent marg-r-6': 'marg-r-6'}>
                         {this.props.data.noun}
                     </strong>
                     <span className="pull-r">{this.props.cost}🧠</span>

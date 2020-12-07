@@ -271,7 +271,7 @@ class App extends React.Component<AppPs, AppState>{
     switch(this.state.activeRightPanel){
       case 'overview':
         if (this.state.activeCityID == null) {
-          return <OverviewPanel beans={this.state.world.beans} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>
+          return <OverviewPanel beans={this.state.world.beans} utopia={this.state.world.party} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>
         } else {
           const city = this.state.world.cities.find((x) => x.key == this.state.activeCityID);
           if (city) {
@@ -293,7 +293,7 @@ class App extends React.Component<AppPs, AppState>{
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
 
-            return <OverviewPanel beans={city?.beans} city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>            
+            return <OverviewPanel beans={city?.beans} utopia={this.state.world.party}  city={city} clearCity={() => this.setState({activeCityID: null})}></OverviewPanel>            
           }
           else
             return <div>

@@ -4,10 +4,13 @@ import { keyToName } from "../App";
 import { Bean } from "../simulation/Bean";
 import { NeedReadout } from "../widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";
+import { Party } from "../simulation/Politics";
+import { PrimaryBeliefData } from "../simulation/Beliefs";
 
 interface OverviewPanelP{
     city?: City,
     beans: Bean[],
+    utopia: Party,
     clearCity: () => void;
 }
 
@@ -17,28 +20,13 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
         this.state = {
         }
     }
-    hq(){
-        if (this.props.city){
-            if (this.props.city.partyHQ) {
-                return <div>
-                    🏢 Has Party HQ<br/>
-                    ${this.props.city.yearsPartyDonations.toFixed(2)} donations this year
-                </div>
-            }
-            return <div className="text-center">
-                <button type="button" className="important">
-                    🏢 Add HQ for $10
-                </button><br/>
-                <small>+1 action per season &amp; chance for donations</small>
-            </div>
-        }
-        return null;
-    }
     render(){
         let header = null;
         if (this.props.city){
-            header = <div><b>{this.props.city.name}</b>
+            header = <div><div><b>{this.props.city.name}</b> {PrimaryBeliefData[this.props.utopia.community].icon} {PrimaryBeliefData[this.props.utopia.ideals].icon}
                 <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+            </div>
+            <div> {PrimaryBeliefData[this.props.utopia.community].adj} {PrimaryBeliefData[this.props.utopia.ideals].adj} Utopia</div> 
             </div>;
         }
         const avg_happy = this.props.beans.reduce((sum, x) => sum+x.lastHappiness, 0) / (this.props.beans.length || 1);
@@ -63,10 +51,6 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
             {/* <AxisReadout report={reportIdeals(this.props.beans)}>Sentiment</AxisReadout> */}
             <AxisReadout report={reportCommunity(this.props.beans)}>Community</AxisReadout>
             <AxisReadout report={reportIdeals(this.props.beans)}>Ideals</AxisReadout>
-            <div className="header"><b>Party</b></div>
-            {
-                this.hq()
-            }
             <div>
                 <b>Approval</b>&nbsp;
                 <span>{avg_approval.toFixed(0)}%</span>

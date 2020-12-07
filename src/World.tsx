@@ -123,7 +123,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (IsBeliefDivergent(chat.preachBelief, this.party.ideals, this.party.community)){
                 this.yearsEvents.push({
                     icon: '🚨',
-                    message: `Speechcrime! ${b.name} \n is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
+                    message: `Speechcrime! ${b.name} is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
                     beanKey: b.key
                 });
             }

@@ -1,5 +1,5 @@
 import React from "react";
-import { BeliefSubject, BeliefVerb, TraitBelief, SecondaryBeliefData, Belief, PrimaryBeliefData, NarrativeBeliefData } from "../simulation/Beliefs";
+import { BeliefSubject, BeliefVerb, TraitBelief, SecondaryBeliefData, Belief, PrimaryBeliefData, NarrativeBeliefData, IsBeliefDivergent } from "../simulation/Beliefs";
 import './modals.css';
 import { TraitCommunity, TraitFaith, TraitIdeals, World } from "../World";
 import { AddBeliefInput, EditBeliefInput } from "./BeliefRow";
@@ -34,8 +34,8 @@ export class BrainwashingContent extends React.Component<{
                 </div>
             </div>
             <div>
-                <div>
-                    <strong>{bean.name}</strong> believes in:
+                <div className="text-center">
+                    <strong>{bean.name}</strong> has {bean.discrete_sanity} sanity 🧠
                 </div>
                 <div className="horizontal">
                     <div>
@@ -60,6 +60,7 @@ export class BrainwashingContent extends React.Component<{
                         {
                             bean.beliefs.map((b) => <EditBeliefInput
                             available={this.props.world.alien.psi.amount}
+                            divergent={IsBeliefDivergent(b, this.props.world.party.ideals, this.props.world.party.community)}
                             wash={() => this.props.washBelief(bean, b)} 
                                 cost={this.props.world.alien.difficulty.cost.bean.brainwash_secondary.psi || 0}
                                 data={SecondaryBeliefData[b]}
