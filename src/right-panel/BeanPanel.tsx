@@ -26,7 +26,7 @@ interface BeanPanelP{
     clearCity: () => void;
     bus: EventBus
     scan: (bean: Bean) => boolean;
-    insult: (bean: Bean) => void;
+    vaporize: (bean: Bean) => void;
     brainwash: () => void;
     gift: () => void;
 }
@@ -49,9 +49,9 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             this._resetFace();
         }
     }
-    insult = () => {
-        this.props.insult(this.props.bean);
-        this.setState({faceOverride: '😡'});
+    vaporize = () => {
+        this.props.vaporize(this.props.bean);
+        this.setState({faceOverride: '💀'});
         this._resetFace();
     }
     support = () => {
@@ -211,15 +211,15 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         🤪 Siphon
                         <small>-Energy -Sanity +Psi</small>
                     </button>
-                    <button type="button" className="button card" onClick={this.insult}
+                    <button type="button" className="button card" onClick={this.vaporize}
                         title="Delete this being from the experiment"
                     >
-                        ☠️ Disappear
+                        ☠️ Vaporize
                         <small>-Bots -Energy</small>
                     </button>
                 </div>
                 <div className="card-parent">
-                    <button type="button" className="button card" onClick={this.insult}
+                    <button type="button" className="button card"
                         title="Remove this being for study"
                     >
                         👾 Abduct for Research

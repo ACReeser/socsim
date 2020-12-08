@@ -18,7 +18,7 @@ export interface IResource{
     change: ChangePubSub;
 }
 
-export type GoalKey = 'found_utopia'|'build_house_n_farm'|'kidnap_3'|'scan'|'set_policy'|'brainwash'|'c+_grade';
+export type GoalKey = 'found_utopia'|'build_house_n_farm'|'beam_3'|'scan'|'set_policy'|'brainwash'|'c+_grade';
 export interface IGoal{
     key: GoalKey;
     text: string;
@@ -49,8 +49,8 @@ export const Goals: {[key in GoalKey]: IGoal} = {
             energy: 3, bots: 3
         }
     }, 
-    kidnap_3: {
-        key: 'kidnap_3', text: 'Kidnap 3 new beings', 
+    beam_3: {
+        key: 'beam_3', text: 'beam 3 new beings', 
         check: (world) => {
             return world.beans.filter(b => !b.bornInPetri).length > (3 + Number_Starting_City_Pop)
         }
@@ -80,7 +80,7 @@ export class Player implements IPlayerData, IProgressable{
     public bots = { amount: 10, income: 2, change: new ChangePubSub()};
     public next_grade:IDate = {year: 1, season: 3, day: 1};
     public difficulty: IDifficulty = DefaultDifficulty;
-    public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm', 'scan', 'kidnap_3', 'brainwash', 'set_policy', 'c+_grade'];
+    public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm', 'scan', 'beam_3', 'brainwash', 'set_policy', 'c+_grade'];
     public goalProgress: {[key: string]: IGoalProgress} = {};
 
     public canAfford(cost: ResourceTriad): boolean{

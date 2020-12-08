@@ -5,7 +5,8 @@ import React from "react";
 import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint, HexPoint } from "../simulation/Geography";
 import { PetriBuilding } from "./Building";
 import { PI2 } from "../WorldGen";
-import { City } from "../simulation/City";
+import { City, UFO } from "../simulation/City";
+import { AnimatedUFO } from "./AnimatedUFO";
 
 interface WorldTilePs {
     tile: Tile;
@@ -45,12 +46,15 @@ export class WorldTile extends React.Component<WorldTilePs> {
         return (
           <AnimatedBean bean={b} key={b.key} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
-      })
+      });
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
         return (
           <span key={i} className="dead" style={{left: (i*10)+'px'}}>⚰️</span>
         )
-      })
+      });
+      const ufos = this.props.city.ufos.map((u: UFO, i: number) => {
+        return <AnimatedUFO ufo={u} key={i} city={this.props.city}></AnimatedUFO>
+      });
       const buildings = this.renderBuildings('farm').concat(this.renderBuildings('hospital')).concat(this.renderBuildings('house')).concat(this.renderBuildings('courthouse'));
       const regions = this.props.city.hexes.map((hex, i) => {
         const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
@@ -71,6 +75,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
           {deaths}
           {buildings}
           {beans}
+          {ufos}
           <span className="tile-label">{this.props.tile.name}</span>
           <svg style={{width: '100%', height: '100%'}} className="petri-lid">
             <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />

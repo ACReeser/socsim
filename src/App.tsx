@@ -181,11 +181,18 @@ class App extends React.Component<AppPs, AppState>{
     
     this.setState({world: this.state.world});
   }
-  kidnap = (city: City, where: HexPoint) => {
-    const cost = this.difficulty.cost.hex.kidnap;
+  beam = (city: City, where: HexPoint) => {
+    const cost = this.difficulty.cost.hex.beam;
     if (this.state.world.alien.canAfford(cost)){
       this.state.world.alien.purchase(cost);
-      city.historicalBeans.push(GenerateBean(city, city.historicalBeans.length));
+      city.ufos.push({
+        point: where,
+        action: 'beam-in'
+      });
+      window.setTimeout(() => {
+        city.historicalBeans.push(GenerateBean(city, city.historicalBeans.length, where));
+        this.setState({world: this.state.world});
+      }, 3000)
     }
     
     this.setState({world: this.state.world});
@@ -194,12 +201,13 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.addCharity(good, name, budget);
     this.setState({world: this.state.world});
   }
-  insult = (bean: Bean) => {
-    this.state.world.party.politicalCapital += 1;
-    bean.lastInsultDate = Now(this.state.world);
-    if (bean.city)
-      bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);
-    this.setState({world: this.state.world});
+  vaporize = (bean: Bean) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)){
+      if (bean.city){
+        bean.die();
+      }
+      this.setState({world: this.state.world});
+    }
   }
   support = (bean: Bean) => {
     this.state.world.party.politicalCapital -= 1;
@@ -278,7 +286,7 @@ class App extends React.Component<AppPs, AppState>{
             if (this.state.activeHex != null){
               return <HexPanel city={city} hex={this.state.activeHex} difficulty={this.state.world.alien.difficulty}
                 clearHex={() => this.setState({activeHex: null})}
-                kidnap={(where) => this.kidnap(city, where)} 
+                beam={(where) => this.beam(city, where)} 
                 build={(where, what) => {this.build(city, where, what)}}></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
@@ -286,7 +294,7 @@ class App extends React.Component<AppPs, AppState>{
               if (bean)
                 return <BeanPanel bean={bean} city={city} alien={this.state.world.alien} 
                 economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
-                scan={this.scan} insult={this.insult}
+                scan={this.scan} vaporize={this.vaporize}
                 brainwash={() => this.setState({activeModal:'brainwash'})}
                 gift={() => this.setState({activeModal:'brainwash'})}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>

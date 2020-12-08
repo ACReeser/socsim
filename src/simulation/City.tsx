@@ -36,6 +36,10 @@ export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) 
     return result;
 }
 
+export class UFO{
+    constructor(public point: HexPoint, public action: string){}
+}
+
 
 export class City extends Geography implements Tile, IBeanContainer {
     public name: string = '';
@@ -49,6 +53,7 @@ export class City extends Geography implements Tile, IBeanContainer {
         throw "can't set city beans";
     }
     public historicalBeans: Bean[] = [];
+    public ufos: UFO[] = [];
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;

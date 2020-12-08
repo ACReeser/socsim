@@ -602,6 +602,21 @@ table.classic .border-t{
   left: -2px;
   bottom: 0px;
 }
+.ufo{
+  position: absolute; left: -20px;top: -20px;
+  font-size: 30px;
+  height: 30px; width: 30px;
+  text-align: center;
+  /* margin-left: -10px; */
+  animation: ufo-swoop-in-out 6s;
+  animation-fill-mode: forwards; /*pause after execution*/
+}
+@keyframes ufo-swoop-in-out{
+  0%{left: -100vw; top: -100vh}
+  30%{left: -20px; top: -40px}
+  60%{left: -20px; top: -40px}
+  100%{left: 100vw; top: 100vh}
+}
 .subheader h3{
   display: inline-block;
   margin: 0;

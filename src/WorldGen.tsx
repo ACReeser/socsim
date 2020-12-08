@@ -139,7 +139,7 @@ export function GenerateCity(previousCityCount: number): City{
 
     return newCity;
 }
-export function GenerateBean(city: City, previousBeanCount: number): Bean{
+export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: HexPoint): Bean{
     let newBean = new Bean();
     
     newBean.key = previousBeanCount;
@@ -188,7 +188,7 @@ export function GenerateBean(city: City, previousBeanCount: number): Bean{
     newBean.cash = StartingCash(newBean.job);
     newBean.discrete_food = 3;
 
-    city.movers.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, city.byType.house.coordByID[GetRandom(city.byType.house.all).key]);
+    city.movers.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || city.byType.house.coordByID[GetRandom(city.byType.house.all).key]);
     
     return newBean;
 }

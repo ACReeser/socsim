@@ -11,7 +11,7 @@ export class HexPanel extends React.Component<{
     difficulty: IDifficulty,
     clearHex: () => void,
     build: (where: HexPoint, what: BuildingTypes) => void,
-    kidnap: (where: HexPoint) => void,
+    beam: (where: HexPoint) => void,
 }, {
 
 }> {
@@ -45,9 +45,9 @@ export class HexPanel extends React.Component<{
             </div>
             <h3>Beings:</h3>
             <div className="card-parent">
-                <button className="card button" type="button" onClick={() => this.props.kidnap(this.props.hex)}>
-                    🛸 Kidnap New Subject
-                    <CostSmall cost={this.props.difficulty.cost.hex.kidnap}></CostSmall>
+                <button className="card button" type="button" onClick={() => this.props.beam(this.props.hex)}>
+                    🛸 Beam In New Subject
+                    <CostSmall cost={this.props.difficulty.cost.hex.beam}></CostSmall>
                 </button>
             </div>
         </div>

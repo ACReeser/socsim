@@ -2,8 +2,8 @@ import { BuildingTypes } from "./simulation/Geography";
 import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
-export type PlayerHexAction = 'kidnap';
-export type PlayerBeanAction = 'scan'|'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary'|'abduct'|'disappear'|'siphon'|'empower'|'gift';
+export type PlayerHexAction = 'beam';
+export type PlayerBeanAction = 'scan'|'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary'|'abduct'|'vaporize'|'siphon'|'empower'|'gift';
 export type PlayerGovernmentAction = '';
 export type PlayerAction = PlayerHexAction|PlayerBeanAction;
 
@@ -70,7 +70,7 @@ export const DefaultDifficulty: IDifficulty = {
             }
         },
         hex: {
-            kidnap: {
+            beam: {
                 energy: 3
             },
         },
@@ -84,7 +84,10 @@ export const DefaultDifficulty: IDifficulty = {
             abduct: {},
             gift: {},
             empower: {},
-            disappear: {},
+            vaporize: {
+                energy: 2,
+                bots: 4
+            },
             siphon: {},
         }
     },
