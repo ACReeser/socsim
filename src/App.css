@@ -617,6 +617,21 @@ table.classic .border-t{
   60%{left: -20px; top: -40px}
   100%{left: 100vw; top: 100vh}
 }
+  animation: ufo-beam .4s;
+  animation-iteration-count: 5;
+  position: absolute; left: 5px;top: 17px;
+  width: 1em;
+  height: 1.5em;
+  background: greenyellow;
+  z-index: -1;
+}
+@keyframes ufo-beam{
+  0%{background: rgba(0, 255, 0, 0.5);}
+  25%{background: rgba(100, 255, 0, 0.5);;}
+  50%{background: rgba(0, 255, 100, 0.5);;}
+  75%{background: rgba(100, 255, 0, 0.5);;}
+  100%{background: rgba(0, 255, 0, 0.5);;}
+}
 .subheader h3{
   display: inline-block;
   margin: 0;

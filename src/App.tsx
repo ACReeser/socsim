@@ -192,10 +192,15 @@ class App extends React.Component<AppPs, AppState>{
       window.setTimeout(() => {
         city.historicalBeans.push(GenerateBean(city, city.historicalBeans.length, where));
         this.setState({world: this.state.world});
-      }, 3000)
+      }, 3000);
     }
     
-    this.setState({world: this.state.world});
+    this.setState({world: this.state.world}, () => {
+      window.setTimeout(() => {
+        //TODO: remove with key instead of pop latest
+        city.ufos.pop();
+      }, 7000);
+    });
   }
   foundCharity = (good: TraitGood, name: string, budget: number) => {
     this.state.world.addCharity(good, name, budget);
