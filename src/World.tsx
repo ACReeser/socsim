@@ -105,9 +105,9 @@ export class World implements IWorld, IBeanContainer, IActListener{
         
         shuffle(this.beans).forEach((b: Bean) => {
             let e = b.age(this.economy);
-            if (e) this.yearsEvents.push(e);
+            if (e) this.publishEvent(e);
             e = b.maybeBaby(this.economy);
-            if (e) this.yearsEvents.push(e);
+            if (e) this.publishEvent(e);
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
@@ -121,13 +121,17 @@ export class World implements IWorld, IBeanContainer, IActListener{
     onChat = (b: Bean, chat: IChatData) => {
         if (this.party && chat.preachBelief){
             if (IsBeliefDivergent(chat.preachBelief, this.party.ideals, this.party.community)){
-                this.yearsEvents.push({
+                this.publishEvent({
                     icon: '🚨', trigger: 'speechcrime',
                     message: `Speechcrime! ${b.name} is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
                     beanKey: b.key
                 });
             }
         }
+    }
+    publishEvent(e: IEvent){
+        this.yearsEvents.push(e);
+        this.bus[e.trigger].publish(e);
     }
     inflate() {
         const allMoney = this.beans.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);

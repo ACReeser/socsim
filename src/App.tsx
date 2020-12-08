@@ -32,6 +32,7 @@ import { HexPanel } from './right-panel/HexPanel';
 import { City } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
 import { TraitBelief } from './simulation/Beliefs';
+import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
@@ -432,7 +433,9 @@ class App extends React.Component<AppPs, AppState>{
         <div className="right">
           <div className="full-width-tabs">
             <button onClick={() => this.setState({activeRightPanel: 'overview'})}>📈 Overview</button>
-            <button onClick={() => this.setState({activeRightPanel: 'events'})}>📣 Events</button>
+            <button onClick={() => this.setState({activeRightPanel: 'events'})}>
+              <TimelyEventToggle event={this.state.world.bus.speechcrime} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
+            </button>
             <button onClick={() => this.setState({activeRightPanel: 'goals'})}>🏆 Goals</button>
           </div>
           <div className="right-panel">
