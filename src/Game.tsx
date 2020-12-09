@@ -1,4 +1,5 @@
 import { BuildingTypes } from "./simulation/Geography";
+import { RubricKeys } from "./simulation/Player";
 import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
@@ -37,7 +38,8 @@ export interface IDifficulty{
     },
     bean_life: {
         vital_thresh: {[key in TraitGood]: IThreshold}
-    }
+    },
+    report_card_progression: RubricKeys[]
 }
 export const DefaultDifficulty: IDifficulty = {
     cost: {
@@ -98,5 +100,6 @@ export const DefaultDifficulty: IDifficulty = {
             'medicine': {sufficient: 1, abundant: 3},
             'fun': {sufficient: 1, abundant: 3},
         }
-    }
+    },
+    report_card_progression: []
 };

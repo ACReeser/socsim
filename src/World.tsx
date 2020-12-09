@@ -112,6 +112,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
         this.alien.checkGoals(this);
+        this.alien.checkReportCard(this);
     }
     simulate_beans(deltaMS: number){
         this.beans.forEach((b) => {

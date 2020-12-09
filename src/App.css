@@ -612,10 +612,10 @@ table.classic .border-t{
   animation-fill-mode: forwards; /*pause after execution*/
 }
 @keyframes ufo-swoop-in-out{
-  0%{left: -100vw; top: -100vh}
+  0%{left: -80vw; top: -80vh}
   30%{left: -20px; top: -40px}
   60%{left: -20px; top: -40px}
-  100%{left: 100vw; top: 100vh}
+  100%{left: 80vw; top: 80vh}
 }
 .ufo .beam{
   animation: ufo-beam .4s;
@@ -625,6 +625,8 @@ table.classic .border-t{
   height: 1.5em;
   background: greenyellow;
   z-index: -1;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
 }
 @keyframes ufo-beam{
   0%{background: rgba(0, 255, 0, 0.5);}

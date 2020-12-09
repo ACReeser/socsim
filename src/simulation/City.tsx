@@ -37,7 +37,7 @@ export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) 
 }
 
 export class UFO{
-    constructor(public point: HexPoint, public action: string){}
+    constructor(public key: number, public point: HexPoint, public action: string){}
 }
 
 

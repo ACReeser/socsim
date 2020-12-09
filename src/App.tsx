@@ -29,7 +29,7 @@ import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
 import { BuildingTypes, HexPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
-import { City } from './simulation/City';
+import { City, UFO } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
 import { TraitBelief } from './simulation/Beliefs';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
@@ -185,22 +185,23 @@ class App extends React.Component<AppPs, AppState>{
     const cost = this.difficulty.cost.hex.beam;
     if (this.state.world.alien.canAfford(cost)){
       this.state.world.alien.purchase(cost);
-      city.ufos.push({
-        point: where,
-        action: 'beam-in'
-      });
+      const newUFO = new UFO(city.ufos.length, where, 'beam-in');
+      city.ufos.push(newUFO);
       window.setTimeout(() => {
         city.historicalBeans.push(GenerateBean(city, city.historicalBeans.length, where));
         this.setState({world: this.state.world});
       }, 3000);
+
+      this.setState({world: this.state.world}, () => {
+        window.setTimeout(() => {
+          //TODO: remove with key instead of pop latest
+          const myUFOI = city.ufos.indexOf(newUFO);
+          if (myUFOI > -1)
+            city.ufos.splice(myUFOI, 1);
+        }, 7000);
+      });
     }
     
-    this.setState({world: this.state.world}, () => {
-      window.setTimeout(() => {
-        //TODO: remove with key instead of pop latest
-        city.ufos.pop();
-      }, 7000);
-    });
   }
   foundCharity = (good: TraitGood, name: string, budget: number) => {
     this.state.world.addCharity(good, name, budget);

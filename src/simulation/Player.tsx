@@ -73,15 +73,52 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     } 
 };
 
+export type Grade = 'F'|'D'|'C'|'B'|'A';
+export interface IReportCard {
+    Happiness: Grade;
+    Prosperity: Grade;
+    Stability: Grade;
+    Dogma: Grade;
+}
+export type Rubric = (world: World) => IReportCard;
+export type RubricKeys = 'beginner'|'intermediate'|'expert';
+export const Curriculum: {[key in RubricKeys]: Rubric} = {
+    beginner: (world) => {return{
+        Happiness: 'D',
+        Prosperity: 'D',
+        Stability: 'D',
+        Dogma: 'D',
+    }},
+    intermediate: (world) => {return{
+        Happiness: 'D',
+        Prosperity: 'D',
+        Stability: 'D',
+        Dogma: 'D',
+    }},
+    expert: (world) => {return{
+        Happiness: 'D',
+        Prosperity: 'D',
+        Stability: 'D',
+        Dogma: 'D',
+    }},
+}
+
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
     public energy = { amount: 10, income: 2, change: new ChangePubSub()};
     public psi = { amount: 10, income: 2, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2, change: new ChangePubSub()};
-    public next_grade:IDate = {year: 1, season: 3, day: 1};
+    public next_grade: IDate = { year: 1, season: 3, day: 1 };
     public difficulty: IDifficulty = DefaultDifficulty;
     public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm', 'scan', 'beam_3', 'brainwash', 'set_policy', 'c+_grade'];
     public goalProgress: {[key: string]: IGoalProgress} = {};
+    public pastReportCards: IReportCard[] = [];
+    public workingReportCard: IReportCard = {
+        Happiness: 'D',
+        Prosperity: 'D',
+        Stability: 'D',
+        Dogma: 'D',
+    };
 
     public canAfford(cost: ResourceTriad): boolean{
         return (cost.bots == undefined || this.bots.amount >= cost.bots) &&
@@ -143,5 +180,8 @@ export class Player implements IPlayerData, IProgressable{
                 }
             }
         }
+    }
+    public checkReportCard(world: World) {
+        
     }
 }
