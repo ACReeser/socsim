@@ -1,0 +1,57 @@
+.victim{
+    animation: shake .4s infinite;
+    display: inline-block;
+    font-size: 36px;
+}
+.victim:before{
+    height: 40px;
+    width: 40px;
+    top: 16px;
+    left: 3px;
+}
+@keyframes shake{
+    0%{
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    10%{
+        margin-left: -3px;
+        margin-top: 0px;
+    }
+    20%{
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    30%{
+        margin-left: 0px;
+        margin-top: 3px;
+    }
+    40%{
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    50%{
+        margin-left: 0px;
+        margin-top: -3px;
+    }
+    60%{
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    70%{
+        margin-left: 3px;
+        margin-top: 3px;
+    }
+    80%{
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+    90%{
+        margin-left: -3px;
+        margin-top: 0px;
+    }
+    100%{
+        margin-left: 0px;
+        margin-top: 0px;
+    }
+}
