@@ -127,6 +127,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
                     message: `Speechcrime! ${b.name} is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
                     beanKey: b.key
                 });
+                if (this.alien.speechcrimes[this.date.year] == null)
+                    this.alien.speechcrimes[this.date.year] = 1;
+                else
+                    this.alien.speechcrimes[this.date.year]++;
             }
         }
     }

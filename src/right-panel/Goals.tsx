@@ -1,6 +1,6 @@
 import React from "react";
-import { triadToString } from "../Game";
-import { Goals, IGoal, IPlayerData, IProgressable } from "../simulation/Player";
+import { DefaultDifficulty, triadToString } from "../Game";
+import { Curriculums, GetAverage, Goals, IGoal, IPlayerData, IProgressable } from "../simulation/Player";
 
 export interface GoalPanelPS
 {
@@ -47,42 +47,64 @@ export class GoalsPanel extends React.Component<GoalPanelPS> {
         <table style={{margin: 'auto'}}>
           <tbody>
             <tr>
-              <th>Happiness
+              <th>🎯 Happiness
               </th>
               <td>
-                D
+                {this.props.player.workingReportCard.Happiness}
               </td>
               <td>
                 <small title="Are your subjects happy?">❔</small>
               </td>
             </tr>
             <tr>
-              <th>Prosperity</th>
+              <td className="text-left" colSpan={3}>
+                <small>
+              {Curriculums.Default.RubricDescription.Happiness}
+                </small>
+              </td>
+            </tr>
+            <tr>
+              <th>🎯 Prosperity</th>
               <td>
-                D
+                {this.props.player.workingReportCard.Prosperity}
               </td>
               <td>
                 <small title="Are your subjects fed and healthy?">❔</small>
               </td>
             </tr>
             <tr>
-              <th>Stability
+              <td className="text-left" colSpan={3}>
+              <small>{Curriculums.Default.RubricDescription.Prosperity}</small>
+              </td>
+            </tr>
+            <tr>
+              <th>🎯 Stability
               </th>
               <td>
-                D
+                {this.props.player.workingReportCard.Stability}
               </td>
               <td>
                 <small title="Are your subjects sane and civil?">❔</small>
               </td>
             </tr>
             <tr>
-              <th>Dogma
+              <td className="text-left" colSpan={3}>
+              <small>{Curriculums.Default.RubricDescription.Stability}</small>
+              </td>
+            </tr>
+            <tr>
+              <th>🎯 Dogma
               </th>
               <td>
-                B
+                {this.props.player.workingReportCard.Dogma}
               </td>
               <td>
                 <small title="Do your society's rules match your utopian ideals?">❔</small>
+              </td>
+            </tr>
+            <tr>
+              <td className="text-left" colSpan={3}>
+              <small>{Curriculums.Default.RubricDescription.Dogma}</small>
               </td>
             </tr>
             <tr>
@@ -95,15 +117,15 @@ export class GoalsPanel extends React.Component<GoalPanelPS> {
                 Avg. Grade
               </th>
               <td>
-                C
+                {GetAverage(this.props.player.workingReportCard)}
               </td>
               <td></td>
             </tr>
           </tbody>
         </table>
-        <p>
+        {/* <p>
           Receive an "A" in "Prosperity" <br/> to receive 3 Psi
-        </p>
+        </p> */}
       </div>)
     }
 }

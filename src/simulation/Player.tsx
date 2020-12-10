@@ -10,6 +10,7 @@ export interface IPlayerData{
     energy: IResource;
     psi: IResource;
     bots: IResource;
+    workingReportCard: IReportCard;
 }
 
 export interface IResource{
@@ -74,37 +75,68 @@ export const Goals: {[key in GoalKey]: IGoal} = {
 };
 
 export type Grade = 'F'|'D'|'C'|'B'|'A';
-export interface IReportCard {
-    Happiness: Grade;
-    Prosperity: Grade;
-    Stability: Grade;
-    Dogma: Grade;
+export type RubricKeys = 'Happiness'|'Prosperity'|'Stability'|'Dogma';
+export type IReportCard = {[key in RubricKeys]: Grade}
+export type GradingFunc = (world: World) => IReportCard;
+export interface ICurriculum {
+    GradeWorld: GradingFunc,
+    RubricDescription: {[key in RubricKeys]: string} 
 }
-export type Rubric = (world: World) => IReportCard;
-export type RubricKeys = 'beginner'|'intermediate'|'expert';
-export const Curriculum: {[key in RubricKeys]: Rubric} = {
-    beginner: (world) => {return{
-        Happiness: 'D',
-        Prosperity: 'D',
-        Stability: 'D',
-        Dogma: 'D',
-    }},
-    intermediate: (world) => {return{
-        Happiness: 'D',
-        Prosperity: 'D',
-        Stability: 'D',
-        Dogma: 'D',
-    }},
-    expert: (world) => {return{
-        Happiness: 'D',
-        Prosperity: 'D',
-        Stability: 'D',
-        Dogma: 'D',
-    }},
+export const Curriculums: {[difficulty: string]: ICurriculum} = {
+    Default: {
+        GradeWorld: (world: World) => {return{
+            Happiness: BooleanAverageGrader(world.beans, (o) => o.lastHappiness >- .2),
+            Prosperity: BooleanAverageGrader(world.beans, (o) => o.food != 'hungry'),
+            Stability: BooleanAverageGrader(world.beans, (o) => o.sanity == 'sane'),
+            Dogma: GradeUpToNumber((world.alien.speechcrimes[world.date.year] || 0), 10, 10),
+        }},
+        RubricDescription: {
+            Happiness: 'Subjects are at least 20% happy',
+            Prosperity: 'Subjects are not hungry',
+            Stability: 'Subjects are all sane',
+            Dogma: 'Up to 10 Speechcrimes'
+        }
+    }
+}
+/**
+ * 
+ * @param number number of bad events
+ * @param allowance number of allowed events
+ * @param maximum range of "overflow" events
+ */
+function GradeUpToNumber(number: number, allowance: number, maximum: number): Grade{
+    const normalized = 1 - Math.min(1, Math.max(0, number - allowance) / maximum);
+    return NormalizedScoreToGrade(normalized);
+}
+function BooleanAverageGrader<T>(array: T[], grade: (o: T) => boolean): Grade{
+    if (array.length < 1) return 'F';
+    return NormalizedScoreToGrade(array.filter(grade).length / array.length);
+}
+function NormalizedScoreToGrade(normNumber: number): Grade{
+    if (normNumber < .58) return 'F';
+    if (normNumber < .68) return 'D';
+    if (normNumber < .78) return 'C';
+    if (normNumber < .88) return 'B';
+    return 'A';
+}
+const GradeWeights: {[key in Grade]: number} ={
+    A: 5,
+    B: 4,
+    C: 3,
+    D: 2,
+    F: 1
+}
+export function GetAverage(reportCard: IReportCard): Grade{
+    return NormalizedScoreToGrade((GradeWeights[reportCard.Happiness] + 
+        GradeWeights[reportCard.Prosperity] + 
+        GradeWeights[reportCard.Stability] +
+        GradeWeights[reportCard.Dogma] 
+    ) / 20);
 }
 
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
+    public speechcrimes: {[year: number]: number} = {};
     public energy = { amount: 10, income: 2, change: new ChangePubSub()};
     public psi = { amount: 10, income: 2, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2, change: new ChangePubSub()};
@@ -182,6 +214,6 @@ export class Player implements IPlayerData, IProgressable{
         }
     }
     public checkReportCard(world: World) {
-        
+        this.workingReportCard = Curriculums.Default.GradeWorld(world);
     }
 }
