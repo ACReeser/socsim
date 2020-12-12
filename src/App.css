@@ -220,6 +220,9 @@ button.pull-r{
 .marg-r-6{
   margin-right: 6px;
 }
+.marg-b-0{
+  margin-bottom: 0px;
+}
 .marg-b-6{
   margin-bottom: 6px;
 }
@@ -337,14 +340,33 @@ ul.boxes li{
   width: 45%;
   margin-left: 4%;
 }
+.col-2-30-60{
+  display: flex;
+}
+.col-2-30-60 > *:first-child{
+  width: 30%;
+  margin-left: 4%;
+}
+.col-2-30-60 > *:last-child{
+  width: 60%;
+  margin-left: 4%;
+}
 .max-w-500{
   max-width: 500px;
+}
+.max-h-365{
+  max-height: 365px;
+  overflow-y: auto;
 }
 .m-t-2em{
   margin-top: 2em;
 }
 .marg-0{
   margin: 0;
+}
+
+.border{
+  border: 1px solid black;
 }
 
 .capsule-label{
@@ -418,6 +440,10 @@ ul.boxes li{
 
 td.small, th.small{
   font-size: 11px;
+}
+table.full{
+  height: 100%;
+  width: 100%;
 }
 table.classic{
   border-collapse: collapse;

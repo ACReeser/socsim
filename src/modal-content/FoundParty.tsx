@@ -74,8 +74,10 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
         this.setState({cityKey: +key});
     }
     render(){
-        return <div>            
-          <h2>Found your Utopia</h2>
+        return <div>
+          <div className="pad-4p">
+            <h2>Found your Utopia</h2>
+          </div>    
           <div className="col-2">
             <div>
               Perfect societies rely on the

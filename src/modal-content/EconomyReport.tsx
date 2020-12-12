@@ -56,6 +56,9 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       return (
         <div>
           <div className="pad-4p">
+            <h2>State of the Utopia</h2>
+          </div>
+          <div className="pad-4p">
             <h3>Subject's Health</h3>
           </div>
           <div className="col-2">

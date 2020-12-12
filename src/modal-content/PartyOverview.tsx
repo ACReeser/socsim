@@ -3,6 +3,7 @@ import { World, Axis, TraitIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { PolicyDropdown } from "../widgets/PolicyDropdown";
 import { PolicyTree, PolicyByKey, IPolicy } from "../simulation/Politics";
+import { PrimaryBeliefData } from "../simulation/Beliefs";
 
 export interface PartyOverviewPS{
     world: World;
@@ -30,23 +31,140 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
 
         return <div>
             <div className="col-2">
-            <div>
-              <h2 className="inline">
-                {this.props.world.party.name}
-              </h2>
-              &nbsp;
-              <i>{this.props.world.party.slogan}</i>
+                <h2 className="marg-b-0">Utopia Government</h2>
+                <div>
+                    <h2 className="marg-b-0">5 🗳️ 
+                        <small>
+                        Leadership
+                        </small>                        
+                        <button type="button" className="callout pull-r">
+                        🧪 View Research Lab
+                        </button>
+                    </h2>  
+                </div>
             </div>
-            <div>
-                <button type="button" className="pull-r">
-                🧪 View Research Lab
-                </button>
+            <div className="pad-4p">
+                {this.props.world.party.name} is a&nbsp;
+                {PrimaryBeliefData[this.props.world.party.community].adj} {PrimaryBeliefData[this.props.world.party.community].icon}&nbsp; 
+                {PrimaryBeliefData[this.props.world.party.ideals].adj} {PrimaryBeliefData[this.props.world.party.ideals].icon}&nbsp;
+                Utopia
             </div>
-          </div>
+            <div className="col-2-30-60">
+                <div className="max-h-365">
+                <table className="full">
+                    <tbody>
+                        <tr>
+                            <td>
+                                <strong>Taxation</strong>
+                            </td>
+                            <td>
+                                <button className="callout marg-0">Add 🗳️</button>
+                                <button className="callout marg-0">📁</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Poll Tax</i> 🦅
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Welfare</strong>
+                            </td>
+                            <td>
+                                <button className="callout marg-0">Add 🗳️</button>
+                                <button className="callout marg-0">📁</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Food Bank</i> 🦅
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Universal Healthcare</i> 🕊️ 
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Council Housing</i> 🕊️ 
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Economics</strong>
+                            </td>
+                            <td>
+                                <button className="callout marg-0">Add 🗳️</button>
+                                <button className="callout marg-0">📁</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Grain Subsidy</i> 🦅
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Crime</strong>
+                            </td>
+                            <td>
+                                <button className="callout marg-0">Add 🗳️</button>
+                                <button className="callout marg-0">📁</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Free Speech</i> 🦅
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <strong>Culture</strong>
+                            </td>
+                            <td>
+                                <button className="callout marg-0">Add 🗳️</button>
+                                <button className="callout marg-0">📁</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <i>Secularism</i> 🦅
+                            </td>
+                            <td>
+                                <button className="callout marg-0">🔍</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+                <div className="border">
+
+                </div>
+            </div>
           <div className="policies">
             {this.props.world.party.availablePolicies.map((p) => policy(p))}
           </div>
-          <div className="pad-4p">
+          {/* <div className="pad-4p">
                 <h3 className="small">
                     Platform
                 </h3>
@@ -97,23 +215,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                     </div>
                 </div>
           </div>
-          <div className="col-2">
-            <div>
-                <h3 className="small">
-                    Crime
-                </h3>
-                <div className="horizontal">
-                    <div className="vertical reverse">
-                        <div className="platform-subheader">Suffrage</div>
-                    </div>
-                    <div className="vertical reverse">
-                        <div className="platform-subheader">Suffrage</div>
-                    </div>
-                </div>
-            </div>
-            <div>
-            </div>
-          </div>
+           */}
         </div>
     }
 }
