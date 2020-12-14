@@ -1,29 +1,143 @@
 import React from "react";
-import { World, Axis, TraitIcon } from "../World";
+import { World, TraitIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { PolicyDropdown } from "../widgets/PolicyDropdown";
 import { PolicyTree, PolicyByKey, IPolicy } from "../simulation/Politics";
 import { PrimaryBeliefData } from "../simulation/Beliefs";
+import { ILaw, LawAxis, LawGroup, LawKey } from "../simulation/Government";
 
 export interface PartyOverviewPS{
     world: World;
-    setPolicy(axis: Axis, policy: IPolicy): void;
+    setPolicy(axis: LawAxis, policy: IPolicy): void;
 }
 interface PartyOverviewS{
-
+    detailView: 'none'|'group_add'|'law_view',
+    detailGroup?: LawGroup,
+    detailLaw?: ILaw,
+    collapsedGroups: {[key in LawGroup]: boolean}
 }
 
 export class PartyOverview extends React.Component<PartyOverviewPS, PartyOverviewS> {
     constructor(props: any) {
         super(props);
+        this.state = {
+            detailView: 'none',
+            collapsedGroups: {
+                Crime: false,
+                Taxation: false,
+                Welfare: false,
+                Culture: false,
+                Economics: false,
+            }
+        }
     }
-    setPolicy(axis: Axis){
+    setPolicy(axis: LawAxis){
         return (policyKey: string) => {
             const pol = PolicyByKey(policyKey);
             if (pol){
                 this.props.setPolicy(axis, pol);
             }
         }
+    }
+    renderDetailLaw(){
+        return  <div>
+        <div className="horizontal">
+            <strong className="f-size-15em">
+                Food Banks
+            </strong>
+            <span>
+                <span className="badge pos">
+                    +🦅
+                </span>
+                <span className="badge neg">
+                    -🦅
+                </span>
+            </span>
+        </div>
+        <div>
+            <i>Government Policy for Food Welfare</i>
+        </div>
+        <div>
+            <p>
+                Hungry Subjects are provided food purchased by the government.
+            </p>
+            <div className="horizontal">
+                <span>
+                    <strong>Subjects Fed:</strong> 1
+                </span>
+                <span>
+                    <strong>Last Monthly Cost:</strong> $1
+                </span>
+            </div>
+            <div className="horizontal">
+                <span>
+                    <strong>Max. Monthly Cost:</strong> <input type="number" />
+                </span>
+            </div>
+            <strong>Incompatible with</strong> <i>Let Them Eat Cake</i>, <i>Food Stamps</i>, <i>Universal Rations</i>
+        </div>
+    </div>;
+    }
+    renderDetailGroup(){
+        return <div>
+            <div className="horizontal">
+                <strong className="f-size-15em">
+                    Food Banks
+                </strong>
+                <span>
+                    <span className="badge pos">
+                        +🦅
+                    </span>
+                    <span className="badge neg">
+                        -🦅
+                    </span>
+                </span>
+                <button className="callout marg-0">
+                    Adopt for 3 🗳️ 
+                </button>
+            </div>
+            <div>
+                <i>Government Policy for Food Welfare</i>
+            </div>
+            <div>
+                <p>
+                    Hungry Subjects are provided food purchased by the government.
+                </p>
+                <div className="horizontal">
+                    <span>
+                        <strong>Max. Monthly Cost:</strong> <input type="number" />
+                    </span>
+                </div>
+                <strong>Incompatible with</strong> <i>Let Them Eat Cake</i>, <i>Food Stamps</i>, <i>Universal Rations</i>
+            </div>
+        </div>;
+    }
+    toggleGroup(group: LawGroup){
+        this.state.collapsedGroups[group] = !this.state.collapsedGroups[group];
+        this.setState({collapsedGroups: this.state.collapsedGroups});
+    }
+    renderHeader(group: LawGroup){
+        return <tr>
+            <td>
+                <strong>{group}</strong>
+            </td>
+            <td>
+                <button className="callout marg-0" onClick={() => this.setState({detailView: 'group_add'})}>Add 🗳️</button>
+                <button className="callout marg-0" onClick={() => this.toggleGroup(group)}>📁</button>
+            </td>
+        </tr>
+    }
+    renderRow(group: LawGroup){
+        if (this.state.collapsedGroups[group])
+            return null;
+        return <tr>
+            <td>
+                <i>Food Bank</i> 🦅
+            </td>
+            <td>
+                <button onClick={() => this.setState({detailView: 'law_view'})} className="callout marg-0">🔍</button>
+            </td>
+        </tr>;
     }
     render(){
         const hqs = this.props.world.cities.filter((x) => x.partyHQ != null);
@@ -53,112 +167,21 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 <div className="max-h-365">
                 <table className="full">
                     <tbody>
-                        <tr>
-                            <td>
-                                <strong>Taxation</strong>
-                            </td>
-                            <td>
-                                <button className="callout marg-0">Add 🗳️</button>
-                                <button className="callout marg-0">📁</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Poll Tax</i> 🦅
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Welfare</strong>
-                            </td>
-                            <td>
-                                <button className="callout marg-0">Add 🗳️</button>
-                                <button className="callout marg-0">📁</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Food Bank</i> 🦅
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Universal Healthcare</i> 🕊️ 
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Council Housing</i> 🕊️ 
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Economics</strong>
-                            </td>
-                            <td>
-                                <button className="callout marg-0">Add 🗳️</button>
-                                <button className="callout marg-0">📁</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Grain Subsidy</i> 🦅
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Crime</strong>
-                            </td>
-                            <td>
-                                <button className="callout marg-0">Add 🗳️</button>
-                                <button className="callout marg-0">📁</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Free Speech</i> 🦅
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <strong>Culture</strong>
-                            </td>
-                            <td>
-                                <button className="callout marg-0">Add 🗳️</button>
-                                <button className="callout marg-0">📁</button>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <i>Secularism</i> 🦅
-                            </td>
-                            <td>
-                                <button className="callout marg-0">🔍</button>
-                            </td>
-                        </tr>
+                        {this.renderHeader('Taxation')}
+                        {this.renderRow('Taxation')}
+                        {this.renderHeader('Welfare')}
+                        {this.renderRow('Welfare')}
+                        {this.renderHeader('Economics')}
+                        {this.renderRow('Economics')}
+                        {this.renderHeader('Crime')}
+                        {this.renderRow('Crime')}
+                        {this.renderHeader('Culture')}
+                        {this.renderRow('Culture')}
                     </tbody>
                 </table>
                 </div>
                 <div className="border">
-
+                    {this.state.detailView === 'group_add' ? this.renderDetailGroup() : this.state.detailView === 'law_view' ? this.renderDetailLaw() : null}
                 </div>
             </div>
           <div className="policies">

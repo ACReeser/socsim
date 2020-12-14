@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import './chrome/chrome.css';
-import { World, TraitGood, Axis, Trait, TraitCommunity, TraitIdeals, TraitFaith } from './World';
+import { World, TraitGood, Trait, TraitCommunity, TraitIdeals, TraitFaith } from './World';
 import { GenerateWorld, GeneratePartyHQ, GenerateBuilding, GenerateBean, GetRandom } from './WorldGen';
 import { Modal } from './widgets/Modal';
 import { OverviewPanel } from './right-panel/OverviewPanel';
@@ -33,6 +33,7 @@ import { City, UFO } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
 import { TraitBelief } from './simulation/Beliefs';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
+import { LawAxis } from './simulation/Government';
 
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
@@ -275,7 +276,7 @@ class App extends React.Component<AppPs, AppState>{
       return true;
     }
   }
-  setPolicy = (axis: Axis, policy: IPolicy) => {
+  setPolicy = (axis: LawAxis, policy: IPolicy) => {
     this.state.world.party.platform[axis] = policy;
     this.state.world.calculateComputedState();
     this.setState({world: this.state.world});

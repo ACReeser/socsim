@@ -194,7 +194,6 @@ export type TraitSanity = 'mad'|'confused'|'sane';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitShelter|TraitHealth|TraitSanity;
-export type Axis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm'|'all';
 
 export const TraitIcon: {[key in Trait]: string} = {
     'state': '🕊️', 'ego': '🦅',

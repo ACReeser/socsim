@@ -128,13 +128,6 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
         if (homeCity.environment && withinLastYear(homeCity.environment, this.lastApprovalDate)){
             result.party.push({reason: 'Public Endorsement', mod: 0.2});   
         }
-        party.differingPolicies(law).forEach((policy) => {
-            if (policy.community && policy.community == this.community){
-                result.party.push({reason: 'Likes '+policy.name, mod: 0.1});
-            } else if (policy.ideals && policy.ideals == this.ideals){
-                result.party.push({reason: 'Likes '+policy.name, mod: 0.1});
-            }
-        });
         return result;
     }
     calculateBeliefs(econ: Economy, homeCity: City, law: Government, party: Party): void{

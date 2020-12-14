@@ -73,23 +73,12 @@ const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
     const world = new World();
  
-    world.law.policyTree = {
-        wel_food: PolicyByKey('0') as IPolicy,
-        wel_house: PolicyByKey('4') as IPolicy,
-        wel_health: PolicyByKey('8') as IPolicy,
-        econ_ex: PolicyByKey('13') as IPolicy,
-        econ_labor: PolicyByKey('15') as IPolicy,
-        econ_sub: NoPolicy,
-        cul_rel: PolicyByKey('21') as IPolicy,
-        cul_theo: NoPolicy,
-        cul_ed: NoPolicy,
-        law_vote: PolicyByKey('31') as IPolicy,
-        law_bribe: PolicyByKey('32') as IPolicy,
-        law_imm: PolicyByKey('35') as IPolicy,
-        tax_basic: PolicyByKey('38') as IPolicy,
-        tax_second: NoPolicy,
-        all: NoPolicy
-    };
+    world.law.laws = [
+        {group: 'Welfare', key: 'eat_cake', axis: 'wel_food'},
+        {group: 'Welfare', key: 'outside', axis: 'wel_house'},
+        {group: 'Welfare', key: 'stay_healthy', axis: 'wel_health'},
+        {group: 'Culture', key: 'secularism', axis: 'cul_rel'}
+    ];
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {

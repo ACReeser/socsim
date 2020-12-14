@@ -1,6 +1,6 @@
-import { Trait, Axis, TraitCommunity, TraitIdeals } from "../World";
+import { Trait, TraitCommunity, TraitIdeals } from "../World";
 import { IInstitution, IOrganization } from "./Institutions";
-import { Government } from "./Government";
+import { Government, LawAxis } from "./Government";
 
 
 export interface Party extends IInstitution{
@@ -13,13 +13,11 @@ export interface Party extends IInstitution{
     availableCampaigns: Campaign[];
     activeCampaigns: Campaign[];
 
-    platform: {[key in Axis]: IPolicy};
+    platform: {[key in LawAxis]: IPolicy};
 
     politicalCapital: number;
     materialCapital: number;
     labor: number;
-
-    differingPolicies(law: Government): IPolicy[];
 }
 
 export class BaseParty implements Party{
@@ -38,7 +36,7 @@ export class BaseParty implements Party{
     public materialCapital: number = 20;
     public labor: number = 10;
     public activeHQs: number[] = [];
-    public platform: {[key in Axis]: IPolicy} = {} as {[key in Axis]: IPolicy};
+    public platform: {[key in LawAxis]: IPolicy} = {} as {[key in LawAxis]: IPolicy};
 
     constructor(){
     }
@@ -50,12 +48,12 @@ export class BaseParty implements Party{
             }
         });
     }
-    differingPolicies(law: Government): IPolicy[]{
-        return Object.keys(this.platform).filter((key: string) => {
-            const ax = key as Axis;
-            return this.platform[ax] != law.policyTree[ax];
-        }).map((key) => this.platform[key as Axis]);
-    }
+    // differingPolicies(law: Government): IPolicy[]{
+    //     return Object.keys(this.platform).filter((key: string) => {
+    //         const ax = key as LawAxis;
+    //         return this.platform[ax] != law.laws[ax];
+    //     }).map((key) => this.platform[key as LawAxis]);
+    // }
 }
 
 export interface ICityPartyHQ{
@@ -75,7 +73,7 @@ export interface PoliticalEffect {
 export interface Policy {
     key: string; 
     fx: PoliticalEffect[];
-    axis?: Axis;
+    axis?: LawAxis;
 }
 export interface Campaign {
     key: string; 
@@ -89,7 +87,7 @@ export interface IPolicy{
     name: string, 
     community?: TraitCommunity, 
     ideals?: TraitIdeals, 
-    axis: Axis,
+    axis: LawAxis,
     hint?: string
 }
 export const NoPolicy: IPolicy = {key: '-1', name: 'No Policy', axis: 'all'};
@@ -125,9 +123,9 @@ export const Policies: IPolicy[] = [
  {key: '21', name: 'Secularism', community: 'ego', axis: 'cul_rel'},
  {key: '22', name: 'State Atheism', community: 'state', ideals: 'prog', axis: 'cul_rel'},
 
- {key: '23', name: 'Temple of Water 🌊', axis: 'cul_theo'},
- {key: '24', name: 'Church of Sun ☀️', axis: 'cul_theo'},
- {key: '25', name: 'Chapel of Clover ☘️', axis: 'cul_theo'},
+ {key: '23', name: 'Temple of Myth 🌊', axis: 'cul_theo'},
+ {key: '24', name: 'Church of the Future ☀️', axis: 'cul_theo'},
+ {key: '25', name: 'Chapel of Drama ☘️', axis: 'cul_theo'},
 
  {key: '26', name: 'Religious Schooling', community: 'state', ideals: 'trad', axis: 'cul_ed'},
  {key: '27', name: 'University Grants', community: 'ego', axis: 'cul_ed'},
@@ -155,13 +153,13 @@ export const Policies: IPolicy[] = [
 
 ];
 export const PolicyTree: {
-    [key in Axis]: IPolicy[]
+    [key in LawAxis]: IPolicy[]
 } = Policies.reduce((dict, pol) => {
     if (!dict[pol.axis])
         dict[pol.axis] =[];
     dict[pol.axis].push(pol);
     return dict;
-}, {} as {[key in Axis]: IPolicy[]});
+}, {} as {[key in LawAxis]: IPolicy[]});
 
 export function PolicyByKey(key: string): IPolicy|undefined{
     return Policies.find((p) => p.key == key);
