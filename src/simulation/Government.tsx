@@ -2,7 +2,7 @@ import { TraitCommunity, TraitIdeals } from "../World";
 import { IPolicy } from "./Politics";
 
 export type LawGroup = 'Taxation'|'Welfare'|'Economics'|'Crime'|'Culture';
-export type LawAxis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_ex'|'econ_labor'|'econ_sub'|'cul_rel'|'cul_theo'|'cul_ed'|'law_vote'|'law_bribe'|'law_imm'|'all';
+export type LawAxis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_sub'|'cul_rel'|'cul_theo';
 
 export type LawKey = 'eat_cake'
 |'food_bank'
@@ -57,11 +57,23 @@ export interface ILawData extends ILaw{
     hint?: string;
     description?: string;
 }
+export const LawAxisData: {[key in LawAxis]: {name: string}} = {
+    'wel_food': {name: 'Food Welfare'},
+    'wel_house': {name: 'Housing Welfare'},
+    'wel_health': {name: 'Healthcare'},
+    'tax_basic': {name: 'Taxation'},
+    'tax_second': {name: 'Advanced Taxation'},
+    'econ_sub': {name: 'Subsidies'},
+    'cul_rel': {name: 'Culture'},
+    'cul_theo': {name: 'Theocracy'},
+}
 export const LawData: {[key in LawKey]: ILawData} = {
     'eat_cake':{
         key: 'eat_cake', group: 'Welfare', name: 'Let Them Eat Cake', ideals: 'trad', community: 'ego', axis: 'wel_food', hint: 'No state solution for hunger'},
     'food_bank':{
-        key: 'food_bank', group: 'Welfare', name: 'Food Bank', ideals: 'prog', community: 'ego', axis: 'wel_food'},
+        key: 'food_bank', group: 'Welfare', name: 'Food Bank', ideals: 'prog', community: 'ego', axis: 'wel_food',
+        description: 'Hungry Subjects are provided food purchased by the government.'
+    },
     'food_stamps':{
         key: 'food_stamps', group: 'Welfare', name: 'Food Stamps', ideals: 'trad', community: 'state', axis: 'wel_food'},
     'univ_rations':{

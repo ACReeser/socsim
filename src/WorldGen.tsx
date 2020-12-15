@@ -1,6 +1,6 @@
 import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './simulation/Bean';
-import { Policy, BaseParty, CityPartyHQ, Party, PolicyByKey, PolicyTree, IPolicy, NoPolicy } from './simulation/Politics';
+import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
 import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint } from './simulation/Geography';
 import { City } from './simulation/City';
 import { BeliefsAll } from './simulation/Beliefs';

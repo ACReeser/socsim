@@ -226,6 +226,9 @@ button.pull-r{
 .marg-b-6{
   margin-bottom: 6px;
 }
+.marg-t-20{
+  margin-top: 20px;
+}
 .grow-1{
   flex-grow: 1;
 }

@@ -2,9 +2,9 @@ import React from "react";
 import { World, TraitIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { PolicyDropdown } from "../widgets/PolicyDropdown";
-import { PolicyTree, PolicyByKey, IPolicy } from "../simulation/Politics";
+import { IPolicy } from "../simulation/Politics";
 import { PrimaryBeliefData } from "../simulation/Beliefs";
-import { ILaw, LawAxis, LawGroup, LawKey } from "../simulation/Government";
+import { ILaw, LawAxis, LawAxisData, LawData, LawGroup, LawKey } from "../simulation/Government";
 
 export interface PartyOverviewPS{
     world: World;
@@ -32,18 +32,16 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
         }
     }
     setPolicy(axis: LawAxis){
-        return (policyKey: string) => {
-            const pol = PolicyByKey(policyKey);
-            if (pol){
-                this.props.setPolicy(axis, pol);
-            }
-        }
     }
-    renderDetailLaw(){
+    renderDetailLaw(law: LawKey){
+        const ldata = LawData[law];
+        const incompatibilities = Object.values(LawData).filter(
+            (x) => x.key != law && x.axis === ldata.axis
+        );
         return  <div>
         <div className="horizontal">
             <strong className="f-size-15em">
-                Food Banks
+                {ldata.name}
             </strong>
             <span>
                 <span className="badge pos">
@@ -55,11 +53,13 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             </span>
         </div>
         <div>
-            <i>Government Policy for Food Welfare</i>
+            <i>Government Policy for
+                {LawAxisData[ldata.axis].name}
+            </i>
         </div>
         <div>
             <p>
-                Hungry Subjects are provided food purchased by the government.
+                {ldata.description}
             </p>
             <div className="horizontal">
                 <span>
@@ -74,7 +74,11 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                     <strong>Max. Monthly Cost:</strong> <input type="number" />
                 </span>
             </div>
-            <strong>Incompatible with</strong> <i>Let Them Eat Cake</i>, <i>Food Stamps</i>, <i>Universal Rations</i>
+            <strong>Incompatible with</strong>
+            {
+                incompatibilities.map((x, i) => <i key={x.name}>{i > 0 ? <span>,</span>: null} {x.name}</i>
+                )
+            }
         </div>
     </div>;
     }
@@ -147,14 +151,17 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             <div className="col-2">
                 <h2 className="marg-b-0">Utopia Government</h2>
                 <div>
-                    <h2 className="marg-b-0">5 🗳️ 
-                        <small>
-                        Leadership
-                        </small>                        
-                        <button type="button" className="callout pull-r">
-                        🧪 View Research Lab
+                    <div className="horizontal blue-orange cylinder f-size-15em marg-t-20">
+                        <button type="button" className="active">
+                            📜 Laws
                         </button>
-                    </h2>  
+                        <button type="button" className=" ">
+                            5 🗳️ Leadership
+                        </button>
+                        <button type="button" className="">
+                            💰 Funding
+                        </button>
+                    </div>
                 </div>
             </div>
             <div className="pad-4p">
@@ -181,7 +188,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 </table>
                 </div>
                 <div className="border">
-                    {this.state.detailView === 'group_add' ? this.renderDetailGroup() : this.state.detailView === 'law_view' ? this.renderDetailLaw() : null}
+                    {this.renderDetail()}
                 </div>
             </div>
           <div className="policies">
@@ -240,5 +247,13 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
           </div>
            */}
         </div>
+    }
+    renderDetail(): React.ReactNode {
+        if (this.state.detailView === 'group_add'){
+            return this.renderDetailGroup();
+        } else if (this.state.detailView === 'law_view'){
+            return this.renderDetailLaw('stay_healthy')
+        }
+        return null;
     }
 }
