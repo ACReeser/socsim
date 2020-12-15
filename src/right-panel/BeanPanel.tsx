@@ -207,8 +207,8 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </div>
                 <div className="card-parent">
                     <button type="button" className="button card" onClick={this.scan} 
-                        title="Drain a bit of this being's brain">
-                        🤪 Siphon
+                        title="Steal a bit of this being's mind">
+                        🤪 Braindrain
                         <small>-Energy -Sanity +Psi</small>
                     </button>
                     <button type="button" className="button card" onClick={this.vaporize}
