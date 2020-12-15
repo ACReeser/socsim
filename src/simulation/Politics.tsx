@@ -15,9 +15,7 @@ export interface Party extends IInstitution{
 
     platform: {[key in LawAxis]: IPolicy};
 
-    politicalCapital: number;
-    materialCapital: number;
-    labor: number;
+    leadership: number;
 }
 
 export class BaseParty implements Party{
@@ -32,21 +30,11 @@ export class BaseParty implements Party{
     public proposedPolicy?: Policy;
     public availableCampaigns: Campaign[] = [];
     public activeCampaigns: Campaign[] = [];
-    public politicalCapital: number = 10;
-    public materialCapital: number = 20;
-    public labor: number = 10;
+    public leadership: number = 10;
     public activeHQs: number[] = [];
     public platform: {[key in LawAxis]: IPolicy} = {} as {[key in LawAxis]: IPolicy};
 
     constructor(){
-    }
-    fundOrganizations(): void{
-        this.organizations.forEach((org) => {
-            if (this.materialCapital >= org.seasonalBudget){
-                this.materialCapital -= org.seasonalBudget;
-                org.cash += org.seasonalBudget;
-            }
-        });
     }
     // differingPolicies(law: Government): IPolicy[]{
     //     return Object.keys(this.platform).filter((key: string) => {

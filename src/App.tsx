@@ -217,7 +217,6 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   support = (bean: Bean) => {
-    this.state.world.party.politicalCapital -= 1;
     bean.lastApprovalDate = Now(this.state.world);
     if (bean.city)
       bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);

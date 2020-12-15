@@ -97,13 +97,6 @@ export class City extends Geography implements Tile, IBeanContainer {
         this.historicalBeans.push(bean);
     }
     getTaxesAndDonations(party: Party, economy: Economy){
-        if (this.partyHQ){
-            this.beans.forEach((b) => {
-                const donation = b.maybeDonate(economy);
-                party.materialCapital += donation;
-                this.yearsPartyDonations += donation;
-            });
-        }
     }
     calculate(economy: Economy, law: Government) {
         this.costOfLiving = economy.getCostOfLiving();

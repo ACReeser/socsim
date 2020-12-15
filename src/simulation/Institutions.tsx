@@ -9,7 +9,6 @@ export interface IInstitution{
     name: string;
 
     organizations: IOrganization[];
-    fundOrganizations(): void;
 }
 
 export interface IOrganization extends ISeller{

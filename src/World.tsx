@@ -99,8 +99,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
         
         this.economy.resetSeasonalDemand();
 
-        this.institutions.forEach((i) => i.fundOrganizations());
-
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
         shuffle(this.beans).forEach((b: Bean) => {

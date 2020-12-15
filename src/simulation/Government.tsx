@@ -107,11 +107,11 @@ export const LawData: {[key in LawKey]: ILawData} = {
     'atheism':{
         key: 'atheism', group: 'Culture', name: 'State Atheism', community: 'state', ideals: 'prog', axis: 'cul_rel'},
     'mythology':{
-        key: 'mythology', group: 'Culture', name: 'Temple of Myth 🌊', axis: 'cul_theo'},
+        key: 'mythology', group: 'Culture', name: 'Temple of Myth 🐲', axis: 'cul_theo'},
     'futurism':{
-        key: 'futurism', group: 'Culture', name: 'Church of the Future ☀️', axis: 'cul_theo'},
+        key: 'futurism', group: 'Culture', name: 'Church of the Future 🚀', axis: 'cul_theo'},
     'drama':{
-        key: 'drama', group: 'Culture', name: 'Chapel of Drama ☘️', axis: 'cul_theo'},
+        key: 'drama', group: 'Culture', name: 'Chapel of Drama 🎵', axis: 'cul_theo'},
     // '':{key: // , group: '', name: 'Religious Schooling', community: 'state', ideals: 'trad', axis: 'cul_ed'},
     // '':{key: // , group: '', name: 'University Grants', community: 'ego', axis: 'cul_ed'},
     // '':{key: // , group: '', name: 'College For All', community: 'state', ideals: 'prog', axis: 'cul_ed'},
@@ -129,6 +129,9 @@ export const LawData: {[key in LawKey]: ILawData} = {
         key: 'death_tax', group: 'Taxation', name: 'Death Tax', ideals: 'prog', axis: 'tax_second'},
 }
 
+export type LawGroupToLaws = {
+    [key in LawGroup]: ILaw[]
+};
 export class Government{
     public get laws(): ILaw[] {
         return Object.values(this.lawTree);
@@ -136,7 +139,19 @@ export class Government{
     public set laws(val: ILaw[]) {
         val.forEach((v) => {
             this.lawTree[v.axis] = v;
-        })
+        });
+    }
+    public getLawsByGroup(): LawGroupToLaws {
+        return this.laws.reduce((d, x) => {
+            d[x.group].push(x);
+            return d;
+        }, {
+            Taxation: [] as ILaw[],
+            Welfare: [] as ILaw[],
+            Economics: [] as ILaw[],
+            Crime: [] as ILaw[],
+            Culture: [] as ILaw[]
+        });
     }
     public lawTree: {[key in LawAxis]: ILaw} = {} as {[key in LawAxis]: ILaw};
 }
