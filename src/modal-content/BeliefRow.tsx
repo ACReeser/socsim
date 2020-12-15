@@ -5,6 +5,7 @@ import { BeliefSubject, BeliefVerb, SecondaryBeliefData, TraitBelief, Belief, Be
 import { BeliefSubjectDropdown, OtherVerbDropdown, SelfVerbDropdown, StringDropdown } from "../widgets/StringDropdown";
 import { TraitIcon } from "../World";
 import { IDifficulty } from "../Game";
+import { ConfirmButton } from "../widgets/ConfirmButton";
 
 export class EditBeliefInput extends React.Component<{
     data: IBeliefData,
@@ -24,9 +25,10 @@ export class EditBeliefInput extends React.Component<{
                     {this.props.data.icon}
                 </div>
                 {
-                    this.props.frozen ? null : <button className="callout pad-4 marg-0" disabled={this.props.available < this.props.cost} onClick={this.props.wash}>
+                    this.props.frozen ? null : <ConfirmButton className="callout pad-4 marg-0"
+                        confirmText={'-'+this.props.cost.toString()+'🧠?'} disabled={this.props.available < this.props.cost} onConfirm={this.props.wash}>
                     🚿 <small>Wash</small>
-                    </button>
+                    </ConfirmButton>
                 }
             </div>
             <div className="vertical">
@@ -71,10 +73,10 @@ export class AddBeliefInput extends React.Component<{
                 <div className="circular">
                     {data.icon}
                 </div>
-                <button className="callout grow-0 pad-4 marg-0" disabled={this.props.available < this.props.cost} 
-                    onClick={() => this.props.add(this.state.belief)}>
+                <ConfirmButton className="callout grow-0 pad-4 marg-0" disabled={this.props.available < this.props.cost} 
+                    confirmText={'-'+this.props.cost.toString()+'🧠?'} onConfirm={() => this.props.add(this.state.belief)}>
                     💉 <small>Implant</small>
-                </button>
+                </ConfirmButton>
             </div>
             <div className="vertical">
                 <div className="text-center">                    

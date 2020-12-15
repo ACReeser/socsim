@@ -31,7 +31,7 @@ import { BuildingTypes, HexPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City, UFO } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
-import { TraitBelief } from './simulation/Beliefs';
+import { SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { LawAxis } from './simulation/Government';
 
@@ -244,6 +244,7 @@ class App extends React.Component<AppPs, AppState>{
   }
   washMotive = (bean: Bean, a: TraitIdeals) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)){
+      bean.discrete_sanity -= this.state.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0;
       if (bean.ideals === 'prog')
         bean.ideals = 'trad';
       else bean.ideals = 'prog';
@@ -253,6 +254,7 @@ class App extends React.Component<AppPs, AppState>{
   }
   washNarrative = (bean: Bean, a: TraitFaith) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)){
+      bean.discrete_sanity -= this.state.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0;
       const oldFaith = bean.faith;
       while (bean.faith === oldFaith)
         bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
@@ -265,6 +267,7 @@ class App extends React.Component<AppPs, AppState>{
       bean.beliefs.splice(
         bean.beliefs.indexOf(a), 1
       );
+      bean.discrete_sanity -= this.state.world.alien.difficulty.cost.bean.brainwash_secondary.psi || 0;
       this.setState({world: this.state.world});
       return true;
     }
@@ -272,6 +275,7 @@ class App extends React.Component<AppPs, AppState>{
   implantBelief = (bean: Bean, a: TraitBelief) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainimplant_secondary)){
       bean.beliefs.push(a);
+      bean.discrete_sanity -= this.state.world.alien.difficulty.cost.bean.brainimplant_secondary.psi || 0;
       this.setState({world: this.state.world});
       return true;
     }

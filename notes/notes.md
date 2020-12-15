@@ -135,3 +135,19 @@ change job/opinions
 
 ## Sprinkle Government
 * have authority figures unlock policies
+
+# Juice
+* "cut-scene" when subjects die
+  * pause time
+  * fade-to-black-and-back if execution
+  * ragdoll
+  * unpause time
+* extra utopia customization
+  * bean titles
+
+* beans who get caught have a punishment cutscene modal
+* actions to "pardon" or "condemn" beans who commit crimes
+  * making their punishment worse or better
+* goal reward cutscene modal for juice
+
+* buildings need "max occupancy" for job slots to force cities to grow
