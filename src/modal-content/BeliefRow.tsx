@@ -6,6 +6,7 @@ import { BeliefSubjectDropdown, OtherVerbDropdown, SelfVerbDropdown, StringDropd
 import { TraitIcon } from "../World";
 import { IDifficulty } from "../Game";
 import { ConfirmButton } from "../widgets/ConfirmButton";
+import { RenderIdealBadges } from "../widgets/UniversalWidgets";
 
 export class EditBeliefInput extends React.Component<{
     data: IBeliefData,
@@ -41,11 +42,11 @@ export class EditBeliefInput extends React.Component<{
                 <small className="marg-b-6">{this.props.data.description}</small>
                 <div className="grow-1 text-center">
                     {
-                        (this.props.data.idealPro || []).map((x) => <span className="pos badge align-mid">+{TraitIcon[x]}</span>)
+                        RenderIdealBadges(this.props.data.idealPro || [], 'pos')
                     }
                     {
-                        (this.props.data.idealCon || []).map((x) => <span className="neg badge align-mid">-{TraitIcon[x]}</span>)
-                    }
+                        RenderIdealBadges(this.props.data.idealCon || [], 'neg')
+                    } 
                 </div>
             </div>
         </div></div>

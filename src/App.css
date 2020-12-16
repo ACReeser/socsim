@@ -361,14 +361,24 @@ ul.boxes li{
   max-height: 365px;
   overflow-y: auto;
 }
-.m-t-2em{
+.marg-t-2em{
   margin-top: 2em;
 }
 .marg-0{
   margin: 0;
 }
-.f-size-15em{
-  font-size: 1.5em;
+.pad-l-40{
+  padding-left: 40px;
+}
+.pad-bt-8{
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.f-size-125em{
+  font-size: 1.25em;
+}
+.border-b-1{
+  border-bottom: 1px solid black;
 }
 
 .border{

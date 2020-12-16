@@ -3,7 +3,9 @@ import { World, TraitIcon } from "../World";
 import { policy, keyToName } from "../App";
 import { IPolicy } from "../simulation/Politics";
 import { PrimaryBeliefData } from "../simulation/Beliefs";
-import { ILaw, LawAxis, LawAxisData, LawData, LawGroup, LawKey } from "../simulation/Government";
+import { ILaw, ILawData, LawAxis, LawAxisData, LawData, LawGroup, LawKey } from "../simulation/Government";
+import { RenderIdealBadges } from "../widgets/UniversalWidgets";
+import { groupBy } from "../simulation/Utils";
 
 export interface PartyOverviewPS{
     world: World;
@@ -14,7 +16,8 @@ interface PartyOverviewS{
     detailView: 'none'|'group_add'|'law_view',
     detailGroup?: LawGroup,
     detailLaw?: ILaw,
-    collapsedGroups: {[key in LawGroup]: boolean}
+    collapsedGroups: {[key in LawGroup]: boolean},
+    collapsedAxis: {[key in LawAxis]: boolean},
 }
 
 export class PartyOverview extends React.Component<PartyOverviewPS, PartyOverviewS> {
@@ -29,28 +32,25 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 Welfare: false,
                 Culture: false,
                 Economics: false,
+            },
+            collapsedAxis: {
+                'wel_food': false,'wel_house': false,'wel_health': false,'tax_basic': false,'tax_second': false,'econ_sub': false,'cul_rel': false,'cul_theo': false,'crime_theo': false
             }
         }
     }
-    setPolicy(axis: LawAxis){
-    }
-    renderDetailLaw(law: LawKey, view: 'edit'|'add'){
+    renderDetailLaw(law: LawKey, view: 'edit'|'add', partOfGroup: boolean = false){
         const ldata = LawData[law];
         const incompatibilities = Object.values(LawData).filter(
             (x) => x.key != law && x.axis === ldata.axis
         );
-        return  <div>
+        const rowClassName = view === 'add' ? 'border-b-1 pad-bt-8' : '';
+        return  <div key={law} className={rowClassName+(partOfGroup ? ' pad-l-40': '')}>
         <div className="horizontal">
             <strong className="f-size-15em">
                 {ldata.name}
             </strong>
             <span>
-                <span className="badge pos">
-                    +🦅
-                </span>
-                <span className="badge neg">
-                    -🦅
-                </span>
+                {RenderIdealBadges(ldata.idealPro || [], 'pos')}
             </span>
             {
                 view === 'add' ? 
@@ -59,10 +59,12 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                 </button> : null
             }
         </div>
-        <div>
-            <i>Government Policy for&nbsp;{LawAxisData[ldata.axis].name}
-            </i>
-        </div>
+        {
+            (partOfGroup ? null : <div>
+                <i>Government Policy for&nbsp;{LawAxisData[ldata.axis].name}
+                </i>
+            </div>)
+        }
         <div>
             <p>
                 {ldata.description}
@@ -91,10 +93,30 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
         </div>
     </div>;
     }
-    renderDetailGroup(group: LawGroup){
-        return Object.values(LawData).filter(x => x.group === group).map((y) => {
-            return this.renderDetailLaw(y.key, 'add')
-        })
+    renderDetailGroup(group: LawGroup): JSX.Element[]{
+        const divs: JSX.Element[] = [];
+        groupBy(Object.values(LawData).filter(x => x.group === group), (y: ILawData) => {
+            return y.axis;
+        }).forEach((val) => {
+            const isGroup = (val.length > 1);
+            if (isGroup){
+                divs.push(<div>
+                    <h3>
+                        {LawAxisData[val[0].axis].name}
+                        <button className="callout marg-0 pull-r" onClick={() => {
+                            this.state.collapsedAxis[val[0].axis] = !this.state.collapsedAxis[val[0].axis];
+                            this.setState({collapsedAxis: this.state.collapsedAxis});
+                        }}>📁</button>
+                    </h3>
+                </div>);
+            }
+            if (!isGroup || !this.state.collapsedAxis[val[0].axis]){
+                val.forEach((z) => {
+                    divs.push(this.renderDetailLaw(z.key, 'add', isGroup))
+                });
+            }
+        });
+        return divs;
     }
     toggleGroup(group: LawGroup){
         this.state.collapsedGroups[group] = !this.state.collapsedGroups[group];
@@ -116,9 +138,12 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             return null;
         return laws.map((x) => {
             const data = LawData[x.key];
-            return <tr>
+            return <tr key={x.key}>
             <td>
-                <i>{data.name}</i> 🦅
+                <i>{data.name}</i> 
+                {
+                    (data.idealPro || []).map((x) => TraitIcon[x])
+                }
             </td>
             <td>
                 <button onClick={() => this.setState({detailView: 'law_view', detailLaw: x})} className="callout marg-0">View 🔍</button>
@@ -131,7 +156,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             <div className="col-2">
                 <h2 className="marg-b-0">Utopia Government</h2>
                 <div>
-                    <div className="horizontal blue-orange cylinder f-size-15em marg-t-20">
+                    <div className="horizontal blue-orange cylinder f-size-125em marg-t-20">
                         <button type="button" onClick={() => this.setState({overView: 'laws'})} className={this.state.overView === 'laws' ? 'active': ''}>
                             📜 Laws
                         </button>
