@@ -2,11 +2,13 @@ import { ChangePubSub } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, ResourceTriad } from "../Game";
 import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
+import { IBean } from "./Agent";
 import { IDate } from "./Time";
 
 
 export interface IPlayerData{
     scanned_bean: {[beanKey: number]: boolean};
+    abductedBeans: IBean[];
     energy: IResource;
     psi: IResource;
     bots: IResource;
@@ -137,6 +139,7 @@ export function GetAverage(reportCard: IReportCard): Grade{
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
     public speechcrimes: {[year: number]: number} = {};
+    public abductedBeans: IBean[] = [];
     public energy = { amount: 10, income: 2, change: new ChangePubSub()};
     public psi = { amount: 10, income: 2, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2, change: new ChangePubSub()};

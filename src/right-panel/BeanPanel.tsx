@@ -27,6 +27,7 @@ interface BeanPanelP{
     bus: EventBus
     scan: (bean: Bean) => boolean;
     vaporize: (bean: Bean) => void;
+    abduct: (bean: Bean) => void;
     brainwash: () => void;
     gift: () => void;
 }
@@ -56,6 +57,11 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     }
     support = () => {
         this.setState({faceOverride: '🤩'});
+        this._resetFace();
+    }
+    abduct = () => {
+        this.props.abduct(this.props.bean);
+        this.setState({faceOverride: '😨'});
         this._resetFace();
     }
     _resetFace(){
@@ -220,6 +226,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </div>
                 <div className="card-parent">
                     <button type="button" className="button card"
+                        onClick={() => this.abduct()}
                         title="Remove this being for study"
                     >
                         👾 Abduct for Research

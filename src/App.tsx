@@ -216,6 +216,22 @@ class App extends React.Component<AppPs, AppState>{
       this.setState({world: this.state.world});
     }
   }
+  abduct = (bean: Bean) => {
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.abduct)){
+      bean.abduct(this.state.world.alien);
+      this.setState({world: this.state.world});
+    }
+  }
+  releaseBean = () => {
+    if(this.state.world.alien.abductedBeans.length > 0){
+      const lucky_bean = this.state.world.alien.abductedBeans.shift();
+      if (lucky_bean instanceof Bean){
+        lucky_bean.lifecycle = 'alive';
+      } else {
+        window.alert("releasing data beans is unimplemented");
+      }
+    }
+  }
   support = (bean: Bean) => {
     bean.lastApprovalDate = Now(this.state.world);
     if (bean.city)
@@ -306,6 +322,7 @@ class App extends React.Component<AppPs, AppState>{
                 economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
                 scan={this.scan} vaporize={this.vaporize}
                 brainwash={() => this.setState({activeModal:'brainwash'})}
+                abduct={this.abduct}
                 gift={() => this.setState({activeModal:'brainwash'})}
                 clearCity={() => this.setState({activeCityID: null, activeBeanID: null})}></BeanPanel>
             }
@@ -383,8 +400,8 @@ class App extends React.Component<AppPs, AppState>{
         <Modal show={this.state.activeModal == 'party'} onClick={() => this.setState({activeModal: null})}>
           <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
         </Modal>
-        <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({activeModal: null})} hideCloseButton={true}>
-          <ResearchPanel></ResearchPanel>
+        <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({activeModal: null})}>
+          <ResearchPanel release={this.releaseBean} player={this.state.world.alien}></ResearchPanel>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <GovernmentPanel world={this.state.world}></GovernmentPanel>

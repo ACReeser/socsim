@@ -9,6 +9,7 @@ import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
 import { IDifficulty } from "../Game";
 import { TraitBelief } from "./Beliefs";
+import { ISeller } from "./Economy";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
 
@@ -313,7 +314,7 @@ export function ActivityIcon(data: IActivityData): string{
 /**
  * a bean is a citizen with preferences
  */
-export interface IBean{    
+export interface IBean extends ISeller, IMover, IAgent{    
     key: number;
     cityKey: number;
     name: string;
@@ -324,9 +325,12 @@ export interface IBean{
     shelter: TraitShelter;
     health: TraitHealth;
     discrete_food: number;
+    discrete_sanity: number;
+    discrete_stamina: number;
     cash: number;
     dob: IDate;
     sanity: TraitSanity;
+    lifecycle: 'alive'|'dead'|'abducted'
 }
 
 export interface IMover{

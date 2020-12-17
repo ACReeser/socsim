@@ -10,20 +10,26 @@ import { Point } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
-
+import { IPlayerData } from "./Player";
 
 const BabyChance = 0.01;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
-export class Bean implements IBean, ISeller, IMover, IAgent{
+export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
-    public alive: boolean = true;
     public dob: IDate = {year: 0, season: 0, day: 1};
     public bornInPetri: boolean = false;
     public name: string = 'Human Bean';
     public sanity: TraitSanity = 'sane'
     public discrete_sanity: number = 10;
+    public lifecycle: 'alive'|'dead'|'abducted' = 'alive';
+    public get alive(): boolean{
+        return this.lifecycle === 'alive';
+    }
+    public set alive(val: boolean){
+        this.lifecycle = val === true ? 'alive' : 'dead';
+    }
 
     public activity_queue: IActivityData[] = [];
     public speed = 60;
@@ -35,7 +41,6 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     public city: City|null = null;
 
     public ethnicity: TraitEthno = RandomEthno();
-    public lastApproval: IDate = {year: -1, season: 0, day: 0};
 
     //maslow
     public discrete_food: number = 1;
@@ -403,6 +408,10 @@ export class Bean implements IBean, ISeller, IMover, IAgent{
     die(){
         this.alive = false;
         this.city?.onCitizenDie(this);
+    }
+    abduct(player: IPlayerData){
+        this.lifecycle = 'abducted';
+        player.abductedBeans.push(this);
     }
 
     state: AgentState = IdleState.create();

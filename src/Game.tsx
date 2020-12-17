@@ -83,7 +83,10 @@ export const DefaultDifficulty: IDifficulty = {
             ['brainwash_ideal']: { psi: 4},
             ['brainimplant_secondary']: { psi: 3},
             ['brainwash_secondary']: {psi: 2},
-            abduct: {},
+            abduct: {
+                bots: 3,
+                psi: 1
+            },
             gift: {},
             empower: {},
             vaporize: {

@@ -1,10 +1,12 @@
 import React from "react";
+import { IPlayerData } from "../simulation/Player";
 import { ConfirmButton } from "../widgets/ConfirmButton";
 import { RobotArm } from "../widgets/RobotArm";
 import './research.css';
 
 export class ResearchPanel extends React.Component<{
-
+  player: IPlayerData,
+  release: () => void
 }, {
   toolI: number, toolI2: number, toolI3: number, toolI4: number
 }>{
@@ -86,24 +88,26 @@ export class ResearchPanel extends React.Component<{
               </div>
             </div>
             <div className="h-42em">
-              <span className="victim bean triangle shake">😨</span>
-              <span className="victim bean triangle shake">😨</span>
-              <span className="victim bean triangle shake">😨</span>
-              <span className="victim bean triangle shake">😨</span>
-              <span className="victim bean triangle shake">😨</span>
+              {
+                this.props.player.abductedBeans.map((b) => {
+                  return <span key={b.key} className="victim bean triangle shake">😨</span>
+                })
+              }
             </div>
 
             <div className="text-center">
-              Currently probing 0 beings for 0 tech a day
+              Currently probing {this.props.player.abductedBeans.length} beings for {this.props.player.abductedBeans.length} tech a day
               <p>
                 <small>1 tech per research subject per day</small>
               </p>
             </div>
-            <div className="text-right">
-              <ConfirmButton className="callout" onConfirm={() => {}} confirmText="-1 Research Subject?">
-              🎈 Release Research Subject
-              </ConfirmButton>
-            </div>
+            {
+              this.props.player.abductedBeans.length > 0 ? <div className="text-right">
+                <ConfirmButton className="callout" onConfirm={() => {this.props.release()}} confirmText="-1 Research Subject?">
+                🎈 Release Research Subject
+                </ConfirmButton>
+              </div> : null
+            }
           </div>
         </div>
         <div>
