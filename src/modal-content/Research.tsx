@@ -1,11 +1,12 @@
 import React from "react";
-import { IPlayerData, ITechInfo, TechData } from "../simulation/Player";
+import { IPlayerData, ITechInfo, Tech, TechData } from "../simulation/Player";
 import { ConfirmButton } from "../widgets/ConfirmButton";
 import { RobotArm } from "../widgets/RobotArm";
 import './research.css';
 
 export class ResearchPanel extends React.Component<{
   player: IPlayerData,
+  setResearch: (t: Tech) => void,
   release: () => void
 }, {
   toolI: number, toolI2: number, toolI3: number, toolI4: number
@@ -51,8 +52,8 @@ export class ResearchPanel extends React.Component<{
     if (this.interval != null)
       window.clearInterval(this.interval);
   }
-  setResearch(tech: any){
-
+  setResearch(tech: Tech){
+    this.props.setResearch(tech);
   }
   renderTech(tech: ITechInfo){
     const unstarted = this.props.player.techProgress[tech.tech] == null;
@@ -62,7 +63,8 @@ export class ResearchPanel extends React.Component<{
     const complete = progress >= total;
     const isCurrent = this.props.player.currentlyResearchingTech === tech.tech;
     const state: '⭕️'|'✅'|'🔬' = complete ? '✅' : isCurrent ? '🔬' : '⭕️';
-    return <div className="card-parent" key={tech.tech}>
+    const rootClassName = isCurrent ? 'active': 'inactive';
+    return <div className={"card-parent "+rootClassName} key={tech.tech}>
       <button className="card button" onClick={() => this.setResearch(tech.tech)}>
         <strong>{tech.name}</strong>
         <strong className="pull-r f-size-125em">{state}</strong>

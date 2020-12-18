@@ -34,6 +34,7 @@ import { BrainwashingContent } from './modal-content/Brainwashing';
 import { SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { LawAxis } from './simulation/Government';
+import { Tech } from './simulation/Player';
 
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
@@ -232,6 +233,10 @@ class App extends React.Component<AppPs, AppState>{
       }
     }
   }
+  setResearch = (t: Tech) => {
+    this.state.world.alien.currentlyResearchingTech = t;
+    this.setState({world: this.state.world});
+  }
   support = (bean: Bean) => {
     bean.lastApprovalDate = Now(this.state.world);
     if (bean.city)
@@ -401,7 +406,7 @@ class App extends React.Component<AppPs, AppState>{
           <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
         </Modal>
         <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({activeModal: null})}>
-          <ResearchPanel release={this.releaseBean} player={this.state.world.alien}></ResearchPanel>
+          <ResearchPanel release={this.releaseBean} setResearch={this.setResearch} player={this.state.world.alien}></ResearchPanel>
         </Modal>
         <Modal show={this.state.activeModal == 'policy'} onClick={() => this.setState({activeModal: null})}>
           <GovernmentPanel world={this.state.world}></GovernmentPanel>

@@ -33,12 +33,26 @@ h3.small{
 .card-parent .card.grow-0{
   flex-grow: 0;
 }
+.card-parent.active .card{
+  background: hsl(16, 100%, 60%);
+}
+.card-parent.inactive .card{
+  background: hsla(187, 100%, 57%, 0.5);
+}
 .card-parent .card.button:hover{
   background: hsl(16, 100%, 70%);
   transform: translateY(-6px);
 }
 .card-parent .card.button:active{
   background: hsl(16, 100%, 90%);
+}
+.card-parent.inactive .card.button:hover,
+.card-parent.inactive .card.button:active{
+  background: hsl(187, 100%, 70%);
+}
+.card-parent.active .card.button:hover,
+.card-parent.active .card.button:active{
+  background: hsl(17, 100%, 70%);
 }
 .card-parent .card small{
   display: block;
