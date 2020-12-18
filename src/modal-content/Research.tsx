@@ -1,5 +1,5 @@
 import React from "react";
-import { IPlayerData } from "../simulation/Player";
+import { IPlayerData, ITechInfo, TechData } from "../simulation/Player";
 import { ConfirmButton } from "../widgets/ConfirmButton";
 import { RobotArm } from "../widgets/RobotArm";
 import './research.css';
@@ -51,30 +51,42 @@ export class ResearchPanel extends React.Component<{
     if (this.interval != null)
       window.clearInterval(this.interval);
   }
-  renderTech(name: string, description: string, state: '⭕️'|'✅'|'🔬'){
-    return <div>
-      <strong>{name}</strong>
-      <strong className="pull-r">{state}</strong>
-      <div>
-        {description}
-      </div>
-      <div>
-        <small>
-        0/30 tech
-        </small>
-      </div>
+  setResearch(tech: any){
+
+  }
+  renderTech(tech: ITechInfo){
+    const unstarted = this.props.player.techProgress[tech.tech] == null;
+    const progress = unstarted ? 0 : this.props.player.techProgress[tech.tech].researchPoints;
+    const total = tech.techPoints;
+    const style = {width: (Math.min(progress/total*100, 100))+'%'};
+    const complete = progress >= total;
+    const isCurrent = this.props.player.currentlyResearchingTech === tech.tech;
+    const state: '⭕️'|'✅'|'🔬' = complete ? '✅' : isCurrent ? '🔬' : '⭕️';
+    return <div className="card-parent" key={tech.tech}>
+      <button className="card button" onClick={() => this.setResearch(tech.tech)}>
+        <strong>{tech.name}</strong>
+        <strong className="pull-r f-size-125em">{state}</strong>
+        <div>
+          {tech.description}
+        </div>      
+        <div className="bar f-size-12 h-12">
+            <div className="bar-inner text-center" style={style}>
+            </div>
+            {progress}/{total} tech
+        </div>
+      </button>
     </div>
   }
   render(){
+      const techs = Object.values(TechData);
       return <div>
           <div className="col-2">
             <div>
               <h2>Research Lab</h2>
               <div className="vertical">
-                {this.renderTech('Surgical Psychops', 'Brainwashing causes -1 🧠 sanity damage', '⭕️')}
-                {this.renderTech('0 Dimensional Supersiphons', 'Faster ⚡️🧠🤖 accumulation', '🔬')}
-                {this.renderTech('Trauma Nanobots', 'Spend 🤖 to stop Subject from dying', '⭕️')}
-                {this.renderTech('Advanced Marketing', 'Faster 🗳️ Leadership accumulation', '⭕️')}
+                {
+                  techs.map((t) => this.renderTech(t))
+                }
               </div>
             </div>
           <div className="vertical">

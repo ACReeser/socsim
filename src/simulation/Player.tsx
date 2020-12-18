@@ -13,6 +13,8 @@ export interface IPlayerData{
     psi: IResource;
     bots: IResource;
     workingReportCard: IReportCard;
+    techProgress: TechProgress;
+    currentlyResearchingTech: Tech|undefined;
 }
 
 export interface IResource{
@@ -136,6 +138,50 @@ export function GetAverage(reportCard: IReportCard): Grade{
     ) / 20);
 }
 
+export type Tech = 'halve_sanity'|'fast_resources'|'trauma_nanobots'|'fast_leadership';
+export interface ITechInfo{
+    tech: Tech,
+    /**
+     * number of tech points required to complete research
+     */
+    techPoints: number,
+    name: string,
+    description: string
+}
+export const TechData: {[key in Tech]: ITechInfo} = {
+    'halve_sanity': {
+        tech: 'halve_sanity',
+        name: 'Surgical Psychops',
+        techPoints: 30,
+        description: 'Brainwashing causes -1 🧠 sanity damage'
+    },
+    'fast_resources': {
+        tech: 'fast_resources',
+        name: '0 Dimensional Supersiphons',
+        techPoints: 30,
+        description: 'Faster ⚡️🧠🤖 accumulation'
+    },
+    'trauma_nanobots': {
+        tech: 'trauma_nanobots',
+        name: 'Trauma Nanobots',
+        techPoints: 30,
+        description: 'Spend 🤖 to stop Subject from dying'
+    },
+    'fast_leadership': {
+        tech: 'fast_leadership',
+        name: 'Advanced Marketing',
+        techPoints: 30,
+        description: 'Faster 🗳️ Leadership accumulation'
+    }
+}
+export interface IPlayerTechProgress{
+    /**
+     * number of research points
+     */
+    researchPoints: number
+}
+export type TechProgress = {[key: string]: IPlayerTechProgress};
+
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
     public speechcrimes: {[year: number]: number} = {};
@@ -154,11 +200,17 @@ export class Player implements IPlayerData, IProgressable{
         Stability: 'D',
         Dogma: 'D',
     };
+    public techProgress: TechProgress = {};
+    public currentlyResearchingTech: Tech|undefined;
 
     public canAfford(cost: ResourceTriad): boolean{
         return (cost.bots == undefined || this.bots.amount >= cost.bots) &&
         (cost.energy == undefined || this.energy.amount >= cost.energy) && 
         (cost.psi == undefined || this.psi.amount >= cost.psi);
+    }
+
+    public hasResearched(tech: Tech){
+        return this.techProgress[tech] != null && this.techProgress[tech].researchPoints >= TechData[tech].techPoints;
     }
 
     public purchase(cost: ResourceTriad){
