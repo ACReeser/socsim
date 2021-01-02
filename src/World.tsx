@@ -38,15 +38,14 @@ export interface IWorld{
     alien: Player;
 }
 export class World implements IWorld, IBeanContainer, IActListener{
+    public readonly bus = new EventBus();
+    public readonly economy: Economy = new Economy(this.bus);
     public cities: City[] = [];
     public law: Government = new Government();
-    public economy: Economy = new Economy();
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
     public date: IDate = {year: 1, season: Season.Spring, day: 1};
 
-    public yearsEvents: IEvent[] = [];
-    public bus = new EventBus();
     public alien: Player = new Player();
 
     public get beans(): Bean[]{
@@ -63,6 +62,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
         return this.institutions.reduce((list, institute) => {
             return list.concat(institute.organizations);
         }, [] as IOrganization[]);
+    }
+
+    constructor(){
+        this.bus.death.subscribe(this.onBeanDie)
     }
 
     /**
@@ -101,9 +104,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
         shuffle(this.beans).forEach((b: Bean) => {
-            let e = b.age(this.economy);
-            if (e) this.publishEvent(e);
-            e = b.maybeBaby(this.economy);
+            b.age(this.economy);
+            let e = b.maybeBaby(this.economy);
             if (e) this.publishEvent(e);
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
@@ -131,8 +133,16 @@ export class World implements IWorld, IBeanContainer, IActListener{
             }
         }
     }
+    onBeanDie = (e: IEvent) => {
+        const city = this.cities.find((x) => x.key === e.cityKey);
+        if (city){
+            const bean = city.historicalBeans.find((x) => x.key === e.beanKey);
+            if (bean){
+                this.economy.onBeanDie(bean);
+            }
+        }
+    }
     publishEvent(e: IEvent){
-        this.yearsEvents.push(e);
         this.bus[e.trigger].publish(e);
     }
     inflate() {
@@ -153,7 +163,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
         }
     }
     resetYearlyCounters() {
-        this.yearsEvents = [];
         this.cities.forEach((c) => {
             c.yearsPartyDonations = 0;
         })

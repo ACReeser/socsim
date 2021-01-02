@@ -220,7 +220,7 @@ class App extends React.Component<AppPs, AppState>{
   vaporize = (bean: Bean) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)){
       if (bean.city){
-        bean.die();
+        bean.die('vaporization');
       }
       this.setState({world: this.state.world});
     }
@@ -350,7 +350,7 @@ class App extends React.Component<AppPs, AppState>{
       case 'goals':
         return <GoalsPanel player={this.state.world.alien} progress={this.state.world.alien}></GoalsPanel>
       case 'events':
-        return <EventsPanel events={this.state.world.yearsEvents} selectBean={(beankey?: number) => {
+        return <EventsPanel events={this.state.world.bus.buffer} selectBean={(beankey?: number) => {
           if (beankey)
             this.setState({activeCityID: this.state.world.cities[0].key, activeBeanID: beankey, activeHex: null, activeRightPanel: 'overview'})
         }}></EventsPanel>

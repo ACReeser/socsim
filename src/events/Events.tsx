@@ -1,11 +1,12 @@
 import { IChatData } from "../simulation/Agent";
 
-export type EventTrigger = 'speechcrime'|'birth'|'death';
+export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots';
 
 export interface IEvent{
     icon: string;
     message: string;
     beanKey?: number;
+    cityKey?: number;
     trigger: EventTrigger;
 }
 
@@ -29,9 +30,21 @@ export class ChangePubSub extends PubSub<{change: number}>{
 }
 
 export type IEventBus = {[key in EventTrigger]: PubSub<IEvent>};
+export interface IEventBuffer{
+    buffer: IEvent[]   
+}
+export const EventBusBufferLength = 20; 
+export class EventBus implements IEventBus, IEventBuffer{
+    buffer: IEvent[] = [];
+    private sendToBuffer = (event: IEvent) => {
+        if (this.buffer.length > EventBusBufferLength){
+            this.buffer.pop();
+        }
+        this.buffer.unshift(event);
+    }
+    speechcrime = new PubSub<IEvent>(this.sendToBuffer);
+    nojobslots = new PubSub<IEvent>(this.sendToBuffer);
+    birth = new PubSub<IEvent>(this.sendToBuffer);
+    death = new PubSub<IEvent>(this.sendToBuffer);
 
-export class EventBus implements IEventBus{
-    speechcrime = new PubSub<IEvent>();
-    birth = new PubSub<IEvent>();
-    death = new PubSub<IEvent>();
 }

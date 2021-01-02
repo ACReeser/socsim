@@ -3,6 +3,7 @@ import { Bean } from "./Bean";
 import { IOrganization, Charity } from "./Institutions";
 import { City } from "./City";
 import { GetRandom } from "../WorldGen";
+import { IEvent, IEventBus } from "../events/Events";
 export interface IEconomicAgent{
     cash: number;
 }
@@ -25,8 +26,7 @@ export class Economy {
     unfulfilledSeasonalDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
     totalSeasonalDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
     totalSeasonalSupply: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
-    constructor(){
-
+    constructor(public eventBus: IEventBus){
     }
     public resetSeasonalDemand(){
         this.unfulfilledSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
@@ -79,7 +79,7 @@ export class Economy {
     }
     produceAndPrice(seller: Bean, good: TraitGood, quantity: number, price: number) {
         this.totalSeasonalSupply[good] += quantity;
-        const existing = this.market.getBeansListings(seller, good);
+        const existing = this.market.getBeansListings(seller.cityKey, seller.key, good);
         if (existing){
             existing.quantity += quantity;
             existing.price = price;
@@ -113,11 +113,11 @@ export class Economy {
 
         return max.job;
     }
-    public onBeanDie = (deadBean: Bean, city: City) => {
+    public onBeanDie(bean: Bean){
         AllGoods.forEach((g) => {
-            const existing = this.market.getBeansListings(deadBean, g);
+            const existing = this.market.getBeansListings(bean.cityKey, bean.key, g);
             if (existing){
-                const lucky = city.getRandomCitizen();
+                const lucky = bean.city?.getRandomCitizen();
                 if (lucky) {
                     existing.sellerCityKey = lucky.cityKey;
                     existing.sellerBeanKey = lucky.key;
@@ -163,8 +163,8 @@ export class OrderBook{
         }
         return null;
     }
-    public getBeansListings(b: Bean, g: TraitGood): Listing|undefined{
-        return this.listings[g].find((x) => x.sellerBeanKey == b.key && x.sellerCityKey == b.cityKey);
+    public getBeansListings(cKey: number, bKey: number, g: TraitGood): Listing|undefined{
+        return this.listings[g].find((x) => x.sellerBeanKey == bKey && x.sellerCityKey == cKey);
     }
     public getOrgsListings(b: IOrganization, g: TraitGood): Listing|undefined{
         return this.listings[g].find((x) => x.sellerOrganizationKey == b.key);

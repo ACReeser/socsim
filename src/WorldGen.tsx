@@ -80,7 +80,7 @@ export function GenerateWorld(): World{
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {
         world.cities.push(GenerateCity(world.cities.length));
-        world.cities[i].doOnCitizenDie.push(world.economy.onBeanDie);
+        world.cities[i].eventBus = world.bus;
         world.cities[i].environment = world.date;
         world.cities[i].economy = world.economy;
         world.cities[i].law = world.law;

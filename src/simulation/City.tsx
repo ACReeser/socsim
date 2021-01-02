@@ -8,6 +8,7 @@ import { Geography, HexPoint, IBuilding, JobToBuilding } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
+import { IEventBus } from "../events/Events";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -66,6 +67,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     public economy?: Economy;
     public law?: Government;
     public environment?: IDate;
+    public eventBus?: IEventBus;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
     tryGetJob(bean: Bean, job: TraitJob): boolean{
@@ -113,6 +115,13 @@ export class City extends Geography implements Tile, IBeanContainer {
             }
         }
         this.unsetJob(deadBean);
+        this.eventBus?.death.publish({
+            trigger: 'death',
+            icon: '',
+            message: '',
+            cityKey: deadBean.cityKey,
+            beanKey: deadBean.key
+        })
         this.doOnCitizenDie.forEach((x) => x(deadBean, this));
     }
     breedBean(parent: Bean) {

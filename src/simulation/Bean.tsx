@@ -228,13 +228,18 @@ export class Bean implements IBean{
     }
     tryFindRandomJob(law: Government) {
         const job: TraitJob = GetRandom(['builder', 'doc', 'farmer']);
-        this.trySetJob(job);
+        if (!this.trySetJob(job)){
+            
+            this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job, build or upgrade more buildings.`});
+        }
     }
-    trySetJob(job: TraitJob){
+    trySetJob(job: TraitJob): boolean{
         if (this.city?.tryGetJob(this, job)){
             this.city.unsetJob(this);
             this.job = job;
+            return true;
         }
+        return false;
     }
     canInsult(): boolean{
         return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastInsultDate));
@@ -338,7 +343,7 @@ export class Bean implements IBean{
 
         const starve = this.maybeDie('starvation', 0.6);
         if (starve)
-            return starve;
+            return null;
             
         if (this.shelter == 'podless')
             this.discrete_health -= 1/14;
@@ -347,12 +352,12 @@ export class Bean implements IBean{
     
         const exposure = this.maybeDie('exposure', 0.2);
         if (exposure)
-            return exposure;
+            return null;
 
         this.discrete_health -= 1/20;
         this.discrete_health = Math.min(this.discrete_health, 3);
         const sick = this.maybeDie('sickness', 0.4);
-        return sick;
+        return null;
     }
     private buyMeds(economy: Economy) {
         const meds = economy.tryTransact(this, 'medicine', 0.5, 3);
@@ -402,17 +407,16 @@ export class Bean implements IBean{
         // }
         return 0;
     }
-    maybeDie(cause: string, chance = 0.5): IEvent|null{
+    maybeDie(cause: string, chance = 0.5): boolean{
         if (this.discrete_health < 0 && Math.random() <= chance) {
-            this.die();
-            return {icon: '☠️', trigger: 'death', message: `A bean died of ${cause}!`};
-        } else {
-            return null;
+            this.die(cause);
+            return true;
         }
+        return false;
     }
-    die(){
+    die(cause: string){
         this.alive = false;
-        this.city?.onCitizenDie(this);
+        this.city?.eventBus?.death.publish({icon: '☠️', trigger: 'death', message: `A bean died of ${cause}!`});
     }
     abduct(player: IPlayerData){
         this.lifecycle = 'abducted';

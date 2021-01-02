@@ -295,7 +295,7 @@ export type MoverTypes = 'bean'|'ufo';
 export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
-    'farm': '🚜',
+    'farm': '🐄',
     'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
 };
 export const UpgradedBuildingIcon: {[key in BuildingTypes]: string} = {
