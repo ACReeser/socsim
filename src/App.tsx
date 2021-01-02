@@ -27,7 +27,7 @@ import { CampaignsPanel } from './modal-content/Campaigns';
 import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
-import { BuildingTypes, HexPoint } from './simulation/Geography';
+import { BuildingTypes, HexPoint, IBuilding } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City, UFO } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
@@ -183,6 +183,14 @@ class App extends React.Component<AppPs, AppState>{
     
     this.setState({world: this.state.world});
   }
+  upgrade = (city: City, what: IBuilding) => {
+    const cost = this.difficulty.cost.hex.upgrade;
+    if (this.state.world.alien.tryPurchase(cost)){
+      what.upgraded = true;
+    }
+    
+    this.setState({world: this.state.world});
+  }
   beam = (city: City, where: HexPoint) => {
     const cost = this.difficulty.cost.hex.beam;
     if (this.state.world.alien.canAfford(cost)){
@@ -318,6 +326,7 @@ class App extends React.Component<AppPs, AppState>{
               return <HexPanel city={city} hex={this.state.activeHex} difficulty={this.state.world.alien.difficulty}
                 clearHex={() => this.setState({activeHex: null})}
                 beam={(where) => this.beam(city, where)} 
+                upgrade={(what) => this.upgrade(city, what)} 
                 build={(where, what) => {this.build(city, where, what)}}></HexPanel>
             }
             else if (this.state.activeBeanID != null) {

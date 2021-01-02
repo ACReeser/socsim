@@ -3,7 +3,7 @@ import { RubricKeys } from "./simulation/Player";
 import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
-export type PlayerHexAction = 'beam';
+export type PlayerHexAction = 'beam'|'upgrade';
 export type PlayerBeanAction = 'scan'|'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary'|'abduct'|'vaporize'|'siphon'|'empower'|'gift';
 export type PlayerGovernmentAction = '';
 export type PlayerAction = PlayerHexAction|PlayerBeanAction;
@@ -75,6 +75,10 @@ export const DefaultDifficulty: IDifficulty = {
             beam: {
                 energy: 3
             },
+            upgrade: {
+                energy: 1,
+                bots: 4,
+            }
         },
         bean: {
             scan: {

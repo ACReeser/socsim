@@ -186,7 +186,7 @@ export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
-    public energy = { amount: 10, income: 2, change: new ChangePubSub()};
+    public energy = { amount: 29, income: 2, change: new ChangePubSub()};
     public psi = { amount: 10, income: 2, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2, change: new ChangePubSub()};
     public next_grade: IDate = { year: 1, season: 3, day: 1 };

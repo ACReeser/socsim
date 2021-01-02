@@ -112,6 +112,7 @@ export class City extends Geography implements Tile, IBeanContainer {
                 deadBean.cash = 0;
             }
         }
+        this.unsetJob(deadBean);
         this.doOnCitizenDie.forEach((x) => x(deadBean, this));
     }
     breedBean(parent: Bean) {

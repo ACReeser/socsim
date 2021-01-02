@@ -2,7 +2,7 @@ import React from "react";
 import { keyToName } from "../App";
 import { IDifficulty } from "../Game";
 import { City } from "../simulation/City";
-import { BuildingIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
+import { BuildingIcon, BuildingJobIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
 import { CostSmall } from "../widgets/CostSmall";
 
 export class HexPanel extends React.Component<{
@@ -12,6 +12,7 @@ export class HexPanel extends React.Component<{
     clearHex: () => void,
     build: (where: HexPoint, what: BuildingTypes) => void,
     beam: (where: HexPoint) => void,
+    upgrade: (what: IBuilding) => void,
 }, {
 
 }> {
@@ -54,8 +55,34 @@ export class HexPanel extends React.Component<{
 
     }
     buildingPanel(b: IBuilding){
+        const slots = b.usedSlots();
+        const free = b.openSlots();
         return <div>
             <strong>{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
+        {
+            (slots.length === 0) ? null : <div>
+                <strong>Workers:</strong>
+                {
+                    slots.map((x) => <div>
+                        {BuildingJobIcon[b.type]} {this.props.city.beans.find((y) => y.key === b.job_slots[x])?.name}
+                    </div>)
+                }
+            </div>
+        }
+            <div>
+                This {keyToName[b.type]} can support {free.length} more jobs.
+                {
+                    b.upgraded ? null : <span><br/>Upgrade it to add 3 more job slots.</span>
+                }
+            </div>
+            {
+                b.upgraded ? null : <div className="card-parent">
+                    <button className="card button" type="button" onClick={() => this.props.upgrade(b)}>
+                        🛠️ Upgrade
+                        <CostSmall cost={this.props.difficulty.cost.hex.upgrade}></CostSmall>
+                    </button>
+                </div>
+            }
         </div>
     }
     render(){

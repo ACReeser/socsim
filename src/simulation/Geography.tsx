@@ -298,6 +298,10 @@ export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🚜',
     'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
 };
+export const UpgradedBuildingIcon: {[key in BuildingTypes]: string} = {
+    'farm': '🚜',
+    'house': '🏘️', 'hospital': '🏙️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
+};
 export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
     'farm': '🌾',
     'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
