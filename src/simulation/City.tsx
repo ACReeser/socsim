@@ -68,7 +68,6 @@ export class City extends Geography implements Tile, IBeanContainer {
     public law?: Government;
     public environment?: IDate;
     public eventBus?: IEventBus;
-    public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
     tryGetJob(bean: Bean, job: TraitJob): boolean{
         if(job === 'jobless') return false;
@@ -115,20 +114,11 @@ export class City extends Geography implements Tile, IBeanContainer {
             }
         }
         this.unsetJob(deadBean);
-        this.eventBus?.death.publish({
-            trigger: 'death',
-            icon: '',
-            message: '',
-            cityKey: deadBean.cityKey,
-            beanKey: deadBean.key
-        })
-        this.doOnCitizenDie.forEach((x) => x(deadBean, this));
     }
     breedBean(parent: Bean) {
         const job: TraitJob = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
         const bean = GenerateBean(this, this.historicalBeans.length, undefined, job);
         bean.ethnicity = parent.ethnicity;
-        this.tryGetJob(bean, job);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         bean.bornInPetri = true;

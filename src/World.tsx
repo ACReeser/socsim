@@ -138,6 +138,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
         if (city){
             const bean = city.historicalBeans.find((x) => x.key === e.beanKey);
             if (bean){
+                city.onCitizenDie(bean);
                 this.economy.onBeanDie(bean);
             }
         }

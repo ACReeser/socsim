@@ -416,7 +416,9 @@ export class Bean implements IBean{
     }
     die(cause: string){
         this.alive = false;
-        this.city?.eventBus?.death.publish({icon: '☠️', trigger: 'death', message: `A bean died of ${cause}!`});
+        this.city?.eventBus?.death.publish({
+            icon: '☠️', trigger: 'death', message: `A bean died of ${cause}!`, beanKey: this.key, cityKey: this.cityKey
+    });
     }
     abduct(player: IPlayerData){
         this.lifecycle = 'abducted';
