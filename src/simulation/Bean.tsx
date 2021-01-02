@@ -227,8 +227,13 @@ export class Bean implements IBean{
         return chance <= roll;
     }
     tryFindRandomJob(law: Government) {
-        if (Math.random() <= 0.5) {
-            this.job = GetRandom(['builder', 'doc', 'farmer']);
+        const job: TraitJob = GetRandom(['builder', 'doc', 'farmer']);
+        this.trySetJob(job);
+    }
+    trySetJob(job: TraitJob){
+        if (this.city?.tryGetJob(this, job)){
+            this.city.unsetJob(this);
+            this.job = job;
         }
     }
     canInsult(): boolean{
@@ -284,7 +289,7 @@ export class Bean implements IBean{
                 if (cityHasOtherWorkers && Math.random() > 0.5) {
                     const newJob = econ.mostInDemandJob();
                     if (newJob)
-                        this.job = newJob;
+                        this.trySetJob(newJob);
                 }
             }
             econ.produceAndPrice(this, JobToGood(this.job), 4, this.fairGoodPrice);

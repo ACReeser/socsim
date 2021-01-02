@@ -1,12 +1,13 @@
-import { IBeanContainer, Tile, Trait, TraitEthno } from "../World";
+import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob } from "../World";
 import { Bean } from "./Bean";
 import { Economy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
-import { Geography, HexPoint, IBuilding } from "./Geography";
+import { Geography, HexPoint, IBuilding, JobToBuilding } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
+import { BuildingJobSlot } from "./Occupation";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -67,6 +68,34 @@ export class City extends Geography implements Tile, IBeanContainer {
     public environment?: IDate;
     public doOnCitizenDie: Array<(b: Bean, c: City) => void> = [];
 
+    tryGetJob(bean: Bean, job: TraitJob): boolean{
+        if(job === 'jobless') return false;
+        const buildingType = JobToBuilding[job];
+        const all = this.byType[buildingType].all;
+        
+        for (let i = 0; i < all.length; i++) {
+            const building = all[i];
+            const slots = building.openSlots();
+            if (slots.length > 0){
+                const slot = slots.shift() as BuildingJobSlot;
+                building.job_slots[slot] = bean.key;
+                return true;
+            }
+        }
+
+        return false;
+    }
+    unsetJob(bean: Bean){
+        if (bean.job === 'jobless') return;
+        const buildingType = JobToBuilding[bean.job];
+        const all = this.byType[buildingType].all;
+        for (let i = 0; i < all.length; i++) {
+            const building = all[i];
+            if (building.tryFreeBean(bean.key))
+                break;
+        }
+    }
+
     getRandomCitizen(): Bean|null{
         const shuffled = shuffle(this.beans);
         if (shuffled.length > 0) {
@@ -86,9 +115,10 @@ export class City extends Geography implements Tile, IBeanContainer {
         this.doOnCitizenDie.forEach((x) => x(deadBean, this));
     }
     breedBean(parent: Bean) {
-        let bean = GenerateBean(this, this.historicalBeans.length);
+        const job: TraitJob = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
+        const bean = GenerateBean(this, this.historicalBeans.length, undefined, job);
         bean.ethnicity = parent.ethnicity;
-        bean.job = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
+        this.tryGetJob(bean, job);
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         bean.bornInPetri = true;

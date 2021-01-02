@@ -1,4 +1,5 @@
 import { TraitGood, TraitJob } from "../World";
+import { BuildingJobSlot } from "./Occupation";
 
 export interface HexPoint{
     q: number;
@@ -216,28 +217,51 @@ export function transformPoint(p: Point){
 export interface IBuilding{
     key: number;
     type: BuildingTypes;
-    occupied_slots: Point[],
-    empty_slots: Point[],
-    
+    job_slots: {[key in BuildingJobSlot]: number|null};
+    upgraded: boolean,
+    openSlots(): BuildingJobSlot[];
+    usedSlots(): BuildingJobSlot[];
+    /**
+     * returns true when bean is found in slot and freed
+     * @param beanKey 
+     */
+    tryFreeBean(beanKey: number): boolean;
 }
-export class Building{
+export class Building implements IBuilding{
     public key: number = 0;
     public type: BuildingTypes = 'farm';
     public occupied_slots: Point[] = [];
     public empty_slots: Point[] = [];
-
-    public reserve_slot(): Point|undefined{
-        const s = this.empty_slots.pop();
-        if (s){
-            this.occupied_slots.push(s);
-        }
-        return s;
+    public upgraded: boolean = false;
+    public job_slots: {[key in BuildingJobSlot]: number|null} = {
+        0: null,
+        1: null,
+        2: null,
+        3: null,
+        4: null,
+        5: null,
     }
-    public free_slot(point: Point){
-        const i = this.occupied_slots.findIndex((x) => x.x == point.x && x.y == point.y);
-        if (i > -1)
-            this.occupied_slots.splice(i, 1);
-        this.empty_slots.push(point);
+    openSlots(): BuildingJobSlot[]{
+        return Object.keys(this.job_slots).filter((s, i) => {
+            return this.job_slots[+s as BuildingJobSlot] === null && (i < 3 || this.upgraded);
+        }).map((x) => +x);
+    }
+    usedSlots(): BuildingJobSlot[]{
+        return Object.keys(this.job_slots).filter((s) => {
+            return this.job_slots[+s as BuildingJobSlot] != null;
+        }).map((x) => +x);
+    }
+    tryFreeBean(beanKey: number): boolean{
+        const usedSlots = this.usedSlots();
+        for (let i = 0; i < usedSlots.length; i++) {
+            const slot = usedSlots[i];
+            const beanInSlot = this.job_slots[slot];
+            if (beanInSlot === beanKey){
+                this.job_slots[slot] = null;
+                return true;
+            }
+        }
+        return false;
     }
 }
 
@@ -271,8 +295,12 @@ export type MoverTypes = 'bean'|'ufo';
 export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
-    'farm': '🎑',
+    'farm': '🚜',
     'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
+};
+export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
+    'farm': '🌾',
+    'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
 };
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',

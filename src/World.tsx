@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { GetRandom, RandomEthno, GenerateBean } from './WorldGen';
 import { Bean } from './simulation/Bean';
 import { Economy } from './simulation/Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';

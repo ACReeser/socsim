@@ -1,7 +1,7 @@
 import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './simulation/Bean';
 import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
-import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint } from './simulation/Geography';
+import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, Building } from './simulation/Geography';
 import { City } from './simulation/City';
 import { BeliefsAll } from './simulation/Beliefs';
 
@@ -60,12 +60,9 @@ export function GetBuildingR(type: BuildingTypes): number{
     }
 }
 export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPoint){
-    const newBuilding: IBuilding = {
-        type: type,
-        key: geo.numberOf(type),
-        occupied_slots: [],
-        empty_slots: []
-    };
+    const newBuilding = new Building();
+    newBuilding.type = type;
+    newBuilding.key = geo.numberOf(type);
     geo.addBuilding(hex, newBuilding);
 }
 
@@ -128,7 +125,7 @@ export function GenerateCity(previousCityCount: number): City{
 
     return newCity;
 }
-export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: HexPoint): Bean{
+export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: HexPoint, job?: TraitJob): Bean{
     let newBean = new Bean();
     
     newBean.key = previousBeanCount;
@@ -171,9 +168,13 @@ export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: H
     for (let i = 0; i < beanBeliefCount; i++) {
         newBean.beliefs.push(GetRandom(BeliefsAll));
     }
-    const mod = previousBeanCount % 3;
-    newBean.job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
-    //newBean.job = GetRandom(['farmer','builder','doc']);
+    
+    if (job == null){
+        const mod = previousBeanCount % 3;
+        job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
+    }
+    newBean.trySetJob(job);
+
     newBean.cash = StartingCash(newBean.job);
     newBean.discrete_food = 3;
 
