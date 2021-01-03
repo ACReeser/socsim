@@ -339,6 +339,38 @@ button.pull-r{
   right: 0;
 }
 
+.spotlight{
+  position: absolute;
+  width: 250px;
+  height: 250px;
+  left: -125px;
+  top: -125px;
+  border-radius: 200px;
+  background: white;
+  border: 1px solid black;
+  display: flex;
+  flex-direction: column;
+}
+.spotlight .label{
+  flex-grow: 1;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 50px;
+}
+.spotlight .bean-parent{
+  flex-grow: 1;
+}
+.spotlight .bean{
+  zoom: 300%;
+  width: 24px;
+  display: block;
+  margin: auto;
+}
+.bean .bean-face{
+  position: absolute;
+  left: 0;
+}
+
 ul.boxes{
   padding-left: 0;
 }
@@ -851,4 +883,28 @@ select:invalid { color: gray; }
   margin-left: 10px;
   pointer-events: visible;
   cursor: help;
+}
+
+.spotlight .particle-parent.vaporization.head{
+  left: 120px;
+  top: 50px;
+}
+.spotlight .particle-parent.vaporization.work{
+  left: 90px;
+  top: 70px;
+}
+.spotlight .particle-parent.vaporization.body{
+  left: 120px;
+  top: 70px;
+}
+.particle-parent{
+  position: absolute;
+}
+.particle{
+  height: 6px;
+  width: 6px;
+  border: 1px solid #333;
+  background: gold;
+  position: absolute;
+  opacity: 0;
 }

@@ -15,6 +15,7 @@ import { IPlayerData } from "./Player";
 const BabyChance = 0.01;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
+export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -230,7 +231,7 @@ export class Bean implements IBean{
         const job: TraitJob = GetRandom(['builder', 'doc', 'farmer']);
         if (!this.trySetJob(job)){
             
-            this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job, build or upgrade more buildings.`});
+            this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`});
         }
     }
     trySetJob(job: TraitJob): boolean{
@@ -407,17 +408,19 @@ export class Bean implements IBean{
         // }
         return 0;
     }
-    maybeDie(cause: string, chance = 0.5): boolean{
+    maybeDie(cause: BeanDeathCause, chance = 0.5): boolean{
         if (this.discrete_health < 0 && Math.random() <= chance) {
             this.die(cause);
             return true;
         }
         return false;
     }
-    die(cause: string){
+    die(cause: BeanDeathCause){
         this.alive = false;
         this.city?.eventBus?.death.publish({
-            icon: '☠️', trigger: 'death', message: `A bean died of ${cause}!`, beanKey: this.key, cityKey: this.cityKey
+            icon: '☠️', trigger: 'death', message: `${this.name} died of ${cause}!`, 
+            beanKey: this.key, cityKey: this.cityKey,
+            point: this.city?.movers.bean[this.key]
     });
     }
     abduct(player: IPlayerData){

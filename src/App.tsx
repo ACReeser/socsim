@@ -6,7 +6,6 @@ import { GenerateWorld, GeneratePartyHQ, GenerateBuilding, GenerateBean, GetRand
 import { Modal } from './widgets/Modal';
 import { OverviewPanel } from './right-panel/OverviewPanel';
 import { Bean } from './simulation/Bean';
-import { AnimatedBean } from './petri-ui/AnimatedBean';
 import { WorldTile } from './petri-ui/WorldTile';
 import { EconomyReport } from './modal-content/EconomyReport';
 import { CharityPanel } from './modal-content/CharityPanel';
@@ -27,7 +26,7 @@ import { CampaignsPanel } from './modal-content/Campaigns';
 import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
-import { BuildingTypes, HexPoint, IBuilding } from './simulation/Geography';
+import { BuildingTypes, HexPoint, IBuilding, transformPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City, UFO } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
@@ -35,7 +34,8 @@ import { SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { LawAxis } from './simulation/Government';
 import { Tech } from './simulation/Player';
-
+import { IEvent } from './events/Events';
+import { JsxEmit } from 'typescript';
 
 export const keyToName: {[key in Trait|BuildingTypes]: string} = {
   state: 'Collectivist', ego: 'Independent', 
@@ -48,43 +48,6 @@ export const keyToName: {[key in Trait|BuildingTypes]: string} = {
   sane: 'Sane', confused: 'Confused', mad: 'Mad',
   house:'House', hospital:'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse'
 };
-export const magToText = {'-3':'---', '-2':'--', '-1':'-', '1':'+', '2':'++', '3':'+++' };
-function magToTextSw(magnitude: number){
-  switch(magnitude) {
-    case -3:
-      return '---';
-    case -2:
-      return '--';
-    case -1:
-      return '-';
-    case 1:
-      return '+';
-    case 2:
-      return '++';
-    case 3:
-      return '+++';
-    default:
-      return '/';
-  }
-}
-function compass(p: PoliticalEffect){
-  return (
-    <span className="badge">
-      { keyToName[p.key] }
-      { magToTextSw(p.mag) }
-    </span>
-  )
-}
-export function policy(p: Policy){
-  return (
-    <div className="policy" key={p.key}>
-      <b>{p.key}</b>
-      <p>
-        {p.fx.map((x) => compass(x))}
-      </p>
-    </div>
-  )
-}
 
 export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party'|'polisci'|'brainwash';
 interface AppPs{
@@ -98,6 +61,7 @@ interface AppState{
   activeMain: 'geo'|'network';
   activeRightPanel: 'events'|'overview'|'goals';
   timeScale: number;
+  spotlightEvent: IEvent|undefined;
 }
 
 const LogicTickMS = 2000;
@@ -112,9 +76,11 @@ class App extends React.Component<AppPs, AppState>{
       activeMain: 'geo',
       activeModal: 'party_creation',
       activeRightPanel: 'overview',
-      timeScale: 1
+      timeScale: 1,
+      spotlightEvent: undefined
     };
     this.state.world.calculateComputedState();
+    this.state.world.bus.death.subscribe(this.onDeath);
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
@@ -313,6 +279,25 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.calculateComputedState();
     this.setState({world: this.state.world});
   }
+  onDeath = (event: IEvent) => {
+    this.startSpotlight(event);
+  }
+  private timescaleBeforeSpotlight: number = 1;
+  startSpotlight(event: IEvent){
+    this.timescaleBeforeSpotlight = this.state.timeScale;
+    this.setState({
+      spotlightEvent: event,
+      timeScale: 0
+    }, () => {
+      // setTimeout(() => this.endSpotlight(), 4000);
+    });
+  }
+  endSpotlight(){
+    this.setState({
+      timeScale: this.timescaleBeforeSpotlight,
+      spotlightEvent: undefined
+    });
+  }
   getPanel(){
     switch(this.state.activeRightPanel){
       case 'overview':
@@ -360,7 +345,7 @@ class App extends React.Component<AppPs, AppState>{
     const COL = this.state.world.economy.getCostOfLiving();
     return this.state.world.cities.map((t) => {
         return (
-          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key}
+          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} spotlightEvent={this.state.spotlightEvent}
             onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null})} 
             onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key})} 
             onHexClick={(hex) => {this.setState({activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview'})}}

@@ -7,11 +7,15 @@ import { PetriBuilding } from "./Building";
 import { PI2 } from "../WorldGen";
 import { City, UFO } from "../simulation/City";
 import { AnimatedUFO } from "./AnimatedUFO";
+import { IEvent } from "../events/Events";
+import { Particles } from "../widgets/particles";
+import { AnimatedSpotlight } from "./AnimatedSpotlight";
 
 interface WorldTilePs {
     tile: Tile;
     city: City;
     costOfLiving: number;
+    spotlightEvent: IEvent|undefined;
     onClick: () => void;
     onBeanClick: (b: Bean) => void;
     onHexClick: (hex: HexPoint) => void;
@@ -41,10 +45,20 @@ export class WorldTile extends React.Component<WorldTilePs> {
         )
       });
     }
+    renderSpotlight(): JSX.Element|null{
+      if (this.props.spotlightEvent)
+      {
+        const bean = this.props.city.historicalBeans.find((x) => x.key === this.props.spotlightEvent?.beanKey);
+        if (this.props.spotlightEvent.point && bean){
+          return <AnimatedSpotlight event={this.props.spotlightEvent} bean={bean}></AnimatedSpotlight>
+        }
+      }
+      return null;
+    }
     render() {
       const beans = this.props.city.beans.map((b: Bean) => {
         return (
-          <AnimatedBean bean={b} key={b.key} costOfLiving={this.props.costOfLiving} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
+          <AnimatedBean bean={b} key={b.key} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
       });
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
@@ -80,6 +94,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
           <svg style={{width: '100%', height: '100%'}} className="petri-lid">
             <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />
            </svg>
+           {this.renderSpotlight()}
         </div>
       )
     }

@@ -5,7 +5,6 @@ import { GoodIcon } from "../World";
 
 interface AnimatedBeanP {
   bean: Bean;
-  costOfLiving: number;
   sitStill?: boolean;
   onClick: () => void;
   static?: boolean;
@@ -46,15 +45,6 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       })
     }
     delaySeedSec: number;
-    getIdea(){
-        if (this.state.paused) {
-            const idea = this.props.bean.getIdea(this.props.costOfLiving)
-            if (idea){
-                return <span className={idea.bad ? 'bad idea': 'idea'}>{idea.idea}</span>
-            }
-        }
-        return null;
-    }
     getPurchase(){
       if (this.state.good){
         return <span className="purchase">

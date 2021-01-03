@@ -1,6 +1,5 @@
 import React from "react";
 import { World, TraitIcon } from "../World";
-import { policy, keyToName } from "../App";
 import { IPolicy } from "../simulation/Politics";
 import { PrimaryBeliefData } from "../simulation/Beliefs";
 import { ILaw, ILawData, LawAxis, LawAxisData, LawData, LawGroup, LawKey } from "../simulation/Government";
