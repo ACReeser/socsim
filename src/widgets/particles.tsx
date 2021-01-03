@@ -38,7 +38,7 @@ export class Particles extends React.Component<{
                 ], {
                     duration: 1500 + Math.random() * 1000,
                     easing: 'ease-in-out',
-                    delay: this.props.delay + (Math.random() * 200)
+                    delay: this.props.delay + (Math.random() * 100)
                 });
             }
             return null;

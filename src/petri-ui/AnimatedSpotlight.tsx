@@ -5,23 +5,29 @@ import { transformPoint } from "../simulation/Geography";
 import { Particles } from "../widgets/particles";
 
 const vaporizeParticles = [
-    {className: 'head', delay: 2600},
+    {className: 'head', delay: 2000},
     {className: 'work', delay: 1000},
-    {className: 'body', delay: 1800},
-]
+    {className: 'body', delay: 1500},
+];
 export class AnimatedSpotlight extends React.Component<{
     event: IEvent,
     bean: Bean,
 }, {
     type: EventTrigger,
-    subtype?: BeanDeathCause
+    subtype?: BeanDeathCause,
+    showSkull: boolean
 }>{
     constructor(props: any){
         super(props);
         this.state = {
             type: this.props.event.trigger,
-            subtype: this.getSubtype(this.props.event.message)
+            subtype: this.getSubtype(this.props.event.message),
+            showSkull: false
         }
+        if (this.state.type === 'death')
+            window.setTimeout(() => {
+                this.setState({showSkull: true})
+            }, 1000);
     }
     getSubtype(msg: string): BeanDeathCause|undefined{
         return msg.includes('vaporiz') ? 'vaporization' : msg.includes('exposure') ? 'exposure' : msg.includes('sickness') ? 'sickness' : undefined;
@@ -31,13 +37,13 @@ export class AnimatedSpotlight extends React.Component<{
         if (this.props.event.point)
           t = transformPoint(this.props.event?.point);
 
-        const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
+        const classes = [this.props.bean.job, this.props.bean.ethnicity, this.state.type, this.state.subtype].join(' ');
         return <div className="spotlight" style={t}>
         <div className="bean-parent">
           <span className={classes+" bean"}>
             <span className="bean-face">
             {
-                this.props.bean.getFace()
+                this.state.showSkull ? '💀' : this.props.bean.getFace()
             }
             </span>
           </span>

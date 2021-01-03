@@ -289,7 +289,7 @@ class App extends React.Component<AppPs, AppState>{
       spotlightEvent: event,
       timeScale: 0
     }, () => {
-      // setTimeout(() => this.endSpotlight(), 4000);
+      setTimeout(() => this.endSpotlight(), 4000);
     });
   }
   endSpotlight(){

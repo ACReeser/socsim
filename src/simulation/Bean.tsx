@@ -169,8 +169,8 @@ export class Bean implements IBean{
         return traits;
     }
     getFace(): string{
-        if (!this.alive)
-            return '💀';
+        // if (!this.alive)
+        //     return '💀';
         if (this.state.data.act == 'buy' && this.state.data.good == 'shelter'){
             return '😴';
         }
