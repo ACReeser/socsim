@@ -596,6 +596,9 @@ table.classic .border-t{
 .bean.farmer:after{
   content: '🌾';
 }
+.bean.entertainer:after{
+  content: '🎻';
+}
 .bean.jobless:after{
   content: '📰';
   transform: rotate(-45deg);

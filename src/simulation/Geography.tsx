@@ -296,7 +296,7 @@ export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🐄',
-    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
+    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🎪', 'courthouse':'🏫'
 };
 export const UpgradedBuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🚜',
@@ -304,7 +304,7 @@ export const UpgradedBuildingIcon: {[key in BuildingTypes]: string} = {
 };
 export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
     'farm': '🌾',
-    'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
+    'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🪑', 'courthouse':'🏫'
 };
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',
