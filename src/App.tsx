@@ -65,6 +65,7 @@ interface AppState{
 }
 
 const LogicTickMS = 2000;
+const SpotlightDurationTimeMS = 5000;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -289,7 +290,7 @@ class App extends React.Component<AppPs, AppState>{
       spotlightEvent: event,
       timeScale: 0
     }, () => {
-      setTimeout(() => this.endSpotlight(), 4000);
+      setTimeout(() => this.endSpotlight(), SpotlightDurationTimeMS);
     });
   }
   endSpotlight(){

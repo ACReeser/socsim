@@ -95,11 +95,11 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
             </div>
             <span>
               <strong>Unemployment</strong> {unemployed}% ({jobs.jobless})<br/>
-              <strong>Employment</strong>
               <ul className="boxes">
-                <li>{jobs.farmer} farmers</li>
-                <li>{jobs.builder} builders</li>
-                <li>{jobs.doc} doctors</li>
+                <li>{jobs.farmer || 0} farmers</li>
+                <li>{jobs.builder || 0} builders</li>
+                <li>{jobs.doc || 0} doctors</li>
+                <li>{jobs.entertainer || 0} entertainers</li>
               </ul>
             </span>
           </div>
