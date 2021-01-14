@@ -6,7 +6,7 @@ import { IInstitution, IOrganization, Charity } from './simulation/Institutions'
 import { IEvent, EventBus } from './events/Events';
 import { Season, IDate } from './simulation/Time';
 import { Government } from './simulation/Government';
-import { Player } from './simulation/Player';
+import { Player, TechData } from './simulation/Player';
 import { Geography } from './simulation/Geography';
 import { City } from './simulation/City';
 import { shuffle } from './simulation/Utils';
@@ -98,6 +98,20 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.alien.bots.amount += this.alien.bots.income / 30;
         this.alien.energy.amount += this.alien.energy.income / 30;
         this.alien.psi.amount += this.alien.psi.income / 30;
+        if (this.alien.currentlyResearchingTech){
+            const tech = this.alien.currentlyResearchingTech;
+            if(this.alien.techProgress[tech] == null){
+                this.alien.techProgress[tech] = {
+                    researchPoints: 0
+                }
+            }
+            const max = TechData[tech].techPoints;
+            const current = this.alien.techProgress[tech].researchPoints;
+            if (current < max)
+                this.alien.techProgress[tech].researchPoints += this.alien.abductedBeans.length;
+            if (current >= max)
+                this.alien.currentlyResearchingTech = undefined;
+        }
         
         this.economy.resetSeasonalDemand();
 
