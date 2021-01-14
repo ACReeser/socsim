@@ -18,10 +18,15 @@ const spotlightAnimations: {[key:string]:SpotlightAnimationState[]} = {
   'death-exposure': [
     {
       start: 0,
-      name: 'death-exposure',
-      beanClasses: '',
-      
+      name: 'death-exposure', faceOV: '🥶',
+      beanClasses: 'drop-tool turn-blue',      
       particles: []
+    },
+    {
+      start: 2000,
+      name: 'death-exposure',faceOV: '💀',
+      beanClasses: 'drop-tool turn-blue',      
+      particles: [] 
     }
   ],
   'death-vaporization': [
@@ -35,30 +40,83 @@ const spotlightAnimations: {[key:string]:SpotlightAnimationState[]} = {
     {
       start: 1000,
       name: 'death-vaporization',
-      beanClasses: '',
-      
+      beanClasses: 'drop-tool',
+      particles: []
+    },
+    {
+      start: 2000,
+      name: 'death-vaporization', 
+      beanClasses: 'drop-tool', faceOV: ' ',
       particles: [
-        {className: 'head', delay: 2000},
-        {className: 'work', delay: 1000},
-        {className: 'body', delay: 1500}
+        {className: 'head', delay: 0}
+      ]
+    },
+    {
+      start: 3000,
+      name: 'death-vaporization', 
+      beanClasses: 'drop-tool hide-body', faceOV: ' ',
+      particles: [
+        {className: 'head', delay: 0},
+        {className: 'body', delay: 0}
       ]
     }
   ],
   'death-sickness': [
     {
       start: 0,
-      name: 'death-vaporization',
-      beanClasses: '',
-      
+      name: 'death-sickness', faceOV: '🤢',
+      beanClasses: '',      
       particles: []
-    }
+    },
+    {
+      start: 1000,
+      name: 'death-sickness', 
+      beanClasses: 'drop-tool', faceOV: '🤮',
+      particles: [
+        {className: 'head', delay: 0}
+      ]
+    },
+    {
+      start: 1400,
+      name: 'death-sickness', 
+      beanClasses: 'drop-tool', faceOV: '🤮',
+      particles: [
+        {className: 'head', delay: 0},
+        {className: 'head', delay: 0}
+      ]
+    },
+    {
+      start: 2000,
+      name: 'death-sickness', 
+      beanClasses: 'drop-tool', faceOV: '💀',
+      particles: [
+        {className: 'head', delay: 0}
+      ]
+    },
   ],
   'death-starvation': [
     {
       start: 0,
-      name: 'death-starvation',
-      beanClasses: '',
-      
+      name: 'death-starvation', faceOV: '🥺',
+      beanClasses: '',      
+      particles: []
+    },
+    {
+      start: 500,
+      name: 'death-starvation', faceOV: '😖',
+      beanClasses: 'body-shrink',      
+      particles: []
+    },
+    {
+      start: 1000,
+      name: 'death-starvation', faceOV: '😫',
+      beanClasses: 'body-shrink drop-tool',      
+      particles: []
+    },
+    {
+      start: 3000,
+      name: 'death-starvation', faceOV: '💀',
+      beanClasses: 'body-shrink drop-tool',      
       particles: []
     }
   ]
@@ -91,7 +149,7 @@ export class AnimatedSpotlight extends React.Component<{
       // Update the previous time
       this.lastTickMS = timeMS;
       if (deltaTimeMS > 0){
-        this.currentTime += timeMS;
+        this.currentTime += deltaTimeMS;
         const name = `${this.props.event.trigger}-${this.getSubtype(this.props.event.message)}`;
         this.setState(spotlightAnimations[name].reduce((lastValid: SpotlightAnimationState, anim: SpotlightAnimationState) => {
           if (this.currentTime >= anim.start)
@@ -111,7 +169,7 @@ export class AnimatedSpotlight extends React.Component<{
         if (this.props.event.point)
           t = transformPoint(this.props.event?.point);
 
-        const classes = [this.props.bean.job, this.props.bean.ethnicity, this.state.name].join(' ');
+        const classes = [this.props.bean.job, this.props.bean.ethnicity, this.state.name, this.state.beanClasses].join(' ');
         return <div className="spotlight" style={t}>
         <div className="bean-parent">
           <span className={classes+" bean"}>
