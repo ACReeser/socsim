@@ -169,15 +169,16 @@ class App extends React.Component<AppPs, AppState>{
       }, 3000);
 
       this.setState({world: this.state.world}, () => {
-        window.setTimeout(() => {
-          //TODO: remove with key instead of pop latest
-          const myUFOI = city.ufos.indexOf(newUFO);
-          if (myUFOI > -1)
-            city.ufos.splice(myUFOI, 1);
-        }, 7000);
+        this.removeUFO(city, newUFO.key);
       });
     }
-    
+  }
+  removeUFO(city: City, key: number){
+    window.setTimeout(() => {
+      const myUFOI = city.ufos.findIndex((x) => x.key === key);
+      if (myUFOI > -1)
+        city.ufos.splice(myUFOI, 1);
+    }, 7000);
   }
   foundCharity = (good: TraitGood, name: string, budget: number) => {
     this.state.world.addCharity(good, name, budget);

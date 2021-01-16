@@ -366,6 +366,11 @@ button.pull-r{
   display: block;
   margin: auto;
 }
+.spotlight .card-parent{
+  width: 100px;
+  margin: auto;
+  margin-bottom: 10px;
+}
 .bean .bean-face{
   position: absolute;
   left: 0;
