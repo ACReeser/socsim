@@ -24,6 +24,10 @@ export class Bean implements IBean{
     public name: string = 'Human Bean';
     public sanity: TraitSanity = 'sane'
     public discrete_sanity: number = 10;
+    /**
+     * 0-1
+     */
+    public discrete_fun: number = 0;
     public lifecycle: 'alive'|'dead'|'abducted' = 'alive';
     public get alive(): boolean{
         return this.lifecycle === 'alive';
@@ -73,7 +77,7 @@ export class Bean implements IBean{
     public cash: number = 3;
     public partyLoyalty: number = 0.2;
     /**
-     * -100-100
+     * -100 to 100
      */
     public lastHappiness: number = 0;
     /**
@@ -85,6 +89,9 @@ export class Bean implements IBean{
      */
     public lastPartySentiment: number = 0;
     public ticksSinceLastSale: number = 0;
+    /**
+     * days until needs sleep
+     */
     public discrete_stamina: number = 7;
     public lastApprovalDate: IDate = {year: -1, season: 0, day: 0};
     public lastInsultDate: IDate = {year: -1, season: 0, day: 0};
@@ -100,6 +107,9 @@ export class Bean implements IBean{
             TraitToModifier[this.food],
             TraitToModifier[this.shelter],
             TraitToModifier[this.health],
+            {
+                reason: 'Entertainment', mod: this.discrete_fun*.4
+            }
         ];
         if (this.ideals == 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
             mods.push({reason: 'Xenophobic', mod: -.1});
@@ -228,7 +238,7 @@ export class Bean implements IBean{
         return chance <= roll;
     }
     tryFindRandomJob(law: Government) {
-        const job: TraitJob = GetRandom(['builder', 'doc', 'farmer']);
+        const job: TraitJob = GetRandom(['builder', 'doc', 'farmer', 'entertainer']);
         if (!this.trySetJob(job)){
             
             this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`});
@@ -315,7 +325,7 @@ export class Bean implements IBean{
             return this.buyMeds(economy) != null;
         },
         fun:  (economy: Economy) =>{
-            return false;
+            return this.buyFun(economy);
         },
         shelter: (economy: Economy) => {
             return this.buyHousing(economy);
@@ -333,6 +343,13 @@ export class Bean implements IBean{
             this.shelter = 'podless';
         }
         return housing != null;
+    }
+    private buyFun(economy: Economy): boolean {
+        const fun = economy.tryTransact(this, 'fun');
+        if (fun) {
+            this.discrete_fun = 1;
+        }
+        return fun != null;
     }
 
     age(economy: Economy): IEvent|null {
@@ -358,6 +375,8 @@ export class Bean implements IBean{
         this.discrete_health -= 1/20;
         this.discrete_health = Math.min(this.discrete_health, 3);
         const sick = this.maybeDie('sickness', 0.4);
+        this.discrete_fun -= 1/10;
+        this.discrete_fun = Math.max(0, this.discrete_fun);
         return null;
     }
     private buyMeds(economy: Economy) {

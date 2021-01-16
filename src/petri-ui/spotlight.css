@@ -1,0 +1,89 @@
+
+@keyframes turn-blue{
+    0%{
+      filter: hue-rotate(0deg);
+    }
+    100%{
+      filter: hue-rotate(-175deg);
+    }
+  }
+@keyframes shrink{
+  0%{
+    transform: rotate(45deg) scale(1);
+  }
+  100%{
+    transform: rotate(45deg) scale(0.33);
+  }
+}
+@keyframes drop-easeOutBounce {
+    0% {
+		transform: translateY(0%);
+	}
+
+	12% {
+		transform: translateY(10.89%);
+	}
+
+	24% {
+		transform: translateY(43.56%);
+	}
+
+	36% {
+		transform: translateY(98.01%);
+	}
+
+	54% {
+		transform: translateY(75.02%);
+	}
+
+	74% {
+		transform: translateY(98.37%);
+	}
+
+	82% {
+		transform: translateY(93.75%);
+	}
+
+	92% {
+		transform: translateY(99.34%);
+	}
+
+	96% {
+		transform: translateY(98.46%);
+	}
+
+	100% {
+		transform: translateY(100%);
+	}
+  
+  }
+
+  .spotlight .bean.drop-tool:after{
+    animation: drop-easeOutBounce 1s 1s linear forwards;
+  }
+  .spotlight .bean.hide-body:before{
+    visibility: hidden;
+  }
+  .spotlight .bean.turn-blue:before{
+    animation: turn-blue 2s linear forwards;
+  }
+  .spotlight .bean.body-shrink:before{
+    /* animation: shrink 2s linear forwards; */
+  }
+  
+  .spotlight .particle-parent.head{
+    left: 120px;
+    top: 50px;
+  }
+  .spotlight .particle-parent.death-vaporization.work{
+    left: 90px;
+    top: 70px;
+  }
+  .spotlight .particle-parent.death-vaporization.body{
+    left: 120px;
+    top: 70px;
+  }  
+  
+  .spotlight .particle-parent.death-sickness .particle{
+    background: green
+  }

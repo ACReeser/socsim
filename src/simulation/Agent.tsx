@@ -98,16 +98,23 @@ export class IdleState extends AgentState{
         }
         if (agent instanceof Bean && agent.city){
             const priorities = GetPriorities(agent, difficulty);
-            const top = priorities.dequeue();
-            if (top){
-                return TravelState.createFromIntent(agent, top.value);
+            let top = priorities.dequeue();
+            let travelState: TravelState|null = null;
+
+            //loop through possible destinations
+            while (top && travelState == null){
+                travelState = TravelState.createFromIntent(agent, top.value);
+                if (travelState == null)
+                    top = priorities.dequeue();
+                else
+                    return travelState;
             }
         }
         return this;
     }
 }
 
-export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]{
+export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]|null{
     if (!(agent instanceof Bean) || agent.city == null)
         return [];
 
@@ -122,8 +129,11 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
 }
 
 export class TravelState extends AgentState{
-    static createFromIntent(agent: IAgent, intent: IActivityData): TravelState{
-        return this.createFromDestination(IntentToDestination(agent, intent), intent);
+    static createFromIntent(agent: IAgent, intent: IActivityData): TravelState|null{
+        const destination = IntentToDestination(agent, intent);
+        if (destination)
+            return this.createFromDestination(destination, intent);
+        return null;
     }
     static createFromDestination(destinations: Point[], intent: IActivityData): TravelState{ 
         return new TravelState({act: 'travel', destinations: destinations, intent: intent});
@@ -215,7 +225,9 @@ export class ChatState extends AgentState{
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         
         if (this.Elapsed > 1000 && this.data.intent){
-            return TravelState.createFromIntent(agent, this.data.intent);
+            const tState = TravelState.createFromIntent(agent, this.data.intent);
+            if (tState)
+                return tState;
         }
         return this;
     }
@@ -278,6 +290,9 @@ export const GetPriority = {
     medicine:function(bean:Bean, difficulty: IDifficulty): number{
         return 1 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
     },
+    fun:function(bean:Bean, difficulty: IDifficulty): number{
+        return 2 + (bean.lastHappiness / 100 * 1.25 )
+    },
 }
 
 export function GetPriorities(bean: Bean, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
@@ -289,6 +304,8 @@ export function GetPriorities(bean: Bean, difficulty: IDifficulty): IPriorityQue
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.shelter(bean, difficulty));
     queue.enqueue(node)
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, difficulty));
+    queue.enqueue(node)
+    node = new PriorityNode<IActivityData>({act: 'buy', good: 'fun'} as IActivityData, GetPriority.fun(bean, difficulty));
     queue.enqueue(node)
     return queue;
 }
@@ -359,8 +376,9 @@ export function Step(geo: Geography, mover: IMover){
  * @param mover 
  * @param buildingType 
  */
-export function RouteRandom(geo: Geography, mover: IMover, buildingType: BuildingTypes){
+export function RouteRandom(geo: Geography, mover: IMover, buildingType: BuildingTypes): Point[]|null{
     const destination: IBuilding = GetRandom(geo.byType[buildingType].all);
+    if (destination === undefined) return null;
     mover.destinationKey = destination.key;
     return Route(geo, mover, destination);
 }

@@ -601,6 +601,9 @@ table.classic .border-t{
 .bean.farmer:after{
   content: '🌾';
 }
+.bean.entertainer:after{
+  content: '🎻';
+}
 .bean.jobless:after{
   content: '📰';
   transform: rotate(-45deg);
@@ -890,57 +893,6 @@ select:invalid { color: gray; }
   cursor: help;
 }
 
-@keyframes instant-disappear{
-  0%{
-    opacity: 0%;
-  }
-  100%{
-    opacity: 0%;
-  }
-}
-@keyframes drop{
-  0%{
-    transform: translateY(0);
-  }
-  50%{
-    transform: translateY(12px);
-  }
-  60%{
-    transform: translateY(4px);
-  }
-  80%{
-    transform: translateY(0);
-  }
-  90%{
-    transform: translateY(2px);
-  }
-  100%{
-    transform: translateY(12px);
-  }
-}
-
-.bean.death.vaporization .bean-face{
-  animation: instant-disappear 9s 2s;
-}
-.bean.death.vaporization:before{
-  animation: instant-disappear 9s 1.5s;
-}
-.bean.death.vaporization:after{
-  animation: drop 1s 1s ease-in-out forwards;
-}
-
-.spotlight .particle-parent.vaporization.head{
-  left: 120px;
-  top: 50px;
-}
-.spotlight .particle-parent.vaporization.work{
-  left: 90px;
-  top: 70px;
-}
-.spotlight .particle-parent.vaporization.body{
-  left: 120px;
-  top: 70px;
-}
 .particle-parent{
   position: absolute;
 }

@@ -170,8 +170,16 @@ export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: H
     }
     
     if (job == null){
-        const mod = previousBeanCount % 3;
-        job = mod == 0 ? 'farmer' : mod == 1 ? 'builder' : 'doc';
+        switch (previousBeanCount){
+            case 0:
+                job = 'farmer'; break;
+            case 1:
+                job = 'builder'; break;
+            case 2:
+                job = 'doc'; break;
+            default:
+                job = GetRandom(['farmer', 'builder', 'doc', 'entertainer']); break;
+        }
     }
     newBean.trySetJob(job);
 

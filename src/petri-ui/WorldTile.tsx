@@ -11,6 +11,7 @@ import { IEvent } from "../events/Events";
 import { Particles } from "../widgets/particles";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 
+const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse'];
 interface WorldTilePs {
     tile: Tile;
     city: City;
@@ -69,7 +70,9 @@ export class WorldTile extends React.Component<WorldTilePs> {
       const ufos = this.props.city.ufos.map((u: UFO, i: number) => {
         return <AnimatedUFO ufo={u} key={i} city={this.props.city}></AnimatedUFO>
       });
-      const buildings = this.renderBuildings('farm').concat(this.renderBuildings('hospital')).concat(this.renderBuildings('house')).concat(this.renderBuildings('courthouse'));
+      const buildings = supportedBuildings.reduce((list, type) => {
+        return list.concat(this.renderBuildings(type));
+      }, [] as JSX.Element[]);
       const regions = this.props.city.hexes.map((hex, i) => {
         const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
         return <div className="hex" key={i} style={transformPoint(xy)} onClick={(e) => {this.props.onHexClick(hex); e.stopPropagation(); return false;}}>
