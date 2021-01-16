@@ -125,6 +125,7 @@ class App extends React.Component<AppPs, AppState>{
   foundParty = (state: FoundPartyS) => {
     this.state.world.party.name = state.name;
     this.state.world.party.slogan = state.slogan;
+    this.state.world.cities[0].name = state.name;
     if (state.community)
       this.state.world.party.community = state.community;
     if (state.ideal)

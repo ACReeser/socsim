@@ -162,13 +162,14 @@ button.pull-r{
   fill: transparent;
 }
 .tile-label{
-  opacity: .6;
-  z-index: 9;
-  vertical-align: sub;
-  font-weight: bold;
-  cursor: pointer;
+  margin-left: -40px;
+  display: block;
+  width: 122px;
+  text-align: center;
+  font-size: 14px;
+
 }
-.world .tile:hover .tile-label{
+.world .courthouse:hover .tile-label{
   opacity: .99;
   color: hsl(16, 100%, 50%);
   background: white;

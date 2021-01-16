@@ -102,7 +102,7 @@ export function GeneratePartyHQ(city: City, party: Party) {
     
 }
 
-export const Number_Starting_City_Pop = 3;
+export const Number_Starting_City_Pop = 0;
 export function GenerateCity(previousCityCount: number): City{
     let newCity = new City();
     newCity.key = previousCityCount;
@@ -111,10 +111,10 @@ export function GenerateCity(previousCityCount: number): City{
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
     
     GenerateBuilding(newCity, 'courthouse', newCity.hexes[0]); 
-    GenerateBuilding(newCity, 'house', newCity.hexes[1]); 
-    GenerateBuilding(newCity, 'hospital', newCity.hexes[5]);
+    // GenerateBuilding(newCity, 'house', newCity.hexes[1]); 
+    // GenerateBuilding(newCity, 'hospital', newCity.hexes[5]);
     
-    GenerateBuilding(newCity, 'farm', newCity.hexes[7]);
+    // GenerateBuilding(newCity, 'farm', newCity.hexes[7]);
 
     const cityPopulation = Number_Starting_City_Pop;
     while(newCity.historicalBeans.length < cityPopulation){

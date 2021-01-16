@@ -47,8 +47,8 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     build_house_n_farm: {
         key: 'build_house_n_farm', text: 'Build a house and farm',
         check: (world) => {
-            return world.cities[0].byType.house.all.length > 1 &&
-            world.cities[0].byType.farm.all.length > 1;
+            return world.cities[0].byType.house.all.length > 0 &&
+            world.cities[0].byType.farm.all.length > 0;
         },
         reward: {
             energy: 3, bots: 3
@@ -57,7 +57,7 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     beam_3: {
         key: 'beam_3', text: 'Beam in 3 new beings', 
         check: (world) => {
-            return world.beans.filter(b => !b.bornInPetri).length > (3 + Number_Starting_City_Pop)
+            return world.beans.filter(b => !b.bornInPetri).length >= (3 + Number_Starting_City_Pop)
         }
     }, 
     scan: {
@@ -191,7 +191,7 @@ export class Player implements IPlayerData, IProgressable{
     public bots = { amount: 10, income: 2, change: new ChangePubSub()};
     public next_grade: IDate = { year: 1, season: 3, day: 1 };
     public difficulty: IDifficulty = DefaultDifficulty;
-    public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm', 'scan', 'beam_3', 'brainwash', 'set_policy', 'c+_grade'];
+    public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm', 'beam_3', 'scan', 'brainwash', 'set_policy', 'c+_grade'];
     public goalProgress: {[key: string]: IGoalProgress} = {};
     public pastReportCards: IReportCard[] = [];
     public workingReportCard: IReportCard = {

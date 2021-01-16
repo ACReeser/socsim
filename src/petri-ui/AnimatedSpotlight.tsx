@@ -188,7 +188,7 @@ export class AnimatedSpotlight extends React.Component<{
         </div>
         {
           (
-            this.state.type === 'death' ? 
+            this.props.event.trigger === 'death' ? 
             <div className="card-parent">
               <button className="card button" disabled>
                 Prevent Death<br/>-4 🤖
