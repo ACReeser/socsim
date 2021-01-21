@@ -186,6 +186,16 @@ export class AnimatedSpotlight extends React.Component<{
         <div className="label">
           {this.props.event.message.replace('A subject', this.props.bean.name)}
         </div>
+        {
+          (
+            this.props.event.trigger === 'death' ? 
+            <div className="card-parent">
+              <button className="card button" disabled>
+                Prevent Death<br/>-4 🤖
+              </button>
+            </div> : null
+          )
+        }
       </div>
     }
 }

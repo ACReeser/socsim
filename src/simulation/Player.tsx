@@ -57,7 +57,7 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     beam_3: {
         key: 'beam_3', text: 'Beam in 3 new beings', 
         check: (world) => {
-            return world.beans.filter(b => !b.bornInPetri).length > (3 + Number_Starting_City_Pop)
+            return world.beans.filter(b => !b.bornInPetri).length >= (3 + Number_Starting_City_Pop)
         }
     }, 
     scan: {

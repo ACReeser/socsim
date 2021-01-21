@@ -1,5 +1,6 @@
 
 import React from "react";
+import { City } from "../simulation/City";
 import { IBuilding, BuildingIcon, BuildingTypes, Geography, getBuildingTransform, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GetRandom } from "../WorldGen";
@@ -25,7 +26,7 @@ const hexDirectionToJobSlot: {[key: number]: BuildingJobSlot} = {
 }
 
 export class PetriBuilding extends React.Component<{
-    city: Geography,
+    city: City,
     building: IBuilding
 }> {
     slots() {
@@ -42,6 +43,7 @@ export class PetriBuilding extends React.Component<{
         className={"building "+this.props.building.type}>
         {this.props.building.upgraded ? UpgradedBuildingIcon[this.props.building.type] : BuildingIcon[this.props.building.type]}
         {this.slots()}
+        {this.props.building.type === 'courthouse' ? <span className="tile-label">{this.props.city.name}</span> : null}
         </div>
     }
 }
