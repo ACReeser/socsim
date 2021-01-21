@@ -77,7 +77,7 @@ class App extends React.Component<AppPs, AppState>{
       activeMain: 'geo',
       activeModal: 'party_creation',
       activeRightPanel: 'overview',
-      timeScale: 1,
+      timeScale: 0,
       spotlightEvent: undefined
     };
     this.state.world.calculateComputedState();

@@ -95,9 +95,14 @@ export class World implements IWorld, IBeanContainer, IActListener{
             this.date.season = 0;
         }
 
-        this.alien.bots.amount += this.alien.bots.income / 30;
-        this.alien.energy.amount += this.alien.energy.income / 30;
-        this.alien.psi.amount += this.alien.psi.income / 30;
+        this.alien.bots.amount += this.alien.bots.income;
+        this.alien.energy.amount += this.alien.energy.income;
+        this.alien.psi.amount += this.alien.psi.income;
+        if (this.alien.hasResearched('fast_resources')){
+            this.alien.bots.amount += this.alien.bots.income*0.5;
+            this.alien.energy.amount += this.alien.energy.income*0.5;
+            this.alien.psi.amount += this.alien.psi.income*0.5;
+        }
         if (this.alien.currentlyResearchingTech){
             const tech = this.alien.currentlyResearchingTech;
             if(this.alien.techProgress[tech] == null){
