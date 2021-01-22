@@ -30,6 +30,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       let beans = this.props.world.beans;
       const food_median = median(beans.map(x => x.discrete_food));
       const health_median = median(beans.map(x => x.discrete_health)).toFixed(1);
+      const shelter_median = median(beans.map(x => x.discrete_stamina)).toFixed(1);
       const wealth_total = beans.reduce((sum, y) => sum + y.cash, 0);
       const wealth_avg = wealth_total / (beans.length || 1);
       const wealth_median = median(beans.map(x => x.cash));
@@ -58,39 +59,84 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <div className="pad-4p">
             <h2>State of the Utopia</h2>
           </div>
-          <div className="pad-4p">
+          {/* <div className="pad-4p">
             <h3>Subject's Health</h3>
-          </div>
+          </div> */}
           <div className="col-2">
             <div>
-              <strong>🍞 Food Security</strong> Median:{food_median.toFixed(1)} meals <br/>
+              <strong>🍞 Food Security</strong>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
-              Supply: {food.supply} meals. Avg. price ${food.avg.toFixed(2)} <br/>
-              Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.food} meals
+              <table className="width-100p">
+                <tbody>
+                  <tr>
+                    <td>Median {food_median.toFixed(1)} 🍞</td>
+                    <td className="text-center">
+                      Supply: {food.supply} 🍞 @ ${food.avg.toFixed(2)}
+                    </td>
+                    <td className="text-right">
+                      Deficit: {this.props.world.economy.unfulfilledSeasonalDemand.food} 🍞
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
             <div>
-              <strong>🩺 Healthcare</strong> Median:{health_median} <br/>
+              <strong>🩺 Healthcare</strong>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.health} dire="sick" abundant="fresh" className="big"></NeedReadout>
-              Supply: {meds.supply} treatments. Avg. price ${meds.avg.toFixed(2)}  <br/>
-              Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.medicine} treatments
+              <table className="width-100p">
+                <tbody>
+                  <tr>
+                    <td>Median {health_median} 🩺</td>
+                    <td className="text-center">
+                      Supply: {meds.supply} 🩺 @ ${meds.avg.toFixed(2)}
+                    </td>
+                    <td className="text-right">
+                      Deficit: {this.props.world.economy.unfulfilledSeasonalDemand.medicine} 🩺
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
           <div className="col-2">
             <div>
               <strong>🏡 Housing</strong> <br/>
               <NeedReadout beans={this.props.world.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner" className="big"></NeedReadout>
-              Supply: {houses.supply} units. Avg. price ${houses.avg.toFixed(2)}   <br/>
-              Unfulfilled Demand: {this.props.world.economy.unfulfilledSeasonalDemand.shelter} units
+              <table className="width-100p">
+                <tbody>
+                  <tr>
+                    <td>Median {shelter_median} 🏡</td>
+                    <td className="text-center">
+                      Supply: {houses.supply} 🏡 @ ${houses.avg.toFixed(2)}
+                    </td>
+                    <td className="text-right">
+                      Deficit: {this.props.world.economy.unfulfilledSeasonalDemand.shelter} 🏡
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
-          <div className="pad-4p">
+          {/* <div className="pad-4p">
             <h3>Economic Health</h3>
-          </div>
+          </div> */}
           <div className="col-2">
             <div>
-              <strong>💰 Wealth</strong> Household Wealth: {wealth_total.toFixed(2)}<br/>
+              <strong>💰 Wealth</strong> <br/>
               {wealth_dire} penniless citizens &nbsp; &nbsp; Cost of Living: ${this.props.world.economy.getCostOfLiving().toFixed(2)} <br/>
-              Median: ${wealth_median.toFixed(2)} Average: ${wealth_avg.toFixed(2)} <br/>
+              <table className="width-100p">
+                <tbody>
+                  <tr>
+                    <td>Total ${wealth_total.toFixed(2)}</td>
+                    <td className="text-center">
+                      Median: ${wealth_median.toFixed(2)} 
+                    </td>
+                    <td className="text-right">
+                      Avg: ${wealth_avg.toFixed(2)}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
               Top {wealthy_percentage.toFixed(1)}% of subjects own {wealthy_ownership.toFixed(1)}% of the wealth
             </div>
             <span>

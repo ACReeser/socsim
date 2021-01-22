@@ -29,19 +29,25 @@ export class HexPanel extends React.Component<{
                     {BuildingIcon['house']} House
                     <CostSmall cost={eHex.build.house}></CostSmall>
                 </button>
+            </div>
+            <div className="card-parent">
                 <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'farm')}>
                     {BuildingIcon['farm']} Farm
                     <CostSmall cost={eHex.build.farm}></CostSmall>
                 </button>
-            </div>
-            <div className="card-parent">
                 <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'hospital')}>
                     {BuildingIcon['hospital']} Hospital
                     <CostSmall cost={eHex.build.hospital}></CostSmall>
                 </button>
+            </div>
+            <div className="card-parent">
                 <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'theater')}>
                     {BuildingIcon['theater']} Theater
                     <CostSmall cost={eHex.build.theater}></CostSmall>
+                </button>
+                <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'park')}>
+                    {BuildingIcon['park']} Park
+                    <CostSmall cost={eHex.build.park}></CostSmall>
                 </button>
             </div>
             <h3>Beings:</h3>

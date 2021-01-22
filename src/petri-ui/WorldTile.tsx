@@ -11,7 +11,7 @@ import { IEvent } from "../events/Events";
 import { Particles } from "../widgets/particles";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 
-const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse'];
+const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse', 'park'];
 interface WorldTilePs {
     tile: Tile;
     city: City;

@@ -290,21 +290,24 @@ export interface BuildingMap{
     all: IBuilding[];
 }
 
-export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse';
+export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park';
 export type MoverTypes = 'bean'|'ufo';
 export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🐄',
-    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🎪', 'courthouse':'🏫'
+    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🎪', 'courthouse':'🏫',
+    'park': '⛲️'
 };
 export const UpgradedBuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🚜',
-    'house': '🏘️', 'hospital': '🏙️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫'
+    'house': '🏘️', 'hospital': '🏙️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫',
+    'park': '🎡'
 };
 export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
     'farm': '🌾',
-    'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🪑', 'courthouse':'🏫'
+    'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🪑', 'courthouse':'🏫',
+    'park': '💐'
 };
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',
@@ -325,6 +328,7 @@ export class Geography{
         theater: {coordByID: {}, all: []},
         courthouse: {coordByID: {}, all: []},
         church: {coordByID: {}, all: []},
+        park: {coordByID: {}, all: []},
     }
      
     public movers: {[key in MoverTypes]: AddressBookPoint} = {
