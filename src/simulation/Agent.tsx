@@ -259,8 +259,10 @@ export class RelaxState extends AgentState{
         return new RelaxState({act: 'relax', intent: intent, chat: chat})
     }
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        
-        if (this.Elapsed > 1000){
+        let durationMS = 1000;
+        if (agent instanceof Bean && agent.believesIn('Hedonism'))
+            durationMS *= 3;
+        if (this.Elapsed > durationMS){
             return IdleState.create();
         }
         return this;
@@ -323,7 +325,7 @@ export const GetPriority = {
         return 1 + (bean.discrete_stamina / difficulty.bean_life.vital_thresh.shelter.sufficient )
     },
     medicine:function(bean:Bean, difficulty: IDifficulty): number{
-        return 1 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
+        return 0.75 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
     },
     fun:function(bean:Bean, difficulty: IDifficulty): number{
         return 2 + (bean.lastHappiness / 100 * 1.25 )

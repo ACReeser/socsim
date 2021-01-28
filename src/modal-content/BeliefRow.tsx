@@ -64,7 +64,7 @@ export class AddBeliefInput extends React.Component<{
     constructor(props: any){
         super(props);
         this.state = {
-            belief: 'Paranoia'
+            belief: 'Neuroticism'
         }
     }
     render(){

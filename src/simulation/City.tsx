@@ -119,6 +119,7 @@ export class City extends Geography implements Tile, IBeanContainer {
         const job: TraitJob = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
         const bean = GenerateBean(this, this.historicalBeans.length, undefined, job);
         bean.ethnicity = parent.ethnicity;
+        bean.name = bean.name.split(' ')[0] + ' ' + parent.name.split(' ')[1];
         bean.cash = parent.cash / 2;
         parent.cash /= 2;
         bean.bornInPetri = true;

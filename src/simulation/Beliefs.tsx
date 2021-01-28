@@ -2,20 +2,20 @@ import { TraitCommunity, TraitFaith, TraitIdeals } from "../World";
 
 export type TraitBelief = 'Diligence'| // happy from work
 'Natalism'| // increased % of having kids
-'Authority'| 
-'Hedonism'| 
-'Tribalism'| 
-'Globalism'| 
-'Pacifism'| 
+'Authority'| //less crime, more crime reports
+'Hedonism'| //more entertainment
+// 'Tribalism'| 
+// 'Globalism'| 
+// 'Pacifism'| 
 'Neuroticism'| // takes extra sanity damage
 'Dogmatism'| 
-'Mysticism'| 
-'Paranoia'| 
-'Evangelism'| 
-'Fanaticism'| // doesn't like beings that don't share narrative 
+// 'Mysticism'| 
+// 'Paranoia'| 
+// 'Evangelism'| 
+// 'Fanaticism'| // doesn't like beings that don't share narrative 
 'Anarchism'| // breaks rules easily
-'Sadism'| 
-'Antagonism'|
+// 'Sadism'| 
+// 'Antagonism'|
 'Charity'| // % to donate
 'Greed'; // steal easier
 
@@ -102,7 +102,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Greed: {
         noun: 'Greed', adj: 'Greedy', icon: '💰',
-        description: "+10% Crime 🎲",
+        description: "+25% theft Crime 🎲",
         idealCon: ['prog'], idealPro: ['trad']
     },
     Neuroticism: {
@@ -120,68 +120,69 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         description: "🎲 to gift 💰 to the penniless",
         idealCon: ['trad'], idealPro: ['prog']
     },
-    Globalism: {
-        noun: 'Globalism', adj: 'Globalist', icon: '🌍',
-        description: "🎲 to 👏 other hair colors",
-        idealCon: ['trad'], idealPro: ['prog', 'state']
-    },
+    // Globalism: {
+    //     noun: 'Globalism', adj: 'Globalist', icon: '🌍',
+    //     description: "🎲 to 👏 other hair colors",
+    //     idealCon: ['trad'], idealPro: ['prog', 'state']
+    // },
     Natalism: {
         noun: 'Natalism', adj: 'Natalist', icon: '👶',
         description: "+15% 🎲 for 👶"
     },
     Authority: {
         noun: 'Authority', adj: 'Authoritarian', icon: '👢',
-        description: "-10% Crime 🎲",
+        description: "-25% Crime 🎲",
         idealCon: ['ego'], idealPro: ['state']
     },
     Hedonism: {
         noun: 'Hedonism', adj: 'Hedonistic', icon: '💋',
-        description: "🎲 to skip work and gain 🙂",
+        // description: "🎲 to skip work and gain 🙂",
+        description: "Seeks 🙂 often; 😎 3x longer",
         idealCon: ['prog'], idealPro: ['ego', 'trad']
     },
-    Tribalism: {
-        noun: 'Tribalism', adj: 'Tribal', icon: '🏰',
-        description: "🎲 to 👎 other hair colors",
-        idealCon: ['prog'], idealPro: ['state', 'ego']
-    },
+    // Tribalism: {
+    //     noun: 'Tribalism', adj: 'Tribal', icon: '🏰',
+    //     description: "🎲 to 👎 other hair colors",
+    //     idealCon: ['prog'], idealPro: ['state', 'ego']
+    // },
     Dogmatism: {
         noun: 'Dogmatism', adj: 'Dogmatic', icon: '🐶',
         description: "cannot be persuaded",
         idealCon: ['ego'], idealPro: ['state']
     },
-    Mysticism: {
-        noun: 'Mysticism', adj: 'Mystical', icon: '🔮',
-        description: "🎲 to 👏 in any conversation",
-        idealCon: ['trad'], idealPro: ['prog']
-    },
-    Pacifism: {
-        noun: 'Pacifism', adj: 'Pacifist', icon: '😘',
-        description: "will never punish others",
-        idealCon: ['trad'], idealPro: ['prog']
-    },
-    Paranoia: {
-        noun: 'Paranoia', adj: 'Paranoid', icon: '👽',
-        description: "🎲 to 👎 in any conversation",
-        idealCon: ['state'], idealPro: ['ego']
-    },
-    Evangelism: {
-        noun: 'Evangelism', adj: 'Evangelist', icon: '📣',
-        description: "+50% persuasion of 🎭",
-        idealCon: ['ego'], idealPro: ['state']
-    },
-    Fanaticism: {
-        noun: 'Fanaticism', adj: 'Fanatical', icon: '👺',
-        description: "🎲 to 👎 other 🎭",
-        idealCon: ['prog'], idealPro: []
-    },
-    Sadism: {
-        noun: 'Sadism', adj: 'Sadistic', icon: '😈',
-        description: "🎲 to ☠️ other when receiving 👎"
-    },
-    Antagonism: {
-        noun: 'Antagonism', adj: 'Antagonistic', icon: '🤬',
-        description: "+15% Crime 🎲, +25% walk speed"
-    },
+    // Mysticism: {
+    //     noun: 'Mysticism', adj: 'Mystical', icon: '🔮',
+    //     description: "🎲 to 👏 in any conversation",
+    //     idealCon: ['trad'], idealPro: ['prog']
+    // },
+    // Pacifism: {
+    //     noun: 'Pacifism', adj: 'Pacifist', icon: '😘',
+    //     description: "will never punish others",
+    //     idealCon: ['trad'], idealPro: ['prog']
+    // },
+    // Paranoia: {
+    //     noun: 'Paranoia', adj: 'Paranoid', icon: '👽',
+    //     description: "🎲 to 👎 in any conversation",
+    //     idealCon: ['state'], idealPro: ['ego']
+    // },
+    // Evangelism: {
+    //     noun: 'Evangelism', adj: 'Evangelist', icon: '📣',
+    //     description: "+50% persuasion of 🎭",
+    //     idealCon: ['ego'], idealPro: ['state']
+    // },
+    // Fanaticism: {
+    //     noun: 'Fanaticism', adj: 'Fanatical', icon: '👺',
+    //     description: "🎲 to 👎 other 🎭",
+    //     idealCon: ['prog'], idealPro: []
+    // },
+    // Sadism: {
+    //     noun: 'Sadism', adj: 'Sadistic', icon: '😈',
+    //     description: "🎲 to ☠️ other when receiving 👎"
+    // },
+    // Antagonism: {
+    //     noun: 'Antagonism', adj: 'Antagonistic', icon: '🤬',
+    //     description: "+15% Crime 🎲, +25% walk speed"
+    // },
 };
 
 export function IsIdealDivergent(con: TraitCommunity|TraitIdeals, utopiaMotive: TraitIdeals, utopiaCommunity: TraitCommunity): boolean{

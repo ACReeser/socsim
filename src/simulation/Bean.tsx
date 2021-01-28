@@ -103,6 +103,13 @@ export class Bean implements IBean{
         this.shelter == 'podless' ||
         this.health == 'sick';
     }
+    believesIn(belief: TraitBelief): boolean{
+        return this.beliefs.indexOf(belief) !== -1;
+    }
+    loseSanity(amount: number){
+        const multiplier = this.believesIn('Neuroticism') ? 2 : 1;
+        this.discrete_sanity -= multiplier * amount;
+    }
     getHappinessModifiers(econ: Economy, homeCity: City, law: Government): IHappinessModifier[]{
         const mods: IHappinessModifier[] = [
             TraitToModifier[this.food],
@@ -389,15 +396,21 @@ export class Bean implements IBean{
             this.discrete_health += meds.bought;
         return meds;
     }
-
+    get babyChance(): number{
+        let base = BabyChance;
+        if (this.believesIn('Natalism'))
+            return base + .15;
+        else
+            return base;
+    }
     maybeBaby(economy: Economy): IEvent | null {
         if (this.canBaby(economy.getCostOfLiving()) &&
-            Math.random() <= BabyChance) {
+            Math.random() <= this.babyChance) {
             if (this.city)
                 this.city.breedBean(this);
             else
                 throw 'bean does not have city object';
-            return {icon: '🎉', trigger: 'birth', message: 'A new subject is born!'}
+            return {icon: '🎉', trigger: 'birth', message: `${this.name} has a baby!`}
         } else {
             return null;
         }
