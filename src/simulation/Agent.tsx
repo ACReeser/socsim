@@ -38,7 +38,7 @@ export interface IActivityData {
 
 export interface IChatData{
     participation: 'speaker'|'listener';
-    type: 'praise'|'bully'|'preach';
+    type: 'praise'|'bully'|'preach'|'gift';
     preachBelief?: TraitBelief;
     /**
      * strength of the preacher's persuasion

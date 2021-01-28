@@ -199,7 +199,15 @@ export class Bean implements IBean{
             return '😎';
         }
         if (this.state.data.act == 'chat'){
-            return this.state.data.chat?.participation === 'speaker' ? '😃' : '🤨';
+            if (this.state.data.chat?.participation === 'speaker'){
+                switch(this.state.data?.chat?.type){
+                    default: return '😃';
+                    case 'gift': return '😇';
+                    case 'praise': return '🥳';
+                    case 'bully': return '😈';
+                }
+            }
+            return '🤨';
         }
         if (this.food == 'hungry')
             return '😫';
@@ -281,6 +289,23 @@ export class Bean implements IBean{
     public getRandomChat(nearby: Bean[]): IChatData {
         const canPreach = this.beliefs.length;
         if (canPreach){
+            if (this.believesIn('Charity') && this.cash >= 2){
+                //find a bean with less money than self, poorest in sight
+                const needy = nearby.filter(x => x.cash <= this.cash-1).reduce((least: Bean|null, bean) => {
+                    if (least == null || (bean.cash < least.cash))
+                        return bean;
+                    return least;
+                }, null);
+                if (needy) {
+                    this.cash -= 0.5;
+                    needy.cash += 0.5;
+                    return {
+                        participation: 'speaker',
+                        type: 'gift',
+                        targetBeanKey: needy.key
+                    }
+                }
+            }
             return {
                 participation: 'speaker',
                 type: 'preach',
@@ -308,6 +333,9 @@ export class Bean implements IBean{
                     this.shelter = 'crowded';
                     this.discrete_stamina = 7;
                     break;
+            }
+            if (this.believesIn('Diligence') && Math.random() <= 0.5){
+                this.discrete_fun += 0.5;
             }
             this.ticksSinceLastSale++;
             if (this.ticksSinceLastSale > 7){
