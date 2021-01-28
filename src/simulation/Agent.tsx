@@ -3,7 +3,7 @@ import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon } from "../World";
 import { GetRandom } from "../WorldGen";
-import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
+import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
@@ -11,7 +11,7 @@ import { IDifficulty } from "../Game";
 import { TraitBelief } from "./Beliefs";
 import { ISeller } from "./Economy";
 
-export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime';
+export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
 
 /**
  * cruise == interruptible travel towards destination
@@ -115,22 +115,40 @@ export class IdleState extends AgentState{
 }
 
 export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]|null{
-    if (!(agent instanceof Bean) || agent.city == null)
+    if (!(agent instanceof Bean))
         return [];
-
-    switch(intent.act){
-        case 'buy':
-            if (intent.good)
-                return RouteRandom(agent.city, agent, GoodToBuilding[intent.good]);
-        case 'work':
-            return RouteRandom(agent.city, agent, JobToBuilding[agent.job]);
+    else if (agent.city){
+        const city = agent.city;
+        switch(intent.act){
+            case 'buy':
+                if (intent.good)
+                    return RouteRandom(city, agent, GoodToBuilding[intent.good]);
+            case 'work':
+                return RouteRandom(city, agent, JobToBuilding[agent.job]);
+            case 'relax': {
+                const parks = city.byType?.park?.all;
+                if (parks && parks.length)
+                    return RouteRandom(city, agent, 'park');
+                else
+                    return [GetRandom(hex_ring(hex_origin, 2).map((x) => hex_to_pixel(city.hex_size, city.petriOrigin, x)))];
+            }
+        }
     }
     return [];
 }
 
 export class TravelState extends AgentState{
     static createFromIntent(agent: IAgent, intent: IActivityData): TravelState|null{
+        if (intent.act === 'buy' && intent.good != null && agent instanceof Bean && !agent.canBuy(intent.good)){
+
+            if (intent.good === 'fun')
+                intent.act = 'relax'; //relaxing is free!
+            else
+                return null;
+        }
+
         const destination = IntentToDestination(agent, intent);
+
         if (destination)
             return this.createFromDestination(destination, intent);
         return null;
@@ -237,6 +255,23 @@ export class ChatState extends AgentState{
         }
     }
 }
+export class RelaxState extends AgentState{
+    static create(intent: IActivityData|undefined, chat: IChatData){ 
+        return new RelaxState({act: 'relax', intent: intent, chat: chat})
+    }
+    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
+        
+        if (this.Elapsed > 1000){
+            return IdleState.create();
+        }
+        return this;
+    }
+    exit(agent: IAgent){
+        if (agent instanceof Bean){
+            agent.discrete_fun += 1;
+        }
+    }
+}
 export class CrimeState extends AgentState{
     static create(good: 'food'|'medicine'){ return new CrimeState({act: 'crime', good: good})}
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
@@ -259,7 +294,8 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
     'buy': (data) => new BuyState(data),
     'sleep': (data) => new BuyState(data),
     'soapbox': (data) => new BuyState(data),
-    'crime': (data) => new BuyState(data)
+    'crime': (data) => new CrimeState(data),
+    'relax': (data) => new RelaxState(data)
 }
 
 export const GetPriority = {
@@ -292,21 +328,21 @@ export const GetPriority = {
     },
     fun:function(bean:Bean, difficulty: IDifficulty): number{
         return 2 + (bean.lastHappiness / 100 * 1.25 )
-    },
+    }
 }
 
 export function GetPriorities(bean: Bean, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
     const queue = new DumbPriorityQueue<IActivityData>([]);
     let node = new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean));
-    queue.enqueue(node)
+    queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, difficulty));
-    queue.enqueue(node)
+    queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.shelter(bean, difficulty));
-    queue.enqueue(node)
+    queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, difficulty));
-    queue.enqueue(node)
+    queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'fun'} as IActivityData, GetPriority.fun(bean, difficulty));
-    queue.enqueue(node)
+    queue.enqueue(node);
     return queue;
 }
 

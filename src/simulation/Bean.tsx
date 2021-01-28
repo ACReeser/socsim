@@ -89,6 +89,7 @@ export class Bean implements IBean{
      */
     public lastPartySentiment: number = 0;
     public ticksSinceLastSale: number = 0;
+    public ticksSinceLastRelax: number = 0;
     /**
      * days until needs sleep
      */
@@ -186,6 +187,9 @@ export class Bean implements IBean{
         }
         if (this.state.data.act == 'crime'){
             return '😈';
+        }
+        if (this.state.data.act == 'relax'){
+            return '😎';
         }
         if (this.state.data.act == 'chat'){
             return this.state.data.chat?.participation === 'speaker' ? '😃' : '🤨';
@@ -401,6 +405,9 @@ export class Bean implements IBean{
     canBaby(costOfLiving: number): boolean{
         return this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
+    }
+    canBuy(good: TraitGood): boolean {
+        return this.city?.economy?.canBuy(this, good) === 'yes';
     }
     /**
      * should return 0-1 float, with 1 meaning 100%

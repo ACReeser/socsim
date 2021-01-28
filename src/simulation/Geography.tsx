@@ -143,6 +143,7 @@ export const layout_flat: Orientation = new Orientation(3.0 / 2.0, 0.0, Math.sqr
                 2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0,
                 0.0);
 export const origin_point: Point = {x: 0, y: 0};
+export const hex_origin: HexPoint = {q: 0, r: 0};
 export function hex_to_pixel(size: Point, origin: Point, h: HexPoint): Point {
     const M: Orientation = layout_flat;
     const x = (M.f0 * h.q + M.f1 * h.r) * size.x;

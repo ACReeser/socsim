@@ -64,6 +64,18 @@ export class Economy {
         this.unfulfilledSeasonalDemand[good] += actualDemand;
         return null;
     }
+    canBuy(buyer: IEconomicAgent, good: TraitGood,
+        minDemand: number = 1,
+        maxDemand: number = 1): 'yes'|'nosupply'|'pricedout'{
+        const listing = this.market.getLowestPriceListing(good, minDemand);
+        if (listing == null){
+            return 'nosupply';
+        }
+        const actualDemand = Math.min(listing.quantity, maxDemand);
+        if (listing.price <= buyer.cash * actualDemand)
+            return 'yes';
+        return 'pricedout';
+    }
     steal(
         good: TraitGood,
         maxDemand: number = 1

@@ -99,9 +99,11 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     <tbody>
                         {
                             GetPriorities(this.props.bean, this.props.alien.difficulty).values.map((x) => {
-                                return <div>
+                                return <tr>
+                                    <td>
                                     {x.priority.toFixed(1)} {ActivityIcon(x.value)}
-                                </div>
+                                    </td>
+                                </tr>
                             })
                         }
                     </tbody>
