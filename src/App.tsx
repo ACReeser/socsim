@@ -15,7 +15,7 @@ import { BeanPanel } from './right-panel/BeanPanel';
 import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
 import { PartyOverview } from './modal-content/PartyOverview';
 import { BubbleText } from './widgets/BubbleText';
-import { Season, Now } from './simulation/Time';
+import { Season, Now, Hour } from './simulation/Time';
 import { SocialGraph } from './widgets/SocialGraph';
 import { CapsuleLabel } from './widgets/CapsuleLabel';
 
@@ -120,6 +120,14 @@ class App extends React.Component<AppPs, AppState>{
       } else {
         this.setState({timeScale: 1});
       }
+    } else if (event.key === 'Q' && event.shiftKey){
+      this.build(this.state.world.cities[0], {q:1,r:1}, 'farm');
+      this.build(this.state.world.cities[0], {q:1,r:0}, 'house');
+      this.build(this.state.world.cities[0], {q:0,r:1}, 'hospital');
+      this.beam(this.state.world.cities[0], {q:0,r:0});
+      this.beam(this.state.world.cities[0], {q:1,r:0});
+      this.beam(this.state.world.cities[0], {q:0,r:1});
+      this.beam(this.state.world.cities[0], {q:1,r:1});
     }
   }
   foundParty = (state: FoundPartyS) => {
@@ -433,7 +441,7 @@ class App extends React.Component<AppPs, AppState>{
               &nbsp;
               Year {this.state.world.date.year}, 
               &nbsp;
-              {season} {this.state.world.date.day}
+              {season} {this.state.world.date.day} {this.renderHour()}
             </span>
             <span>
               6 mo 5 days til Grade
@@ -482,6 +490,14 @@ class App extends React.Component<AppPs, AppState>{
       </div>
     </div>
   )}
+  renderHour(): string{
+    switch(this.state.world.date.hour){
+      default: return '☀️';
+      case Hour.Evening: return '🌇';
+      case Hour.Morning: return '🌄';
+      case Hour.Midnight: return '🌙';
+    }
+  }
 }
 
 export default App;

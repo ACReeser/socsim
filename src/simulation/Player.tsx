@@ -189,7 +189,7 @@ export class Player implements IPlayerData, IProgressable{
     public energy = { amount: 29, income: 2/30, change: new ChangePubSub()};
     public psi = { amount: 10, income: 2/30, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2/30, change: new ChangePubSub()};
-    public next_grade: IDate = { year: 1, season: 3, day: 1 };
+    public next_grade: IDate = { year: 1, season: 3, day: 1, hour: 0 };
     public difficulty: IDifficulty = DefaultDifficulty;
     public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm',  'beam_3', 'scan', 'brainwash', 'set_policy', 'c+_grade'];
     public goalProgress: {[key: string]: IGoalProgress} = {};

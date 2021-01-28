@@ -123,7 +123,7 @@ export class City extends Geography implements Tile, IBeanContainer {
         parent.cash /= 2;
         bean.bornInPetri = true;
         if (this.environment)
-            bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day};
+            bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day, hour: this.environment?.hour};
         this.historicalBeans.push(bean);
     }
     getTaxesAndDonations(party: Party, economy: Economy){

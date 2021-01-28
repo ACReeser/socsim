@@ -19,7 +19,7 @@ export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
-    public dob: IDate = {year: 0, season: 0, day: 1};
+    public dob: IDate = {year: 0, season: 0, day: 1, hour: 0};
     public bornInPetri: boolean = false;
     public name: string = 'Human Bean';
     public sanity: TraitSanity = 'sane'
@@ -93,8 +93,8 @@ export class Bean implements IBean{
      * days until needs sleep
      */
     public discrete_stamina: number = 7;
-    public lastApprovalDate: IDate = {year: -1, season: 0, day: 0};
-    public lastInsultDate: IDate = {year: -1, season: 0, day: 0};
+    public lastApprovalDate: IDate = {year: -1, season: 0, day: 0, hour: 0};
+    public lastInsultDate: IDate = {year: -1, season: 0, day: 0, hour: 0};
     public fairGoodPrice: number = 1;
     public lastChatMS: number = Date.now();
     get isInCrisis(): boolean{

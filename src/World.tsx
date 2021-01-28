@@ -4,7 +4,7 @@ import { Economy } from './simulation/Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus } from './events/Events';
-import { Season, IDate } from './simulation/Time';
+import { Season, IDate, Hour } from './simulation/Time';
 import { Government } from './simulation/Government';
 import { Player, TechData } from './simulation/Player';
 import { Geography } from './simulation/Geography';
@@ -44,7 +44,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public law: Government = new Government();
     public institutions: IInstitution[] = [];
     public party: Party = new BaseParty();
-    public date: IDate = {year: 1, season: Season.Spring, day: 1};
+    public date: IDate = {year: 1, season: Season.Spring, day: 1, hour: 1};
 
     public alien: Player = new Player();
 
@@ -82,8 +82,11 @@ export class World implements IWorld, IBeanContainer, IActListener{
      * simulates a season passing, setting a lot of state
      */
     public simulate_world(){
-        
-        this.date.day++;
+        this.date.hour++
+        if (this.date.hour > Hour.Evening){
+            this.date.hour = 0;
+            this.date.day++;
+        }
         if (this.date.day > 30){
             this.date.day = 1;
             this.date.season++;
