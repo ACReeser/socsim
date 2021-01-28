@@ -63,6 +63,7 @@ export class HexPanel extends React.Component<{
     buildingPanel(b: IBuilding){
         const slots = b.usedSlots();
         const free = b.openSlots();
+        const hasJobs = b.type != 'park' && b.type != 'nature';
         return <div>
             <strong>{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
         {
@@ -75,21 +76,26 @@ export class HexPanel extends React.Component<{
                 }
             </div>
         }
-            <div>
+        {
+            !hasJobs ? null : <div>
                 This {keyToName[b.type]} can support {free.length} more jobs.
                 {
                     b.upgraded ? null : <span><br/>Upgrade it to add 3 more job slots.</span>
                 }
             </div>
-            {
-                b.upgraded ? null : <div className="card-parent">
-                    <button className="card button" type="button" onClick={() => this.props.upgrade(b)}>
-                        🛠️ Upgrade
-                        <CostSmall cost={this.props.difficulty.cost.hex.upgrade}></CostSmall>
-                    </button>
-                </div>
-            }
+        }
+        {
+            b.upgraded || !hasJobs ? null : <div className="card-parent">
+                <button className="card button" type="button" onClick={() => this.props.upgrade(b)}>
+                    🛠️ Upgrade
+                    <CostSmall cost={this.props.difficulty.cost.hex.upgrade}></CostSmall>
+                </button>
+            </div>
+        }
         </div>
+    }
+    renderJobs(){
+
     }
     render(){
         const building: IBuilding|undefined = this.props.city.lookupBuilding(this.props.hex);

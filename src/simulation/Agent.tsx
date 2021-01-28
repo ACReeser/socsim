@@ -126,11 +126,10 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
             case 'work':
                 return RouteRandom(city, agent, JobToBuilding[agent.job]);
             case 'relax': {
-                const parks = city.byType?.park?.all;
-                if (parks && parks.length)
-                    return RouteRandom(city, agent, 'park');
-                else
-                    return [GetRandom(hex_ring(hex_origin, 2).map((x) => hex_to_pixel(city.hex_size, city.petriOrigin, x)))];
+                const parks = city.byType.park.all.concat(city.byType.nature.all);
+                const destination: IBuilding = GetRandom(parks);
+                agent.destinationKey = destination.key;
+                return Route(city, agent, destination);
             }
         }
     }

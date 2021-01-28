@@ -111,6 +111,9 @@ export function GenerateCity(previousCityCount: number): City{
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
     
     GenerateBuilding(newCity, 'courthouse', newCity.hexes[0]); 
+    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)]); 
+    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(21, 25)]); 
+    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(26, 60)]);
     // GenerateBuilding(newCity, 'house', newCity.hexes[1]); 
     // GenerateBuilding(newCity, 'hospital', newCity.hexes[5]);
     

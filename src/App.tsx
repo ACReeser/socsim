@@ -46,7 +46,7 @@ export const keyToName: {[key in Trait|BuildingTypes]: string} = {
   podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
   sick: 'Sick', bruised: 'Bruised', fresh: 'Robust',
   sane: 'Sane', confused: 'Confused', mad: 'Mad',
-  house:'House', hospital:'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park'
+  house:'House', hospital:'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Natural Scenery'
 };
 
 export type ModalView = 'policy'|'economy'|'campaign'|'party_creation'|'party'|'polisci'|'brainwash';

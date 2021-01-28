@@ -72,6 +72,10 @@ export const DefaultDifficulty: IDifficulty = {
                 park: {
                     energy: 1,
                     bots: 4
+                },
+                nature: {
+                    energy: 1,
+                    bots: 4
                 }
             }
         },
