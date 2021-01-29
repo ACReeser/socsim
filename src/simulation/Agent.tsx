@@ -314,7 +314,7 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
 export const GetPriority = {
     work: function(bean:Bean): number{
         if (bean.job == 'jobless' && bean.city){
-            return bean.cash / bean.city.costOfLiving;
+            return 9;
         }
         else if (bean.city){
             //beans with no inventory prioritize work higher

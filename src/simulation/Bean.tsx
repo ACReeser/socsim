@@ -320,7 +320,6 @@ export class Bean implements IBean{
     }
     work(law: Government, econ: Economy) {
         if (this.job == 'jobless'){
-            this.tryFindRandomJob(law);
         } else {
             switch(this.job){
                 case 'farmer':
@@ -371,7 +370,17 @@ export class Bean implements IBean{
         }
     }
     public steal(good: 'food'|'medicine', econ: Economy){
-        econ.steal(good, 3);
+        const stolen = econ.steal(good, 3);
+        if (stolen != null){
+            switch(good){
+                case 'food':
+                    this.discrete_food += stolen;
+                    break;
+                case 'medicine':
+                    this.discrete_health += stolen;
+                    break;
+            }
+        }
     }
     private buyHousing(economy: Economy): boolean {
         const housing = economy.tryTransact(this, 'shelter');
@@ -444,11 +453,12 @@ export class Bean implements IBean{
         }
     }
     canBaby(costOfLiving: number): boolean{
-        return this.cash > costOfLiving * 3 &&
+        return this.alive && this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
     }
     maybeCrime(good: TraitGood): boolean {
-        console.log('considering crime...');
+        if (good === 'shelter') return false;
+        if (good === 'fun') return false;
         const roll = Math.random();
         let chance = 0.05;
         if (this.community == 'ego'){

@@ -127,8 +127,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
         
         shuffle(this.beans).forEach((b: Bean) => {
             b.age(this.economy);
-            let e = b.maybeBaby(this.economy);
+            const e = b.maybeBaby(this.economy);
             if (e) this.publishEvent(e);
+            if (b.job === 'jobless')
+                b.tryFindRandomJob(this.law);
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
