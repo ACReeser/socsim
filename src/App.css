@@ -615,9 +615,6 @@ table.classic .border-t{
   font-size: 12px;
   top: 9px;
 }
-.bean-walker.jobless{
-  animation-duration: 90s;
-}
 .bean-walker:before{
   content: ' ';
   height: 20px; width: 20px;

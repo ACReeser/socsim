@@ -10,6 +10,7 @@ import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "
 import { IDifficulty } from "../Game";
 import { TraitBelief } from "./Beliefs";
 import { ISeller } from "./Economy";
+import { IterationStatement } from "typescript";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
 
@@ -103,14 +104,33 @@ export class IdleState extends AgentState{
 
             //loop through possible destinations
             while (top && travelState == null){
-                travelState = TravelState.createFromIntent(agent, top.value);
-                if (travelState == null)
-                    top = priorities.dequeue();
-                else
-                    return travelState;
+                const activity = IdleState.substituteIntent(agent, top.value);
+                if (activity){
+                    travelState = TravelState.createFromIntent(agent, top.value);
+                    if (travelState != null)
+                        return travelState;
+                }
+                top = priorities.dequeue();
             }
         }
         return this;
+    }
+    static substituteIntent(agent: IAgent, intent: IActivityData): IActivityData|null{
+        if (intent.act === 'buy' && intent.good != null && agent instanceof Bean){
+            const desiredGoodState = agent.canBuy(intent.good);
+            if (desiredGoodState != 'yes' && intent.good === 'fun')
+                intent.act = 'relax'; //relaxing is free!
+            else if (desiredGoodState === 'pricedout') {
+                if (agent instanceof Bean && agent.maybeCrime(intent.good)){
+                    intent.act = 'crime';
+                } else {
+                    return null; //don't travel to buy something that you can't afford
+                }
+            } else if (desiredGoodState === 'nosupply'){
+                return null; //don't travel to buy something that doesn't exist
+            }
+        }
+        return intent;
     }
 }
 
@@ -138,14 +158,6 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
 
 export class TravelState extends AgentState{
     static createFromIntent(agent: IAgent, intent: IActivityData): TravelState|null{
-        if (intent.act === 'buy' && intent.good != null && agent instanceof Bean && !agent.canBuy(intent.good)){
-
-            if (intent.good === 'fun')
-                intent.act = 'relax'; //relaxing is free!
-            else
-                return null;
-        }
-
         const destination = IntentToDestination(agent, intent);
 
         if (destination)
@@ -222,11 +234,11 @@ export class BuyState extends AgentState{
             if (this.sinceLastAttemptMS > 250)
             {
                 this.tryBuy(agent);
-                if(this.attempts >= 3 && (this.data.good == 'food' || this.data.good == 'medicine') &&
-                    agent instanceof Bean &&
-                    agent.getCrimeDecision(this.data.good, 'desperation')){
-                    return CrimeState.create(this.data.good);
-                }
+                // if(this.attempts >= 3 && (this.data.good == 'food' || this.data.good == 'medicine') &&
+                //     agent instanceof Bean &&
+                //     agent.getCrimeDecision(this.data.good, 'desperation')){
+                //     return CrimeState.create(this.data.good);
+                // }
             }
         }
         if (this.Elapsed > 1500)
@@ -301,8 +313,8 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
 
 export const GetPriority = {
     work: function(bean:Bean): number{
-        if (bean.job == 'jobless'){
-            return 0;
+        if (bean.job == 'jobless' && bean.city){
+            return bean.cash / bean.city.costOfLiving;
         }
         else if (bean.city){
             //beans with no inventory prioritize work higher

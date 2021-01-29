@@ -447,8 +447,35 @@ export class Bean implements IBean{
         return this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
     }
-    canBuy(good: TraitGood): boolean {
-        return this.city?.economy?.canBuy(this, good) === 'yes';
+    maybeCrime(good: TraitGood): boolean {
+        console.log('considering crime...');
+        const roll = Math.random();
+        let chance = 0.05;
+        if (this.community == 'ego'){
+            chance += .1;
+        }
+        if (this.isInCrisis){
+            chance += .1;
+        }
+        if (this.believesIn('Greed')){
+            chance += .25;
+        }
+        if (this.believesIn('Anarchism')){
+            chance += .33;
+        }
+        if (this.believesIn('Authority')){
+            chance -= .25;
+        }
+        if (good === 'food' && this.food === 'hungry'){
+            chance += .25;
+        }
+        else if (good === 'medicine' && this.health === 'sick'){
+            chance += .25;
+        }
+        return chance <= roll;
+    }
+    canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
+        return this.city?.economy?.canBuy(this, good) || 'nosupply';
     }
     /**
      * should return 0-1 float, with 1 meaning 100%
