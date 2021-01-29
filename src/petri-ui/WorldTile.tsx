@@ -15,6 +15,7 @@ const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theat
 interface WorldTilePs {
     tile: Tile;
     city: City;
+    activeBeanID: number|null;
     costOfLiving: number;
     spotlightEvent: IEvent|undefined;
     onClick: () => void;
@@ -59,7 +60,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     render() {
       const beans = this.props.city.beans.map((b: Bean) => {
         return (
-          <AnimatedBean bean={b} key={b.key} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
+          <AnimatedBean bean={b} key={b.key} selected={b.key === this.props.activeBeanID} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
         )
       });
       const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {

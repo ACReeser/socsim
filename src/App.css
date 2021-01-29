@@ -579,6 +579,9 @@ table.classic .border-t{
   margin-left: -10px;
   animation: hop-marg 0.5s infinite;
 }
+.bean-walker.selected{
+  text-shadow: 0 0 4px hsl(16, 100%, 50%);
+}
 .bean-walker:after{
   left: -12px;
   top: 7px;
@@ -589,9 +592,10 @@ table.classic .border-t{
 .bean-walker.spin::after{
   animation: wiggle 0.5s infinite ease-in-out;
 }
-.bean-walker:hover:before{
+.bean-walker:hover:before,
+.bean-walker.selected:before{
   border-color:  hsl(16, 100%, 50%);
-  box-shadow: 0 0 10px hsl(16, 100%, 50%);;
+  box-shadow: 0 0 10px hsl(16, 100%, 50%);
 }
 .bean.doc:after{
   content: '🩺';

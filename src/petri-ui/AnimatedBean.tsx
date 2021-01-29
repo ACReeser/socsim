@@ -5,6 +5,7 @@ import { GoodIcon } from "../World";
 
 interface AnimatedBeanP {
   bean: Bean;
+  selected?: boolean;
   sitStill?: boolean;
   onClick: () => void;
   static?: boolean;
@@ -69,6 +70,8 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
         classes += ' bean-walker';
         if (this.state.spin)
           classes += ' spin';
+        if (this.props.selected)
+          classes += ' selected';
         if (this.props.bean.state.data.act != 'travel')
           classes += ' paused';
       }

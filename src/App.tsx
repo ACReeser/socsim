@@ -357,7 +357,7 @@ class App extends React.Component<AppPs, AppState>{
     const COL = this.state.world.economy.getCostOfLiving();
     return this.state.world.cities.map((t) => {
         return (
-          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} spotlightEvent={this.state.spotlightEvent}
+          <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} spotlightEvent={this.state.spotlightEvent} activeBeanID={this.state.activeBeanID}
             onClick={() => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null})} 
             onBeanClick={(b) => this.setState({activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key})} 
             onHexClick={(hex) => {this.setState({activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview'})}}
