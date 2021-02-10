@@ -90,6 +90,9 @@ export abstract class AgentState{
     exit(agent: IAgent){
 
     }
+    get display(): string {
+        return ActivityDisplay(this.data);
+    }
 }
 export class IdleState extends AgentState{
     static create(){ return new IdleState({act: 'idle'})}
@@ -373,6 +376,31 @@ export function ActivityIcon(data: IActivityData): string{
                 return '💸 '+ GoodIcon[data.good];
             else
                 return '💸';
+    }
+    return '';
+}
+export function ActivityDisplay(data: IActivityData): string{    
+    switch(data.act){
+        case 'chat':
+            return `chatting`;
+        case 'crime':
+            return `commiting crime`;
+        case 'relax':
+            return `relaxing`;
+        case 'travel':
+            return `travelling to ` + data.intent?.act || '';
+        case 'work':
+            if (data.good)
+                return 'working to make '+ GoodIcon[data.good];
+            else
+                return 'working';
+        case 'buy':
+            if (data.good == 'shelter')
+                return 'sleeping 😴';
+            if (data.good)
+                return 'buying '+ GoodIcon[data.good];
+            else
+                return 'buying';
     }
     return '';
 }

@@ -6,7 +6,7 @@ import { IEvent, PubSub } from "../events/Events";
 import { IDate, withinLastYear } from "./Time";
 import { Government } from "./Government";
 import { AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover } from "./Agent";
-import { Point } from "./Geography";
+import { JobToBuilding, Point } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
@@ -72,6 +72,7 @@ export class Bean implements IBean{
     public ideals: TraitIdeals = 'trad';
     //other
     public job: TraitJob = 'jobless';
+    public buildingKey?: number;
     public faith: TraitFaith = 'noFaith';
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
@@ -121,6 +122,10 @@ export class Bean implements IBean{
         ];
         if (this.ideals == 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
             mods.push({reason: 'Xenophobic', mod: -.1});
+        }
+        if (this.community == 'ego' && this.job != 'jobless' && 
+            homeCity.byType[JobToBuilding[this.job]].all.find(x => x.key === this.buildingKey)?.upgraded) {
+            mods.push({reason: 'Hates Building Density', mod: -.1});
         }
         if (this.cash < 1) {
             mods.push({reason: 'Penniless', mod: MaslowHappinessScore.Deficient});

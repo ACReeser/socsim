@@ -97,6 +97,11 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             case 'priorities':
                 return <table className="width-100p">
                     <tbody>
+                        <tr>
+                            <td>
+                                Currently {this.props.bean.state.display}
+                            </td>
+                        </tr>
                         {
                             GetPriorities(this.props.bean, this.props.alien.difficulty).values.map((x) => {
                                 return <tr>

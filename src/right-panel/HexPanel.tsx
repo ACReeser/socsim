@@ -51,21 +51,29 @@ export class HexPanel extends React.Component<{
                 </button>
             </div>
             <h3>Beings:</h3>
-            <div className="card-parent">
-                <button className="card button" type="button" onClick={() => this.props.beam(this.props.hex)}>
-                    🛸 Beam In New Subject
-                    <CostSmall cost={this.props.difficulty.cost.hex.beam}></CostSmall>
-                </button>
-            </div>
+            {this.renderBeamButton()}
         </div>
 
+    }
+    renderBeamButton(){
+        return <div className="card-parent">
+        <button className="card button" type="button" onClick={() => this.props.beam(this.props.hex)}>
+            🛸 Beam In New Subject
+            <CostSmall cost={this.props.difficulty.cost.hex.beam}></CostSmall>
+        </button>
+    </div>
     }
     buildingPanel(b: IBuilding){
         const slots = b.usedSlots();
         const free = b.openSlots();
         const hasJobs = b.type != 'park' && b.type != 'nature';
         return <div>
-            <strong>{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
+            <strong>{b.upgraded && hasJobs ? 'Upgraded ':null}{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
+        {
+            b.upgraded && hasJobs ? <div>
+                {this.renderDensityWarning()}
+            </div> : null
+        }
         {
             (slots.length === 0) ? null : <div>
                 <strong>Workers:</strong>
@@ -85,14 +93,24 @@ export class HexPanel extends React.Component<{
             </div>
         }
         {
-            b.upgraded || !hasJobs ? null : <div className="card-parent">
-                <button className="card button" type="button" onClick={() => this.props.upgrade(b)}>
-                    🛠️ Upgrade
-                    <CostSmall cost={this.props.difficulty.cost.hex.upgrade}></CostSmall>
-                </button>
+            b.upgraded || !hasJobs ? null : <div><div className="card-parent">
+                    <button className="card button" type="button" onClick={() => this.props.upgrade(b)}>
+                        🛠️ Upgrade
+                        <CostSmall cost={this.props.difficulty.cost.hex.upgrade}></CostSmall>
+                    </button>
+                </div>
+                {this.renderDensityWarning()}
             </div>
         }
+        {this.renderBeamButton()}
         </div>
+    }
+    renderDensityWarning(){
+        return <div className="text-center">
+            <small>
+                🦅 Independent subjects lose 🙂<br/>working in upgraded buildings
+            </small>
+        </div>;
     }
     renderJobs(){
 

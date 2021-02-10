@@ -300,7 +300,7 @@ export function GoodToJob(good: TraitGood): TraitJob{
 export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
 export const GoodIcon: {[key in TraitGood]: string} ={
     'food': '🥪',
-    'shelter': '', 
+    'shelter': '🏠', 
     'medicine': '💊', 
     'fun': '👏'
 };
