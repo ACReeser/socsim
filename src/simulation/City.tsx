@@ -1,10 +1,10 @@
-import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob } from "../World";
+import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob, TraitPickup } from "../World";
 import { Bean } from "./Bean";
 import { Economy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
-import { Geography, HexPoint, IBuilding, JobToBuilding } from "./Geography";
+import { Geography, HexPoint, IBuilding, JobToBuilding, Point } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
@@ -41,6 +41,9 @@ export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) 
 export class UFO{
     constructor(public key: number, public point: HexPoint, public action: string){}
 }
+export class Pickup{
+    constructor(public key: number, public point: Point, public type: TraitPickup){}
+}
 
 
 export class City extends Geography implements Tile, IBeanContainer {
@@ -56,6 +59,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     }
     public historicalBeans: Bean[] = [];
     public ufos: UFO[] = [];
+    public pickups: Pickup[] = [];
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;

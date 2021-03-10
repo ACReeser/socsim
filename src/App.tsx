@@ -223,12 +223,6 @@ class App extends React.Component<AppPs, AppState>{
     this.state.world.alien.currentlyResearchingTech = t;
     this.setState({ world: this.state.world });
   }
-  support = (bean: Bean) => {
-    bean.lastApprovalDate = Now(this.state.world);
-    if (bean.city)
-      bean.calculateBeliefs(this.state.world.economy, bean.city, this.state.world.law, this.state.world.party);
-    this.setState({ world: this.state.world });
-  }
   scan = (bean: Bean) => {
     if (this.state.world.alien.canAfford(this.state.world.alien.difficulty.cost.bean.scan)) {
       this.state.world.alien.purchase(this.state.world.alien.difficulty.cost.bean.scan);

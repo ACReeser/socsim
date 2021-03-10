@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitPickup } from "../World";
 import { RandomEthno, GetRandom } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -13,6 +13,10 @@ import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
 
 const BabyChance = 0.01;
+const HappyChance = 0.01;
+const UnhappyChance = 0.01;
+const EmoteCrisisChance = .10;
+const EmoteTickRamp = 10;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
 export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
@@ -91,12 +95,11 @@ export class Bean implements IBean{
     public lastPartySentiment: number = 0;
     public ticksSinceLastSale: number = 0;
     public ticksSinceLastRelax: number = 0;
+    public ticksSinceLastEmote: number = 0;
     /**
      * days until needs sleep
      */
     public discrete_stamina: number = 7;
-    public lastApprovalDate: IDate = {year: -1, season: 0, day: 0, hour: 0};
-    public lastInsultDate: IDate = {year: -1, season: 0, day: 0, hour: 0};
     public fairGoodPrice: number = 1;
     public lastChatMS: number = Date.now();
     get isInCrisis(): boolean{
@@ -153,9 +156,6 @@ export class Bean implements IBean{
             result.party.push({reason: 'Same Ideals', mod: 0.15});
         } else if (this.community != party.community){
             result.party.push({reason: 'Incompatible Values', mod: -0.15});
-        }
-        if (homeCity.environment && withinLastYear(homeCity.environment, this.lastApprovalDate)){
-            result.party.push({reason: 'Public Endorsement', mod: 0.2});   
         }
         return result;
     }
@@ -275,12 +275,6 @@ export class Bean implements IBean{
             return true;
         }
         return false;
-    }
-    canInsult(): boolean{
-        return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastInsultDate));
-    }
-    canSupport(): boolean{
-        return Boolean(this.city && this.city.environment && !withinLastYear(this.city.environment, this.lastApprovalDate));
     }
     public maybeChat(): boolean {
         if (this.lastChatMS + ChatCooldownMS > Date.now()) 
@@ -461,6 +455,33 @@ export class Bean implements IBean{
         return this.alive && this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
     }
+    maybeEmote(): TraitPickup | null {
+        if (this.lifecycle == 'alive'){
+            const unhappy = Math.random();
+            if (unhappy < this.unhappyChance)
+                return 'unhappiness';
+            else {
+                const happy = Math.random();
+                if (happy < this.happyChance)
+                    return 'happiness';
+            }
+        }
+        return null;
+    }
+    get unhappyChance(): number{
+        let base = UnhappyChance;
+        base -= Math.min(0, this.ticksSinceLastEmote / EmoteTickRamp);
+        
+        if (this.isInCrisis)
+            base += EmoteCrisisChance;
+        
+        return base;
+    }
+    get happyChance(): number{
+        let base = HappyChance;
+        base -= Math.min(0, this.ticksSinceLastEmote / EmoteTickRamp);
+        return base + (this.lastHappiness / 100 / 2);
+    }
     maybeCrime(good: TraitGood): boolean {
         if (good === 'shelter') return false;
         if (good === 'fun') return false;
@@ -488,6 +509,9 @@ export class Bean implements IBean{
             chance += .25;
         }
         return chance <= roll;
+    }
+    emote(){
+        this.ticksSinceLastEmote = 0;
     }
     canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
         return this.city?.economy?.canBuy(this, good) || 'nosupply';

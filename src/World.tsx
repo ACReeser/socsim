@@ -131,6 +131,11 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (e) this.publishEvent(e);
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
+            const happy = b.maybeEmote();
+            if (happy){
+                b.emote();
+                b.city?.pickups.push({key: b.city?.pickups.length, point: b.city?.movers.bean[b.key], type: happy});
+            }
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
@@ -303,4 +308,10 @@ export const GoodIcon: {[key in TraitGood]: string} ={
     'shelter': '🏠', 
     'medicine': '💊', 
     'fun': '👏'
+};
+
+export type TraitPickup = 'happiness'|'unhappiness';
+export const PickupIcon: {[key in TraitPickup]: string} ={
+    'happiness': '👍',
+    'unhappiness': '👎'
 };

@@ -292,7 +292,7 @@ export interface BuildingMap{
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
-export type MoverTypes = 'bean'|'ufo';
+export type MoverTypes = 'bean'|'ufo'|'pickup';
 export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
@@ -334,8 +334,9 @@ export class Geography{
     }
      
     public movers: {[key in MoverTypes]: AddressBookPoint} = {
-        'bean': {},
-        ufo: {}
+        bean: {},
+        ufo: {},
+        pickup: {}
     };
     public numberOf(type: BuildingTypes): number {
         return this.byType[type].all.length;
