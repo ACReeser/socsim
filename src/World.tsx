@@ -15,7 +15,6 @@ import { IDifficulty } from './Game';
 import { type } from 'os';
 import { IsBeliefDivergent, SecondaryBeliefData } from './simulation/Beliefs';
 
-
 export interface IBeanContainer{
     /**
      * all beans ever, including dead ones
@@ -47,6 +46,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public date: IDate = {year: 1, season: Season.Spring, day: 1, hour: 1};
 
     public alien: Player = new Player();
+
+    public ding = {
+        'happiness': new Audio(process.env.PUBLIC_URL+"/ding_bell.wav"),
+        'unhappiness': new Audio(process.env.PUBLIC_URL+'/ding_bad.wav') }
 
     public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {
@@ -125,7 +128,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
-        shuffle(this.beans).forEach((b: Bean) => {
+        const dings: {typ: TraitPickup, i: number}[] = [];
+        shuffle(this.beans).forEach((b: Bean, i: number) => {
             b.age(this.economy);
             const e = b.maybeBaby(this.economy);
             if (e) this.publishEvent(e);
@@ -135,8 +139,17 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (happy){
                 b.emote();
                 b.city?.pickups.push({key: b.city?.pickups.length, point: b.city?.movers.bean[b.key], type: happy});
+                dings.push({typ: happy, i: i});
             }
         });
+        dings.map((x) => {
+            return {
+                i: Math.random() * 250 + (x.i*250),
+                audioEl: this.ding[x.typ]
+            }
+        }).forEach((x) => {
+            setTimeout(() => x.audioEl.play(), x.i);
+        })
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
         this.alien.checkGoals(this);
