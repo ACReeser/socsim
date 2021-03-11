@@ -2,7 +2,7 @@ import { Tile } from "../World";
 import { Bean } from "../simulation/Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint, HexPoint } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint, HexPoint, Point } from "../simulation/Geography";
 import { PetriBuilding } from "./Building";
 import { PI2 } from "../WorldGen";
 import { City, Pickup, UFO } from "../simulation/City";
@@ -27,9 +27,6 @@ export class WorldTile extends React.Component<WorldTilePs> {
   constructor(props: WorldTilePs) {
     super(props);
     this.state = {
-      tile: null,
-      city: null,
-      activeTileID: null,
     }
     const mtnRadius = 530;
     const worldR = 550;
@@ -57,6 +54,16 @@ export class WorldTile extends React.Component<WorldTilePs> {
     }
     return null;
   }
+  renderHexes(){
+    return this.props.city.hexes.map((hex, i) => {
+      const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
+      return <div className="hex" key={i} style={transformPoint(xy)} 
+        onMouseEnter={(e) => { this.props.city.pickupMagnetPoint = xy; }}
+        onClick={(e) => { this.props.onHexClick(hex); e.stopPropagation(); return false; }}>
+        {/* todo: move renderbuildings to here */}
+      </div>
+    });
+  }
   render() {
     const beans = this.props.city.beans.map((b: Bean) => {
       return (
@@ -69,31 +76,25 @@ export class WorldTile extends React.Component<WorldTilePs> {
       )
     });
     const ufos = this.props.city.ufos.map((u: UFO, i: number) => {
-      return <AnimatedUFO ufo={u} key={i} city={this.props.city}></AnimatedUFO>
+      return <AnimatedUFO ufo={u} key={u.key} city={this.props.city}></AnimatedUFO>
     });
     const pickups = this.props.city.pickups.map((p: Pickup, i: number) => {
-      return <AnimatedPickup pickup={p} key={i} city={this.props.city}></AnimatedPickup>
+      return <AnimatedPickup pickup={p} key={p.key} city={this.props.city}></AnimatedPickup>
     });
     const buildings = supportedBuildings.reduce((list, type) => {
       return list.concat(this.renderBuildings(type));
     }, [] as JSX.Element[]);
-    const regions = this.props.city.hexes.map((hex, i) => {
-      const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
-      return <div className="hex" key={i} style={transformPoint(xy)} onClick={(e) => { this.props.onHexClick(hex); e.stopPropagation(); return false; }}>
-
-      </div>
-    });
     const mtns = this.mtn_transforms.map((x, i) => {
       return <span key={i} style={x} className="mtn">⛰️</span>
     });
     return (
-      <div className="tile" onClick={() => this.props.onClick()}>
+      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.pickupMagnetPoint = undefined;}}>
         <svg style={{ width: '100%', height: '100%' }} className="petri-base">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 1)" />
         </svg>
-        {regions}
+        {this.renderHexes()}
         {mtns}
-        {deaths}
+        {/* {deaths} */}
         {buildings}
         {pickups}
         {beans}

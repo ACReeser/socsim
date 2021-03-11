@@ -7,8 +7,8 @@ import { IEvent, EventBus } from './events/Events';
 import { Season, IDate, Hour } from './simulation/Time';
 import { Government } from './simulation/Government';
 import { Player, TechData } from './simulation/Player';
-import { Geography } from './simulation/Geography';
-import { City } from './simulation/City';
+import { Geography, move_towards } from './simulation/Geography';
+import { City, Pickup } from './simulation/City';
 import { shuffle } from './simulation/Utils';
 import { Act, IActListener, IChatData } from './simulation/Agent';
 import { IDifficulty } from './Game';
@@ -138,7 +138,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
             const happy = b.maybeEmote();
             if (happy){
                 b.emote();
-                b.city?.pickups.push({key: b.city?.pickups.length, point: b.city?.movers.bean[b.key], type: happy});
+                if (b.city)
+                    b.city.pickups.push(new Pickup(++b.city.pickupSeed, b.city.movers.bean[b.key], happy));
                 dings.push({typ: happy, i: i});
             }
         });
@@ -159,6 +160,27 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.beans.forEach((b) => {
             Act(b, deltaMS, this.alien.difficulty, this);
         })
+    }
+    simulate_pickups(deltaMS: number){
+        const city = this.cities[0];
+        if (city.pickupMagnetPoint){
+            const magnet = city.pickupMagnetPoint;
+            const pickedUpIDs: number[] = [];
+            city.pickups.forEach((p) => {
+                p.point = move_towards(p.point, magnet, deltaMS / 1000 * 80);
+                if (p.point.x === magnet.x && p.point.y === magnet.y){
+                    pickedUpIDs.push(p.key);
+                } else {
+                    p.onAnimate.publish(p.point);
+                }
+            });
+            if (pickedUpIDs.length){
+                for (let i = city.pickups.length - 1; i >= 0; i--) {
+                    if (pickedUpIDs.includes(city.pickups[i].key))
+                        city.pickups.splice(i, 1);   
+                }
+            }
+        }
     }
     onChat = (b: Bean, chat: IChatData) => {
         if (this.party && chat.preachBelief){

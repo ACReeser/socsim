@@ -8,7 +8,7 @@ import { Geography, HexPoint, IBuilding, JobToBuilding, Point } from "./Geograph
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
-import { IEventBus } from "../events/Events";
+import { IEventBus, PubSub } from "../events/Events";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -43,6 +43,7 @@ export class UFO{
 }
 export class Pickup{
     constructor(public key: number, public point: Point, public type: TraitPickup){}
+    public onAnimate = new PubSub<Point>();
 }
 
 
@@ -60,6 +61,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     public historicalBeans: Bean[] = [];
     public ufos: UFO[] = [];
     public pickups: Pickup[] = [];
+    public pickupSeed = 0;
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;
@@ -72,6 +74,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     public law?: Government;
     public environment?: IDate;
     public eventBus?: IEventBus;
+    public pickupMagnetPoint?: Point;
 
     tryGetJob(bean: Bean, job: TraitJob): boolean{
         if(job === 'jobless') return false;

@@ -14,6 +14,7 @@ export class AnimatedPickup extends React.Component<{
         this.state = {
             bob: false
         };
+        this.props.pickup.onAnimate.subscribe((p) => this.setState({}));
         setTimeout(() => this.setState({bob: true}), Math.random() * 2000);
     }
     render(){

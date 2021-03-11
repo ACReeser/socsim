@@ -26,7 +26,7 @@ import { CampaignsPanel } from './modal-content/Campaigns';
 import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
 import { StopPlayFastButtons } from './widgets/StopPlayFast';
-import { BuildingTypes, HexPoint, IBuilding, transformPoint } from './simulation/Geography';
+import { BuildingTypes, HexPoint, IBuilding, Point, transformPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City, UFO } from './simulation/City';
 import { BrainwashingContent } from './modal-content/Brainwashing';
@@ -62,6 +62,7 @@ interface AppState {
   activeRightPanel: 'events' | 'overview' | 'goals';
   timeScale: number;
   spotlightEvent: IEvent | undefined;
+  cursor?: Point;
 }
 
 const LogicTickMS = 2000;
@@ -104,6 +105,7 @@ class App extends React.Component<AppPs, AppState>{
     if (deltaTimeMS > 0) {
       this.logicTickAccumulatorMS += deltaTimeMS;
       this.state.world.simulate_beans(deltaTimeMS);
+      this.state.world.simulate_pickups(deltaTimeMS);
 
       if (this.logicTickAccumulatorMS > LogicTickMS) {
         this.state.world.simulate_world();
