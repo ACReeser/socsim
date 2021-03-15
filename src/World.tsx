@@ -54,7 +54,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public alien: Player = new Player();
 
     public ding = {
-        'happiness': new Audio(process.env.PUBLIC_URL+"/ding_bell.wav"),
+        'drop': new Audio(process.env.PUBLIC_URL+"/drop.mp3"),
+        'happiness': new Audio(process.env.PUBLIC_URL+"/ding_soft.mp3"),
         'unhappiness': new Audio(process.env.PUBLIC_URL+'/ding_bad.wav') }
 
     public get beans(): Bean[]{
@@ -74,7 +75,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
     }
 
     constructor(){
-        this.bus.death.subscribe(this.onBeanDie)
+        this.bus.death.subscribe(this.onBeanDie);
+        this.ding.drop.volume = 0.15;
     }
 
     /**
@@ -180,6 +182,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.alien.hedons.amount += amt;
                 this.alien.hedons.change.publish({change: amt});
                 city.pickups.splice(i, 1);
+                this.ding[pickup.type].play();
             } else {
                 pickup.onAnimate.publish(pickup.point);
             }
@@ -231,7 +234,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             const point = {...b.city.movers.bean[b.key]};
             b.city.pickups.push(new Pickup(++b.city.pickupSeed, point, emote));
         }
-        this.ding[emote].play();
+        this.ding.drop.play();
     }
     publishEvent(e: IEvent){
         this.bus[e.trigger].publish(e);
