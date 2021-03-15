@@ -465,6 +465,16 @@ class App extends React.Component<AppPs, AppState>{
                   {this.state.world.alien.bots.amount.toFixed(1)}
                 </CapsuleLabel>
               </BubbleText>
+              <BubbleText changeEvent={this.state.world.alien.hedons.change} icon="👍">
+                <CapsuleLabel icon="👍" label="Hedons">
+                  {this.state.world.alien.hedons.amount.toFixed(0)}
+                </CapsuleLabel>
+              </BubbleText>
+              <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
+                <CapsuleLabel icon="💔" label="Tortrons">
+                  {this.state.world.alien.tortrons.amount.toFixed(0)}
+                </CapsuleLabel>
+              </BubbleText>
               <span>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>State of the Utopia</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🗳️ Gov</button>

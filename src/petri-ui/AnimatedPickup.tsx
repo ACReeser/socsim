@@ -1,7 +1,7 @@
 import React from "react";
 import { UFO, City, Pickup } from "../simulation/City";
 import { transformPoint, hex_to_pixel } from "../simulation/Geography";
-import { PickupIcon } from "../World";
+import { EmoteIcon } from "../World";
 
 export class AnimatedPickup extends React.Component<{
     pickup: Pickup,
@@ -23,7 +23,7 @@ export class AnimatedPickup extends React.Component<{
         };
         const c = "pickup " + (this.state.bob ? 'bob': '');
         return <span style={style} className={c}>
-            {PickupIcon[this.props.pickup.type]}
+            {EmoteIcon[this.props.pickup.type]}
         </span>
     }
 }

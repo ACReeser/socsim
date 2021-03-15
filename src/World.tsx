@@ -145,6 +145,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (emotion){
                 b.emote();
                 this.onEmote(b, emotion);
+            } else {
+                b.ticksSinceLastEmote++;
             }
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
@@ -174,6 +176,9 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 accelerator_coast(pickup, PickupPhysics.Brake);
             }
             if (collide){
+                const amt = EmotionWorth[pickup.type];
+                this.alien.hedons.amount += amt;
+                this.alien.hedons.change.publish({change: amt});
                 city.pickups.splice(i, 1);
             } else {
                 pickup.onAnimate.publish(pickup.point);
@@ -367,7 +372,11 @@ export const GoodIcon: {[key in TraitGood]: string} ={
 };
 
 export type TraitEmote = 'happiness'|'unhappiness';
-export const PickupIcon: {[key in TraitEmote]: string} ={
+export const EmoteIcon: {[key in TraitEmote]: string} ={
     'happiness': '👍',
     'unhappiness': '👎'
+};
+export const EmotionWorth: {[key in TraitEmote]: number} ={
+    'happiness': 1,
+    'unhappiness': -1
 };

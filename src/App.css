@@ -464,16 +464,16 @@ ul.boxes li{
   border-bottom-right-radius: 6px;
   background: rgba(255, 255, 255, .8);
 }
-.Energy .capsule-text{
+.Energy .capsule-text, .Hedons .capsule-text{
   background: gold;
 }
-.Energy .capsule-icon{
+.Energy .capsule-icon, .Hedons .capsule-icon{
   background: gold;
 }
-.Psi .capsule-text{
+.Psi .capsule-text, .Tortrons .capsule-text{
   background: pink;
 }
-.Psi .capsule-icon{
+.Psi .capsule-icon, .Tortrons .capsule-icon{
   background: pink;
 }
 .Bots .capsule-text{
