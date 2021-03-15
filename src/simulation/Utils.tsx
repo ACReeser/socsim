@@ -19,6 +19,10 @@ export function shuffle(array: Array<any>) {
     return array;
 }
 
+export function MathClamp(input: number, min: number, max: number): number{
+    return Math.max(Math.min(input, max), min)
+}
+
 export function groupBy<T>(list: T[], keyGetter: (val: T) => string|number): Map<string|number, T[]> {
     const map = new Map<string|number, T[]>();
     list.forEach((item) => {

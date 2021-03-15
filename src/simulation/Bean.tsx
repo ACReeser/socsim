@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitPickup } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote } from "../World";
 import { RandomEthno, GetRandom } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -455,7 +455,7 @@ export class Bean implements IBean{
         return this.alive && this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
     }
-    maybeEmote(): TraitPickup | null {
+    maybeEmote(): TraitEmote | null {
         if (this.lifecycle == 'alive'){
             const unhappy = Math.random();
             if (unhappy < this.unhappyChance)

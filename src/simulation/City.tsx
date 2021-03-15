@@ -1,4 +1,4 @@
-import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob, TraitPickup } from "../World";
+import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob, TraitEmote } from "../World";
 import { Bean } from "./Bean";
 import { Economy } from "./Economy";
 import { Government } from "./Government";
@@ -42,7 +42,8 @@ export class UFO{
     constructor(public key: number, public point: HexPoint, public action: string){}
 }
 export class Pickup{
-    constructor(public key: number, public point: Point, public type: TraitPickup){}
+    constructor(public key: number, public point: Point, public type: TraitEmote){}
+    public velocity: Point = {x: 0, y: 0};
     public onAnimate = new PubSub<Point>();
 }
 

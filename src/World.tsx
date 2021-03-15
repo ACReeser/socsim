@@ -7,7 +7,7 @@ import { IEvent, EventBus } from './events/Events';
 import { Season, IDate, Hour } from './simulation/Time';
 import { Government } from './simulation/Government';
 import { Player, TechData } from './simulation/Player';
-import { Geography, move_towards } from './simulation/Geography';
+import { accelerate_towards, accelerator_coast, Geography, move_towards } from './simulation/Geography';
 import { City, Pickup } from './simulation/City';
 import { shuffle } from './simulation/Utils';
 import { Act, IActListener, IChatData } from './simulation/Agent';
@@ -35,6 +35,12 @@ export interface IWorld{
     bus: EventBus;
     date: IDate;
     alien: Player;
+}
+const PickupPhysics = {
+    Brake: { x: .9, y: .9},
+    AccelerateS: 60,
+    MaxSpeed: 9,
+    CollisionDistance: 10
 }
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
@@ -128,29 +134,19 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
-        const dings: {typ: TraitPickup, i: number}[] = [];
+        const dings: {typ: TraitEmote, i: number}[] = [];
         shuffle(this.beans).forEach((b: Bean, i: number) => {
             b.age(this.economy);
             const e = b.maybeBaby(this.economy);
             if (e) this.publishEvent(e);
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
-            const happy = b.maybeEmote();
-            if (happy){
+            const emotion = b.maybeEmote();
+            if (emotion){
                 b.emote();
-                if (b.city)
-                    b.city.pickups.push(new Pickup(++b.city.pickupSeed, b.city.movers.bean[b.key], happy));
-                dings.push({typ: happy, i: i});
+                this.onEmote(b, emotion);
             }
         });
-        dings.map((x) => {
-            return {
-                i: Math.random() * 250 + (x.i*250),
-                audioEl: this.ding[x.typ]
-            }
-        }).forEach((x) => {
-            setTimeout(() => x.audioEl.play(), x.i);
-        })
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
         this.alien.checkGoals(this);
@@ -163,24 +159,42 @@ export class World implements IWorld, IBeanContainer, IActListener{
     }
     simulate_pickups(deltaMS: number){
         const city = this.cities[0];
-        if (city.pickupMagnetPoint){
-            const magnet = city.pickupMagnetPoint;
-            const pickedUpIDs: number[] = [];
-            city.pickups.forEach((p) => {
-                p.point = move_towards(p.point, magnet, deltaMS / 1000 * 80);
-                if (p.point.x === magnet.x && p.point.y === magnet.y){
-                    pickedUpIDs.push(p.key);
-                } else {
-                    p.onAnimate.publish(p.point);
-                }
-            });
-            if (pickedUpIDs.length){
-                for (let i = city.pickups.length - 1; i >= 0; i--) {
-                    if (pickedUpIDs.includes(city.pickups[i].key))
-                        city.pickups.splice(i, 1);   
-                }
+        for(let i = city.pickups.length - 1; i >= 0; i--) {
+            const pickup = city.pickups[i];
+            let collide = false;
+            if (city.pickupMagnetPoint){
+                collide = accelerate_towards(
+                    pickup, 
+                    city.pickupMagnetPoint, 
+                    PickupPhysics.AccelerateS * deltaMS/1000, 
+                    PickupPhysics.MaxSpeed, 
+                    PickupPhysics.CollisionDistance,
+                    PickupPhysics.Brake);
+            } else {
+                accelerator_coast(pickup, PickupPhysics.Brake);
+            }
+            if (collide){
+                city.pickups.splice(i, 1);
+            } else {
+                pickup.onAnimate.publish(pickup.point);
             }
         }
+        // if (city.pickupMagnetPoint){
+        //     const magnet = city.pickupMagnetPoint;
+        //     const pickedUpIDs: number[] = [];
+        //     city.pickups.forEach((p) => {
+        //         p.point = move_towards(p.point, magnet, deltaMS / 1000 * 80);
+        //         if (p.point.x === magnet.x && p.point.y === magnet.y){
+        //             pickedUpIDs.push(p.key);
+        //         } else {
+        //         }
+        //     });
+        //     if (pickedUpIDs.length){
+        //         for (let i = city.pickups.length - 1; i >= 0; i--) {
+        //             if (pickedUpIDs.includes(city.pickups[i].key))   
+        //         }
+        //     }
+        // }
     }
     onChat = (b: Bean, chat: IChatData) => {
         if (this.party && chat.preachBelief){
@@ -206,6 +220,13 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.economy.onBeanDie(bean);
             }
         }
+    }
+    onEmote = (b: Bean, emote: TraitEmote) => {
+        if (b.city) {
+            const point = {...b.city.movers.bean[b.key]};
+            b.city.pickups.push(new Pickup(++b.city.pickupSeed, point, emote));
+        }
+        this.ding[emote].play();
     }
     publishEvent(e: IEvent){
         this.bus[e.trigger].publish(e);
@@ -345,8 +366,8 @@ export const GoodIcon: {[key in TraitGood]: string} ={
     'fun': '👏'
 };
 
-export type TraitPickup = 'happiness'|'unhappiness';
-export const PickupIcon: {[key in TraitPickup]: string} ={
+export type TraitEmote = 'happiness'|'unhappiness';
+export const PickupIcon: {[key in TraitEmote]: string} ={
     'happiness': '👍',
     'unhappiness': '👎'
 };

@@ -1,5 +1,6 @@
 import { TraitGood, TraitJob } from "../World";
 import { BuildingJobSlot } from "./Occupation";
+import { MathClamp } from "./Utils";
 
 export interface HexPoint{
     q: number;
@@ -65,6 +66,43 @@ export function move_towards(current: Point, target: Point, maxDistanceDelta: nu
         x: current.x + a.x / magnitude * maxDistanceDelta,
         y: current.y + a.y / magnitude * maxDistanceDelta,
     };
+}
+interface IAccelerater {point:Point,velocity:Point};
+export function accelerate_towards(
+    mover: IAccelerater, 
+    target: Point, 
+    acceleration: number,
+    maxSpeed: number, 
+    colDistance: number, 
+    brake: Point): boolean
+{
+    const delta: Point = {
+        x: target.x - mover.point.x, 
+        y: target.y - mover.point.y
+    };
+    const magnitude = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
+    if (magnitude < colDistance) return true;
+
+    delta.x /= magnitude;
+    delta.y /= magnitude;
+
+    mover.velocity.x += delta.x * acceleration;
+    mover.velocity.y += delta.y * acceleration;
+    mover.velocity.x = MathClamp(mover.velocity.x, -maxSpeed, maxSpeed);
+    mover.velocity.y = MathClamp(mover.velocity.y, -maxSpeed, maxSpeed);
+
+    accelerator_coast(mover, brake);
+    return false;
+}
+export function accelerator_coast(
+    current: IAccelerater, 
+    brake: Point): void
+{
+    current.velocity.x *= brake.x;
+    current.velocity.y *= brake.y;
+
+    current.point.x += current.velocity.x;
+    current.point.y += current.velocity.y;
 }
 
 export function lerp(a: number, b: number, t: number): number{

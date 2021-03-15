@@ -1,7 +1,7 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote } from "../World";
 import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
@@ -23,6 +23,7 @@ export type Travel = 'cruise'|'approach';
 
 export interface IActListener{
     onChat: (b: Bean, speech: IChatData) => void;
+    onEmote: (b: Bean, emote: TraitEmote) => void;
 }
 
 export interface IActivityData {
