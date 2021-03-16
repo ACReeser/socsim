@@ -352,6 +352,8 @@ export class Bean implements IBean{
         const groceries = economy.tryTransact(this, 'food', 0.5, 3);
         if (groceries)
             this.discrete_food += groceries.bought;
+        if (this.food === 'stuffed')
+            this.emote('happiness');
         return groceries;
     }
     public buy: {[key in TraitGood]: (econ: Economy)=> boolean} = {
@@ -395,6 +397,7 @@ export class Bean implements IBean{
         const fun = economy.tryTransact(this, 'fun');
         if (fun) {
             this.discrete_fun = 1;
+            this.emote('happiness');
         }
         return fun != null;
     }
@@ -430,6 +433,8 @@ export class Bean implements IBean{
         const meds = economy.tryTransact(this, 'medicine', 0.5, 3);
         if (meds)
             this.discrete_health += meds.bought;
+        if (this.health === 'fresh')
+            this.emote('happiness');
         return meds;
     }
     get babyChance(): number{
@@ -510,8 +515,9 @@ export class Bean implements IBean{
         }
         return chance <= roll;
     }
-    emote(){
+    emote(emote: TraitEmote){
         this.ticksSinceLastEmote = 0;
+        this.city?.addEmotePickup(this.key, emote);
     }
     canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
         return this.city?.economy?.canBuy(this, good) || 'nosupply';
@@ -550,6 +556,7 @@ export class Bean implements IBean{
     }
     die(cause: BeanDeathCause){
         this.alive = false;
+        this.emote('unhappiness');
         this.city?.eventBus?.death.publish({
             icon: '☠️', trigger: 'death', message: `${this.name} died of ${cause}!`, 
             beanKey: this.key, cityKey: this.cityKey,

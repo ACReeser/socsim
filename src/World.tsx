@@ -14,6 +14,7 @@ import { Act, IActListener, IChatData } from './simulation/Agent';
 import { IDifficulty } from './Game';
 import { type } from 'os';
 import { IsBeliefDivergent, SecondaryBeliefData } from './simulation/Beliefs';
+import { WorldSound } from './WorldSound';
 
 export interface IBeanContainer{
     /**
@@ -37,7 +38,7 @@ export interface IWorld{
     alien: Player;
 }
 const PickupPhysics = {
-    Brake: { x: .9, y: .9},
+    Brake: { x: .94, y: .94},
     AccelerateS: 60,
     MaxSpeed: 9,
     CollisionDistance: 10
@@ -52,11 +53,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public date: IDate = {year: 1, season: Season.Spring, day: 1, hour: 1};
 
     public alien: Player = new Player();
-
-    public ding = {
-        'drop': new Audio(process.env.PUBLIC_URL+"/drop.mp3"),
-        'happiness': new Audio(process.env.PUBLIC_URL+"/ding_soft.mp3"),
-        'unhappiness': new Audio(process.env.PUBLIC_URL+'/ding_bad.wav') }
+    public sfx = new WorldSound();
 
     public get beans(): Bean[]{
         return this.cities.reduce((list, c) => {
@@ -76,7 +73,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
     constructor(){
         this.bus.death.subscribe(this.onBeanDie);
-        this.ding.drop.volume = 0.15;
+        this.sfx.ding.drop.volume = 0.1;
     }
 
     /**
@@ -143,13 +140,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (e) this.publishEvent(e);
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
-            const emotion = b.maybeEmote();
-            if (emotion){
-                b.emote();
-                this.onEmote(b, emotion);
-            } else {
-                b.ticksSinceLastEmote++;
-            }
+            b.ticksSinceLastEmote++;
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
@@ -182,7 +173,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.alien.hedons.amount += amt;
                 this.alien.hedons.change.publish({change: amt});
                 city.pickups.splice(i, 1);
-                this.ding[pickup.type].play();
+                this.sfx.ding[pickup.type].play();
             } else {
                 pickup.onAnimate.publish(pickup.point);
             }
@@ -234,7 +225,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             const point = {...b.city.movers.bean[b.key]};
             b.city.pickups.push(new Pickup(++b.city.pickupSeed, point, emote));
         }
-        this.ding.drop.play();
+        this.sfx.ding.drop.play();
     }
     publishEvent(e: IEvent){
         this.bus[e.trigger].publish(e);

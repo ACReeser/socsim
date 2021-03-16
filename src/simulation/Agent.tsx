@@ -286,6 +286,7 @@ export class RelaxState extends AgentState{
     exit(agent: IAgent){
         if (agent instanceof Bean){
             agent.discrete_fun += 1;
+            agent.emote('happiness');
         }
     }
 }

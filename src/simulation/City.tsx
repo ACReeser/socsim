@@ -9,6 +9,7 @@ import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
 import { IEventBus, PubSub } from "../events/Events";
+import { WorldSound } from "../WorldSound";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -71,6 +72,10 @@ export class City extends Geography implements Tile, IBeanContainer {
     public majorityEthnicity: TraitEthno = 'circle';
     public costOfLiving: number = 1;
 
+    constructor(private sfx: WorldSound){
+        super();
+    }
+
     public economy?: Economy;
     public law?: Government;
     public environment?: IDate;
@@ -106,6 +111,11 @@ export class City extends Geography implements Tile, IBeanContainer {
                 break;
             }
         }
+    }
+    addEmotePickup(beanKey: number, emote: TraitEmote){
+        const point = {...this.movers.bean[beanKey]};
+        this.pickups.push(new Pickup(++this.pickupSeed, point, emote));
+        this.sfx.ding.drop.play();
     }
 
     getRandomCitizen(): Bean|null{

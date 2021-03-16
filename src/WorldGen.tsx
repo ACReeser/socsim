@@ -4,6 +4,7 @@ import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
 import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, Building } from './simulation/Geography';
 import { City } from './simulation/City';
 import { BeliefsAll } from './simulation/Beliefs';
+import { WorldSound } from './WorldSound';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -79,7 +80,7 @@ export function GenerateWorld(): World{
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {
-        world.cities.push(GenerateCity(world.cities.length));
+        world.cities.push(GenerateCity(world.cities.length, world.sfx));
         world.cities[i].eventBus = world.bus;
         world.cities[i].environment = world.date;
         world.cities[i].economy = world.economy;
@@ -103,8 +104,8 @@ export function GeneratePartyHQ(city: City, party: Party) {
 }
 
 export const Number_Starting_City_Pop = 0;
-export function GenerateCity(previousCityCount: number): City{
-    let newCity = new City();
+export function GenerateCity(previousCityCount: number, sfx: WorldSound): City{
+    let newCity = new City(sfx);
     newCity.key = previousCityCount;
     newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', '']);
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
