@@ -76,7 +76,7 @@ class App extends React.Component<AppPs, AppState>{
       activeBeanID: null,
       activeHex: null,
       activeMain: 'geo',
-      activeModal: 'party_creation',
+      activeModal: null,
       activeRightPanel: 'overview',
       timeScale: 0,
       spotlightEvent: undefined

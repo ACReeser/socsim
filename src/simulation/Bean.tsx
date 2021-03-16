@@ -405,6 +405,9 @@ export class Bean implements IBean{
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
 
+        const wasNotHungry = this.food !== 'hungry';
+        const wasNotSick = this.health !== 'sick';
+
         this.discrete_food -= 1/7;
         if (this.discrete_food < 0)
             this.discrete_health -= 0.2;
@@ -412,6 +415,8 @@ export class Bean implements IBean{
         const starve = this.maybeDie('starvation', 0.6);
         if (starve)
             return null;
+        else if (this.food === 'hungry' && wasNotHungry)
+            this.emote('unhappiness');
             
         if (this.shelter == 'podless')
             this.discrete_health -= 1/14;
@@ -425,6 +430,11 @@ export class Bean implements IBean{
         this.discrete_health -= 1/20;
         this.discrete_health = Math.min(this.discrete_health, 3);
         const sick = this.maybeDie('sickness', 0.4);
+        if (sick)
+            return null;
+        else if (this.health === 'sick' && wasNotSick)
+            this.emote('unhappiness');
+
         this.discrete_fun -= 1/10;
         this.discrete_fun = Math.max(0, this.discrete_fun);
         return null;

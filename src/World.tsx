@@ -73,7 +73,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
     constructor(){
         this.bus.death.subscribe(this.onBeanDie);
-        this.sfx.ding.drop.volume = 0.1;
     }
 
     /**
@@ -173,7 +172,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.alien.hedons.amount += amt;
                 this.alien.hedons.change.publish({change: amt});
                 city.pickups.splice(i, 1);
-                this.sfx.ding[pickup.type].play();
+                this.sfx.play(pickup.type);
             } else {
                 pickup.onAnimate.publish(pickup.point);
             }
@@ -225,7 +224,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             const point = {...b.city.movers.bean[b.key]};
             b.city.pickups.push(new Pickup(++b.city.pickupSeed, point, emote));
         }
-        this.sfx.ding.drop.play();
+        this.sfx.play('drop');
     }
     publishEvent(e: IEvent){
         this.bus[e.trigger].publish(e);

@@ -115,7 +115,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     addEmotePickup(beanKey: number, emote: TraitEmote){
         const point = {...this.movers.bean[beanKey]};
         this.pickups.push(new Pickup(++this.pickupSeed, point, emote));
-        this.sfx.ding.drop.play();
+        this.sfx.play('drop');
     }
 
     getRandomCitizen(): Bean|null{
