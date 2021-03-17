@@ -2,7 +2,7 @@ import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob, TraitEmote } from ".
 import { Bean } from "./Bean";
 import { Economy } from "./Economy";
 import { Government } from "./Government";
-import { GenerateBean, GetRandom } from "../WorldGen";
+import { GenerateBean, GetRandom, GetRandomNumber } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
 import { Geography, HexPoint, IBuilding, JobToBuilding, Point } from "./Geography";
 import { IDate } from "./Time";
@@ -114,6 +114,8 @@ export class City extends Geography implements Tile, IBeanContainer {
     }
     addEmotePickup(beanKey: number, emote: TraitEmote){
         const point = {...this.movers.bean[beanKey]};
+        point.x += GetRandomNumber(-10, 10);
+        point.y += GetRandomNumber(-10, 10);
         this.pickups.push(new Pickup(++this.pickupSeed, point, emote));
         this.sfx.play('drop');
     }

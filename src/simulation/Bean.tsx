@@ -1,5 +1,5 @@
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote } from "../World";
-import { RandomEthno, GetRandom } from "../WorldGen";
+import { RandomEthno, GetRandom, GetRandomNumber } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
@@ -20,6 +20,9 @@ const EmoteTickRamp = 12;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
 export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
+
+const HedonismExtraChance = 0.1;
+const HedonismHateWorkChance = 0.1;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -335,6 +338,9 @@ export class Bean implements IBean{
             if (this.believesIn('Diligence') && Math.random() <= 0.5){
                 this.discrete_fun += 0.5;
             }
+            if (this.believesIn('Hedonism') && Math.random() <= HedonismHateWorkChance){
+                this.emote('unhappiness');
+            }
             this.ticksSinceLastSale++;
             if (this.ticksSinceLastSale > 7){
                 const cityHasOtherWorkers = this.city ? this.city.beans.filter(x => x.job == this.job).length > 1 : false;
@@ -352,8 +358,12 @@ export class Bean implements IBean{
         const groceries = economy.tryTransact(this, 'food', 0.5, 3);
         if (groceries)
             this.discrete_food += groceries.bought;
-        if (this.food === 'stuffed')
+        if (this.food === 'stuffed'){
             this.emote('happiness');
+            if (this.believesIn('Gluttony')){
+                this.emote('happiness');
+            }
+        }
         return groceries;
     }
     public buy: {[key in TraitGood]: (econ: Economy)=> boolean} = {
@@ -415,8 +425,13 @@ export class Bean implements IBean{
         const starve = this.maybeDie('starvation', 0.6);
         if (starve)
             return null;
-        else if (this.food === 'hungry' && wasNotHungry)
+        else if (this.food === 'hungry' && wasNotHungry){
             this.emote('unhappiness');
+            if (this.believesIn('Gluttony')){
+                this.emote('unhappiness');
+                this.emote('unhappiness');
+            }
+        }
             
         if (this.shelter == 'podless')
             this.discrete_health -= 1/14;
@@ -528,6 +543,9 @@ export class Bean implements IBean{
     emote(emote: TraitEmote){
         this.ticksSinceLastEmote = 0;
         this.city?.addEmotePickup(this.key, emote);
+        if (this.believesIn('Hedonism') && (emote == 'happiness' || emote == 'love') && Math.random() < HedonismExtraChance){
+            this.city?.addEmotePickup(this.key, emote);
+        }
     }
     canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
         return this.city?.economy?.canBuy(this, good) || 'nosupply';
@@ -566,7 +584,10 @@ export class Bean implements IBean{
     }
     die(cause: BeanDeathCause){
         this.alive = false;
-        this.emote('unhappiness');
+        const pains = GetRandomNumber(2, 3);
+        for (let i = 0; i < pains; i++) {
+            this.emote('hate');
+        }
         this.city?.eventBus?.death.publish({
             icon: '☠️', trigger: 'death', message: `${this.name} died of ${cause}!`, 
             beanKey: this.key, cityKey: this.cityKey,

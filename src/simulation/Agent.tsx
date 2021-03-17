@@ -276,7 +276,7 @@ export class RelaxState extends AgentState{
     }
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         let durationMS = 1000;
-        if (agent instanceof Bean && agent.believesIn('Hedonism'))
+        if (agent instanceof Bean && agent.believesIn('Naturalism'))
             durationMS *= 3;
         if (this.Elapsed > durationMS){
             return IdleState.create();
@@ -287,6 +287,8 @@ export class RelaxState extends AgentState{
         if (agent instanceof Bean){
             agent.discrete_fun += 1;
             agent.emote('happiness');
+            if (agent.believesIn('Naturalism'))
+                agent.emote('happiness');
         }
     }
 }

@@ -2,6 +2,7 @@ import { TraitCommunity, TraitFaith, TraitIdeals } from "../World";
 
 export type TraitBelief = 'Diligence'| // happy from work
 'Natalism'| // increased % of having kids
+'Naturalism'|
 'Authority'| //less crime, more crime reports
 'Hedonism'| //more entertainment
 // 'Tribalism'| 
@@ -17,6 +18,7 @@ export type TraitBelief = 'Diligence'| // happy from work
 // 'Sadism'| 
 // 'Antagonism'|
 'Charity'| // % to donate
+'Gluttony'|
 'Greed'; // steal easier
 
 // 'talkative'|
@@ -97,12 +99,12 @@ export const NarrativeBeliefData: {[key in TraitFaith]: IBeliefData} = {
 export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     Diligence: {
         noun: 'Diligence', adj: 'Diligence', icon: '💪',
-        description: "🎲 to gain 🙂 while working",
+        description: "🎲 to emote 👍 while working",
         idealCon: ['trad'], idealPro: ['state', 'ego']
     },
     Greed: {
         noun: 'Greed', adj: 'Greedy', icon: '💰',
-        description: "+25% theft Crime 🎲",
+        description: "Extra 🎲 for Theft",
         idealCon: ['prog'], idealPro: ['trad']
     },
     Neuroticism: {
@@ -112,7 +114,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Anarchism: {
         noun: 'Anarchism', adj: 'Anarchist', icon: '🖕',
-        description: "+33% Crime 🎲",
+        description: "Extra 🎲 for Crime",
         idealCon: ['state', 'prog'], idealPro: ['ego', 'trad']
     },
     Charity: {
@@ -125,19 +127,29 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     //     description: "🎲 to 👏 other hair colors",
     //     idealCon: ['trad'], idealPro: ['prog', 'state']
     // },
+    Naturalism: {
+        noun: 'Naturalism', adj: 'Naturalist', icon: '👶',
+        description: "Extra 👍 from 😎; 😎 3x longer"
+    },
     Natalism: {
         noun: 'Natalism', adj: 'Natalist', icon: '👶',
-        description: "+15% 🎲 for 👶"
+        description: "Extra 🎲 for 👶"
     },
     Authority: {
         noun: 'Authority', adj: 'Authoritarian', icon: '👢',
-        description: "-25% Crime 🎲",
+        description: "Less 🎲 for Crime",
         idealCon: ['ego'], idealPro: ['state']
     },
     Hedonism: {
         noun: 'Hedonism', adj: 'Hedonistic', icon: '💋',
         // description: "🎲 to skip work and gain 🙂",
-        description: "Seeks 🙂 often; 😎 3x longer",
+        description: "🎲 to emote extra 👍;🎲 to 👎 when working;",
+        idealCon: ['prog'], idealPro: ['ego', 'trad']
+    },
+    Gluttony: {
+        noun: 'Gluttony', adj: 'Glutton', icon: '🎃',
+        // description: "🎲 to skip work and gain 🙂",
+        description: "Extra 👍 when stuffed; Extra 👎 when hungry;",
         idealCon: ['prog'], idealPro: ['ego', 'trad']
     },
     // Tribalism: {
@@ -147,7 +159,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // },
     Dogmatism: {
         noun: 'Dogmatism', adj: 'Dogmatic', icon: '🐶',
-        description: "cannot be persuaded",
+        description: "Cannot change beliefs",
         idealCon: ['ego'], idealPro: ['state']
     },
     // Mysticism: {

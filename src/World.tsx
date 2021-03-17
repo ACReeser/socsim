@@ -364,12 +364,16 @@ export const GoodIcon: {[key in TraitGood]: string} ={
     'fun': '👏'
 };
 
-export type TraitEmote = 'happiness'|'unhappiness';
+export type TraitEmote = 'happiness'|'unhappiness'|'love'|'hate';
 export const EmoteIcon: {[key in TraitEmote]: string} ={
+    'love': '💛',
     'happiness': '👍',
-    'unhappiness': '👎'
+    'unhappiness': '💢',
+    'hate': '💔'
 };
 export const EmotionWorth: {[key in TraitEmote]: number} ={
+    'love': 5,
     'happiness': 1,
-    'unhappiness': -1
+    'unhappiness': -1,
+    'hate': -5
 };
