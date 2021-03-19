@@ -1,29 +1,22 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { SfxContext } from "../App";
 import { UFO, City, Pickup } from "../simulation/City";
 import { transformPoint, hex_to_pixel } from "../simulation/Geography";
 import { EmoteIcon } from "../World";
 
-export class AnimatedPickup extends React.Component<{
+export const AnimatedPickup: React.FC<{
     pickup: Pickup,
-    city: City
-}, {
-    bob: boolean
-}>{
-    constructor(props: any){
-        super(props);
-        this.state = {
-            bob: false
-        };
-        this.props.pickup.onAnimate.subscribe((p) => this.setState({}));
-        setTimeout(() => this.setState({bob: true}), Math.random() * 2000);
-    }
-    render(){
-        let style = {
-          ...transformPoint(this.props.pickup.point)
-        };
-        const c = "pickup " + (this.state.bob ? 'bob': '');
-        return <span style={style} className={c}>
-            {EmoteIcon[this.props.pickup.type]}
-        </span>
-    }
+    //city: City
+}> = (props) => {
+    const [played, setPlayed] = useState(false);
+    const sfx = React.useContext(SfxContext);
+    useEffect(() => {
+        if (!played && sfx){
+            sfx.play('drop');
+            setPlayed(true);
+        }
+    })
+    return <span className="pickup bob">
+        {EmoteIcon[props.pickup.type]}
+    </span>
 }

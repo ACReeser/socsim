@@ -11,6 +11,7 @@ import { IEvent } from "../events/Events";
 import { Particles } from "../widgets/particles";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 import { AnimatedPickup } from "./AnimatedPickup";
+import { PickupList } from "./Mover";
 
 const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse', 'park', 'nature'];
 interface WorldTilePs {
@@ -78,9 +79,6 @@ export class WorldTile extends React.Component<WorldTilePs> {
     const ufos = this.props.city.ufos.map((u: UFO, i: number) => {
       return <AnimatedUFO ufo={u} key={u.key} city={this.props.city}></AnimatedUFO>
     });
-    const pickups = this.props.city.pickups.map((p: Pickup, i: number) => {
-      return <AnimatedPickup pickup={p} key={p.key} city={this.props.city}></AnimatedPickup>
-    });
     const buildings = supportedBuildings.reduce((list, type) => {
       return list.concat(this.renderBuildings(type));
     }, [] as JSX.Element[]);
@@ -96,7 +94,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
         {mtns}
         {/* {deaths} */}
         {buildings}
-        {pickups}
+        <PickupList movers={this.props.city.pickups}></PickupList>
         {beans}
         {ufos}
         {/* <span className="tile-label">{this.props.tile.name}</span> */}

@@ -35,7 +35,7 @@ import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { LawAxis } from './simulation/Government';
 import { Tech } from './simulation/Player';
 import { IEvent } from './events/Events';
-import { JsxEmit } from 'typescript';
+import { WorldSound } from './WorldSound';
 
 export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   state: 'Collectivist', ego: 'Independent',
@@ -64,6 +64,7 @@ interface AppState {
   spotlightEvent: IEvent | undefined;
   cursor?: Point;
 }
+export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
 
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
@@ -391,7 +392,7 @@ class App extends React.Component<AppPs, AppState>{
   render() {
     const season = Season[this.state.world.date.season];
     return (
-      <div className="canvas">
+      <div className="canvas"><SfxContext.Provider value={this.state.world.sfx}>
         <TransformWrapper
           defaultScale={1}
           wheel={{ step: 48 }}>
@@ -496,7 +497,7 @@ class App extends React.Component<AppPs, AppState>{
             </div>
           </div>
         </div>
-      </div>
+        </SfxContext.Provider></div>
     )
   }
   renderHour(): string {

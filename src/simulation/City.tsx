@@ -48,6 +48,30 @@ export class Pickup{
     public onAnimate = new PubSub<Point>();
 }
 
+export class Live<T>{
+    public readonly onChange = new PubSub<T>();
+    constructor(protected current: T){}
+    public set(newValue: T){
+        this.current = newValue;
+        this.onChange.publish(newValue);
+    }
+    public get get(): T{
+        return this.current;
+    }
+}
+export class LiveList<T> extends Live<Array<T>>{
+    public push(child: T): void{
+        this.set([...this.get, child]);
+    }
+    public remove(child: T): void{
+        const all = this.get;
+        const i = all.indexOf(child);
+        if (i > -1){
+            all.splice(i, 1);
+            this.set([...all]);
+        }
+    }
+}
 
 export class City extends Geography implements Tile, IBeanContainer {
     public name: string = '';
@@ -62,7 +86,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     }
     public historicalBeans: Bean[] = [];
     public ufos: UFO[] = [];
-    public pickups: Pickup[] = [];
+    public readonly pickups = new LiveList<Pickup>([]);
     public pickupSeed = 0;
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
@@ -116,8 +140,9 @@ export class City extends Geography implements Tile, IBeanContainer {
         const point = {...this.movers.bean[beanKey]};
         point.x += GetRandomNumber(-10, 10);
         point.y += GetRandomNumber(-10, 10);
-        this.pickups.push(new Pickup(++this.pickupSeed, point, emote));
-        this.sfx.play('drop');
+        const id = ++this.pickupSeed;
+        this.movers.pickup[id] = point;
+        this.pickups.push(new Pickup(id, point, emote));
     }
 
     getRandomCitizen(): Bean|null{

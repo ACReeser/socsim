@@ -153,8 +153,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
     }
     simulate_pickups(deltaMS: number){
         const city = this.cities[0];
-        for(let i = city.pickups.length - 1; i >= 0; i--) {
-            const pickup = city.pickups[i];
+        const pickups = city.pickups.get;
+        //go backwards because we'll modify the array as we go
+        for(let i = pickups.length - 1; i >= 0; i--) {
+            const pickup = pickups[i];
             let collide = false;
             if (city.pickupMagnetPoint){
                 collide = accelerate_towards(
@@ -171,7 +173,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 const amt = EmotionWorth[pickup.type];
                 this.alien.hedons.amount += amt;
                 this.alien.hedons.change.publish({change: amt});
-                city.pickups.splice(i, 1);
+                city.pickups.remove(pickup);
                 this.sfx.play(pickup.type);
             } else {
                 pickup.onAnimate.publish(pickup.point);
@@ -220,11 +222,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
         }
     }
     onEmote = (b: Bean, emote: TraitEmote) => {
-        if (b.city) {
-            const point = {...b.city.movers.bean[b.key]};
-            b.city.pickups.push(new Pickup(++b.city.pickupSeed, point, emote));
-        }
-        this.sfx.play('drop');
     }
     publishEvent(e: IEvent){
         this.bus[e.trigger].publish(e);

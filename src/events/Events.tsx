@@ -23,7 +23,7 @@ export class PubSub<T>{
     public subscribe(callback: (args: T) => void){
         this.callbacks.push(callback);
     }
-    unsubscribe(callback: (ev: T) => void) {
+    public unsubscribe(callback: (ev: T) => void) {
         this.callbacks.splice(this.callbacks.indexOf(callback), 1);
     }
 }
