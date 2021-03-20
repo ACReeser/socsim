@@ -124,6 +124,13 @@ button.callout:active{
 button.pull-r{
   margin: 0;
 }
+
+.short-scroll{
+  max-height: 25vh;
+  overflow-y: auto;
+}
+
+
 .cylinder button{
   margin: 0;
 }

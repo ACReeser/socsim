@@ -1,13 +1,14 @@
 import React from "react";
-import { ResourceTriad, triadToString } from "../Game";
+import { PlayerResources, triadToString } from "../Game";
 
 export class CostSmall extends React.Component<{
-    cost: ResourceTriad
+    cost: PlayerResources,
+    qty?: number
 }>{
 
     render(){
         return <small>
-            {triadToString(this.props.cost, '-')}
+            {triadToString(this.props.cost, '-', this.props.qty)}
         </small>
     }
 }

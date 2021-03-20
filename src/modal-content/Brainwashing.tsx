@@ -40,37 +40,37 @@ export class BrainwashingContent extends React.Component<{
                 <div className="horizontal">
                     <div>
                         <EditBeliefInput
-                            available={this.props.world.alien.psi.amount}
+                            available={bean.discrete_sanity}
                             wash={() => this.props.washCommunity(bean, bean.community)} 
-                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0}
+                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
                             data={PrimaryBeliefData[bean.community]}
                         ></EditBeliefInput>
                         <EditBeliefInput
-                            available={this.props.world.alien.psi.amount}
+                            available={bean.discrete_sanity}
                             wash={() => this.props.washMotive(bean, bean.ideals)} 
-                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0}
+                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
                             data={PrimaryBeliefData[bean.ideals]}
                         ></EditBeliefInput>
                         <EditBeliefInput
-                            available={this.props.world.alien.psi.amount}
+                            available={bean.discrete_sanity}
                             wash={() => this.props.washNarrative(bean, bean.faith)} 
-                            cost={this.props.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0}
+                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
                             data={NarrativeBeliefData[bean.faith]}
                         ></EditBeliefInput>
                         {
                             bean.beliefs.map((b) => <EditBeliefInput
-                            available={this.props.world.alien.psi.amount}
+                            available={bean.discrete_sanity}
                             divergent={IsBeliefDivergent(b, this.props.world.party.ideals, this.props.world.party.community)}
                             wash={() => this.props.washBelief(bean, b)} 
-                                cost={this.props.world.alien.difficulty.cost.bean.brainwash_secondary.psi || 0}
+                                cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0}
                                 data={SecondaryBeliefData[b]}
                             >
                             </EditBeliefInput>)
                         }
                         <AddBeliefInput
-                            available={this.props.world.alien.psi.amount}
+                            available={bean.discrete_sanity}
                             add={(b) => this.props.implantBelief(bean, b)} 
-                            cost={this.props.world.alien.difficulty.cost.bean.brainimplant_secondary.psi || 0}
+                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0}
                         ></AddBeliefInput>
                     </div>
                 </div>

@@ -36,6 +36,7 @@ import { LawAxis } from './simulation/Government';
 import { Tech } from './simulation/Player';
 import { IEvent } from './events/Events';
 import { WorldSound } from './WorldSound';
+import { MarketPanel } from './right-panel/MarketPanel';
 
 export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   state: 'Collectivist', ego: 'Independent',
@@ -59,7 +60,7 @@ interface AppState {
   activeHex: HexPoint | null;
   activeModal: ModalView | null;
   activeMain: 'geo' | 'network';
-  activeRightPanel: 'events' | 'overview' | 'goals';
+  activeRightPanel: 'events' | 'overview' | 'goals' | 'market';
   timeScale: number;
   spotlightEvent: IEvent | undefined;
   cursor?: Point;
@@ -237,8 +238,8 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washCommunity = (bean: Bean, a: TraitCommunity) => {
-    if (bean.discrete_sanity > 0 && this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0);
+    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       if (bean.community === 'ego')
         bean.community = 'state';
       else bean.community = 'ego';
@@ -247,8 +248,8 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washMotive = (bean: Bean, a: TraitIdeals) => {
-    if (bean.discrete_sanity > 0 && this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0);
+    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       if (bean.ideals === 'prog')
         bean.ideals = 'trad';
       else bean.ideals = 'prog';
@@ -257,8 +258,8 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washNarrative = (bean: Bean, a: TraitFaith) => {
-    if (bean.discrete_sanity > 0 && this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_ideal)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean.brainwash_ideal.psi || 0);
+    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       const oldFaith = bean.faith;
       while (bean.faith === oldFaith)
         bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
@@ -267,19 +268,19 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washBelief = (bean: Bean, a: TraitBelief) => {
-    if (bean.discrete_sanity > 0 && this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainwash_secondary)) {
+    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary)) {
       bean.beliefs.splice(
         bean.beliefs.indexOf(a), 1
       );
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean.brainwash_secondary.psi || 0);
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
       this.setState({ world: this.state.world });
       return true;
     }
   }
   implantBelief = (bean: Bean, a: TraitBelief) => {
-    if (bean.discrete_sanity > 0 && this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.brainimplant_secondary)) {
+    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary)) {
       bean.beliefs.push(a);
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean.brainimplant_secondary.psi || 0);
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
       this.setState({ world: this.state.world });
       return true;
     }
@@ -349,6 +350,8 @@ class App extends React.Component<AppPs, AppState>{
           if (beankey)
             this.setState({ activeCityID: this.state.world.cities[0].key, activeBeanID: beankey, activeHex: null, activeRightPanel: 'overview' })
         }}></EventsPanel>
+      case 'market': 
+        return <MarketPanel player={this.state.world.alien}></MarketPanel>
     }
   }
   renderGeo() {
@@ -456,11 +459,6 @@ class App extends React.Component<AppPs, AppState>{
                   {this.state.world.alien.energy.amount.toFixed(1)}
                 </CapsuleLabel>
               </BubbleText>
-              <BubbleText changeEvent={this.state.world.alien.psi.change} icon="🧠">
-                <CapsuleLabel icon="🧠" label="Psi">
-                  {this.state.world.alien.psi.amount.toFixed(1)}
-                </CapsuleLabel>
-              </BubbleText>
               <BubbleText changeEvent={this.state.world.alien.bots.change} icon="🤖">
                 <CapsuleLabel icon="🤖" label="Bots">
                   {this.state.world.alien.bots.amount.toFixed(1)}
@@ -477,9 +475,10 @@ class App extends React.Component<AppPs, AppState>{
                 </CapsuleLabel>
               </BubbleText>
               <span>
-                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>State of the Utopia</button>
+                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🗳️ Gov</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
+                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🧠 Traits</button>
                 {/* <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button> */}
               </span>
             </div>
@@ -487,7 +486,7 @@ class App extends React.Component<AppPs, AppState>{
           <div className="right">
             <div className="full-width-tabs">
               <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Info</button>
-              <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🛍️ Market</button>
+              <button onClick={() => this.setState({ activeRightPanel: 'market' })}>🛍️ Market</button>
               <button onClick={() => this.setState({ activeRightPanel: 'events' })}>
                 <TimelyEventToggle event={this.state.world.bus.speechcrime} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
               </button>

@@ -11,6 +11,7 @@ import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
+import { BeanResources } from "../Game";
 
 const BabyChance = 0.01;
 const HappyChance = 0.01;
@@ -278,6 +279,9 @@ export class Bean implements IBean{
             return true;
         }
         return false;
+    }
+    tryPurchase(cost: BeanResources) {
+        return (cost.sanity == undefined || this.discrete_sanity >= cost.sanity);
     }
     public maybeChat(): boolean {
         if (this.lastChatMS + ChatCooldownMS > Date.now()) 

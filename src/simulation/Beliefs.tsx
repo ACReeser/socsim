@@ -127,7 +127,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     //     idealCon: ['trad'], idealPro: ['prog', 'state']
     // },
     // Cosmopolitanism: {
-    //     noun: 'Cosmopolitanism', adj: 'Cosmopolitan', icon: '🌍',
+    //     noun: 'Cosmopolitanism', adj: 'Cosmopolitan', icon: '🍸',
     //     description: "Extra 👍 working 🎻. 👎 from rural houses",
     //     idealCon: ['trad'], idealPro: ['prog', 'state']
     // },

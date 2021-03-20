@@ -1,5 +1,5 @@
 import { ChangePubSub } from "../events/Events";
-import { DefaultDifficulty, IDifficulty, ResourceTriad } from "../Game";
+import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
 import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
 import { IBean } from "./Agent";
@@ -10,7 +10,6 @@ export interface IPlayerData{
     scanned_bean: {[beanKey: number]: boolean};
     abductedBeans: IBean[];
     energy: IResource;
-    psi: IResource;
     bots: IResource;
     workingReportCard: IReportCard;
     techProgress: TechProgress;
@@ -28,7 +27,7 @@ export interface IGoal{
     key: GoalKey;
     text: string;
     tooltip?: string;
-    reward?: ResourceTriad,
+    reward?: PlayerResources,
     check: (world: World) => boolean
 }
 export interface IGoalProgress {
@@ -187,7 +186,6 @@ export class Player implements IPlayerData, IProgressable{
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
     public energy = { amount: 29, income: 2/30, change: new ChangePubSub()};
-    public psi = { amount: 10, income: 2/30, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2/30, change: new ChangePubSub()};
     public hedons = { amount: 0, income: 0, change: new ChangePubSub()};
     public tortrons = { amount: 0, income: 0, change: new ChangePubSub()};
@@ -205,17 +203,17 @@ export class Player implements IPlayerData, IProgressable{
     public techProgress: TechProgress = {};
     public currentlyResearchingTech: Tech|undefined;
 
-    public canAfford(cost: ResourceTriad): boolean{
+    public canAfford(cost: PlayerResources): boolean{
         return (cost.bots == undefined || this.bots.amount >= cost.bots) &&
         (cost.energy == undefined || this.energy.amount >= cost.energy) && 
-        (cost.psi == undefined || this.psi.amount >= cost.psi);
+        (cost.hedons == undefined || this.hedons.amount >= cost.hedons);
     }
 
     public hasResearched(tech: Tech){
         return this.techProgress[tech] != null && this.techProgress[tech].researchPoints >= TechData[tech].techPoints;
     }
 
-    public purchase(cost: ResourceTriad){
+    public purchase(cost: PlayerResources){
         if (cost.bots){
             this.bots.amount -= cost.bots;
             this.bots.change.publish({change:-cost.bots});
@@ -224,13 +222,13 @@ export class Player implements IPlayerData, IProgressable{
             this.energy.amount -= cost.energy;
             this.energy.change.publish({change:-cost.energy});
         }
-        if (cost.psi){
-            this.psi.amount -= cost.psi;
-            this.psi.change.publish({change:-cost.psi});
+        if (cost.hedons){
+            this.hedons.amount -= cost.hedons;
+            this.hedons.change.publish({change:-cost.hedons});
         }
     }
 
-    public tryPurchase(cost: ResourceTriad): boolean{
+    public tryPurchase(cost: PlayerResources): boolean{
         if (this.canAfford(cost)){
             this.purchase(cost);
             return true;
@@ -238,7 +236,7 @@ export class Player implements IPlayerData, IProgressable{
         return false;
     }
 
-    public reward(reward: ResourceTriad){
+    public reward(reward: PlayerResources){
         if (reward.bots){
             this.bots.amount += reward.bots;
             this.bots.change.publish({change: reward.bots});
@@ -247,9 +245,9 @@ export class Player implements IPlayerData, IProgressable{
             this.energy.amount += reward.energy;
             this.energy.change.publish({change: reward.energy});
         }
-        if (reward.psi){
-            this.psi.amount += reward.psi;
-            this.psi.change.publish({change: reward.psi});
+        if (reward.hedons){
+            this.hedons.amount += reward.hedons;
+            this.hedons.change.publish({change: reward.hedons});
         }
 
     }

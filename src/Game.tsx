@@ -1,37 +1,38 @@
+import { BeliefCommonality } from "./simulation/Beliefs";
 import { BuildingTypes } from "./simulation/Geography";
 import { RubricKeys } from "./simulation/Player";
 import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
 export type PlayerHexAction = 'beam'|'upgrade';
-export type PlayerBeanAction = 'scan'|'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary'|'abduct'|'vaporize'|'siphon'|'empower'|'gift';
-export type PlayerMarketAction = 'energy'|'bots'|'belief';
+export type PlayerBeanAction = 'scan'|'abduct'|'vaporize'|'siphon'|'empower'|'gift';
+export type PlayerBeanBrainAction = 'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary';
+export type PlayerMarketAction = 'energy'|'bots';
 export type PlayerGovernmentAction = '';
 export type PlayerAction = PlayerHexAction|PlayerBeanAction;
 
-export interface ResourceTriad{
+export interface PlayerResources{
     energy?: number;
     bots?: number;
-    psi?: number;
     hedons?: number;
     tortrons?: number;
 }
-export function triadToString(cost: ResourceTriad, sign: '+'|''|'-'){
+export interface BeanResources{
+    sanity?: number;
+}
+export function triadToString(cost: PlayerResources, sign: '+'|''|'-', qty: number = 1){
     const costs = [];
     if (cost.energy){
-        costs.push(sign+cost.energy+' Energy');
+        costs.push(sign+(cost.energy*qty)+' Energy');
     }
     if (cost.bots){
-        costs.push(sign+cost.bots+' Bots');
-    }
-    if (cost.psi){
-        costs.push(sign+cost.psi+' Psi');
+        costs.push(sign+(cost.bots*qty)+' Bots');
     }
     if (cost.hedons){
-        costs.push(sign+cost.hedons+' Hedons');
+        costs.push(sign+(cost.hedons*qty)+' Hedons');
     }
     if (cost.tortrons){
-        costs.push(sign+cost.tortrons+' Tortrons');
+        costs.push(sign+(cost.tortrons*qty)+' Tortrons');
     }
     return costs.join(' ');
 }
@@ -41,10 +42,14 @@ export interface SecondaryResources{
 }
 export interface IDifficulty{
     cost: {
-        emptyHex: {[key in PlayerEmptyHexAction]: {[key in BuildingTypes]: ResourceTriad}},
-        hex: {[key in PlayerHexAction]: ResourceTriad} 
-        bean: {[key in PlayerBeanAction]: ResourceTriad},
-        market: {[key in PlayerMarketAction]: ResourceTriad}
+        emptyHex: {[key in PlayerEmptyHexAction]: {[key in BuildingTypes]: PlayerResources}},
+        hex: {[key in PlayerHexAction]: PlayerResources} 
+        bean: {[key in PlayerBeanAction]: PlayerResources},
+        bean_brain: {[key in PlayerBeanBrainAction]: BeanResources}
+        market: {
+            resource: {[key in PlayerMarketAction]: PlayerResources},
+            beliefs: {[key in BeliefCommonality]: PlayerResources}
+        }
     },
     bean_life: {
         vital_thresh: {[key in TraitGood]: IThreshold}
@@ -98,16 +103,17 @@ export const DefaultDifficulty: IDifficulty = {
                 bots: 4,
             }
         },
+        bean_brain: {
+            brainwash_ideal: { sanity: 4},
+            brainimplant_secondary: { sanity: 3},
+            brainwash_secondary: {sanity: 2},
+        },
         bean: {
             scan: {
                 energy: 1
             },
-            ['brainwash_ideal']: { psi: 4},
-            ['brainimplant_secondary']: { psi: 3},
-            ['brainwash_secondary']: {psi: 2},
             abduct: {
-                bots: 3,
-                psi: 1
+                bots: 3
             },
             gift: {},
             empower: {},
@@ -118,9 +124,19 @@ export const DefaultDifficulty: IDifficulty = {
             siphon: {},
         },
         market: {
-            belief: {},
-            bots: {},
-            energy: {}
+            resource: {
+                bots: {
+                    hedons: 6
+                },
+                energy: {
+                    hedons: 5
+                }
+            },
+            beliefs: {
+                common: {},
+                uncommon: {},
+                rare: {}
+            },
         }
     },
     bean_life: {
