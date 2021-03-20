@@ -5,20 +5,29 @@ export type BeliefCommonality = 'common'|'uncommon'|'rare';
 export type TraitBelief = 'Diligence'| // happy from work
 'Natalism'| // increased % of having kids
 'Naturalism'|
-'Authority'| //less crime, more crime reports
 'Hedonism'| //more entertainment
+'Progressivism'|
+'Libertarianism'|
+'Parochialism'|
+'Cosmopolitanism'|
+'Capitalism'|
+'Socialism'|
+'Communism'|
 // 'Tribalism'| 
 // 'Globalism'| 
 // 'Pacifism'| 
 'Neuroticism'| // takes extra sanity damage
 'Dogmatism'| 
 // 'Mysticism'| 
-// 'Paranoia'| 
+ 'Paranoia'| 
 // 'Evangelism'| 
 // 'Fanaticism'| // doesn't like beings that don't share narrative 
+'Authority'| //less crime, more crime reports
 'Anarchism'| // breaks rules easily
-// 'Sadism'| 
-// 'Antagonism'|
+//'Sadism'| 
+'Antagonism'|
+'Enthusiasm'|
+'Gossip'|
 'Charity'| // % to donate
 'Gluttony'|
 'Greed'; // steal easier
@@ -102,45 +111,54 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // misc 🎲 traits
     Diligence: {
         noun: 'Diligence', adj: 'Diligence', icon: '💪',
-        description: "🎲 to 👍 while working",
-        idealCon: ['trad'], idealPro: ['state', 'ego']
+        description: "🎲 to 👍 while working", //implemented
+        //idealCon: ['trad'], idealPro: ['state', 'ego']
     },
     Natalism: {
         noun: 'Natalism', adj: 'Natalist', icon: '👶',
-        description: "Extra 🎲 for 👶"
+        description: "Extra 🎲 for 👶" //implemented
     },
     Charity: {
         noun: 'Charity', adj: 'Charitable', icon: '😇',
-        description: "🎲 to gift 💰 to the penniless",
-        idealCon: ['trad'], idealPro: ['prog']
+        description: "🎲 to gift 💰 to the penniless", //implemented
+        //idealCon: ['trad'], idealPro: ['prog']
+    },
+    Progressivism: {
+        noun: 'Progressivism', adj: 'Progressive', icon: '⚖️',
+        description: "🎲 to 👍 when paying taxes"
+    },
+    Libertarianism: {
+        noun: 'Libertarianism', adj: 'Libertarian', icon: '🔫',
+        description: "🎲 to 👎 when paying taxes",
+        //idealCon: ['trad'], idealPro: ['prog']
     },
 
     // work traits
-    // Parochialism: {
-    //     noun: 'Parochialism', adj: 'Parochial', icon: '🌍',
-    //     description: "Extra 👍 working 🌾. 👎 from dense houses",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
-    // Cosmopolitanism: {
-    //     noun: 'Cosmopolitanism', adj: 'Cosmopolitan', icon: '🍸',
-    //     description: "Extra 👍 working 🎻. 👎 from rural houses",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
-    // Capitalism: {
-    //     noun: 'Capitalism', adj: 'Capitalist', icon: '🎩',
-    //     description: "👎 working in co-ops and communes",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
-    // Socialism: {
-    //     noun: 'Socialism', adj: 'Socialist', icon: '🤝',
-    //     description: "Extra 👍 working in co-ops",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
-    // Communist: {
-    //     noun: 'Communism', adj: 'Communist', icon: '⚒️',
-    //     description: "👎 working in companies",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
+    Parochialism: {
+        noun: 'Parochialism', adj: 'Parochial', icon: '🐮',
+        description: "Extra 👍 working 🌾. 👎 from dense houses",  //first part implemented
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
+    Cosmopolitanism: {
+        noun: 'Cosmopolitanism', adj: 'Cosmopolitan', icon: '🍸',
+        description: "Extra 👍 working 🎻. 👎 from rural houses",  //first part implemented
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
+    Capitalism: {
+        noun: 'Capitalism', adj: 'Capitalist', icon: '🎩',
+        description: "👎 working in co-ops and communes",
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
+    Socialism: {
+        noun: 'Socialism', adj: 'Socialist', icon: '🤝',
+        description: "Extra 👍 working in co-ops",
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
+    Communism: {
+        noun: 'Communism', adj: 'Communist', icon: '⚒️',
+        description: "👎 working in companies",
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
 
     // Fraud: {
     //     noun: 'Fraud', adj: 'Fraudulent', icon: '🤥',
@@ -151,39 +169,39 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // 👍 traits
     Naturalism: {
         noun: 'Naturalism', adj: 'Naturalist', icon: '🛶',
-        description: "Extra 👍 from 😎; 😎 3x longer"
+        description: "Extra 👍 from 😎; 😎 3x longer" //implemented
     },
     Hedonism: {
         noun: 'Hedonism', adj: 'Hedonistic', icon: '💋',
-        description: "🎲 to emote extra 👍;🎲 to 👎 when working;",
-        idealCon: ['prog'], idealPro: ['ego', 'trad']
+        description: "🎲 to emote extra 👍;🎲 to 👎 when working;", //implemented
+        //idealCon: ['prog'], idealPro: ['ego', 'trad']
     },
     Gluttony: {
         noun: 'Gluttony', adj: 'Glutton', icon: '🎃',
-        description: "Extra 👍 when stuffed; Extra 👎 when hungry;",
-        idealCon: ['prog'], idealPro: ['ego', 'trad']
+        description: "Extra 👍 when stuffed; Extra 👎 when hungry;", //implemented
+        //idealCon: ['prog'], idealPro: ['ego', 'trad']
     },
-    // Paranoia: {
-    //     noun: 'Paranoia', adj: 'Paranoid', icon: '👽',
-    //     description: "🎲 to 👎 at any time",
-    //     idealCon: ['state'], idealPro: ['ego']
-    // },
+    Paranoia: {
+        noun: 'Paranoia', adj: 'Paranoid', icon: '👽',
+        description: "🎲 to 👎 at any time",  //implemented
+        //idealCon: ['state'], idealPro: ['ego']
+    },
 
     // 😈 Crime traits
     Authority: {
         noun: 'Authority', adj: 'Authoritarian', icon: '👢',
         description: "Less 🎲 for all 😈 Crime",
-        idealCon: ['ego'], idealPro: ['state']
+        //idealCon: ['ego'], idealPro: ['state']
     },
     Anarchism: {
         noun: 'Anarchism', adj: 'Anarchist', icon: '🖕',
         description: "Extra 🎲 for all 😈 Crime",
-        idealCon: ['state', 'prog'], idealPro: ['ego', 'trad']
+        //idealCon: ['state', 'prog'], idealPro: ['ego', 'trad']
     },
     Greed: {
         noun: 'Greed', adj: 'Greedy', icon: '🤑',
         description: "Extra 🎲 for theft 😈 Crime; Extra 👍 when rich",
-        idealCon: ['prog'], idealPro: ['trad']
+        //idealCon: ['prog'], idealPro: ['trad']
     },
     // Bloodthirst: {
     //     noun: 'Bloodthirst', adj: 'Bloodthirsty', icon: '🩸',
@@ -201,19 +219,19 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // },
 
     // 🗣️ traits
-    // Gossip: {
-    //     noun: 'Gossip', adj: 'Gossipy', icon: '📞',
-    //     description: "Extra 🎲 to start a 🗣️",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
-    // Antagonism: {
-    //     noun: 'Antagonism', adj: 'Antagonistic', icon: '🤬',
-    //     description: "🎲 to spread 👎 in a 🗣️"
-    // },
-    // Enthusiasm: {
-    //     noun: 'Enthusiasm', adj: 'Enthusiastic', icon: '🥳',
-    //     description: "🎲 to spread 👍 in a 🗣️"
-    // },
+    Gossip: {
+        noun: 'Gossip', adj: 'Gossipy', icon: '📞',
+        description: "Extra 🎲 to start a 🗣️", //implemented
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
+    Antagonism: {
+        noun: 'Antagonism', adj: 'Antagonistic', icon: '🤬',
+        description: "🎲 to spread 👎 in a 🗣️" //implemented
+    },
+    Enthusiasm: {
+        noun: 'Enthusiasm', adj: 'Enthusiastic', icon: '🥳',
+        description: "🎲 to spread 👍 in a 🗣️" //implemented
+    },
     // Globalism: {
     //     noun: 'Globalism', adj: 'Globalist', icon: '🌍',
     //     description: "🎲 to 👍 other hair colors in a 🗣️",
@@ -261,12 +279,12 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // meta-traits
     Neuroticism: {
         noun: 'Neuroticism', adj: 'Neurotic', icon: '😱',
-        description: "+100% 🧠 damage",
+        description: "+100% 🧠 damage", //implemented
         idealCon: ['state'], idealPro: ['ego']
     },
     Dogmatism: {
         noun: 'Dogmatism', adj: 'Dogmatic', icon: '🐶',
-        description: "Cannot change beliefs",
+        description: "Cannot change beliefs", //implemented
         idealCon: ['ego'], idealPro: ['state']
     },
 };

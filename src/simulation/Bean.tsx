@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity } from "../World";
 import { RandomEthno, GetRandom, GetRandomNumber } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -12,6 +12,7 @@ import { PriorityQueue } from "./Priorities";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
 import { BeanResources } from "../Game";
+import { MathClamp } from "./Utils";
 
 const BabyChance = 0.01;
 const HappyChance = 0.01;
@@ -23,7 +24,14 @@ const ChatCooldownMS = 4000;
 export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 
 const HedonismExtraChance = 0.1;
+const ParanoidUnhappyChance = 0.05;
 const HedonismHateWorkChance = 0.15;
+const DiligenceHappyChance = 0.25;
+const ParochialHappyChance = 0.25;
+const CosmopolitanHappyChance = 0.25;
+const GossipChatExtraChance = 0.25;
+const AntagonismBullyChance = 0.45;
+const EnthusiasmPraiseChance = 0.45;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -283,13 +291,30 @@ export class Bean implements IBean{
     tryPurchase(cost: BeanResources) {
         return (cost.sanity == undefined || this.discrete_sanity >= cost.sanity);
     }
+    public maybeParanoid() {
+        if (this.believesIn('Paranoia') && Math.random() < ParanoidUnhappyChance){
+            this.emote('unhappiness');
+        }
+    }
+    public maybeAntagonised(){
+        this.emote('unhappiness');
+    }
+    public maybeEnthused(){
+        this.emote('happiness');
+    }
+    /**
+     * chats or conversations use 🗣️ in descriptions
+     * @returns 
+     */
     public maybeChat(): boolean {
         if (this.lastChatMS + ChatCooldownMS > Date.now()) 
             return false;
         if (this.state.data.act === 'chat')
             return false;
         const roll = Math.random();
-        const chance = (this.community === 'state') ? 0.2 : 0.1;
+        let chance = (this.community === 'state') ? 0.2 : 0.1;
+        if (this.believesIn('Gossip')) 
+            chance += GossipChatExtraChance;
         return roll < chance;
     }
     public getRandomChat(nearby: Bean[]): IChatData {
@@ -311,6 +336,18 @@ export class Bean implements IBean{
                         targetBeanKey: needy.key
                     }
                 }
+            } else if(this.believesIn('Enthusiasm') && Math.random() < EnthusiasmPraiseChance){
+                return {
+                    participation: 'speaker',
+                    type: 'praise',
+                    preachBelief: 'Enthusiasm'
+                }
+            } else if(this.believesIn('Antagonism') && Math.random() < AntagonismBullyChance){
+                return {
+                    participation: 'speaker',
+                    type: 'bully',
+                    preachBelief: 'Antagonism'
+                }
             }
             return {
                 participation: 'speaker',
@@ -330,6 +367,8 @@ export class Bean implements IBean{
             switch(this.job){
                 case 'farmer':
                     this.discrete_food = Math.min(this.discrete_food+1, GoodToThreshold.food.sufficient*2);
+                    if (this.believesIn('Parochialism') && Math.random() <= ParochialHappyChance)
+                        this.emote('happiness');
                     break;
                 case 'doc':
                     this.discrete_health = Math.min(this.discrete_health+1, GoodToThreshold.medicine.sufficient*2);
@@ -338,9 +377,13 @@ export class Bean implements IBean{
                     this.shelter = 'crowded';
                     this.discrete_stamina = 7;
                     break;
+                case 'entertainer':
+                    if (this.believesIn('Cosmopolitanism') && Math.random() <= CosmopolitanHappyChance)
+                        this.emote('happiness');
+                break;
             }
-            if (this.believesIn('Diligence') && Math.random() <= 0.5){
-                this.discrete_fun += 0.5;
+            if (this.believesIn('Diligence') && Math.random() <= DiligenceHappyChance){
+                this.emote('happiness');
             }
             if (this.believesIn('Hedonism') && Math.random() <= HedonismHateWorkChance){
                 this.emote('unhappiness');
@@ -546,6 +589,7 @@ export class Bean implements IBean{
     }
     emote(emote: TraitEmote){
         this.ticksSinceLastEmote = 0;
+        this.discrete_sanity = MathClamp(this.discrete_sanity + EmotionSanity[emote], 0, 10);
         this.city?.addEmotePickup(this.key, emote);
         if (this.believesIn('Hedonism') && (emote == 'happiness' || emote == 'love') && Math.random() < HedonismExtraChance){
             this.city?.addEmotePickup(this.key, emote);

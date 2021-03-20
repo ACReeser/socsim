@@ -68,10 +68,10 @@ export class HexPanel extends React.Component<{
         const free = b.openSlots();
         const hasJobs = b.type != 'park' && b.type != 'nature';
         return <div>
-            <strong>{b.upgraded && hasJobs ? 'Upgraded ':null}{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
+            <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
         {
             b.upgraded && hasJobs ? <div>
-                {this.renderDensityWarning()}
+                {this.renderDensityWarning(b.type)}
             </div> : null
         }
         {
@@ -99,18 +99,29 @@ export class HexPanel extends React.Component<{
                         <CostSmall cost={this.props.difficulty.cost.hex.upgrade}></CostSmall>
                     </button>
                 </div>
-                {this.renderDensityWarning()}
+                {this.renderDensityWarning(b.type)}
             </div>
         }
         {this.renderBeamButton()}
         </div>
     }
-    renderDensityWarning(){
-        return <div className="text-center">
+    renderDensityWarning(typ: BuildingTypes){
+        if (typ === 'house')
+        return <>
+            <div className="text-center">
             <small>
-                🦅 Independent subjects lose 🙂<br/>working in upgraded buildings
+            🐮 Parochial subjects may emit 👎<br/>when living in dense buildings
             </small>
-        </div>;
+        </div> 
+        <div className="text-center">
+            <small>
+            🍸 Cosmopolitan subjects may emit 👎<br/>when living in small buildings
+            </small>
+        </div>
+        </>;
+        else return <div>
+
+        </div>
     }
     renderJobs(){
 

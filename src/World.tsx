@@ -372,3 +372,9 @@ export const EmotionWorth: {[key in TraitEmote]: number} ={
     'unhappiness': -1,
     'hate': -5
 };
+export const EmotionSanity: {[key in TraitEmote]: number} ={
+    'love': 1,
+    'happiness': 0.2,
+    'unhappiness': 0,
+    'hate': -1
+};

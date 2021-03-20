@@ -136,6 +136,13 @@ export class IdleState extends AgentState{
         }
         return intent;
     }
+    exit(agent: IAgent){
+        super.exit(agent);
+
+        if (agent instanceof Bean){
+            agent.maybeParanoid()
+        }
+    }
 }
 
 export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]|null{
@@ -267,6 +274,14 @@ export class ChatState extends AgentState{
     exit(agent: IAgent){
         if (agent instanceof Bean && this.data.chat){
             agent.lastChatMS = Date.now();
+            if (this.data.chat.participation === 'listener'){
+                if (this.data.chat.type === 'bully'){
+                    agent.maybeAntagonised();
+                }
+                else if (this.data.chat.type === 'praise'){
+                    agent.maybeEnthused();
+                }
+            }
         }
     }
 }
