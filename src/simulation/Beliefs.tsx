@@ -232,10 +232,26 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     //     idealCon: ['prog'], idealPro: []
     // },
 
-    // evil traits
+    // super bad traits
     // Sadism: {
     //     noun: 'Sadism', adj: 'Sadistic', icon: '😈',
     //     description: "🎲 to ☠️ other after a 🗣️"
+    // },
+    // Vandalism: {
+    //     noun: 'Vandalism', adj: 'Vandal', icon: '💩',
+    //     description: "🎲 to destroy goods"
+    // },
+    // Delirium: {
+    //     noun: 'Delirium', adj: 'Delirious', icon: '😪',
+    //     description: "Chooses actions at random"
+    // },
+    // DelusionalMania: {
+    //     noun: 'Delusional Mania', adj: 'Delusional Maniac', icon: '😵',
+    //     description: "🎲 to ☠️ nearby subjects"
+    // },
+    // Catatonia: {
+    //     noun: 'Catatonia', adj: 'Catatonic', icon: '😶',
+    //     description: "-50% walk speed. Cannot work."
     // },
 
     // meta-traits
