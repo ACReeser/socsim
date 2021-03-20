@@ -109,11 +109,6 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         noun: 'Natalism', adj: 'Natalist', icon: '👶',
         description: "Extra 🎲 for 👶"
     },
-    Greed: {
-        noun: 'Greed', adj: 'Greedy', icon: '🤑',
-        description: "Extra 🎲 for Theft; Extra 👍 when rich",
-        idealCon: ['prog'], idealPro: ['trad']
-    },
     Charity: {
         noun: 'Charity', adj: 'Charitable', icon: '😇',
         description: "🎲 to gift 💰 to the penniless",
@@ -177,14 +172,23 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // 😈 Crime traits
     Authority: {
         noun: 'Authority', adj: 'Authoritarian', icon: '👢',
-        description: "Less 🎲 for 😈 Crime",
+        description: "Less 🎲 for all 😈 Crime",
         idealCon: ['ego'], idealPro: ['state']
     },
     Anarchism: {
         noun: 'Anarchism', adj: 'Anarchist', icon: '🖕',
-        description: "Extra 🎲 for 😈 Crime",
+        description: "Extra 🎲 for all 😈 Crime",
         idealCon: ['state', 'prog'], idealPro: ['ego', 'trad']
     },
+    Greed: {
+        noun: 'Greed', adj: 'Greedy', icon: '🤑',
+        description: "Extra 🎲 for theft 😈 Crime; Extra 👍 when rich",
+        idealCon: ['prog'], idealPro: ['trad']
+    },
+    // Bloodthirst: {
+    //     noun: 'Bloodthirst', adj: 'Bloodthirsty', icon: '🩸',
+    //     description: "🎲 for assault 😈 Crime in a 🗣️"
+    // },
     // Pacifism: {
     //     noun: 'Pacifism', adj: 'Pacifist', icon: '😘',
     //     description: "will never punish others",
@@ -199,7 +203,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // 🗣️ traits
     // Gossip: {
     //     noun: 'Gossip', adj: 'Gossipy', icon: '📞',
-    //     description: "Extra 🎲 to engage in 🗣️",
+    //     description: "Extra 🎲 to start a 🗣️",
     //     idealCon: ['trad'], idealPro: ['prog', 'state']
     // },
     // Antagonism: {
