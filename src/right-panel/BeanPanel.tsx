@@ -208,7 +208,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     <button type="button" className="button card" onClick={() => this.props.brainwash()}
                         title="Rewrite one of this being's beliefs"
                     >😵 Brainwash
-                        <small>-Psi -Sanity +Belief</small>
+                        <small>-Sanity +Belief</small>
                     </button>
                 </div>
                 <div className="card-parent">
@@ -222,7 +222,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     <button type="button" className="button card" onClick={this.scan} 
                         title="Steal a bit of this being's mind">
                         🤪 Braindrain
-                        <small>-Energy -Sanity +Psi</small>
+                        <small>-Energy -Sanity</small>
                     </button>
                     <button type="button" className="button card" onClick={this.vaporize}
                         title="Delete this being from the experiment"

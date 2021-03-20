@@ -477,12 +477,6 @@ ul.boxes li{
 .Energy .capsule-icon, .Hedons .capsule-icon{
   background: gold;
 }
-.Psi .capsule-text, .Tortrons .capsule-text{
-  background: pink;
-}
-.Psi .capsule-icon, .Tortrons .capsule-icon{
-  background: pink;
-}
 .Bots .capsule-text{
   background: grey;
 }

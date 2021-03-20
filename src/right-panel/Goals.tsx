@@ -123,9 +123,6 @@ export class GoalsPanel extends React.Component<GoalPanelPS> {
             </tr>
           </tbody>
         </table>
-        {/* <p>
-          Receive an "A" in "Prosperity" <br/> to receive 3 Psi
-        </p> */}
       </div>)
     }
 }

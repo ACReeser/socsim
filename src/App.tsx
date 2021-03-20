@@ -188,6 +188,34 @@ class App extends React.Component<AppPs, AppState>{
       });
     }
   }
+  buyBots = (amount: number) => {
+    const cost = this.difficulty.cost.market.resource.bots;
+    if (this.state.world.alien.tryPurchase(cost, amount)) {
+      this.state.world.alien.bots.amount += amount;
+      this.state.world.alien.bots.change.publish({change:amount});
+    }
+
+    this.setState({ world: this.state.world });
+  }
+  buyEnergy = (amount: number) => {
+    const cost = this.difficulty.cost.market.resource.bots;
+    if (this.state.world.alien.tryPurchase(cost, amount)) {
+      this.state.world.alien.energy.amount += amount;
+      this.state.world.alien.energy.change.publish({change:amount});
+    }
+
+    this.setState({ world: this.state.world });
+  }
+  scrubHedons = () => {
+    const cost = this.difficulty.cost.market.scrubHedons;
+    if (this.state.world.alien.tryPurchase(cost)) {
+      const old = this.state.world.alien.hedons.amount;
+      this.state.world.alien.hedons.amount = 0;
+      this.state.world.alien.energy.change.publish({change: -old});
+    }
+
+    this.setState({ world: this.state.world });
+  }
   removeUFO(city: City, key: number) {
     window.setTimeout(() => {
       const myUFOI = city.ufos.findIndex((x) => x.key === key);
@@ -351,7 +379,8 @@ class App extends React.Component<AppPs, AppState>{
             this.setState({ activeCityID: this.state.world.cities[0].key, activeBeanID: beankey, activeHex: null, activeRightPanel: 'overview' })
         }}></EventsPanel>
       case 'market': 
-        return <MarketPanel player={this.state.world.alien}></MarketPanel>
+        return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons}
+         player={this.state.world.alien}></MarketPanel>
     }
   }
   renderGeo() {
@@ -469,11 +498,11 @@ class App extends React.Component<AppPs, AppState>{
                   {this.state.world.alien.hedons.amount.toFixed(0)}
                 </CapsuleLabel>
               </BubbleText>
-              <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
+              {/* <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
                 <CapsuleLabel icon="💔" label="Tortrons">
                   {this.state.world.alien.tortrons.amount.toFixed(0)}
                 </CapsuleLabel>
-              </BubbleText>
+              </BubbleText> */}
               <span>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🗳️ Gov</button>

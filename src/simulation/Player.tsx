@@ -203,34 +203,34 @@ export class Player implements IPlayerData, IProgressable{
     public techProgress: TechProgress = {};
     public currentlyResearchingTech: Tech|undefined;
 
-    public canAfford(cost: PlayerResources): boolean{
-        return (cost.bots == undefined || this.bots.amount >= cost.bots) &&
-        (cost.energy == undefined || this.energy.amount >= cost.energy) && 
-        (cost.hedons == undefined || this.hedons.amount >= cost.hedons);
+    public canAfford(cost: PlayerResources, qty: number = 1): boolean{
+        return (cost.bots == undefined || this.bots.amount >= cost.bots * qty) &&
+        (cost.energy == undefined || this.energy.amount >= cost.energy * qty) && 
+        (cost.hedons == undefined || this.hedons.amount >= cost.hedons * qty);
     }
 
     public hasResearched(tech: Tech){
         return this.techProgress[tech] != null && this.techProgress[tech].researchPoints >= TechData[tech].techPoints;
     }
 
-    public purchase(cost: PlayerResources){
+    public purchase(cost: PlayerResources, qty: number = 1){
         if (cost.bots){
-            this.bots.amount -= cost.bots;
-            this.bots.change.publish({change:-cost.bots});
+            this.bots.amount -= cost.bots * qty;
+            this.bots.change.publish({change: -cost.bots * qty});
         }
         if (cost.energy){
-            this.energy.amount -= cost.energy;
-            this.energy.change.publish({change:-cost.energy});
+            this.energy.amount -= cost.energy * qty;
+            this.energy.change.publish({change: -cost.energy * qty});
         }
         if (cost.hedons){
-            this.hedons.amount -= cost.hedons;
-            this.hedons.change.publish({change:-cost.hedons});
+            this.hedons.amount -= cost.hedons * qty;
+            this.hedons.change.publish({change: -cost.hedons * qty});
         }
     }
 
-    public tryPurchase(cost: PlayerResources): boolean{
-        if (this.canAfford(cost)){
-            this.purchase(cost);
+    public tryPurchase(cost: PlayerResources, qty: number = 1): boolean{
+        if (this.canAfford(cost, qty)){
+            this.purchase(cost, qty);
             return true;
         }
         return false;

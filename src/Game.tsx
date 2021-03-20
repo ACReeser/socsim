@@ -47,6 +47,7 @@ export interface IDifficulty{
         bean: {[key in PlayerBeanAction]: PlayerResources},
         bean_brain: {[key in PlayerBeanBrainAction]: BeanResources}
         market: {
+            scrubHedons: PlayerResources,
             resource: {[key in PlayerMarketAction]: PlayerResources},
             beliefs: {[key in BeliefCommonality]: PlayerResources}
         }
@@ -124,6 +125,9 @@ export const DefaultDifficulty: IDifficulty = {
             siphon: {},
         },
         market: {
+            scrubHedons: {
+                energy: 5
+            },
             resource: {
                 bots: {
                     hedons: 6

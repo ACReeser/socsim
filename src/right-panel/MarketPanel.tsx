@@ -3,7 +3,10 @@ import { Player } from "../simulation/Player";
 import { CostSmall } from "../widgets/CostSmall";
 
  export class MarketPanel extends React.Component<{
-     player: Player
+     player: Player,
+     buyEnergy: (amount: number) => void,
+     buyBots: (amount: number) => void,
+     scrubHedons: () => void,
  }>{
      render(){
         return <div>
@@ -12,28 +15,44 @@ import { CostSmall } from "../widgets/CostSmall";
             </div>
             <p>
                 <small>
-                    <i> Exchange 👍 for energy and matter!</i>
+                    The premier exchange for ⚡️, 🤖,  and 👍!
                 </small>
             </p>
             <div className="card-parent">
-                <button className="card button">
+                <button className="card button" onClick={() => this.props.buyEnergy(1)}
+                    disabled={!this.props.player.canAfford(this.props.player.difficulty.cost.market.resource.energy)}>
                     +1 ⚡️ Energy
                     <CostSmall cost={this.props.player.difficulty.cost.market.resource.energy} qty={1} ></CostSmall>
                 </button>
-                <button className="card button">
+                <button className="card button" onClick={() => this.props.buyEnergy(5)}
+                    disabled={!this.props.player.canAfford(this.props.player.difficulty.cost.market.resource.energy, 5)}>
                     +5 ⚡️ Energy
                     <CostSmall cost={this.props.player.difficulty.cost.market.resource.energy} qty={5} ></CostSmall>
                 </button>
             </div>
             <div className="card-parent">
-                <button className="card button">
+                <button className="card button" onClick={() => this.props.buyBots(1)}
+                    disabled={!this.props.player.canAfford(this.props.player.difficulty.cost.market.resource.bots)}>
                     +1 🤖 Bot
                     <CostSmall cost={this.props.player.difficulty.cost.market.resource.bots} qty={1} ></CostSmall>
                 </button>
-                <button className="card button">
+                <button className="card button" onClick={() => this.props.buyBots(5)}
+                    disabled={!this.props.player.canAfford(this.props.player.difficulty.cost.market.resource.bots, 5)}>
                     +5 🤖 Bots
                     <CostSmall cost={this.props.player.difficulty.cost.market.resource.bots} qty={5} ></CostSmall>
                 </button>
+            </div>
+            <div className="card-parent">
+                <button className="card button" onClick={() => this.props.scrubHedons()}
+                    disabled={this.props.player.hedons.amount >= 0 || !this.props.player.canAfford(this.props.player.difficulty.cost.market.scrubHedons)}>
+                    Remove 💢 Negative Hedons
+                    <CostSmall cost={this.props.player.difficulty.cost.market.scrubHedons} qty={1} ></CostSmall>
+                </button>
+                {/* <button className="card button" onClick={() => this.props.buyBots(5)}
+                    disabled={!this.props.player.canAfford(this.props.player.difficulty.cost.market.resource.bots, 5)}>
+                    +5 🤖 Bots
+                    <CostSmall cost={this.props.player.difficulty.cost.market.resource.bots} qty={5} ></CostSmall>
+                </button> */}
             </div>
             <div>
                 
