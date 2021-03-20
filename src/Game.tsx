@@ -5,6 +5,7 @@ import { IThreshold, TraitGood } from "./World";
 export type PlayerEmptyHexAction = 'build';
 export type PlayerHexAction = 'beam'|'upgrade';
 export type PlayerBeanAction = 'scan'|'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary'|'abduct'|'vaporize'|'siphon'|'empower'|'gift';
+export type PlayerMarketAction = 'energy'|'bots'|'belief';
 export type PlayerGovernmentAction = '';
 export type PlayerAction = PlayerHexAction|PlayerBeanAction;
 
@@ -12,6 +13,8 @@ export interface ResourceTriad{
     energy?: number;
     bots?: number;
     psi?: number;
+    hedons?: number;
+    tortrons?: number;
 }
 export function triadToString(cost: ResourceTriad, sign: '+'|''|'-'){
     const costs = [];
@@ -24,6 +27,12 @@ export function triadToString(cost: ResourceTriad, sign: '+'|''|'-'){
     if (cost.psi){
         costs.push(sign+cost.psi+' Psi');
     }
+    if (cost.hedons){
+        costs.push(sign+cost.hedons+' Hedons');
+    }
+    if (cost.tortrons){
+        costs.push(sign+cost.tortrons+' Tortrons');
+    }
     return costs.join(' ');
 }
 export interface SecondaryResources{
@@ -34,7 +43,8 @@ export interface IDifficulty{
     cost: {
         emptyHex: {[key in PlayerEmptyHexAction]: {[key in BuildingTypes]: ResourceTriad}},
         hex: {[key in PlayerHexAction]: ResourceTriad} 
-        bean: {[key in PlayerBeanAction]: ResourceTriad}
+        bean: {[key in PlayerBeanAction]: ResourceTriad},
+        market: {[key in PlayerMarketAction]: ResourceTriad}
     },
     bean_life: {
         vital_thresh: {[key in TraitGood]: IThreshold}
@@ -106,6 +116,11 @@ export const DefaultDifficulty: IDifficulty = {
                 bots: 4
             },
             siphon: {},
+        },
+        market: {
+            belief: {},
+            bots: {},
+            energy: {}
         }
     },
     bean_life: {

@@ -50,3 +50,28 @@ export class EventBus implements IEventBus, IEventBuffer{
     death = new PubSub<IEvent>(this.sendToBuffer);
 
 }
+
+export class Live<T>{
+    public readonly onChange = new PubSub<T>();
+    constructor(protected current: T){}
+    public set(newValue: T){
+        this.current = newValue;
+        this.onChange.publish(newValue);
+    }
+    public get get(): T{
+        return this.current;
+    }
+}
+export class LiveList<T> extends Live<Array<T>>{
+    public push(child: T): void{
+        this.set([...this.get, child]);
+    }
+    public remove(child: T): void{
+        const all = this.get;
+        const i = all.indexOf(child);
+        if (i > -1){
+            all.splice(i, 1);
+            this.set([...all]);
+        }
+    }
+}

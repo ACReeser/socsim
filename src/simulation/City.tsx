@@ -8,7 +8,7 @@ import { Geography, HexPoint, IBuilding, JobToBuilding, Point } from "./Geograph
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
-import { IEventBus, PubSub } from "../events/Events";
+import { IEventBus, LiveList, PubSub } from "../events/Events";
 import { WorldSound } from "../WorldSound";
 
 
@@ -48,30 +48,6 @@ export class Pickup{
     public onAnimate = new PubSub<Point>();
 }
 
-export class Live<T>{
-    public readonly onChange = new PubSub<T>();
-    constructor(protected current: T){}
-    public set(newValue: T){
-        this.current = newValue;
-        this.onChange.publish(newValue);
-    }
-    public get get(): T{
-        return this.current;
-    }
-}
-export class LiveList<T> extends Live<Array<T>>{
-    public push(child: T): void{
-        this.set([...this.get, child]);
-    }
-    public remove(child: T): void{
-        const all = this.get;
-        const i = all.indexOf(child);
-        if (i > -1){
-            all.splice(i, 1);
-            this.set([...all]);
-        }
-    }
-}
 
 export class City extends Geography implements Tile, IBeanContainer {
     public name: string = '';

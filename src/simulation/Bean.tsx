@@ -22,7 +22,7 @@ const ChatCooldownMS = 4000;
 export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 
 const HedonismExtraChance = 0.1;
-const HedonismHateWorkChance = 0.1;
+const HedonismHateWorkChance = 0.15;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;

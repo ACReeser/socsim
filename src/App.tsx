@@ -486,10 +486,11 @@ class App extends React.Component<AppPs, AppState>{
           </div>
           <div className="right">
             <div className="full-width-tabs">
-              <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Overview</button>
+              <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Info</button>
+              <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🛍️ Market</button>
               <button onClick={() => this.setState({ activeRightPanel: 'events' })}>
                 <TimelyEventToggle event={this.state.world.bus.speechcrime} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
-            </button>
+              </button>
               <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🏆 Goals</button>
             </div>
             <div className="right-panel">

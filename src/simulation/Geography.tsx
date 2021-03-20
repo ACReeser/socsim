@@ -330,6 +330,7 @@ export interface BuildingMap{
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
+//building that slowly sucks up emotions
 export type MoverTypes = 'bean'|'ufo'|'pickup';
 export type MatterTypes = MoverTypes|BuildingTypes;
 

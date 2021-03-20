@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import { PubSub } from "../events/Events";
-import { LiveList, Pickup } from "../simulation/City";
+import { LiveList, PubSub } from "../events/Events";
+import { Pickup } from "../simulation/City";
 import { Point } from "../simulation/Geography";
 import { AnimatedPickup } from "./AnimatedPickup";
 
