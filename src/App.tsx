@@ -14,7 +14,7 @@ import { EventsPanel } from './right-panel/Events';
 import { BeanPanel } from './right-panel/BeanPanel';
 import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
 import { PartyOverview } from './modal-content/PartyOverview';
-import { BubbleText } from './widgets/BubbleText';
+import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
 import { Season, Now, Hour } from './simulation/Time';
 import { SocialGraph } from './widgets/SocialGraph';
 import { CapsuleLabel } from './widgets/CapsuleLabel';
@@ -257,9 +257,13 @@ class App extends React.Component<AppPs, AppState>{
     this.setState({ world: this.state.world });
   }
   scan = (bean: Bean) => {
-    if (this.state.world.alien.canAfford(this.state.world.alien.difficulty.cost.bean.scan)) {
-      this.state.world.alien.purchase(this.state.world.alien.difficulty.cost.bean.scan);
+    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.scan)) {
       this.state.world.alien.scanned_bean[bean.key] = true;
+      bean.beliefs.forEach((b) => {
+        if (!this.state.world.alien.seen_beliefs.get.has(b)){
+          this.state.world.alien.seen_beliefs.add(b, true);
+        }
+      })
       this.setState({ world: this.state.world });
       return true;
     } else {
@@ -487,21 +491,21 @@ class App extends React.Component<AppPs, AppState>{
               <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
             </div>
             <div className="bottom">
-              <BubbleText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
+              <BubbleNumberText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
                 <CapsuleLabel icon="⚡️" label="Energy">
                   {this.state.world.alien.energy.amount.toFixed(1)}
                 </CapsuleLabel>
-              </BubbleText>
-              <BubbleText changeEvent={this.state.world.alien.bots.change} icon="🤖">
+              </BubbleNumberText>
+              <BubbleNumberText changeEvent={this.state.world.alien.bots.change} icon="🤖">
                 <CapsuleLabel icon="🤖" label="Bots">
                   {this.state.world.alien.bots.amount.toFixed(1)}
                 </CapsuleLabel>
-              </BubbleText>
-              <BubbleText changeEvent={this.state.world.alien.hedons.change} icon="👍">
+              </BubbleNumberText>
+              <BubbleNumberText changeEvent={this.state.world.alien.hedons.change} icon="👍">
                 <CapsuleLabel icon="👍" label="Hedons">
                   {this.state.world.alien.hedons.amount.toFixed(0)}
                 </CapsuleLabel>
-              </BubbleText>
+              </BubbleNumberText>
               {/* <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
                 <CapsuleLabel icon="💔" label="Tortrons">
                   {this.state.world.alien.tortrons.amount.toFixed(0)}
@@ -511,7 +515,10 @@ class App extends React.Component<AppPs, AppState>{
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🗳️ Gov</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
-                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
+                
+                <BubbleSeenTraitsText changeEvent={this.state.world.alien.seen_beliefs.onAdd} icon="🧠">
+                  <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
+                </BubbleSeenTraitsText>
                 {/* <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button> */}
               </span>
             </div>

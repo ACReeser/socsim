@@ -1,4 +1,4 @@
-import { ChangePubSub } from "../events/Events";
+import { ChangePubSub, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
 import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
@@ -189,6 +189,7 @@ export type TechProgress = {[key: string]: IPlayerTechProgress};
 
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
+    public seen_beliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
     public energy = { amount: 29, income: 2/30, change: new ChangePubSub()};

@@ -63,8 +63,10 @@ export class Live<T>{
     }
 }
 export class LiveList<T> extends Live<Array<T>>{
+    public readonly onPush = new PubSub<T>();
     public push(child: T): void{
         this.set([...this.get, child]);
+        this.onPush.publish(child);
     }
     public remove(child: T): void{
         const all = this.get;
@@ -73,5 +75,17 @@ export class LiveList<T> extends Live<Array<T>>{
             all.splice(i, 1);
             this.set([...all]);
         }
+    }
+}
+export class LiveMap<K, V> extends Live<Map<K, V>>{
+    public readonly onAdd = new PubSub<{k: K, v: V}>();
+    public add(newKey: K, newValue: V){
+        const copy = new Map<K, V>(this.current);
+        copy.set(newKey, newValue);
+        this.set(copy);
+        this.onAdd.publish({k: newKey, v: newValue});
+    }
+    public at(key: K): V|undefined{
+        return this.current.get(key);
     }
 }

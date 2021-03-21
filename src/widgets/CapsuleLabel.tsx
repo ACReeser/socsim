@@ -1,6 +1,4 @@
 import React from "react";
-import { ChangePubSub } from "../events/Events";
-import { threadId } from "worker_threads";
 
 export class CapsuleLabel extends React.Component<{
     icon?: string,

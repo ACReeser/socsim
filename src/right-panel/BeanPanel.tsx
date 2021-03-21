@@ -41,7 +41,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     constructor(props: BeanPanelP) {
         super(props);
         this.state = {
-            innerView: 'feelings'
+            innerView: 'beliefs'
         }
     }
     scan = () => {
@@ -191,14 +191,14 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </div>
             <div className="grow-1 pad-4">
                 <div className="cylinder blue-orange horizontal">
-                    <button type="button" className={this.state.innerView=='priorities'?'active':''} onClick={()=>this.setState({innerView:'priorities'})}>
-                        💪 Priorities
+                    <button type="button" className={this.state.innerView=='beliefs'?'active':''} onClick={()=>this.setState({innerView:'beliefs'})}>
+                        😇 Beliefs
                     </button>
                     <button type="button" className={this.state.innerView=='feelings'?'active':''} onClick={()=>this.setState({innerView:'feelings'})}>
                         😐 Feelings
                     </button>
-                    <button type="button" className={this.state.innerView=='beliefs'?'active':''} onClick={()=>this.setState({innerView:'beliefs'})}>
-                        😇 Beliefs
+                    <button type="button" className={this.state.innerView=='priorities'?'active':''} onClick={()=>this.setState({innerView:'priorities'})}>
+                        💪 Priorities
                     </button>
                 </div>
                 {this.renderInner()}

@@ -782,6 +782,15 @@ table.classic .border-t{
 .bubbler.neg{
   color: red;
 }
+.bubbler.seen-belief{
+  font-size: 18px;
+  left: auto;
+  right: -100%;
+  width: 300px;
+  top: -20px;
+  color: black;
+  text-shadow: 0 0 2px white;
+}
 .badge{
   padding: 0 2px 2px 2px;
   border-radius: 10px;
