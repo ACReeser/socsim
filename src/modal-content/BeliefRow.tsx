@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactElement } from "react";
 import './beliefs.css';
 import { BeliefSubject, BeliefVerb, SecondaryBeliefData, TraitBelief, Belief, BeliefSubjectOption, BeliefVerbOption, BeliefAdjOption, BeliefsAll, BeliefSubjectAll, BeliefVerbAll, IBeliefData } from "../simulation/Beliefs";
 
@@ -7,6 +7,47 @@ import { TraitIcon } from "../World";
 import { IDifficulty } from "../Game";
 import { ConfirmButton } from "../widgets/ConfirmButton";
 import { RenderIdealBadges } from "../widgets/UniversalWidgets";
+import { JsxElement } from "typescript";
+
+export const BeliefWidget: React.FC<{
+    data: IBeliefData,
+    cost: number,
+    leftButton?: JsxElement,
+    titleView: ReactElement,
+    bottomView: ReactElement
+}> = (props) => {
+    return <div className="belief">
+        <div className="horizontal badger">
+            <div className="vertical">
+                <div className="circular">
+                    {props.data.icon}
+                </div>
+                {
+                    props.leftButton
+                }
+            </div>
+            <div className="vertical">
+                <div className="text-center">
+                    {
+                        props.titleView
+                    }
+                    <span className="pull-r">{props.cost}🧠</span>
+                </div>
+                {
+                props.data.description ? props.data.description.split(';').map((x) => 
+                <small className="marg-b-6"> {x}
+                </small>
+                ) : null
+                }
+                <div className="grow-1 text-center">
+                    {
+                       props.bottomView
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 export class EditBeliefInput extends React.Component<{
     data: IBeliefData,
@@ -94,10 +135,10 @@ export class AddBeliefInput extends React.Component<{
                 <small className="marg-b-6">{data.description}</small>
                 <div className="grow-1 text-center">
                     {
-                        (data.idealPro || []).map((x) => <span className="pos badge align-mid">+{TraitIcon[x]}</span>)
+                        (data.idealPro || []).map((x) => <span className="pos badge align-mid" key={x}>+{TraitIcon[x]}</span>)
                     }
                     {
-                        (data.idealCon || []).map((x) => <span className="neg badge align-mid">-{TraitIcon[x]}</span>)
+                        (data.idealCon || []).map((x) => <span className="neg badge align-mid" key={x}>-{TraitIcon[x]}</span>)
                     }
                 </div>
             </div>

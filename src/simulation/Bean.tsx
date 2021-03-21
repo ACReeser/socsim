@@ -115,9 +115,9 @@ export class Bean implements IBean{
     public fairGoodPrice: number = 1;
     public lastChatMS: number = Date.now();
     get isInCrisis(): boolean{
-        return this.food == 'hungry' ||
-        this.shelter == 'podless' ||
-        this.health == 'sick';
+        return this.food === 'hungry' ||
+        this.shelter === 'podless' ||
+        this.health === 'sick';
     }
     believesIn(belief: TraitBelief): boolean{
         return this.beliefs.indexOf(belief) !== -1;
@@ -135,10 +135,10 @@ export class Bean implements IBean{
                 reason: 'Entertainment', mod: this.discrete_fun*.4
             }
         ];
-        if (this.ideals == 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
+        if (this.ideals === 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
             mods.push({reason: 'Xenophobic', mod: -.1});
         }
-        if (this.community == 'ego' && this.job != 'jobless' && 
+        if (this.community === 'ego' && this.job != 'jobless' && 
             homeCity.byType[JobToBuilding[this.job]].all.find(x => x.key === this.buildingKey)?.upgraded) {
             mods.push({reason: 'Hates Building Density', mod: -.1});
         }
@@ -149,7 +149,7 @@ export class Bean implements IBean{
         } else if (this.cash > econ.getCostOfLiving() * 2){
             mods.push({reason: 'Middle Class', mod: 0.15});
         }
-        if (this.job == 'jobless') {
+        if (this.job === 'jobless') {
             mods.push({reason: 'Unemployed', mod: MaslowHappinessScore.Deficient});
         }
 
@@ -161,10 +161,10 @@ export class Bean implements IBean{
     }{
         const result = {party: [] as IHappinessModifier[], law: [] as IHappinessModifier[]};
 
-        if (this.community == party.community){
+        if (this.community === party.community){
             result.party.push({reason: 'Same Community', mod: 0.15});
         }
-        if (this.ideals == party.ideals){
+        if (this.ideals === party.ideals){
             result.party.push({reason: 'Same Ideals', mod: 0.15});
         } else if (this.community != party.community){
             result.party.push({reason: 'Incompatible Values', mod: -0.15});
@@ -177,7 +177,7 @@ export class Bean implements IBean{
         this.lastSentiment = GetHappiness(sent.law);
         this.lastPartySentiment = GetHappiness(sent.party);
 
-        if (this.job == 'jobless'){
+        if (this.job === 'jobless'){
             this.fairGoodPrice = 1;
         } else {
             const myGood = JobToGood(this.job);
@@ -206,16 +206,16 @@ export class Bean implements IBean{
     getFace(): string{
         // if (!this.alive)
         //     return '💀';
-        if (this.state.data.act == 'buy' && this.state.data.good == 'shelter'){
+        if (this.state.data.act === 'buy' && this.state.data.good === 'shelter'){
             return '😴';
         }
-        if (this.state.data.act == 'crime'){
+        if (this.state.data.act === 'crime'){
             return '😈';
         }
-        if (this.state.data.act == 'relax'){
+        if (this.state.data.act === 'relax'){
             return '😎';
         }
-        if (this.state.data.act == 'chat'){
+        if (this.state.data.act === 'chat'){
             if (this.state.data.chat?.participation === 'speaker'){
                 switch(this.state.data?.chat?.type){
                     default: return '😃';
@@ -226,13 +226,13 @@ export class Bean implements IBean{
             }
             return '🤨';
         }
-        if (this.food == 'hungry')
+        if (this.food === 'hungry')
             return '😫';
-        if (this.health == 'sick')
+        if (this.health === 'sick')
             return '🤢';
-        if (this.shelter == 'podless')
+        if (this.shelter === 'podless')
             return '🥶';
-        if (this.job == 'jobless')
+        if (this.job === 'jobless')
             return '😧';
         if (this.lastHappiness < 0)
             return '☹️';
@@ -241,11 +241,11 @@ export class Bean implements IBean{
         return '😐';
     }
     getIdea(costOfLiving: number): {bad: boolean, idea: string}|null {
-        if (this.food == 'hungry')
+        if (this.food === 'hungry')
             return {bad: true, idea: '🍗'};
-        if (this.health == 'sick')
+        if (this.health === 'sick')
             return {bad: true, idea: '💊'};
-        if (this.shelter == 'podless')
+        if (this.shelter === 'podless')
             return {bad: true, idea: '🏠'};
         if (this.canBaby(costOfLiving))
             return {bad: false, idea: '👶'};
@@ -265,7 +265,7 @@ export class Bean implements IBean{
     ){
         const roll = Math.random();
         let chance = 0.05;
-        if (this.community == 'ego'){
+        if (this.community === 'ego'){
             chance += .1;
         }
         if (crimeReason === 'desperation' && this.health === 'sick' || this.food === 'hungry'){
@@ -289,7 +289,7 @@ export class Bean implements IBean{
         return false;
     }
     tryPurchase(cost: BeanResources) {
-        return (cost.sanity == undefined || this.discrete_sanity >= cost.sanity);
+        return (cost.sanity === undefined || this.discrete_sanity >= cost.sanity);
     }
     public maybeParanoid() {
         if (this.believesIn('Paranoia') && Math.random() < ParanoidUnhappyChance){
@@ -362,7 +362,7 @@ export class Bean implements IBean{
         }
     }
     work(law: Government, econ: Economy) {
-        if (this.job == 'jobless'){
+        if (this.job === 'jobless'){
         } else {
             switch(this.job){
                 case 'farmer':
@@ -390,7 +390,7 @@ export class Bean implements IBean{
             }
             this.ticksSinceLastSale++;
             if (this.ticksSinceLastSale > 7){
-                const cityHasOtherWorkers = this.city ? this.city.beans.filter(x => x.job == this.job).length > 1 : false;
+                const cityHasOtherWorkers = this.city ? this.city.beans.filter(x => x.job === this.job).length > 1 : false;
                 //underemployment
                 if (cityHasOtherWorkers && Math.random() > 0.5) {
                     const newJob = econ.mostInDemandJob();
@@ -480,7 +480,7 @@ export class Bean implements IBean{
             }
         }
             
-        if (this.shelter == 'podless')
+        if (this.shelter === 'podless')
             this.discrete_health -= 1/14;
         
         this.discrete_stamina--;
@@ -533,7 +533,7 @@ export class Bean implements IBean{
             !this.isInCrisis;
     }
     maybeEmote(): TraitEmote | null {
-        if (this.lifecycle == 'alive'){
+        if (this.lifecycle === 'alive'){
             const unhappy = Math.random();
             if (unhappy < this.unhappyChance)
                 return 'unhappiness';
@@ -564,7 +564,7 @@ export class Bean implements IBean{
         if (good === 'fun') return false;
         const roll = Math.random();
         let chance = 0.05;
-        if (this.community == 'ego'){
+        if (this.community === 'ego'){
             chance += .1;
         }
         if (this.isInCrisis){
@@ -591,7 +591,7 @@ export class Bean implements IBean{
         this.ticksSinceLastEmote = 0;
         this.discrete_sanity = MathClamp(this.discrete_sanity + EmotionSanity[emote], 0, 10);
         this.city?.addEmotePickup(this.key, emote);
-        if (this.believesIn('Hedonism') && (emote == 'happiness' || emote == 'love') && Math.random() < HedonismExtraChance){
+        if (this.believesIn('Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
             this.city?.addEmotePickup(this.key, emote);
         }
     }

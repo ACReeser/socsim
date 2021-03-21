@@ -136,12 +136,12 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // work traits
     Parochialism: {
         noun: 'Parochialism', adj: 'Parochial', icon: '🐮',
-        description: "Extra 👍 working 🌾. 👎 from dense houses",  //first part implemented
+        description: "Extra 👍 working 🌾; 👎 from dense houses",  //first part implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Cosmopolitanism: {
         noun: 'Cosmopolitanism', adj: 'Cosmopolitan', icon: '🍸',
-        description: "Extra 👍 working 🎻. 👎 from rural houses",  //first part implemented
+        description: "Extra 👍 working 🎻; 👎 from rural houses",  //first part implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Capitalism: {

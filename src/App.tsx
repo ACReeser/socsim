@@ -260,8 +260,8 @@ class App extends React.Component<AppPs, AppState>{
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.scan)) {
       this.state.world.alien.scanned_bean[bean.key] = true;
       bean.beliefs.forEach((b) => {
-        if (!this.state.world.alien.seen_beliefs.get.has(b)){
-          this.state.world.alien.seen_beliefs.add(b, true);
+        if (!this.state.world.alien.seenBeliefs.get.has(b)){
+          this.state.world.alien.seenBeliefs.add(b, true);
         }
       })
       this.setState({ world: this.state.world });
@@ -306,6 +306,7 @@ class App extends React.Component<AppPs, AppState>{
         bean.beliefs.indexOf(a), 1
       );
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+      this.state.world.alien.beliefInventory.push({trait: a, charges: 3});
       this.setState({ world: this.state.world });
       return true;
     }
@@ -459,7 +460,8 @@ class App extends React.Component<AppPs, AppState>{
             {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
           </Modal>
           <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
-            <TraitsReport world={this.state.world}></TraitsReport>
+            <TraitsReport seenBeliefs={this.state.world.alien.seenBeliefs} beliefInventory={this.state.world.alien.beliefInventory}
+            ></TraitsReport>
           </Modal>
           <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
             {(this.state.activeModal == 'brainwash' ? <BrainwashingContent
@@ -516,7 +518,7 @@ class App extends React.Component<AppPs, AppState>{
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🗳️ Gov</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
                 
-                <BubbleSeenTraitsText changeEvent={this.state.world.alien.seen_beliefs.onAdd} icon="🧠">
+                <BubbleSeenTraitsText changeEvent={this.state.world.alien.seenBeliefs.onAdd} icon="🧠">
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
                 </BubbleSeenTraitsText>
                 {/* <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button> */}

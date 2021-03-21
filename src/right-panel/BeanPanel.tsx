@@ -116,9 +116,9 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         }
     }
     beliefTable(beliefs: TraitBelief[]): React.ReactNode {
-        return beliefs.map((b) => {
+        return beliefs.map((b, i) => {
             const divergent = IsBeliefDivergent(b, this.props.party.ideals, this.props.party.community);
-            return <table className="width-100p" key={b}><tbody><tr>
+            return <table className="width-100p" key={b+i}><tbody><tr>
             <th className={divergent ? 'divergent text-left': "text-left"}>
                 {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
             </th>

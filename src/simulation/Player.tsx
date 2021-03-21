@@ -1,8 +1,9 @@
-import { ChangePubSub, LiveMap } from "../events/Events";
+import { ChangePubSub, LiveList, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
 import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
 import { IBean } from "./Agent";
+import { TraitBelief } from "./Beliefs";
 import { IDate } from "./Time";
 
 
@@ -186,10 +187,15 @@ export interface IPlayerTechProgress{
     researchPoints: number
 }
 export type TechProgress = {[key: string]: IPlayerTechProgress};
+export interface BeliefInventory{
+    trait: TraitBelief,
+    charges: number
+}
 
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
-    public seen_beliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
+    public seenBeliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
+    public beliefInventory = new LiveList<BeliefInventory>([]);
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
     public energy = { amount: 29, income: 2/30, change: new ChangePubSub()};
