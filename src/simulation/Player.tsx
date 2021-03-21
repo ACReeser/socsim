@@ -137,7 +137,7 @@ export function GetAverage(reportCard: IReportCard): Grade{
     ) / 20);
 }
 
-export type Tech = 'halve_sanity'|'fast_resources'|'trauma_nanobots'|'fast_leadership';
+export type Tech = 'halve_sanity'|'fast_resources'|'trauma_nanobots'|'fast_leadership'|'neural_duplicator';
 export interface ITechInfo{
     tech: Tech,
     /**
@@ -158,7 +158,7 @@ export const TechData: {[key in Tech]: ITechInfo} = {
         tech: 'fast_resources',
         name: '0 Dimensional Supersiphons',
         techPoints: 30,
-        description: 'Faster ⚡️🧠🤖 accumulation'
+        description: 'Faster ⚡️ and 🤖 accumulation'
     },
     'trauma_nanobots': {
         tech: 'trauma_nanobots',
@@ -171,6 +171,12 @@ export const TechData: {[key in Tech]: ITechInfo} = {
         name: 'Advanced Marketing',
         techPoints: 30,
         description: 'Faster 🗳️ Leadership accumulation'
+    },
+    'neural_duplicator': {
+        tech: 'neural_duplicator',
+        name: 'Level 2 Neural Duplication',
+        techPoints: 30,
+        description: 'Copy Traits 1 additional time'
     }
 }
 export interface IPlayerTechProgress{

@@ -84,7 +84,7 @@ export class ResearchPanel extends React.Component<{
       return <div>
           <div className="col-2">
             <div>
-              <h2>Research Lab</h2>
+              <h2>Research 🧪 Lab</h2>
               <div className="vertical">
                 {
                   techs.map((t) => this.renderTech(t))

@@ -37,6 +37,7 @@ import { Tech } from './simulation/Player';
 import { IEvent } from './events/Events';
 import { WorldSound } from './WorldSound';
 import { MarketPanel } from './right-panel/MarketPanel';
+import { TraitsReport } from './modal-content/TraitsReport';
 
 export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   state: 'Collectivist', ego: 'Independent',
@@ -50,7 +51,7 @@ export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Natural Scenery'
 };
 
-export type ModalView = 'policy' | 'economy' | 'campaign' | 'party_creation' | 'party' | 'polisci' | 'brainwash';
+export type ModalView = 'policy' | 'economy' | 'campaign' | 'party_creation' | 'party' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
 }
 interface AppState {
@@ -211,7 +212,7 @@ class App extends React.Component<AppPs, AppState>{
     if (this.state.world.alien.tryPurchase(cost)) {
       const old = this.state.world.alien.hedons.amount;
       this.state.world.alien.hedons.amount = 0;
-      this.state.world.alien.energy.change.publish({change: -old});
+      this.state.world.alien.hedons.change.publish({change: -old});
     }
 
     this.setState({ world: this.state.world });
@@ -453,6 +454,9 @@ class App extends React.Component<AppPs, AppState>{
           <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({ activeModal: null })}>
             {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
           </Modal>
+          <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
+            <TraitsReport world={this.state.world}></TraitsReport>
+          </Modal>
           <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
             {(this.state.activeModal == 'brainwash' ? <BrainwashingContent
               world={this.state.world} beanID={this.state.activeBeanID}
@@ -507,7 +511,7 @@ class App extends React.Component<AppPs, AppState>{
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🗳️ Gov</button>
                 <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
-                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'party' })}>🧠 Traits</button>
+                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
                 {/* <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button> */}
               </span>
             </div>

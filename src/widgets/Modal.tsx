@@ -21,7 +21,7 @@ export class Modal extends React.Component<modalPs> {
     }
     render() {
         if (!this.props.show) {
-        return null;
+            return null;
         }
         return (
         <div className="modal">
