@@ -15,6 +15,7 @@ import { CardButton, TraitToCard } from "../widgets/CardButton";
 import './BeanPanel.css';
 import { ActivityIcon, GetPriorities } from "../simulation/Agent";
 import { IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
+import { CostSmall } from "../widgets/CostSmall";
 
 interface BeanPanelP{
     city: City,
@@ -157,7 +158,6 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     }
     render(){
         const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
-        const chance = this.props.bean.chanceToDonate(this.props.economy, true);
         return (                
         <div className="vertical bean-panel">
             <div className="bean-panel-header">
@@ -192,7 +192,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             <div className="grow-1 pad-4">
                 <div className="cylinder blue-orange horizontal">
                     <button type="button" className={this.state.innerView=='beliefs'?'active':''} onClick={()=>this.setState({innerView:'beliefs'})}>
-                        😇 Beliefs
+                        😇 Traits
                     </button>
                     <button type="button" className={this.state.innerView=='feelings'?'active':''} onClick={()=>this.setState({innerView:'feelings'})}>
                         😐 Feelings
@@ -206,9 +206,9 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             <div className="bean-action-card-parent">
                 <div className="card-parent">
                     <button type="button" className="button card" onClick={() => this.props.brainwash()}
-                        title="Rewrite one of this being's beliefs"
+                        title="Rewrite one of this being's traits"
                     >😵 Brainwash
-                        <small>-Sanity +Belief</small>
+                        <small>-Sanity +-Trait</small>
                     </button>
                 </div>
                 <div className="card-parent">
@@ -228,7 +228,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         title="Delete this being from the experiment"
                     >
                         ☠️ Vaporize
-                        <small>-Bots -Energy</small>
+                        <CostSmall cost={this.props.alien.difficulty.cost.bean.vaporize}></CostSmall>
                     </button>
                 </div>
                 <div className="card-parent">
@@ -237,7 +237,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         title="Remove this being for study"
                     >
                         👾 Abduct for Research
-                        <small>-Bots -Sanity +Tech</small>
+                        <CostSmall cost={this.props.alien.difficulty.cost.bean.abduct} rider="+Tech"></CostSmall>
                     </button>
                 </div>
             </div>

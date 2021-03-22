@@ -59,7 +59,7 @@ export class HexPanel extends React.Component<{
         return <div className="card-parent">
         <button className="card button" type="button" onClick={() => this.props.beam(this.props.hex)}>
             🛸 Beam In New Subject
-            <CostSmall cost={this.props.difficulty.cost.hex.beam}></CostSmall>
+            <CostSmall cost={this.props.difficulty.cost.hex.beam} rider="+Subject"></CostSmall>
         </button>
     </div>
     }
@@ -69,6 +69,7 @@ export class HexPanel extends React.Component<{
         const hasJobs = b.type != 'park' && b.type != 'nature';
         return <div>
             <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>
+            <button type="button" className="pull-r" onClick={() => this.props.clearHex()}>❌</button>
         {
             b.upgraded && hasJobs ? <div>
                 {this.renderDensityWarning(b.type)}

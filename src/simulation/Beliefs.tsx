@@ -27,7 +27,7 @@ export type TraitBelief = 'Diligence'| // happy from work
 //'Sadism'| 
 'Antagonism'|
 'Enthusiasm'|
-'Gossip'|
+'Gossip'|'Extroversion'|
 'Charity'| // % to donate
 'Gluttony'|
 'Greed'; // steal easier
@@ -146,7 +146,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Capitalism: {
         noun: 'Capitalism', adj: 'Capitalist', icon: '🎩',
-        description: "👎 working in co-ops and communes",
+        description: "👎 working in co-ops and communes; Extra 👍 when owner",
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Socialism: {
@@ -219,9 +219,14 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // },
 
     // 🗣️ traits
+    Extroversion: {
+        noun: 'Extroversion', adj: 'Extrovert', icon: '🤩',
+        description: "Extra 🎲 to start a 🗣️", //implemented
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
     Gossip: {
         noun: 'Gossip', adj: 'Gossipy', icon: '📞',
-        description: "Extra 🎲 to start a 🗣️", //implemented
+        description: "🎲 to spread 👎 in a 🗣️", //implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Antagonism: {
@@ -252,6 +257,19 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     //     noun: 'Fanaticism', adj: 'Fanatical', icon: '👺',
     //     description: "🎲 to 👎 other 🎭",
     //     idealCon: ['prog'], idealPro: []
+    // },
+
+    // Depression: {
+    //     noun: 'Depression', adj: 'Depressive', icon: '😓',
+    //     description: "🎲 to 👎 when unhappy",
+    // },
+    // Optimism: {
+    //     noun: 'Optimism', adj: 'Optimistic', icon: '😺',
+    //     description: "🎲 to 👍 when unhappy",
+    // },
+    // Xenophobia: {
+    //     noun: 'Xenophobia', adj: 'Xenophobic', icon: '🛑',
+    //     description: "🎲 to 👎 when living with other hair colors",
     // },
 
     // super bad traits

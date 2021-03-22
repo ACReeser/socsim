@@ -29,8 +29,9 @@ const HedonismHateWorkChance = 0.15;
 const DiligenceHappyChance = 0.25;
 const ParochialHappyChance = 0.25;
 const CosmopolitanHappyChance = 0.25;
-const GossipChatExtraChance = 0.25;
+const ExtrovertChatExtraChance = 0.25;
 const AntagonismBullyChance = 0.45;
+const GossipBullyChance = 0.35;
 const EnthusiasmPraiseChance = 0.45;
 export class Bean implements IBean{
     public key: number = 0;
@@ -314,7 +315,7 @@ export class Bean implements IBean{
         const roll = Math.random();
         let chance = (this.community === 'state') ? 0.2 : 0.1;
         if (this.believesIn('Gossip')) 
-            chance += GossipChatExtraChance;
+            chance += ExtrovertChatExtraChance;
         return roll < chance;
     }
     public getRandomChat(nearby: Bean[]): IChatData {
@@ -347,6 +348,12 @@ export class Bean implements IBean{
                     participation: 'speaker',
                     type: 'bully',
                     preachBelief: 'Antagonism'
+                }
+            } else if(this.believesIn('Gossip') && Math.random() < GossipBullyChance){
+                return {
+                    participation: 'speaker',
+                    type: 'bully',
+                    preachBelief: 'Gossip'
                 }
             }
             return {

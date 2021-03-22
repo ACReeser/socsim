@@ -39,11 +39,15 @@ export class PetriBuilding extends React.Component<{
         });
     }
     render() {
-        return <div key={this.props.building.type+this.props.building.key} style={getBuildingTransform(this.props.city, this.props.building.type, this.props.building.key)} 
+        const bP = this.props.city.byType[this.props.building.type].coordByID[this.props.building.key];
+        const p = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, bP);
+        const sty = transformPoint(p);
+        return <div key={this.props.building.type+this.props.building.key} style={sty} 
         className={"building "+this.props.building.type}>
         {this.props.building.upgraded ? UpgradedBuildingIcon[this.props.building.type] : BuildingIcon[this.props.building.type]}
         {this.slots()}
         {this.props.building.type === 'courthouse' ? <span className="tile-label">{this.props.city.name}</span> : null}
+        {this.props.city.pickupMagnetPoint?.x === p.x && this.props.city.pickupMagnetPoint?.y === p.y ? <span className="tile-label">🧲</span> : null}
         </div>
     }
 }

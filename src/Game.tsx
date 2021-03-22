@@ -32,7 +32,7 @@ export function triadToString(cost: PlayerResources, sign: '+'|''|'-', qty: numb
         costs.push(sign+(cost.hedons*qty)+' Hedons');
     }
     if (cost.tortrons){
-        costs.push(sign+(cost.tortrons*qty)+' Tortrons');
+        costs.push(sign+(cost.tortrons*qty)+' Antihedons');
     }
     return costs.join(' ');
 }

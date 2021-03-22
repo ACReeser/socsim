@@ -168,12 +168,12 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                     </div>
                 </div>
             </div>
-            <div className="pad-4p">
+            {/* <div className="pad-4p">
                 {this.props.world.party.name} is a&nbsp;
                 {PrimaryBeliefData[this.props.world.party.community].adj} {PrimaryBeliefData[this.props.world.party.community].icon}&nbsp; 
                 {PrimaryBeliefData[this.props.world.party.ideals].adj} {PrimaryBeliefData[this.props.world.party.ideals].icon}&nbsp;
                 Utopia
-            </div>
+            </div> */}
             {this.renderOver()}
         </div>
     }

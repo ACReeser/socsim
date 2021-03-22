@@ -21,12 +21,18 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
         }
     }
     render() {
-        let header = null;
-        if (this.props.city) {
-            header = <div><div><b>{this.props.city.name}</b> {PrimaryBeliefData[this.props.utopia.community].icon} {PrimaryBeliefData[this.props.utopia.ideals].icon}
-                <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+        let header = <div>
+            Human Emotion Farm
+            <div>
+                <small>Part of the 🌌 Galactic Xenosensation Federation</small>
             </div>
-                <div> {PrimaryBeliefData[this.props.utopia.community].adj} {PrimaryBeliefData[this.props.utopia.ideals].adj} Utopia</div>
+        </div>;
+        if (this.props.city) {
+            header = <div>
+                <div>
+                    <b>{this.props.city.name}</b>
+                    <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
+                </div>
             </div>;
         }
         const avg_happy = this.props.beans.reduce((sum, x) => sum + x.lastHappiness, 0) / (this.props.beans.length || 1);

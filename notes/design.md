@@ -53,13 +53,11 @@ Time to work on your Xenosociology project!
 * Scanning earthlings to discover their beliefs
 * Disintegrating earthlings
 
-## Psi
+## Hedons
 ### Pump
 * Harvest from abducted earthlings
-* Granted by good utopia grades
 ### Sink
-* Brainwashing earthlings to change beliefs
-* Manipulating memories to hide your actions
+* galactic emotion market
 
 ## Bots
 ### Pump
@@ -104,6 +102,20 @@ Time to work on your Xenosociology project!
 * Disintegrating earthlings spreads severe insanity nearby
 * Agitating Earthlings can incite mobs? 
 
+## Public vs private economics
+
+* Buildings can be public and distribute profits to workers
+* Buildings can be private and distribute profits to owner
+
+## Goods vs Housing
+
+* Subjects work to create goods
+* Subjects require housing
+  * housing can be public and support more subjects with less comfort
+    * independence debuff
+  * housing can be private and support fewer subjects with more comfort
+    * collectivism debuff
+
 
 # Thoughtcrime and Beliefs
 
@@ -130,6 +142,50 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 | **Independence** 🦅| Indpendent | ego | depend on oneself | low % of persuasion |
 | **Elitism** 👑| Elitist | trad | strive for power | can 👎 lower classes  |
 | **Progressivism** ⚖️| Progressive |  prog | strive for equality | can 👎 higher classes  |
+
+quest to simplify terms => xeno/phile/phobe better than collectivism/independence
+
+### Previous Literature
+
+[World Values Survey](https://en.wikipedia.org/wiki/World_Values_Survey)
+
+**traditional to rational vs xenophobe to xenophile**
+* Traditional values (high faith, no divorce, high authority)
+  * collectivism
+* Secular-rational values (low faith, divorce, low authority)
+  * independence
+
+and
+
+* Survival values (security-seeking, low trust, low tolerance)
+  * elitism
+* Expression values (freedom-seeking, high trust, high tolerance)
+  * progressivism
+
+[Theory of Basic Human Values](https://en.wikipedia.org/wiki/Theory_of_Basic_Human_Values)
+
+**tradition to openness vs selfish to altruistic**
+
+* Openness to change (self-direction, stimulation, novelty)
+  * Progressivism
+* Conservation (security, conformity, tradition)
+  * Elitism
+
+and
+
+* Self-enhancement (hedonism, achievement, power)
+  * indepdendent
+* Self-transcendence (universalism, benevolence)
+  * Collectivism
+
+[Nolan Chart/Political Compass](https://en.wikipedia.org/wiki/Nolan_Chart)
+
+**Personal freedom vs Economic freedom**
+
+* Authoritarian (state control of liberties and economics)
+* Libertarian  (personal control of liberties and economics)
+* Liberal (personal control of liberties, state control of economics)
+* Conservative (state control of liberties, personal control of economics)
 
 ## narrative beliefs
 | belief (n) | (adj)| key  | desc | actions |
