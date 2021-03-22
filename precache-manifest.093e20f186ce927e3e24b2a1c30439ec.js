@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "0525256b2381f4c707796fb6341ee4bf",
+    "revision": "8b93ca09c7d7a081b25c933f05855830",
     "url": "/socsim/index.html"
   },
   {
-    "revision": "df2c8a0602f2231425bc",
+    "revision": "00487c385ce0a0f3d0b7",
     "url": "/socsim/static/css/main.420af8a7.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/socsim/static/js/2.4d589bcc.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "df2c8a0602f2231425bc",
-    "url": "/socsim/static/js/main.e5929a9d.chunk.js"
+    "revision": "00487c385ce0a0f3d0b7",
+    "url": "/socsim/static/js/main.17f0afd0.chunk.js"
   },
   {
     "revision": "07db42d5db22dc47575b",
