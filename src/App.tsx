@@ -38,6 +38,7 @@ import { IEvent } from './events/Events';
 import { WorldSound } from './WorldSound';
 import { MarketPanel } from './right-panel/MarketPanel';
 import { TraitsReport } from './modal-content/TraitsReport';
+import { GreetingPanel } from './modal-content/GreetingPanel';
 
 export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   state: 'Collectivist', ego: 'Independent',
@@ -51,7 +52,7 @@ export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Natural Scenery'
 };
 
-export type ModalView = 'policy' | 'economy' | 'campaign' | 'party_creation' | 'party' | 'polisci' | 'brainwash' | 'traits';
+export type ModalView = 'greeting' | 'policy' | 'economy' | 'campaign' | 'party_creation' | 'party' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
 }
 interface AppState {
@@ -79,7 +80,7 @@ class App extends React.Component<AppPs, AppState>{
       activeBeanID: null,
       activeHex: null,
       activeMain: 'geo',
-      activeModal: null,
+      activeModal: 'greeting',
       activeRightPanel: 'overview',
       timeScale: 0,
       spotlightEvent: undefined
@@ -441,6 +442,9 @@ class App extends React.Component<AppPs, AppState>{
           </TransformComponent>
         </TransformWrapper>
         <div className="overlay">
+          <Modal show={this.state.activeModal == 'greeting'} onClick={() => this.setState({ activeModal: null })}>
+            <GreetingPanel></GreetingPanel>
+          </Modal>
           <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({ activeModal: null })} hideCloseButton={true}>
             <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
           </Modal>

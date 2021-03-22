@@ -129,6 +129,16 @@ export function GenerateCity(previousCityCount: number, sfx: WorldSound): City{
 
     return newCity;
 }
+function getStartingPoint(city: City): HexPoint{
+    const house = GetRandom(city.byType.house.all);
+    if (house){
+        return city.byType.house.coordByID[house.key];
+    } else {
+        return {
+            q: 0, r: 0
+        }
+    }
+}
 export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: HexPoint, job?: TraitJob): Bean{
     let newBean = new Bean();
     
@@ -190,7 +200,7 @@ export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: H
     newBean.cash = StartingCash(newBean.job);
     newBean.discrete_food = 3;
 
-    city.movers.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || city.byType.house.coordByID[GetRandom(city.byType.house.all).key]);
+    city.movers.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || getStartingPoint(city));
     
     return newBean;
 }
