@@ -1,10 +1,11 @@
 import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './simulation/Bean';
 import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
-import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, Building } from './simulation/Geography';
+import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint } from './simulation/Geography';
 import { City } from './simulation/City';
 import { BeliefsAll } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
+import { Building } from './simulation/RealEstate';
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);

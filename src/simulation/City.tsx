@@ -10,6 +10,7 @@ import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
 import { IEventBus, LiveList, PubSub } from "../events/Events";
 import { WorldSound } from "../WorldSound";
+import { isEnterprise } from "./Institutions";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -94,6 +95,9 @@ export class City extends Geography implements Tile, IBeanContainer {
                 const slot = slots.shift() as BuildingJobSlot;
                 building.job_slots[slot] = bean.key;
                 bean.buildingKey = building.key;
+                if (isEnterprise(building) && building.ownerBeanKey == null){
+                    building.ownerBeanKey = bean.key;
+                }
                 return true;
             }
         }

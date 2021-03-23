@@ -1,4 +1,3 @@
-import { IChatData } from "../simulation/Agent";
 import { Point } from "../simulation/Geography";
 
 export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots';

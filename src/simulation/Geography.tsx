@@ -1,4 +1,6 @@
+import { LiveMap } from "../events/Events";
 import { TraitGood, TraitJob } from "../World";
+import { GetRandom } from "../WorldGen";
 import { BuildingJobSlot } from "./Occupation";
 import { MathClamp } from "./Utils";
 
@@ -266,43 +268,6 @@ export interface IBuilding{
      */
     tryFreeBean(beanKey: number): boolean;
 }
-export class Building implements IBuilding{
-    public key: number = 0;
-    public type: BuildingTypes = 'farm';
-    public occupied_slots: Point[] = [];
-    public empty_slots: Point[] = [];
-    public upgraded: boolean = false;
-    public job_slots: {[key in BuildingJobSlot]: number|null} = {
-        0: null,
-        1: null,
-        2: null,
-        3: null,
-        4: null,
-        5: null,
-    }
-    openSlots(): BuildingJobSlot[]{
-        return Object.keys(this.job_slots).filter((s, i) => {
-            return this.job_slots[+s as BuildingJobSlot] === null && (i < 3 || this.upgraded);
-        }).map((x) => +x);
-    }
-    usedSlots(): BuildingJobSlot[]{
-        return Object.keys(this.job_slots).filter((s) => {
-            return this.job_slots[+s as BuildingJobSlot] != null;
-        }).map((x) => +x);
-    }
-    tryFreeBean(beanKey: number): boolean{
-        const usedSlots = this.usedSlots();
-        for (let i = 0; i < usedSlots.length; i++) {
-            const slot = usedSlots[i];
-            const beanInSlot = this.job_slots[slot];
-            if (beanInSlot === beanKey){
-                this.job_slots[slot] = null;
-                return true;
-            }
-        }
-        return false;
-    }
-}
 
 /**
  * address books allow lookups from entity "name" to location
@@ -327,6 +292,45 @@ export interface AddressBuildingGrid extends AddressGrid<IBuilding>{}
 export interface BuildingMap{
     coordByID: AddressBookHex;
     all: IBuilding[];
+}
+
+export class CityBook {
+    /**
+     * given "q,r", return the IBuilding.key
+     */
+    public readonly map = new LiveMap<string, number>(new Map());
+    /**
+     * given IBuilding.type return the IBuilding[]
+     */
+    public readonly yellow = new Map<string, number[]>();
+    /**
+     * given IBuilding.key, return "q,r"
+     */
+    public readonly white = new Map<number, string>();
+    /**
+     * given IBuilding.key, return IBuilding
+     */
+    public readonly db = new LiveMap<number, IBuilding>(new Map());
+
+    constructor(){
+        
+    }
+
+    public getRandomBuildingOfType(buildingType: BuildingTypes): IBuilding|undefined{
+        const keysOfType: number[] = this.yellow.get(buildingType) || [];
+        const r = GetRandom(keysOfType);
+        return this.db.at(r);
+    }
+
+    public getRandomEntertainmentBuilding(): IBuilding|undefined{
+        const keysOfType: number[] = (this.yellow.get('park') || []).concat(this.yellow.get('nature') || []);
+        const r = GetRandom(keysOfType);
+        return this.db.at(r);
+    }
+
+    public getCountOfType(buildingType: BuildingTypes): number{
+        return Array.from(this.yellow.get(buildingType) || []).length;
+    }
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
@@ -360,6 +364,7 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
 };
 
 export class Geography{
+    public book: CityBook = new CityBook();
     public byCoord: AddressBuildingGrid = {};
     public byType: {[type in BuildingTypes]: BuildingMap} = {
         house: {coordByID: {}, all: []},

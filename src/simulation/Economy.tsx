@@ -4,6 +4,7 @@ import { IOrganization, Charity } from "./Institutions";
 import { City } from "./City";
 import { GetRandom } from "../WorldGen";
 import { IEvent, IEventBus } from "../events/Events";
+
 export interface IEconomicAgent{
     cash: number;
 }

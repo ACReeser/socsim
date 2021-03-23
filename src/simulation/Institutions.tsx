@@ -3,6 +3,18 @@ import { TraitGood, GoodToJob } from "../World";
 import { Policy } from "./Politics";
 import { Government } from "./Government";
 
+export type EnterpriseType = 'company'|'cooperative'|'commune';
+
+export interface IEnterprise extends ISeller{
+    key: number;
+    enterpriseType: EnterpriseType;
+    ownerBeanKey?: number;
+}
+
+export function isEnterprise(b: any): b is IEnterprise{
+    return b.key != undefined && b.enterpriseType != undefined;
+}
+
 export interface IInstitution{
     key: number;
     playerKey: number;
