@@ -8,7 +8,7 @@ import { Geography, HexPoint, IBuilding, JobToBuilding, Point } from "./Geograph
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
-import { IEventBus, LiveList, PubSub } from "../events/Events";
+import { IEventBus, Live, LiveList, PubSub } from "../events/Events";
 import { WorldSound } from "../WorldSound";
 import { isEnterprise } from "./Institutions";
 
@@ -81,7 +81,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     public law?: Government;
     public environment?: IDate;
     public eventBus?: IEventBus;
-    public pickupMagnetPoint?: Point;
+    public pickupMagnetPoint = new Live<Point|undefined>(undefined);
 
     tryGetJob(bean: Bean, job: TraitJob): boolean{
         if(job === 'jobless') return false;

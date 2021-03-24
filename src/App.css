@@ -174,7 +174,6 @@ button.pull-r{
   width: 122px;
   text-align: center;
   font-size: 14px;
-
 }
 .world .courthouse:hover .tile-label{
   opacity: .99;
@@ -182,6 +181,14 @@ button.pull-r{
   background: white;
   box-shadow: 0px 0px 6px 6px white;
 }
+.magnet{
+  pointer-events: none;
+  font-size: 11px;
+  position: absolute;
+  left: -5px;
+  top: -5px;
+}
+
 .pull-r{
   float: right;
 }

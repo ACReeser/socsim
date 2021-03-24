@@ -5,6 +5,7 @@ import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, 
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GetRandom } from "../WorldGen";
 import './Building.css';
+import { Magnet } from "./Magnet";
 
 const slot_size = {
     x: 25,
@@ -39,15 +40,14 @@ export class PetriBuilding extends React.Component<{
         });
     }
     render() {
-        const bP = this.props.building.address;
-        const p = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, bP);
+        const buildingHex = this.props.building.address;
+        const p = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, buildingHex);
         const sty = transformPoint(p);
         return <div key={this.props.building.type+this.props.building.key} style={sty} 
         className={"building "+this.props.building.type}>
         {this.props.building.upgraded ? UpgradedBuildingIcon[this.props.building.type] : BuildingIcon[this.props.building.type]}
         {this.slots()}
         {this.props.building.type === 'courthouse' ? <span className="tile-label">{this.props.city.name}</span> : null}
-        {this.props.city.pickupMagnetPoint?.x === p.x && this.props.city.pickupMagnetPoint?.y === p.y ? <span className="tile-label">🧲</span> : null}
         </div>
     }
 }

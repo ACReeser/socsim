@@ -13,6 +13,7 @@ import { AnimatedSpotlight } from "./AnimatedSpotlight";
 import { AnimatedPickup } from "./AnimatedPickup";
 import { PickupList } from "./Mover";
 import { PetriBuildings } from "./Buildings";
+import { Magnet } from "./Magnet";
 
 const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse', 'park', 'nature'];
 interface WorldTilePs {
@@ -40,13 +41,6 @@ export class WorldTile extends React.Component<WorldTilePs> {
     }
   }
   mtn_transforms: { transform: string }[] = [];
-  // renderBuildings(type: BuildingTypes) {
-  //   return this.props.city.book.getBuildings().map((b: IBuilding, i) => {
-  //     return (
-  //       <PetriBuilding city={this.props.city} building={b} key={type + i} ></PetriBuilding>
-  //     )
-  //   });
-  // }
   renderSpotlight(): JSX.Element | null {
     if (this.props.spotlightEvent) {
       const bean = this.props.city.historicalBeans.find((x) => x.key === this.props.spotlightEvent?.beanKey);
@@ -60,7 +54,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     return this.props.city.hexes.map((hex, i) => {
       const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
       return <div className="hex" key={i} style={transformPoint(xy)} 
-        onMouseEnter={(e) => { this.props.city.pickupMagnetPoint = xy; }}
+        onMouseEnter={(e) => { this.props.city.pickupMagnetPoint.set(xy); }}
         onClick={(e) => { this.props.onHexClick(hex); e.stopPropagation(); return false; }}>
         {/* todo: move renderbuildings to here */}
       </div>
@@ -80,14 +74,11 @@ export class WorldTile extends React.Component<WorldTilePs> {
     const ufos = this.props.city.ufos.map((u: UFO, i: number) => {
       return <AnimatedUFO ufo={u} key={u.key} city={this.props.city}></AnimatedUFO>
     });
-    // const buildings = supportedBuildings.reduce((list, type) => {
-    //   return list.concat(this.renderBuildings(type));
-    // }, [] as JSX.Element[]);
     const mtns = this.mtn_transforms.map((x, i) => {
       return <span key={i} style={x} className="mtn">⛰️</span>
     });
     return (
-      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.pickupMagnetPoint = undefined;}}>
+      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.pickupMagnetPoint.set(undefined);}}>
         <svg style={{ width: '100%', height: '100%' }} className="petri-base">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 1)" />
         </svg>
@@ -98,7 +89,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
         <PickupList movers={this.props.city.pickups}></PickupList>
         {beans}
         {ufos}
-        {/* <span className="tile-label">{this.props.tile.name}</span> */}
+        <Magnet pickupMagnetPoint={this.props.city.pickupMagnetPoint}></Magnet>
         <svg style={{ width: '100%', height: '100%' }} className="petri-lid">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />
         </svg>

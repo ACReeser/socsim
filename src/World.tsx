@@ -156,10 +156,11 @@ export class World implements IWorld, IBeanContainer, IActListener{
         for(let i = pickups.length - 1; i >= 0; i--) {
             const pickup = pickups[i];
             let collide = false;
-            if (city.pickupMagnetPoint){
+            const magnet = city.pickupMagnetPoint.get;
+            if (magnet){
                 collide = accelerate_towards(
                     pickup, 
-                    city.pickupMagnetPoint, 
+                    magnet, 
                     PickupPhysics.AccelerateS * deltaMS/1000, 
                     PickupPhysics.MaxSpeed, 
                     PickupPhysics.CollisionDistance,
@@ -177,22 +178,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 pickup.onAnimate.publish(pickup.point);
             }
         }
-        // if (city.pickupMagnetPoint){
-        //     const magnet = city.pickupMagnetPoint;
-        //     const pickedUpIDs: number[] = [];
-        //     city.pickups.forEach((p) => {
-        //         p.point = move_towards(p.point, magnet, deltaMS / 1000 * 80);
-        //         if (p.point.x === magnet.x && p.point.y === magnet.y){
-        //             pickedUpIDs.push(p.key);
-        //         } else {
-        //         }
-        //     });
-        //     if (pickedUpIDs.length){
-        //         for (let i = city.pickups.length - 1; i >= 0; i--) {
-        //             if (pickedUpIDs.includes(city.pickups[i].key))   
-        //         }
-        //     }
-        // }
     }
     onChat = (b: Bean, chat: IChatData) => {
         if (this.party && chat.preachBelief){
