@@ -4,6 +4,12 @@ import { Policy } from "./Politics";
 import { Government } from "./Government";
 
 export type EnterpriseType = 'company'|'cooperative'|'commune';
+export const EnterpriseTypes: EnterpriseType[] = ['company','cooperative','commune'];
+export const EnterpriseTypeIcon: {[e in EnterpriseType]: string} = {
+    'company': '🎩', 
+    'cooperative': '🤝', 
+    'commune': '⚒️'
+};
 
 export interface IEnterprise extends ISeller{
     key: number;

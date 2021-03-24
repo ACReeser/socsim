@@ -1,8 +1,10 @@
 import React from "react";
 import { keyToName } from "../App";
+import { Subtabs } from "../chrome/Subtab";
 import { IDifficulty } from "../Game";
 import { City } from "../simulation/City";
 import { BuildingIcon, BuildingJobIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
+import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, isEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";
 
 export class HexPanel extends React.Component<{
@@ -76,11 +78,14 @@ export class HexPanel extends React.Component<{
             </div> : null
         }
         {
+            <EnterpriseTypePicker building={b}></EnterpriseTypePicker>
+        }
+        {
             (slots.length === 0) ? null : <div>
                 <strong>Workers:</strong>
                 {
                     slots.map((x) => <div key={x}>
-                        {BuildingJobIcon[b.type]} {this.props.city.beans.find((y) => y.key === b.job_slots[x])?.name}
+                        {BuildingJobIcon[b.type]} {this.props.city.beans.find((y) => y.key === b.job_slots[x])?.name} {}
                     </div>)
                 }
             </div>
@@ -135,5 +140,25 @@ export class HexPanel extends React.Component<{
             return this.emptyPanel();
         }
     }
+}
 
+export const EnterpriseTypePicker: React.FC<{
+    building: IBuilding,
+}> = (props) => {
+    const b = props.building;
+    if (isEnterprise(b)){
+        const options = EnterpriseTypes.map((x) => {
+            return {
+                icon: EnterpriseTypeIcon[x],
+                text: x[0].toUpperCase()+x.substring(1),
+                value: x,
+                onClick: () => {
+                    b.enterpriseType = x;
+                }
+            }
+        })
+        return <Subtabs active={b.enterpriseType} options={options}></Subtabs>
+    } else {
+        return null
+    }
 }

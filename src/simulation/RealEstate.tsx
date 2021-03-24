@@ -43,7 +43,7 @@ export class Building implements IBuilding, IEnterprise{
                     this.bank = 0;
                 }
                 else {
-                    const share = this.bank / (workers.length + 2);
+                    const share = this.bank / (workers.length + 0.5);
                     this.bank = 0;
                     let owner = workers.find(x => x.key === this.ownerBeanKey);
                     if (owner == null){
@@ -52,7 +52,7 @@ export class Building implements IBuilding, IEnterprise{
                     }
                     workers.forEach(x => {
                         if (x === owner){
-                            x.cash += share * 3;
+                            x.cash += share * 1.5;
                         } else {
                             x.cash += share;
                         }
@@ -61,12 +61,14 @@ export class Building implements IBuilding, IEnterprise{
                 break;
             case 'cooperative':
                 const share = this.bank / workers.length;
+                this.bank = 0;
                 workers.forEach(x => {
                     x.cash += share;
                 });
                 break;
             case 'commune':
                 const commShare = this.bank / workers.length;
+                this.bank = 0;
                 workers.forEach(x => {
                     x.cash += commShare;
                 });
