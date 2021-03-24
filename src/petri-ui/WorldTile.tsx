@@ -2,7 +2,7 @@ import { Tile } from "../World";
 import { Bean } from "../simulation/Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, getBuildingTransform, transformPoint, HexPoint, Point } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformPoint, HexPoint, Point } from "../simulation/Geography";
 import { PetriBuilding } from "./Building";
 import { PI2 } from "../WorldGen";
 import { City, Pickup, UFO } from "../simulation/City";
@@ -12,6 +12,7 @@ import { Particles } from "../widgets/particles";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 import { AnimatedPickup } from "./AnimatedPickup";
 import { PickupList } from "./Mover";
+import { PetriBuildings } from "./Buildings";
 
 const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse', 'park', 'nature'];
 interface WorldTilePs {
@@ -39,13 +40,13 @@ export class WorldTile extends React.Component<WorldTilePs> {
     }
   }
   mtn_transforms: { transform: string }[] = [];
-  renderBuildings(type: BuildingTypes) {
-    return this.props.city.byType[type].all.map((b: IBuilding, i) => {
-      return (
-        <PetriBuilding city={this.props.city} building={b} key={type + i} ></PetriBuilding>
-      )
-    });
-  }
+  // renderBuildings(type: BuildingTypes) {
+  //   return this.props.city.book.getBuildings().map((b: IBuilding, i) => {
+  //     return (
+  //       <PetriBuilding city={this.props.city} building={b} key={type + i} ></PetriBuilding>
+  //     )
+  //   });
+  // }
   renderSpotlight(): JSX.Element | null {
     if (this.props.spotlightEvent) {
       const bean = this.props.city.historicalBeans.find((x) => x.key === this.props.spotlightEvent?.beanKey);
@@ -79,9 +80,9 @@ export class WorldTile extends React.Component<WorldTilePs> {
     const ufos = this.props.city.ufos.map((u: UFO, i: number) => {
       return <AnimatedUFO ufo={u} key={u.key} city={this.props.city}></AnimatedUFO>
     });
-    const buildings = supportedBuildings.reduce((list, type) => {
-      return list.concat(this.renderBuildings(type));
-    }, [] as JSX.Element[]);
+    // const buildings = supportedBuildings.reduce((list, type) => {
+    //   return list.concat(this.renderBuildings(type));
+    // }, [] as JSX.Element[]);
     const mtns = this.mtn_transforms.map((x, i) => {
       return <span key={i} style={x} className="mtn">⛰️</span>
     });
@@ -93,7 +94,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
         {this.renderHexes()}
         {mtns}
         {/* {deaths} */}
-        {buildings}
+        <PetriBuildings city={this.props.city}></PetriBuildings>
         <PickupList movers={this.props.city.pickups}></PickupList>
         {beans}
         {ufos}

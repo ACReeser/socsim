@@ -79,7 +79,7 @@ export class HexPanel extends React.Component<{
             (slots.length === 0) ? null : <div>
                 <strong>Workers:</strong>
                 {
-                    slots.map((x) => <div>
+                    slots.map((x) => <div key={x}>
                         {BuildingJobIcon[b.type]} {this.props.city.beans.find((y) => y.key === b.job_slots[x])?.name}
                     </div>)
                 }
@@ -128,7 +128,7 @@ export class HexPanel extends React.Component<{
 
     }
     render(){
-        const building: IBuilding|undefined = this.props.city.lookupBuilding(this.props.hex);
+        const building: IBuilding|undefined = this.props.city.book.findBuildingByCoordinate(this.props.hex);
         if (building){
             return this.buildingPanel(building)
         } else {

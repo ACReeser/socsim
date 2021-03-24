@@ -85,11 +85,10 @@ export class City extends Geography implements Tile, IBeanContainer {
 
     tryGetJob(bean: Bean, job: TraitJob): boolean{
         if(job === 'jobless') return false;
-        const buildingType = JobToBuilding[job];
-        const all = this.byType[buildingType].all;
+        const allOfType = this.book.getBuildings().filter((x) => x.type === JobToBuilding[job]);
         
-        for (let i = 0; i < all.length; i++) {
-            const building = all[i];
+        for (let i = 0; i < allOfType.length; i++) {
+            const building = allOfType[i];
             const slots = building.openSlots();
             if (slots.length > 0){
                 const slot = slots.shift() as BuildingJobSlot;
@@ -106,8 +105,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     }
     unsetJob(bean: Bean){
         if (bean.job === 'jobless') return;
-        const buildingType = JobToBuilding[bean.job];
-        const all = this.byType[buildingType].all;
+        const all = this.book.getBuildings();
         for (let i = 0; i < all.length; i++) {
             const building = all[i];
             if (building.tryFreeBean(bean.key)){

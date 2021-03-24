@@ -64,8 +64,9 @@ export function GetBuildingR(type: BuildingTypes): number{
 export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPoint){
     const newBuilding = new Building();
     newBuilding.type = type;
-    newBuilding.key = geo.numberOf(type);
-    geo.addBuilding(hex, newBuilding);
+    newBuilding.key = geo.book.getBuildings().length;
+    newBuilding.address = hex;
+    geo.addBuilding(newBuilding);
 }
 
 const Number_Starting_Cities = 1;
@@ -131,9 +132,9 @@ export function GenerateCity(previousCityCount: number, sfx: WorldSound): City{
     return newCity;
 }
 function getStartingPoint(city: City): HexPoint{
-    const house = GetRandom(city.byType.house.all);
+    const house = city.book.getRandomBuildingOfType('house');
     if (house){
-        return city.byType.house.coordByID[house.key];
+        return house.address;
     } else {
         return {
             q: 0, r: 0

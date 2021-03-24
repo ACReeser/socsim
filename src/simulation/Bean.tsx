@@ -139,8 +139,8 @@ export class Bean implements IBean{
         if (this.ideals === 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
             mods.push({reason: 'Xenophobic', mod: -.1});
         }
-        if (this.community === 'ego' && this.job != 'jobless' && 
-            homeCity.byType[JobToBuilding[this.job]].all.find(x => x.key === this.buildingKey)?.upgraded) {
+        if (this.community === 'ego' && this.job != 'jobless' && this.buildingKey &&
+            homeCity.book.db.get.get(this.buildingKey)?.upgraded) {
             mods.push({reason: 'Hates Building Density', mod: -.1});
         }
         if (this.cash < 1) {

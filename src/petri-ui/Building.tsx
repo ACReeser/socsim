@@ -1,7 +1,7 @@
 
 import React from "react";
 import { City } from "../simulation/City";
-import { IBuilding, BuildingIcon, BuildingTypes, Geography, getBuildingTransform, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GetRandom } from "../WorldGen";
 import './Building.css';
@@ -39,7 +39,7 @@ export class PetriBuilding extends React.Component<{
         });
     }
     render() {
-        const bP = this.props.city.byType[this.props.building.type].coordByID[this.props.building.key];
+        const bP = this.props.building.address;
         const p = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, bP);
         const sty = transformPoint(p);
         return <div key={this.props.building.type+this.props.building.key} style={sty} 

@@ -237,26 +237,13 @@ export interface CubicPoint extends Point{
     z: number;
 }
 
-
-/**
- * matter lookup, returns CSS transforms for translation
- * @param geo 
- * @param type 
- * @param key 
- */
-export function getBuildingTransform(geo: Geography, type: BuildingTypes, key: number){
-    const p = geo.byType[type].coordByID[key];
-    if (p)
-        return transformPoint(hex_to_pixel(geo.hex_size, geo.petriOrigin, p));
-    else
-        return {background: 'red'}
-}
 export function transformPoint(p: Point){
     return {transform:`translate(${p.x}px, ${p.y}px)`};
 }
 
 export interface IBuilding{
     key: number;
+    address: HexPoint;
     type: BuildingTypes;
     job_slots: {[key in BuildingJobSlot]: number|null};
     upgraded: boolean,
@@ -302,34 +289,77 @@ export class CityBook {
     /**
      * given IBuilding.type return the IBuilding[]
      */
-    public readonly yellow = new Map<string, number[]>();
+    public readonly yellow = new LiveMap<string, number[]>(new Map());
     /**
      * given IBuilding.key, return "q,r"
      */
-    public readonly white = new Map<number, string>();
+    public readonly white = new LiveMap<number, string>(new Map());
     /**
      * given IBuilding.key, return IBuilding
      */
-    public readonly db = new LiveMap<number, IBuilding>(new Map());
+    public readonly db: LiveMap<number, IBuilding>;
 
-    constructor(){
-        
+    constructor(_db: Map<number, IBuilding>){
+        this.db = new LiveMap<number, IBuilding>(_db);
+        this.buildIndexes();
     }
 
+    private buildIndexes(){
+        const keys = Array.from(this.db.get.keys());
+        const ix = { 
+            map: new Map<string, number>(),
+            yellow: new Map<string, number[]>(),
+            white: new Map<number, string>()
+        }
+        keys.forEach((key: number) => {
+            const b = this.db.get.get(key);
+            if (b){
+                const address = b.address.q+','+b.address.r;
+                ix.map.set(address, b.key);
+                ix.white.set(b.key, address);
+                const group = ix.yellow.get(b.type) || []
+                ix.yellow.set(b.type, group.concat([b.key]));
+            }
+
+        });
+        this.white.set(ix.white);
+        this.map.set(ix.map);
+        this.yellow.set(ix.yellow);
+    }
+
+    public addBuilding(b: IBuilding){
+        this.db.add(b.key, b);
+        this.buildIndexes();
+    }
+    public removeBuilding(b: IBuilding){
+        this.db.remove(b.key);
+        this.buildIndexes();
+    }
+
+    public getBuildings(): IBuilding[]{
+        return Array.from(this.db.get.values());
+    }
+    public findBuildingByCoordinate(h: HexPoint){
+        const address = h.q+','+h.r;
+        const key = this.map.get.get(address);
+        if (key) 
+            return this.db.get.get(key);
+        return undefined;
+    }
     public getRandomBuildingOfType(buildingType: BuildingTypes): IBuilding|undefined{
-        const keysOfType: number[] = this.yellow.get(buildingType) || [];
+        const keysOfType: number[] = this.yellow.get.get(buildingType) || [];
         const r = GetRandom(keysOfType);
         return this.db.at(r);
     }
 
     public getRandomEntertainmentBuilding(): IBuilding|undefined{
-        const keysOfType: number[] = (this.yellow.get('park') || []).concat(this.yellow.get('nature') || []);
+        const keysOfType: number[] = (this.yellow.get.get('park') || []).concat(this.yellow.get.get('nature') || []);
         const r = GetRandom(keysOfType);
         return this.db.at(r);
     }
 
     public getCountOfType(buildingType: BuildingTypes): number{
-        return Array.from(this.yellow.get(buildingType) || []).length;
+        return Array.from(this.yellow.get.get(buildingType) || []).length;
     }
 }
 
@@ -364,41 +394,20 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
 };
 
 export class Geography{
-    public book: CityBook = new CityBook();
-    public byCoord: AddressBuildingGrid = {};
-    public byType: {[type in BuildingTypes]: BuildingMap} = {
-        house: {coordByID: {}, all: []},
-        farm: {coordByID: {}, all: []},
-        hospital: {coordByID: {}, all: []},
-        theater: {coordByID: {}, all: []},
-        courthouse: {coordByID: {}, all: []},
-        church: {coordByID: {}, all: []},
-        park: {coordByID: {}, all: []},
-        nature: {coordByID: {}, all: []},
-    }
+    public book: CityBook = new CityBook(new Map());
      
     public movers: {[key in MoverTypes]: AddressBookPoint} = {
         bean: {},
         ufo: {},
         pickup: {}
     };
-    public numberOf(type: BuildingTypes): number {
-        return this.byType[type].all.length;
-    }
-    lookupBuilding(hex: HexPoint): undefined|IBuilding {
-        return this.byCoord[hex.q+','+hex.r];
-    }
-    addBuilding(where: HexPoint, building: IBuilding) {
-        this.byType[building.type].all.push(building);
-        this.byType[building.type].coordByID[building.key] = where;
-        this.byCoord[where.q+','+where.r] = building;
+    
+    addBuilding(building: IBuilding) {
+        this.book.addBuilding(building);
         return null;
     }
     removeBuilding(where: HexPoint, building: IBuilding) {
-        const i = this.byType[building.type].all.indexOf(building);
-        this.byType[building.type].all.splice(i, 1);
-        delete this.byType[building.type].coordByID[building.key];
-        this.byCoord[where.q+','+where.r] = undefined;
+        this.book.removeBuilding(building);
         return null;
     }
     public numberOfRings = 5;

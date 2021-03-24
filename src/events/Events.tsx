@@ -84,6 +84,11 @@ export class LiveMap<K, V> extends Live<Map<K, V>>{
         this.set(copy);
         this.onAdd.publish({k: newKey, v: newValue});
     }
+    public remove(key: K){
+        const copy = new Map<K, V>(this.current);
+        copy.delete(key);
+        this.set(copy);
+    }
     public at(key: K): V|undefined{
         return this.current.get(key);
     }

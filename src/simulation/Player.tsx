@@ -47,8 +47,8 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     build_house_n_farm: {
         key: 'build_house_n_farm', text: 'Build a house and farm',
         check: (world) => {
-            return world.cities[0].byType.house.all.length > 0 &&
-            world.cities[0].byType.farm.all.length > 0;
+            return world.cities[0].book.getCountOfType('house') > 0 &&
+            world.cities[0].book.getCountOfType('house') > 0;
         },
         reward: {
             energy: 3, bots: 3

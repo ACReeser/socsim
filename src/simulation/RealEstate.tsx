@@ -1,12 +1,13 @@
 import { Bean } from "./Bean";
 import { City } from "./City";
-import { BuildingTypes, IBuilding, Point } from "./Geography";
+import { BuildingTypes, HexPoint, IBuilding, Point } from "./Geography";
 import { EnterpriseType, IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 
 export class Building implements IBuilding, IEnterprise{
     public city?: City;
     public key: number = 0;
+    public address: HexPoint = {q: 0, r: 0};
     public type: BuildingTypes = 'farm';
     public occupied_slots: Point[] = [];
     public empty_slots: Point[] = [];

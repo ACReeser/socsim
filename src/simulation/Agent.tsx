@@ -157,10 +157,11 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
             case 'work':
                 return RouteRandom(city, agent, JobToBuilding[agent.job]);
             case 'relax': {
-                const parks = city.byType.park.all.concat(city.byType.nature.all);
-                const destination: IBuilding = GetRandom(parks);
-                agent.destinationKey = destination.key;
-                return Route(city, agent, destination);
+                const destination = city.book.getRandomEntertainmentBuilding();
+                if (destination){
+                    agent.destinationKey = destination.key;
+                    return Route(city, agent, destination);
+                }
             }
         }
     }
@@ -473,7 +474,7 @@ export function Step(geo: Geography, mover: IMover){
  * @param buildingType 
  */
 export function RouteRandom(geo: Geography, mover: IMover, buildingType: BuildingTypes): Point[]|null{
-    const destination: IBuilding = GetRandom(geo.byType[buildingType].all);
+    const destination: IBuilding|undefined = geo.book.getRandomBuildingOfType(buildingType);
     if (destination === undefined) return null;
     mover.destinationKey = destination.key;
     return Route(geo, mover, destination);
@@ -486,10 +487,9 @@ export function RouteRandom(geo: Geography, mover: IMover, buildingType: Buildin
  * @param buildingType 
  */
 export function Route(geo: Geography, mover: IMover, destination: IBuilding){
-    const address: HexPoint = geo.byType[destination.type].coordByID[destination.key];
     const start = geo.movers['bean'][mover.key];
     const nearestHex = pixel_to_hex(geo.hex_size, geo.petriOrigin, start);
-    return hex_linedraw(nearestHex, address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h)).map((x, i, a) => {
+    return hex_linedraw(nearestHex, destination.address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h)).map((x, i, a) => {
         if (i === a.length-1){
             const offset = getRandomSlotOffset();
             return {
