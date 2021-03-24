@@ -66,6 +66,8 @@ export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPo
     newBuilding.type = type;
     newBuilding.key = geo.book.getBuildings().length;
     newBuilding.address = hex;
+    if (geo instanceof City)
+        newBuilding.city = geo;
     geo.addBuilding(newBuilding);
 }
 

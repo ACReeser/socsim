@@ -343,7 +343,7 @@ export const GetPriority = {
             //beans with no inventory prioritize work higher
             let inventory_priority = 99;
             if (bean.city.economy){
-                const quant = bean.city.economy.market.getBeansListings(bean.cityKey, bean.key, JobToGood(bean.job))?.quantity || 0;
+                const quant = bean.city.economy.market.getStakeListings(bean.key, bean.employerEnterpriseKey, JobToGood(bean.job))?.quantity || 0;
                 inventory_priority = quant;
             }
             //beans with lots of cash prioritize work higher

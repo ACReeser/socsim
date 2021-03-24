@@ -7,6 +7,7 @@ export type EnterpriseType = 'company'|'cooperative'|'commune';
 
 export interface IEnterprise extends ISeller{
     key: number;
+    cityKey: number;
     enterpriseType: EnterpriseType;
     ownerBeanKey?: number;
 }
@@ -48,7 +49,7 @@ export class Charity implements IOrganization, ISeller{
         while(this.cash > 0 && this.inventory < 10) {
             const groceries = economy.tryTransact(this, this.good);
             if (groceries){
-                economy.addCharity(this, this.good, groceries.bought);
+                //economy.addCharity(this, this.good, groceries.bought);
             } else {
                 break;
             }

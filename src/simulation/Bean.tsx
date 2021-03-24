@@ -13,6 +13,7 @@ import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
 import { BeanResources } from "../Game";
 import { MathClamp } from "./Utils";
+import { Building } from "./RealEstate";
 
 const BabyChance = 0.01;
 const HappyChance = 0.01;
@@ -89,7 +90,7 @@ export class Bean implements IBean{
     public ideals: TraitIdeals = 'trad';
     //other
     public job: TraitJob = 'jobless';
-    public buildingKey?: number;
+    public employerEnterpriseKey?: number;
     public faith: TraitFaith = 'noFaith';
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
@@ -139,8 +140,8 @@ export class Bean implements IBean{
         if (this.ideals === 'trad' && this.ethnicity != homeCity.majorityEthnicity) {
             mods.push({reason: 'Xenophobic', mod: -.1});
         }
-        if (this.community === 'ego' && this.job != 'jobless' && this.buildingKey &&
-            homeCity.book.db.get.get(this.buildingKey)?.upgraded) {
+        if (this.community === 'ego' && this.job != 'jobless' && this.employerEnterpriseKey &&
+            homeCity.book.db.get.get(this.employerEnterpriseKey)?.upgraded) {
             mods.push({reason: 'Hates Building Density', mod: -.1});
         }
         if (this.cash < 1) {
@@ -405,7 +406,16 @@ export class Bean implements IBean{
                         this.trySetJob(newJob);
                 }
             }
-            econ.produceAndPrice(this, JobToGood(this.job), 4, this.fairGoodPrice);
+            let workedForEmployer = false;
+            if (this.city && this.employerEnterpriseKey){
+                const employer = this.city.getEnterprise(this.employerEnterpriseKey);
+                if (employer){
+                    econ.employAndPrice(employer, JobToGood(this.job), 4, this.fairGoodPrice);
+                    workedForEmployer = true;
+                }
+            }
+            if (!workedForEmployer)
+                econ.produceAndPrice(this, JobToGood(this.job), 4, this.fairGoodPrice);
         }
     }
     private buyFood(economy: Economy) {

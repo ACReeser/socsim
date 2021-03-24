@@ -93,7 +93,7 @@ export class City extends Geography implements Tile, IBeanContainer {
             if (slots.length > 0){
                 const slot = slots.shift() as BuildingJobSlot;
                 building.job_slots[slot] = bean.key;
-                bean.buildingKey = building.key;
+                bean.employerEnterpriseKey = building.key;
                 if (isEnterprise(building) && building.ownerBeanKey == null){
                     building.ownerBeanKey = bean.key;
                 }
@@ -109,7 +109,7 @@ export class City extends Geography implements Tile, IBeanContainer {
         for (let i = 0; i < all.length; i++) {
             const building = all[i];
             if (building.tryFreeBean(bean.key)){
-                bean.buildingKey = undefined;
+                bean.employerEnterpriseKey = undefined;
                 break;
             }
         }

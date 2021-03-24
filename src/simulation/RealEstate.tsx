@@ -7,6 +7,7 @@ import { BuildingJobSlot } from "./Occupation";
 export class Building implements IBuilding, IEnterprise{
     public city?: City;
     public key: number = 0;
+    public cityKey: number = 0;
     public address: HexPoint = {q: 0, r: 0};
     public type: BuildingTypes = 'farm';
     public occupied_slots: Point[] = [];
@@ -42,7 +43,7 @@ export class Building implements IBuilding, IEnterprise{
                     this.bank = 0;
                 }
                 else {
-                    const share = this.bank / workers.length + 2;
+                    const share = this.bank / (workers.length + 2);
                     this.bank = 0;
                     let owner = workers.find(x => x.key === this.ownerBeanKey);
                     if (owner == null){
