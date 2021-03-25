@@ -101,7 +101,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <div className="col-2">
             <div>
               <strong>🏡 Housing</strong> <br/>
-              <NeedReadout beans={this.props.world.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner" className="big"></NeedReadout>
+              <NeedReadout beans={this.props.world.beans} need={(b) => b.stamina} dire="homeless" abundant="rested" className="big"></NeedReadout>
               <table className="width-100p">
                 <tbody>
                   <tr>

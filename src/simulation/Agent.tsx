@@ -1,7 +1,7 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote } from "../World";
 import { GetRandom } from "../WorldGen";
 import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
@@ -122,7 +122,7 @@ export class IdleState extends AgentState{
     static substituteIntent(agent: IAgent, intent: IActivityData): IActivityData|null{
         if (intent.act === 'buy' && intent.good != null && agent instanceof Bean){
             const desiredGoodState = agent.canBuy(intent.good);
-            if (desiredGoodState != 'yes' && intent.good === 'fun')
+            if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
                 intent.act = 'relax'; //relaxing is free!
             else if (desiredGoodState === 'pricedout') {
                 if (agent instanceof Bean && agent.maybeCrime(intent.good)){
@@ -354,16 +354,22 @@ export const GetPriority = {
         }
     },
     food: function(bean:Bean, difficulty: IDifficulty): number{
+        if ((bean.discrete_food <= difficulty.bean_life.vital_thresh.food.warning ))
+            return bean.discrete_food;
         return 0.5 + (bean.discrete_food / difficulty.bean_life.vital_thresh.food.sufficient )
     },
-    shelter: function(bean:Bean, difficulty: IDifficulty): number{
-        return 1 + (bean.discrete_stamina / difficulty.bean_life.vital_thresh.shelter.sufficient )
-    },
     medicine:function(bean:Bean, difficulty: IDifficulty): number{
+        if ((bean.discrete_health <= difficulty.bean_life.vital_thresh.medicine.warning ))
+            return 0.25 + bean.discrete_health;
         return 0.75 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
     },
+    stamina: function(bean:Bean, difficulty: IDifficulty): number{
+        if ((bean.discrete_stamina <= difficulty.bean_life.vital_thresh.shelter.warning ))
+            return 0.50 + bean.discrete_stamina;
+        return 1 + (bean.discrete_stamina / difficulty.bean_life.vital_thresh.shelter.sufficient )
+    },
     fun:function(bean:Bean, difficulty: IDifficulty): number{
-        return 2 + (bean.lastHappiness / 100 * 1.25 )
+        return 3
     }
 }
 
@@ -373,7 +379,7 @@ export function GetPriorities(bean: Bean, difficulty: IDifficulty): IPriorityQue
     queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, difficulty));
     queue.enqueue(node);
-    node = new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.shelter(bean, difficulty));
+    node = new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.stamina(bean, difficulty));
     queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, difficulty));
     queue.enqueue(node);
@@ -436,7 +442,7 @@ export interface IBean extends ISeller, IMover, IAgent{
     ideals: TraitIdeals;
     ethnicity: TraitEthno;
     faith: TraitFaith;
-    shelter: TraitShelter;
+    stamina: TraitStamina;
     health: TraitHealth;
     discrete_food: number;
     discrete_sanity: number;

@@ -186,7 +186,7 @@ button.pull-r{
   font-size: 11px;
   position: absolute;
   left: -5px;
-  top: -5px;
+  top: 0px;
 }
 
 .pull-r{

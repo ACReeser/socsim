@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitShelter, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity } from "../World";
 import { RandomEthno, GetRandom, GetRandomNumber } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -72,16 +72,20 @@ export class Bean implements IBean{
         return 'stuffed';
         else if (this.discrete_food >= GoodToThreshold['food'].sufficient)
         return 'sated'
+        else if (this.discrete_food >= GoodToThreshold['food'].warning)
+        return 'hungry'
         else
-        return 'hungry';
+        return 'starving';
     }
-    public shelter: TraitShelter = 'crowded';
+    public stamina: TraitStamina = 'awake';
     public discrete_health: number = 2;
     public get health(): TraitHealth {
         if (this.discrete_health >= GoodToThreshold['medicine'].abundant)
         return 'fresh';
         else if (this.discrete_health >= GoodToThreshold['medicine'].sufficient)
         return 'bruised'
+        else if (this.discrete_health >= GoodToThreshold['medicine'].warning)
+        return 'sickly'
         else
         return 'sick';
     }
@@ -117,8 +121,8 @@ export class Bean implements IBean{
     public fairGoodPrice: number = 1;
     public lastChatMS: number = Date.now();
     get isInCrisis(): boolean{
-        return this.food === 'hungry' ||
-        this.shelter === 'podless' ||
+        return this.food === 'starving' ||
+        this.stamina === 'homeless' ||
         this.health === 'sick';
     }
     believesIn(belief: TraitBelief): boolean{
@@ -131,7 +135,7 @@ export class Bean implements IBean{
     getHappinessModifiers(econ: Economy, homeCity: City, law: Government): IHappinessModifier[]{
         const mods: IHappinessModifier[] = [
             TraitToModifier[this.food],
-            TraitToModifier[this.shelter],
+            TraitToModifier[this.stamina],
             TraitToModifier[this.health],
             {
                 reason: 'Entertainment', mod: this.discrete_fun*.4
@@ -228,11 +232,11 @@ export class Bean implements IBean{
             }
             return '🤨';
         }
-        if (this.food === 'hungry')
+        if (this.food === 'starving')
             return '😫';
         if (this.health === 'sick')
             return '🤢';
-        if (this.shelter === 'podless')
+        if (this.stamina === 'homeless')
             return '🥶';
         if (this.job === 'jobless')
             return '😧';
@@ -245,9 +249,9 @@ export class Bean implements IBean{
     getIdea(costOfLiving: number): {bad: boolean, idea: string}|null {
         if (this.food === 'hungry')
             return {bad: true, idea: '🍗'};
-        if (this.health === 'sick')
+        if (this.health === 'sickly')
             return {bad: true, idea: '💊'};
-        if (this.shelter === 'podless')
+        if (this.stamina === 'homeless')
             return {bad: true, idea: '🏠'};
         if (this.canBaby(costOfLiving))
             return {bad: false, idea: '👶'};
@@ -270,7 +274,7 @@ export class Bean implements IBean{
         if (this.community === 'ego'){
             chance += .1;
         }
-        if (crimeReason === 'desperation' && this.health === 'sick' || this.food === 'hungry'){
+        if (crimeReason === 'desperation' && this.health === 'sick' || this.food === 'starving'){
             chance += .15;
         }
         return chance <= roll;
@@ -382,7 +386,7 @@ export class Bean implements IBean{
                     this.discrete_health = Math.min(this.discrete_health+1, GoodToThreshold.medicine.sufficient*2);
                     break;
                 case 'builder': 
-                    this.shelter = 'crowded';
+                    this.stamina = 'awake';
                     this.discrete_stamina = 7;
                     break;
                 case 'entertainer':
@@ -461,9 +465,9 @@ export class Bean implements IBean{
         const housing = economy.tryTransact(this, 'shelter');
         if (housing) {
             this.discrete_stamina = 10;
-            this.shelter = 'crowded';
+            this.stamina = 'awake';
         } else if (this.discrete_stamina <= 0){
-            this.shelter = 'podless';
+            this.stamina = 'homeless';
         }
         return housing != null;
     }
@@ -479,7 +483,7 @@ export class Bean implements IBean{
     age(economy: Economy): IEvent|null {
         if (!this.alive) return null;
 
-        const wasNotHungry = this.food !== 'hungry';
+        const wasNotHungry = this.food !== 'starving';
         const wasNotSick = this.health !== 'sick';
 
         this.discrete_food -= 1/7;
@@ -489,7 +493,7 @@ export class Bean implements IBean{
         const starve = this.maybeDie('starvation', 0.6);
         if (starve)
             return null;
-        else if (this.food === 'hungry' && wasNotHungry){
+        else if (this.food === 'starving' && wasNotHungry){
             this.emote('unhappiness');
             if (this.believesIn('Gluttony')){
                 this.emote('unhappiness');
@@ -497,7 +501,7 @@ export class Bean implements IBean{
             }
         }
             
-        if (this.shelter === 'podless')
+        if (this.stamina === 'homeless')
             this.discrete_health -= 1/14;
         
         this.discrete_stamina--;
@@ -596,7 +600,7 @@ export class Bean implements IBean{
         if (this.believesIn('Authority')){
             chance -= .25;
         }
-        if (good === 'food' && this.food === 'hungry'){
+        if (good === 'food' && this.food === 'starving'){
             chance += .25;
         }
         else if (good === 'medicine' && this.health === 'sick'){

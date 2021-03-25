@@ -48,8 +48,8 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
                 </div>
                 <AxisReadout report={reportEthno(this.props.beans)}>Ethnicity</AxisReadout>
                 <div className="header"><b>Situation</b></div>
-                <NeedReadout beans={this.props.beans} need={(b) => b.food} dire="hungry" abundant="stuffed">Food Security</NeedReadout>
-                <NeedReadout beans={this.props.beans} need={(b) => b.shelter} dire="podless" abundant="homeowner">Housing</NeedReadout>
+                <NeedReadout beans={this.props.beans} need={(b) => b.food} dire="starving" abundant="stuffed">Food Security</NeedReadout>
+                <NeedReadout beans={this.props.beans} need={(b) => b.stamina} dire="homeless" abundant="rested">Housing</NeedReadout>
                 <NeedReadout beans={this.props.beans} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
                 <b>Avg. Money</b> ${avg_cash.toFixed(2)} &nbsp;
                 <b>Avg. Happiness</b> {Math.round(avg_happy)}%

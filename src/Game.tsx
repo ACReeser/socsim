@@ -145,10 +145,10 @@ export const DefaultDifficulty: IDifficulty = {
     },
     bean_life: {
         vital_thresh: {
-            'food': {sufficient: 1, abundant: 3},
-            'shelter': {sufficient: 1, abundant: 3},
-            'medicine': {sufficient: 1, abundant: 3},
-            'fun': {sufficient: 1, abundant: 3},
+            'food': {warning: 0.6, sufficient: 1, abundant: 3},
+            'shelter': {warning: 0.6, sufficient: 1, abundant: 7},
+            'medicine': {warning: 0.6, sufficient: 1, abundant: 3},
+            'fun': {warning: 0.1, sufficient: 1, abundant: 3},
         }
     },
     report_card_progression: []

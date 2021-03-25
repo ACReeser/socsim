@@ -15,6 +15,7 @@ export class HexPanel extends React.Component<{
     build: (where: HexPoint, what: BuildingTypes) => void,
     beam: (where: HexPoint) => void,
     upgrade: (what: IBuilding) => void,
+    changeEnterprise: (what: IBuilding) => void,
 }, {
 
 }> {
@@ -78,7 +79,7 @@ export class HexPanel extends React.Component<{
             </div> : null
         }
         {
-            <EnterpriseTypePicker building={b}></EnterpriseTypePicker>
+            <EnterpriseTypePicker building={b} changeEnterprise={this.props.changeEnterprise}></EnterpriseTypePicker>
         }
         {
             (slots.length === 0) ? null : <div>
@@ -144,6 +145,7 @@ export class HexPanel extends React.Component<{
 
 export const EnterpriseTypePicker: React.FC<{
     building: IBuilding,
+    changeEnterprise: (what: IBuilding) => void,
 }> = (props) => {
     const b = props.building;
     if (isEnterprise(b)){
@@ -154,6 +156,7 @@ export const EnterpriseTypePicker: React.FC<{
                 value: x,
                 onClick: () => {
                     b.enterpriseType = x;
+                    props.changeEnterprise(b);
                 }
             }
         })

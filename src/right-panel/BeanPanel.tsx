@@ -146,7 +146,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.food, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.shelter, undefined)}
+                    {TraitToCard(this.props.bean, this.props.bean.stamina, undefined)}
                     {TraitToCard(this.props.bean, this.props.bean.health, undefined)}
                 </div>
             </div>

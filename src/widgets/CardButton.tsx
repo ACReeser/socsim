@@ -39,15 +39,16 @@ export function TraitToCard(bean: Bean, trait: Trait, onClick?: () => void){
         case 'fresh':
         case 'sick':
         case 'hungry':
+        case 'starving':
         case 'stuffed':
-        case 'podless':
-        case 'homeowner':
+        case 'homeless':
+        case 'rested':
         case 'circle':
         case 'square':
         case 'triangle':
         case 'sane':
-        case 'confused':
-        case 'mad':
+        case 'disturbed':
+        case 'stressed':
             return <CardButton icon={TraitIcon[trait]} title={keyToName[trait]} name="" subtext={keyToName[trait]} thin={true} singleLine={true} onClick={onClick}></CardButton>
         case 'noFaith':
         case 'rocket':

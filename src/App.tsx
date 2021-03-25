@@ -45,10 +45,10 @@ export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   trad: 'Elitist', prog: 'Progressive',
   circle: 'Brunette', square: 'Blonde', triangle: 'Redhead',
   rocket: 'Futuristic', dragon: 'Mythical', music: 'Dramatic', noFaith: 'Nihilistic',
-  hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
-  podless: 'Homeless', crowded: 'Crowded', homeowner: 'Homeowner',
-  sick: 'Sick', bruised: 'Bruised', fresh: 'Robust',
-  sane: 'Sane', confused: 'Confused', mad: 'Mad',
+  starving: 'Starving', hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
+  homeless: 'Homeless', sleepy: 'Sleepy', awake: 'Awake', rested: 'Rested',
+  sick: 'Sick', sickly: 'Sickly', bruised: 'Bruised', fresh: 'Robust',
+  sane: 'Sane', stressed: 'Confused', disturbed: 'Disturbed', 'psychotic': 'Psychotic',
   house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Natural Scenery'
 };
 
@@ -164,6 +164,10 @@ class App extends React.Component<AppPs, AppState>{
       GenerateBuilding(city, what, where);
     }
 
+    this.setState({ world: this.state.world });
+  }
+  changeEnterprise = (city: City, what: IBuilding) => {
+    
     this.setState({ world: this.state.world });
   }
   upgrade = (city: City, what: IBuilding) => {
@@ -358,7 +362,9 @@ class App extends React.Component<AppPs, AppState>{
                 clearHex={() => this.setState({ activeHex: null })}
                 beam={(where) => this.beam(city, where)}
                 upgrade={(what) => this.upgrade(city, what)}
-                build={(where, what) => { this.build(city, where, what) }}></HexPanel>
+                build={(where, what) => { this.build(city, where, what) }}
+                changeEnterprise={(what) => this.changeEnterprise(city, what)}
+                ></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
               const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
