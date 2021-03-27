@@ -5,7 +5,6 @@ import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, 
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GetRandom } from "../WorldGen";
 import './Building.css';
-import { Magnet } from "./Magnet";
 
 const slot_size = {
     x: 25,

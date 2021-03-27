@@ -12,14 +12,15 @@ export const Mover: React.FC<{
 }> = (props) => {
     const el = useRef<HTMLDivElement|null>(null);
     const onMove = (p: Point) => {
-        if (el.current)
+        if (el.current && p)
             el.current.style.transform = `translate(${p.x}px, ${p.y}px)`;
     }
     useEffect(() => {
         props.onMove.subscribe(onMove);
+        onMove(props.startPoint);
         return () => props.onMove.unsubscribe(onMove)
     }, []);
-    onMove(props.startPoint);
+    console.log('mover render');
     return <div ref={el}>
         {props.children}
     </div>

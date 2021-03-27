@@ -15,6 +15,7 @@ export const Magnet: React.FC<{
     }
     useEffect(() => {
         props.pickupMagnetPoint.onChange.subscribe(updatePoint);
+        updatePoint(props.pickupMagnetPoint.get);
         return () => props.pickupMagnetPoint.onChange.unsubscribe(updatePoint)
     });
 

@@ -46,7 +46,7 @@ const PickupPhysics = {
 export const BeanPhysics = {
     Brake: { x: .94, y: .94},
     AccelerateS: 10,
-    MaxSpeed: 3,
+    MaxSpeed: 4,
     CollisionDistance: 10
 }
 export class World implements IWorld, IBeanContainer, IActListener{
