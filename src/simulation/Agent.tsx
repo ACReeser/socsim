@@ -3,7 +3,7 @@ import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote } from "../World";
 import { GetRandom } from "../WorldGen";
-import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
+import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IAccelerater, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
@@ -89,7 +89,9 @@ export abstract class AgentState{
     }
     abstract _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState;
     exit(agent: IAgent){
-
+        if (agent instanceof Bean){
+            agent.activity_duration[this.data.act] += this.Elapsed;
+        }
     }
     get display(): string {
         return ActivityDisplay(this.data);
@@ -204,7 +206,9 @@ export class TravelState extends AgentState{
                 if (targets.length < 1)
                     return this;
                 const chat: IChatData = agent.getRandomChat(targets);
-                targets.forEach((z) => z.state = ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
+                targets.forEach((z) => {
+                    ChangeState(z, ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
+                });
                 return ChatState.create(this.data, chat);
             } else {
                 return this;
@@ -273,6 +277,7 @@ export class ChatState extends AgentState{
         return this;
     }
     exit(agent: IAgent){
+        super.exit(agent);
         if (agent instanceof Bean && this.data.chat){
             agent.lastChatMS = Date.now();
             if (this.data.chat.participation === 'listener'){
@@ -300,6 +305,7 @@ export class RelaxState extends AgentState{
         return this;
     }
     exit(agent: IAgent){
+        super.exit(agent);
         if (agent instanceof Bean){
             agent.discrete_fun += 1;
             agent.emote('happiness');
@@ -453,24 +459,10 @@ export interface IBean extends ISeller, IMover, IAgent{
     lifecycle: 'alive'|'dead'|'abducted'
 }
 
-export interface IMover{
+export interface IMover extends IAccelerater{
     key: number;
-    speed: number;
-    direction: Vector;
-    markers: Point[];
+    onMove: PubSub<Point>;
     destinationKey: number;
-}
-
-export function Step(geo: Geography, mover: IMover){
-    if (mover.markers.length){
-        const pos = geo.movers['bean'][mover.key];
-        const target = mover.markers[0];
-        const newPos = move_towards(pos, target, mover.speed);
-        geo.movers['bean'][mover.key] = newPos;
-        if (newPos.x == target.x && newPos.y == target.y){
-            mover.markers.pop();
-        }
-    }
 }
 
 /**

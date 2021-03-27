@@ -13,7 +13,7 @@ import { Player } from "../simulation/Player";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
 
 import './BeanPanel.css';
-import { ActivityIcon, GetPriorities } from "../simulation/Agent";
+import { Act, ActivityIcon, GetPriorities } from "../simulation/Agent";
 import { IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { CostSmall } from "../widgets/CostSmall";
 
@@ -112,9 +112,28 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                                 </tr>
                             })
                         }
+                        {
+                            this.actDurations().map((x) => {
+                                const act = x as Act;
+                                return <tr>
+                                    <td>{x}</td>
+                                    <td>
+                                        {
+                                            (this.props.bean.activity_duration[act] / 1000).toFixed(1)
+                                        }s
+                                    </td>
+                                </tr>
+                                
+                            })
+                        }
                     </tbody>
                 </table>
         }
+    }
+    actDurations(){
+        const acts = Object.keys(this.props.bean.activity_duration).map((x) => x as Act);
+        acts.sort((a, b) => this.props.bean.activity_duration[b] - this.props.bean.activity_duration[a]);
+        return acts;
     }
     beliefTable(beliefs: TraitBelief[]): React.ReactNode {
         return beliefs.map((b, i) => {

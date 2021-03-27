@@ -1,6 +1,7 @@
 import React from "react";
 import { EventTrigger, IEvent } from "../events/Events";
-import { Bean, BeanDeathCause } from "../simulation/Bean";
+import { BeanDeathCause } from "../Game";
+import { Bean } from "../simulation/Bean";
 import { transformPoint } from "../simulation/Geography";
 import { Particles } from "../widgets/particles";
 import './spotlight.css';

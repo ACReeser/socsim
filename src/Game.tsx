@@ -20,6 +20,7 @@ export interface PlayerResources{
 export interface BeanResources{
     sanity?: number;
 }
+export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 export function triadToString(cost: PlayerResources, sign: '+'|''|'-', qty: number = 1){
     const costs = [];
     if (cost.energy){
@@ -53,7 +54,20 @@ export interface IDifficulty{
         }
     },
     bean_life: {
-        vital_thresh: {[key in TraitGood]: IThreshold}
+        vital_thresh: {[key in TraitGood]: IThreshold},
+        degrade_per_tick: {
+            food: number,
+            health: number,
+            stamina: number,
+            fun: number
+        },
+        penalty: {
+            homeless_health: number,
+            starving_health: number
+        },
+        death_chance: {
+            [cause in BeanDeathCause]: number
+        }
     },
     report_card_progression: RubricKeys[]
 }
@@ -149,6 +163,22 @@ export const DefaultDifficulty: IDifficulty = {
             'shelter': {warning: 0.6, sufficient: 1, abundant: 7},
             'medicine': {warning: 0.6, sufficient: 1, abundant: 3},
             'fun': {warning: 0.1, sufficient: 1, abundant: 3},
+        },
+        degrade_per_tick: {
+            food: 1/12,
+            health: 1/20,
+            stamina: 1/12,
+            fun: 1/6
+        },
+        penalty: {
+            homeless_health: 1/20,
+            starving_health: 1/24
+        },
+        death_chance: {
+            starvation: 1/8,
+            sickness: 1/8,
+            exposure: 1/8,
+            vaporization: 1
         }
     },
     report_card_progression: []

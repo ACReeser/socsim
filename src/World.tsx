@@ -43,6 +43,12 @@ const PickupPhysics = {
     MaxSpeed: 9,
     CollisionDistance: 10
 }
+const BeanPhysics = {
+    Brake: { x: 1, y: 1},
+    AccelerateS: 60,
+    MaxSpeed: 6,
+    CollisionDistance: 5
+}
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
     public readonly economy: Economy = new Economy(this.bus);
@@ -130,9 +136,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
-        const dings: {typ: TraitEmote, i: number}[] = [];
-        shuffle(this.beans).forEach((b: Bean, i: number) => {
-            b.age(this.economy);
+        this.beans.forEach((b: Bean, i: number) => {
+            b.age(this.economy, this.alien.difficulty);
             const e = b.maybeBaby(this.economy);
             if (e) this.publishEvent(e);
             if (b.job === 'jobless')
@@ -147,7 +152,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     simulate_beans(deltaMS: number){
         this.beans.forEach((b) => {
             Act(b, deltaMS, this.alien.difficulty, this);
-        })
+        });
     }
     simulate_pickups(deltaMS: number){
         const city = this.cities[0];
@@ -175,7 +180,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 city.pickups.remove(pickup);
                 this.sfx.play(pickup.type);
             } else {
-                pickup.onAnimate.publish(pickup.point);
+                pickup.onMove.publish(pickup.point);
             }
         }
     }

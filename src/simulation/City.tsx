@@ -4,7 +4,7 @@ import { Economy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom, GetRandomNumber } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
-import { Geography, HexPoint, IBuilding, JobToBuilding, Point } from "./Geography";
+import { Geography, HexPoint, IBuilding, JobToBuilding, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
@@ -45,8 +45,8 @@ export class UFO{
 }
 export class Pickup{
     constructor(public key: number, public point: Point, public type: TraitEmote){}
-    public velocity: Point = {x: 0, y: 0};
-    public onAnimate = new PubSub<Point>();
+    public velocity: Vector = {x: 0, y: 0};
+    public onMove = new PubSub<Point>();
 }
 
 

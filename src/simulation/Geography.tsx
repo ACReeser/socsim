@@ -70,7 +70,7 @@ export function move_towards(current: Point, target: Point, maxDistanceDelta: nu
         y: current.y + a.y / magnitude * maxDistanceDelta,
     };
 }
-interface IAccelerater {point:Point,velocity:Point};
+export interface IAccelerater {point:Point, velocity:Vector};
 export function accelerate_towards(
     mover: IAccelerater, 
     target: Point, 

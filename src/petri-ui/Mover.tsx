@@ -35,7 +35,7 @@ export const PickupList: React.FC<{
     return <>
         {
             list.map((p: Pickup) => {
-                return <Mover onMove={p.onAnimate} key={p.key}>
+                return <Mover onMove={p.onMove} key={p.key}>
                     <AnimatedPickup pickup={p}></AnimatedPickup>
                 </Mover>
             })

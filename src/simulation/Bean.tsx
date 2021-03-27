@@ -5,15 +5,14 @@ import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
 import { IDate, withinLastYear } from "./Time";
 import { Government } from "./Government";
-import { AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover } from "./Agent";
-import { JobToBuilding, Point } from "./Geography";
+import { Act, AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover } from "./Agent";
+import { JobToBuilding, Point, Vector } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
-import { BeanResources } from "../Game";
+import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
-import { Building } from "./RealEstate";
 
 const BabyChance = 0.01;
 const HappyChance = 0.01;
@@ -22,7 +21,6 @@ const EmoteCrisisChance = .10;
 const EmoteTickRamp = 12;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
-export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 
 const HedonismExtraChance = 0.1;
 const ParanoidUnhappyChance = 0.05;
@@ -55,11 +53,13 @@ export class Bean implements IBean{
     }
 
     public activity_queue: IActivityData[] = [];
+    public activity_duration: {[act in Act]: number} = {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0};
+    
     public speed = 60;
-    public direction = {x: 0,y:0}; 
-    public markers: Point[] = [];
+    public point: Point = {x: 0, y: 0};
+    public velocity: Vector = {x: 0, y: 0};
+    public onMove = new PubSub<Point>();
     public destinationKey = 0;
-
 
     public city: City|null = null;
 
@@ -480,7 +480,7 @@ export class Bean implements IBean{
         return fun != null;
     }
 
-    age(economy: Economy): IEvent|null {
+    age(economy: Economy, diff: IDifficulty): IEvent|null {
         if (!this.alive) return null;
 
         const wasNotHungry = this.food !== 'starving';
@@ -618,31 +618,6 @@ export class Bean implements IBean{
     }
     canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
         return this.city?.economy?.canBuy(this, good) || 'nosupply';
-    }
-    /**
-     * should return 0-1 float, with 1 meaning 100%
-     * @param economy 
-     */
-    chanceToDonate(economy: Economy, direct: boolean = false): number{
-        const canDonate = this.cash > economy.getCostOfLiving() * 2 && !this.isInCrisis;
-        if (canDonate && this.lastPartySentiment > 0.5){
-            const threshold = direct ? 0.2 : 0.5;
-            const baseChance = this.lastPartySentiment - threshold;
-            return (baseChance) / 2;
-        }
-        return 0;
-    }
-    maybeDonate(economy: Economy, direct: boolean = false): number{
-        // const chance = this.chanceToDonate(economy, direct);
-        // if (chance > 0){
-        //     const willDonate = Math.random() < chance;
-        //     if (willDonate){
-        //         const donation = 1;
-        //         this.cash -= donation;
-        //         return donation;
-        //     }
-        // }
-        return 0;
     }
     maybeDie(cause: BeanDeathCause, chance = 0.5): boolean{
         if (this.discrete_health < 0 && Math.random() <= chance) {
