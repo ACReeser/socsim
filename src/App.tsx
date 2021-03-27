@@ -185,7 +185,7 @@ class App extends React.Component<AppPs, AppState>{
       const newUFO = new UFO(city.ufos.length, where, 'beam-in');
       city.ufos.push(newUFO);
       window.setTimeout(() => {
-        city.historicalBeans.push(GenerateBean(city, city.historicalBeans.length, where));
+        city.beans.push(GenerateBean(city, where));
         this.setState({ world: this.state.world });
       }, 3000);
 
@@ -367,7 +367,7 @@ class App extends React.Component<AppPs, AppState>{
                 ></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
-              const bean = city.beans.find((y) => y.key == this.state.activeBeanID);
+              const bean = city.beans.get.find((y) => y.key == this.state.activeBeanID);
               if (bean)
                 return <BeanPanel bean={bean} city={city} alien={this.state.world.alien}
                   economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}

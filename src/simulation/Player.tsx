@@ -57,7 +57,7 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     beam_3: {
         key: 'beam_3', text: 'Beam in 3 new beings', 
         check: (world) => {
-            return world.beans.filter(b => !b.bornInPetri).length >= (3 + Number_Starting_City_Pop)
+            return world.beans.get.filter(b => !b.bornInPetri).length >= (3 + Number_Starting_City_Pop)
         }
     }, 
     scan: {
@@ -89,9 +89,9 @@ export interface ICurriculum {
 export const Curriculums: {[difficulty: string]: ICurriculum} = {
     Default: {
         GradeWorld: (world: World) => {return{
-            Happiness: BooleanAverageGrader(world.beans, (o) => o.lastHappiness >- .2),
-            Prosperity: BooleanAverageGrader(world.beans, (o) => o.food != 'hungry'),
-            Stability: BooleanAverageGrader(world.beans, (o) => o.sanity == 'sane'),
+            Happiness: BooleanAverageGrader(world.beans.get, (o) => o.lastHappiness >- .2),
+            Prosperity: BooleanAverageGrader(world.beans.get, (o) => o.food != 'hungry'),
+            Stability: BooleanAverageGrader(world.beans.get, (o) => o.sanity == 'sane'),
             Dogma: GradeUpToNumber((world.alien.speechcrimes[world.date.year] || 0), 10, 10),
         }},
         RubricDescription: {

@@ -3,7 +3,7 @@ import { Bean } from './simulation/Bean';
 import { Economy } from './simulation/Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
-import { IEvent, EventBus } from './events/Events';
+import { IEvent, EventBus, LiveList } from './events/Events';
 import { Season, IDate, Hour } from './simulation/Time';
 import { Government } from './simulation/Government';
 import { Player, TechData } from './simulation/Player';
@@ -20,11 +20,11 @@ export interface IBeanContainer{
     /**
      * all beans ever, including dead ones
      */
-    historicalBeans: Bean[];
+    historicalBeans: LiveList<Bean>;
     /**
      * current non-dead beans
      */
-    beans: Bean[];
+    beans: LiveList<Bean>;
 }
 
 export interface IWorld{
@@ -43,11 +43,11 @@ const PickupPhysics = {
     MaxSpeed: 9,
     CollisionDistance: 10
 }
-const BeanPhysics = {
-    Brake: { x: 1, y: 1},
-    AccelerateS: 60,
-    MaxSpeed: 6,
-    CollisionDistance: 5
+export const BeanPhysics = {
+    Brake: { x: .94, y: .94},
+    AccelerateS: 10,
+    MaxSpeed: 3,
+    CollisionDistance: 10
 }
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
@@ -61,15 +61,15 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public alien: Player = new Player();
     public sfx = new WorldSound();
 
-    public get beans(): Bean[]{
-        return this.cities.reduce((list, c) => {
-            return list.concat(c.beans);
-        }, [] as Bean[]);
+    public get beans(): LiveList<Bean>{
+        return new LiveList(this.cities.reduce((list, c) => {
+            return list.concat(c.beans.get);
+        }, [] as Bean[]));
     }
-    public get historicalBeans(): Bean[]{
-        return this.cities.reduce((list, c) => {
-            return list.concat(c.historicalBeans);
-        }, [] as Bean[]);
+    public get historicalBeans(): LiveList<Bean>{
+        return new LiveList(this.cities.reduce((list, c) => {
+            return list.concat(c.historicalBeans.get);
+        }, [] as Bean[]));
     }
     public get organizations(): IOrganization[]{
         return this.institutions.reduce((list, institute) => {
@@ -87,7 +87,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public calculateComputedState(){
         this.cities.forEach(c => {
             c.calculate(this.economy, this.law);
-            c.beans.forEach(b => b.calculateBeliefs(this.economy, c, this.law, this.party));
+            c.beans.get.forEach(b => b.calculateBeliefs(this.economy, c, this.law, this.party));
         });
     }
 
@@ -136,7 +136,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         
-        this.beans.forEach((b: Bean, i: number) => {
+        this.beans.get.forEach((b: Bean, i: number) => {
             b.age(this.economy, this.alien.difficulty);
             const e = b.maybeBaby(this.economy);
             if (e) this.publishEvent(e);
@@ -150,7 +150,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.alien.checkReportCard(this);
     }
     simulate_beans(deltaMS: number){
-        this.beans.forEach((b) => {
+        this.beans.get.forEach((b) => {
             Act(b, deltaMS, this.alien.difficulty, this);
         });
     }
@@ -202,7 +202,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     onBeanDie = (e: IEvent) => {
         const city = this.cities.find((x) => x.key === e.cityKey);
         if (city){
-            const bean = city.historicalBeans.find((x) => x.key === e.beanKey);
+            const bean = city.historicalBeans.get.find((x) => x.key === e.beanKey);
             if (bean){
                 city.onCitizenDie(bean);
                 this.economy.onBeanDie(bean);
@@ -215,11 +215,11 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.bus[e.trigger].publish(e);
     }
     inflate() {
-        const allMoney = this.beans.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);
+        const allMoney = this.beans.get.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);
         const percent = allMoney / 100;
         const yearlyInflationDollars = Math.round(percent * 1);
         if (yearlyInflationDollars > 0){
-            const richest = this.beans.reduce((obj: {winner?: Bean, max: number}, b) => {
+            const richest = this.beans.get.reduce((obj: {winner?: Bean, max: number}, b) => {
                 if (b.cash > obj.max){
                     obj.winner = b;
                     obj.max = b.cash;

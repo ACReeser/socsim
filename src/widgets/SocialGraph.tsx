@@ -3,9 +3,10 @@ import { Bean } from "../simulation/Bean";
 import { AnimatedBean } from "../petri-ui/AnimatedBean";
 import "./SocialGraph.css";
 import { origin_point } from "../simulation/Geography";
+import { LiveList } from "../events/Events";
 
 interface SocialGraphP{
-    beans: Bean[];
+    beans: LiveList<Bean>;
     costOfLiving: number;
     onClick: (b: Bean) => void
 }
@@ -22,7 +23,7 @@ export class SocialGraph extends React.Component<SocialGraphP, SocialGraphS>{
     render(){
         return <div className="social-graph">
             {
-                this.props.beans.map((b) => 
+                this.props.beans.get.map((b) => 
                 <div className="bean-node" onClick={() => this.props.onClick(b)}>
                     <AnimatedBean bean={b} static={true} sitStill={true} 
                         onClick={() => {this.props.onClick(b);}}>

@@ -55,16 +55,12 @@ export class City extends Geography implements Tile, IBeanContainer {
     public url: string = '';
     public type: string = '';
     public key: number = 0;
-    public get beans(): Bean[] {
-        return this.historicalBeans.filter((x) => x.alive);
-    }
-    public set beans(beans: Bean[]){
-        throw "can't set city beans";
-    }
-    public historicalBeans: Bean[] = [];
-    public ufos: UFO[] = [];
+    public beans = new LiveList<Bean>([]);
+    public historicalBeans = new LiveList<Bean>([]);
     public readonly pickups = new LiveList<Pickup>([]);
+    public ufos: UFO[] = [];
     public pickupSeed = 0;
+    public beanSeed = 0;
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
     public yearsPartyDonations: number = 0;
@@ -114,17 +110,16 @@ export class City extends Geography implements Tile, IBeanContainer {
             }
         }
     }
-    addEmotePickup(beanKey: number, emote: TraitEmote){
-        const point = {...this.movers.bean[beanKey]};
+    addEmotePickup(p: Point, emote: TraitEmote){
+        const point = {...p};
         point.x += GetRandomNumber(-10, 10);
         point.y += GetRandomNumber(-10, 10);
         const id = ++this.pickupSeed;
-        this.movers.pickup[id] = point;
         this.pickups.push(new Pickup(id, point, emote));
     }
 
     getRandomCitizen(): Bean|null{
-        const shuffled = shuffle(this.beans);
+        const shuffled = shuffle(this.beans.get);
         if (shuffled.length > 0) {
             return shuffled[0];
         } else {
@@ -143,7 +138,7 @@ export class City extends Geography implements Tile, IBeanContainer {
     }
     breedBean(parent: Bean) {
         const job: TraitJob = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
-        const bean = GenerateBean(this, this.historicalBeans.length, undefined, job);
+        const bean = GenerateBean(this, undefined, job);
         bean.ethnicity = parent.ethnicity;
         bean.name = bean.name.split(' ')[0] + ' ' + parent.name.split(' ')[1];
         bean.cash = parent.cash / 2;
@@ -151,13 +146,13 @@ export class City extends Geography implements Tile, IBeanContainer {
         bean.bornInPetri = true;
         if (this.environment)
             bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day, hour: this.environment?.hour};
-        this.historicalBeans.push(bean);
+        this.beans.push(bean);
     }
     getTaxesAndDonations(party: Party, economy: Economy){
     }
     calculate(economy: Economy, law: Government) {
         this.costOfLiving = economy.getCostOfLiving();
-        const c = this.beans.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
+        const c = this.beans.get.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
             switch(bean.ethnicity){
                 case 'circle': count.circle++;break;
                 case 'square': count.square++;break;
@@ -174,11 +169,11 @@ export class City extends Geography implements Tile, IBeanContainer {
         }
     }
     getNearestNeighbors(source: Bean): Bean[] {
-        return this.beans.filter((b) => {
+        return this.beans.get.filter((b) => {
             if (b.key == source.key) return false;
 
-            const p = this.movers.bean[b.key];
-            const q = this.movers.bean[source.key];
+            const p = b.point;
+            const q = source.point;
             const squared = Math.pow(p.x - q.x, 2)+Math.pow(p.y - q.y, 2);
 
             return squared < 1600 && squared > 600;

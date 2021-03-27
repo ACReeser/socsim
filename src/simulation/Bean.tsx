@@ -54,7 +54,7 @@ export class Bean implements IBean{
 
     public activity_queue: IActivityData[] = [];
     public activity_duration: {[act in Act]: number} = {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0};
-    
+
     public speed = 60;
     public point: Point = {x: 0, y: 0};
     public velocity: Vector = {x: 0, y: 0};
@@ -402,7 +402,7 @@ export class Bean implements IBean{
             }
             this.ticksSinceLastSale++;
             if (this.ticksSinceLastSale > 7){
-                const cityHasOtherWorkers = this.city ? this.city.beans.filter(x => x.job === this.job).length > 1 : false;
+                const cityHasOtherWorkers = this.city ? this.city.beans.get.filter(x => x.job === this.job).length > 1 : false;
                 //underemployment
                 if (cityHasOtherWorkers && Math.random() > 0.5) {
                     const newJob = econ.mostInDemandJob();
@@ -611,9 +611,9 @@ export class Bean implements IBean{
     emote(emote: TraitEmote){
         this.ticksSinceLastEmote = 0;
         this.discrete_sanity = MathClamp(this.discrete_sanity + EmotionSanity[emote], 0, 10);
-        this.city?.addEmotePickup(this.key, emote);
+        this.city?.addEmotePickup(this.point, emote);
         if (this.believesIn('Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
-            this.city?.addEmotePickup(this.key, emote);
+            this.city?.addEmotePickup(this.point, emote);
         }
     }
     canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
@@ -632,10 +632,12 @@ export class Bean implements IBean{
         for (let i = 0; i < pains; i++) {
             this.emote('hate');
         }
+        this.city?.beans.remove(this);
+        this.city?.historicalBeans.push(this);
         this.city?.eventBus?.death.publish({
             icon: '☠️', trigger: 'death', message: `${this.name} died of ${cause}!`, 
             beanKey: this.key, cityKey: this.cityKey,
-            point: this.city?.movers.bean[this.key]
+            point: this.point
     });
     }
     abduct(player: IPlayerData){

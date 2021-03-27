@@ -89,16 +89,16 @@ export function GenerateWorld(): World{
         world.cities[i].environment = world.date;
         world.cities[i].economy = world.economy;
         world.cities[i].law = world.law;
-        for (let j = 0; j < world.cities[i].beans.length; j++) {
-            const bean = world.cities[i].beans[j];
+        for (let j = 0; j < world.cities[i].beans.get.length; j++) {
+            const bean = world.cities[i].beans.get[j];
             bean.work(world.law, world.economy);
             if (bean.job == 'farmer')
                 bean.work(world.law, world.economy);
         }
     }
-    world.economy.totalSeasonalDemand.food = world.beans.length;
-    world.economy.totalSeasonalDemand.shelter = world.beans.length;
-    world.economy.totalSeasonalDemand.medicine = world.beans.length;
+    world.economy.totalSeasonalDemand.food = world.beans.get.length;
+    world.economy.totalSeasonalDemand.shelter = world.beans.get.length;
+    world.economy.totalSeasonalDemand.medicine = world.beans.get.length;
 
     return world;
 }
@@ -125,9 +125,9 @@ export function GenerateCity(previousCityCount: number, sfx: WorldSound): City{
     // GenerateBuilding(newCity, 'farm', newCity.hexes[7]);
 
     const cityPopulation = Number_Starting_City_Pop;
-    while(newCity.historicalBeans.length < cityPopulation){
-        newCity.historicalBeans.push(
-            GenerateBean(newCity, newCity.historicalBeans.length)
+    while(newCity.beans.get.length < cityPopulation){
+        newCity.beans.push(
+            GenerateBean(newCity)
         );
     }
 
@@ -143,10 +143,10 @@ function getStartingPoint(city: City): HexPoint{
         }
     }
 }
-export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: HexPoint, job?: TraitJob): Bean{
+export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): Bean{
     let newBean = new Bean();
     
-    newBean.key = previousBeanCount;
+    newBean.key = ++city.beanSeed;
     newBean.cityKey = city.key;
     newBean.city = city;
     newBean.name = GetRandom(['Joe', 'Frank', 'Jill', 'Jose',
@@ -188,7 +188,7 @@ export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: H
     }
     
     if (job == null){
-        switch (previousBeanCount){
+        switch (city.beanSeed){
             case 0:
                 job = 'farmer'; break;
             case 1:
@@ -204,7 +204,7 @@ export function GenerateBean(city: City, previousBeanCount: number, hexPoint?: H
     newBean.cash = StartingCash(newBean.job);
     newBean.discrete_food = 3;
 
-    city.movers.bean[newBean.key] = hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || getStartingPoint(city));
+    newBean.point = hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || getStartingPoint(city));
     
     return newBean;
 }

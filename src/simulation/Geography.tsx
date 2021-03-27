@@ -83,14 +83,14 @@ export function accelerate_towards(
         x: target.x - mover.point.x, 
         y: target.y - mover.point.y
     };
-    const magnitude = Math.sqrt(delta.x * delta.x + delta.y * delta.y);
+    const magnitude = Math.sqrt((delta.x * delta.x) + (delta.y * delta.y));
     if (magnitude < colDistance) return true;
 
     delta.x /= magnitude;
     delta.y /= magnitude;
 
-    mover.velocity.x += delta.x * acceleration;
-    mover.velocity.y += delta.y * acceleration;
+    mover.velocity.x += (delta.x * acceleration);
+    mover.velocity.y += (delta.y * acceleration);
     mover.velocity.x = MathClamp(mover.velocity.x, -maxSpeed, maxSpeed);
     mover.velocity.y = MathClamp(mover.velocity.y, -maxSpeed, maxSpeed);
 
@@ -396,12 +396,6 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
 
 export class Geography{
     public book: CityBook = new CityBook(new Map());
-     
-    public movers: {[key in MoverTypes]: AddressBookPoint} = {
-        bean: {},
-        ufo: {},
-        pickup: {}
-    };
 
     addBuilding(building: IBuilding) {
         this.book.addBuilding(building);

@@ -27,7 +27,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
       }
     }
     render() {
-      let beans = this.props.world.beans;
+      const beans = this.props.world.beans.get;
       const food_median = median(beans.map(x => x.discrete_food));
       const health_median = median(beans.map(x => x.discrete_health)).toFixed(1);
       const shelter_median = median(beans.map(x => x.discrete_stamina)).toFixed(1);
@@ -65,7 +65,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <div className="col-2">
             <div>
               <strong>🍞 Food Security</strong>
-              <NeedReadout beans={this.props.world.beans} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
+              <NeedReadout beans={this.props.world.beans.get} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
               <table className="width-100p">
                 <tbody>
                   <tr>
@@ -82,7 +82,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
             </div>
             <div>
               <strong>🩺 Healthcare</strong>
-              <NeedReadout beans={this.props.world.beans} need={(b) => b.health} dire="sick" abundant="fresh" className="big"></NeedReadout>
+              <NeedReadout beans={this.props.world.beans.get} need={(b) => b.health} dire="sick" abundant="fresh" className="big"></NeedReadout>
               <table className="width-100p">
                 <tbody>
                   <tr>
@@ -101,7 +101,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
           <div className="col-2">
             <div>
               <strong>🏡 Housing</strong> <br/>
-              <NeedReadout beans={this.props.world.beans} need={(b) => b.stamina} dire="homeless" abundant="rested" className="big"></NeedReadout>
+              <NeedReadout beans={this.props.world.beans.get} need={(b) => b.stamina} dire="homeless" abundant="rested" className="big"></NeedReadout>
               <table className="width-100p">
                 <tbody>
                   <tr>

@@ -1,9 +1,9 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote, BeanPhysics } from "../World";
 import { GetRandom } from "../WorldGen";
-import { BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IAccelerater, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
+import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IAccelerater, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
@@ -184,16 +184,23 @@ export class TravelState extends AgentState{
     _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
         
         if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
-            const pos = agent.city.movers['bean'][agent.key];
             const target = this.data.destinations[0];
-            const newPos = move_towards(pos, target, deltaMS / 1000 * agent.speed);
             
-            agent.city.movers['bean'][agent.key] = newPos;
-            if (newPos.x == target.x && newPos.y == target.y){
-                this.data.location = newPos;
+            let collide = accelerate_towards(
+                agent,
+                target,
+                BeanPhysics.AccelerateS * deltaMS/1000, 
+                BeanPhysics.MaxSpeed, 
+                BeanPhysics.CollisionDistance,
+                BeanPhysics.Brake);
+            if (collide){
+                this.data.location = agent.point;
                 this.data.destinations.shift();
+            } else {
             }
+            agent.onMove.publish(agent.point);
         }
+
         if (this.data.destinations == null || this.data.destinations.length === 0){
             if (this.data.intent)
                 return ActToState[this.data.intent.act](this.data.intent);
@@ -215,6 +222,12 @@ export class TravelState extends AgentState{
             }
         } else {
             return this;
+        }
+    }
+    exit(agent: IAgent){
+        super.exit(agent);
+        if (agent instanceof Bean){
+            agent.velocity = {x: 0, y: 0};
         }
     }
 }
@@ -485,7 +498,7 @@ export function RouteRandom(geo: Geography, mover: IMover, buildingType: Buildin
  * @param buildingType 
  */
 export function Route(geo: Geography, mover: IMover, destination: IBuilding){
-    const start = geo.movers['bean'][mover.key];
+    const start = mover.point;
     const nearestHex = pixel_to_hex(geo.hex_size, geo.petriOrigin, start);
     return hex_linedraw(nearestHex, destination.address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h)).map((x, i, a) => {
         if (i === a.length-1){

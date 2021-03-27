@@ -11,7 +11,7 @@ import { IEvent } from "../events/Events";
 import { Particles } from "../widgets/particles";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 import { AnimatedPickup } from "./AnimatedPickup";
-import { PickupList } from "./Mover";
+import { BeanList, PickupList } from "./Mover";
 import { PetriBuildings } from "./Buildings";
 import { Magnet } from "./Magnet";
 
@@ -43,7 +43,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
   mtn_transforms: { transform: string }[] = [];
   renderSpotlight(): JSX.Element | null {
     if (this.props.spotlightEvent) {
-      const bean = this.props.city.historicalBeans.find((x) => x.key === this.props.spotlightEvent?.beanKey);
+      const bean = this.props.city.historicalBeans.get.find((x) => x.key === this.props.spotlightEvent?.beanKey);
       if (this.props.spotlightEvent.point && bean) {
         return <AnimatedSpotlight event={this.props.spotlightEvent} bean={bean}></AnimatedSpotlight>
       }
@@ -61,12 +61,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     });
   }
   render() {
-    const beans = this.props.city.beans.map((b: Bean) => {
-      return (
-        <AnimatedBean bean={b} key={b.key} selected={b.key === this.props.activeBeanID} onClick={() => this.props.onBeanClick(b)}></AnimatedBean>
-      )
-    });
-    const deaths = this.props.city.historicalBeans.filter((x) => !x.alive).map((b: Bean, i) => {
+    const deaths = this.props.city.historicalBeans.get.filter((x) => !x.alive).map((b: Bean, i) => {
       return (
         <span key={i} className="dead" style={{ left: (i * 10) + 'px' }}>⚰️</span>
       )
@@ -86,8 +81,8 @@ export class WorldTile extends React.Component<WorldTilePs> {
         {mtns}
         {/* {deaths} */}
         <PetriBuildings city={this.props.city}></PetriBuildings>
-        <PickupList movers={this.props.city.pickups}></PickupList>
-        {beans}
+        <PickupList pickups={this.props.city.pickups}></PickupList>
+        <BeanList beans={this.props.city.beans} activeBeanID={this.props.activeBeanID} onBeanClick={(b: Bean) => this.props.onBeanClick(b)}></BeanList>
         {ufos}
         <Magnet pickupMagnetPoint={this.props.city.pickupMagnetPoint}></Magnet>
         <svg style={{ width: '100%', height: '100%' }} className="petri-lid">

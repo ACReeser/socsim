@@ -86,7 +86,7 @@ export class HexPanel extends React.Component<{
                 <strong>Workers:</strong>
                 {
                     slots.map((x) => <div key={x}>
-                        {BuildingJobIcon[b.type]} {this.props.city.beans.find((y) => y.key === b.job_slots[x])?.name} {}
+                        {BuildingJobIcon[b.type]} {this.props.city.beans.get.find((y) => y.key === b.job_slots[x])?.name} {}
                     </div>)
                 }
             </div>

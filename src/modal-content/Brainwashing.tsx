@@ -19,7 +19,7 @@ export class BrainwashingContent extends React.Component<{
         super(props);
     }
     render(){
-        const bean = this.props.world.beans.find(x => x.key == this.props.beanID);
+        const bean = this.props.world.beans.get.find(x => x.key == this.props.beanID);
         if (bean == null) return;
         const dogmatic = bean.believesIn('Dogmatism');
         return <div>

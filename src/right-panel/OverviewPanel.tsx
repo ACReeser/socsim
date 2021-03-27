@@ -6,10 +6,11 @@ import { NeedReadout } from "../widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";
 import { Party } from "../simulation/Politics";
 import { PrimaryBeliefData } from "../simulation/Beliefs";
+import { LiveList } from "../events/Events";
 
 interface OverviewPanelP {
     city?: City,
-    beans: Bean[],
+    beans: LiveList<Bean>,
     utopia: Party,
     clearCity: () => void;
 }
@@ -35,28 +36,28 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
                 </div>
             </div>;
         }
-        const avg_happy = this.props.beans.reduce((sum, x) => sum + x.lastHappiness, 0) / (this.props.beans.length || 1);
-        const avg_cash = this.props.beans.reduce((sum, x) => sum + x.cash, 0) / (this.props.beans.length || 1);
-        const avg_approval = this.props.beans.reduce((sum, x) => sum + x.lastPartySentiment, 0) / (this.props.beans.length || 1);
+        const avg_happy = this.props.beans.get.reduce((sum, x) => sum + x.lastHappiness, 0) / (this.props.beans.get.length || 1);
+        const avg_cash = this.props.beans.get.reduce((sum, x) => sum + x.cash, 0) / (this.props.beans.get.length || 1);
+        const avg_approval = this.props.beans.get.reduce((sum, x) => sum + x.lastPartySentiment, 0) / (this.props.beans.get.length || 1);
         return (
             <div>
                 {header}
                 <div className="header"><b>Demographics</b></div>
                 <div>
                     <b>Population</b>&nbsp;
-                <span>{this.props.beans.length}</span>
+                <span>{this.props.beans.get.length}</span>
                 </div>
-                <AxisReadout report={reportEthno(this.props.beans)}>Ethnicity</AxisReadout>
+                <AxisReadout report={reportEthno(this.props.beans.get)}>Ethnicity</AxisReadout>
                 <div className="header"><b>Situation</b></div>
-                <NeedReadout beans={this.props.beans} need={(b) => b.food} dire="starving" abundant="stuffed">Food Security</NeedReadout>
-                <NeedReadout beans={this.props.beans} need={(b) => b.stamina} dire="homeless" abundant="rested">Housing</NeedReadout>
-                <NeedReadout beans={this.props.beans} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
+                <NeedReadout beans={this.props.beans.get} need={(b) => b.food} dire="starving" abundant="stuffed">Food Security</NeedReadout>
+                <NeedReadout beans={this.props.beans.get} need={(b) => b.stamina} dire="homeless" abundant="rested">Housing</NeedReadout>
+                <NeedReadout beans={this.props.beans.get} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
                 <b>Avg. Money</b> ${avg_cash.toFixed(2)} &nbsp;
                 <b>Avg. Happiness</b> {Math.round(avg_happy)}%
                 <div className="header"><b>Electorate</b></div>
-                {/* <AxisReadout report={reportIdeals(this.props.beans)}>Sentiment</AxisReadout> */}
-                <AxisReadout report={reportCommunity(this.props.beans)}>Community</AxisReadout>
-                <AxisReadout report={reportIdeals(this.props.beans)}>Ideals</AxisReadout>
+                {/* <AxisReadout report={reportIdeals(this.props.beans.get)}>Sentiment</AxisReadout> */}
+                <AxisReadout report={reportCommunity(this.props.beans.get)}>Community</AxisReadout>
+                <AxisReadout report={reportIdeals(this.props.beans.get)}>Ideals</AxisReadout>
                 <div>
                     <b>Approval</b>&nbsp;
                 <span>{avg_approval.toFixed(0)}%</span>

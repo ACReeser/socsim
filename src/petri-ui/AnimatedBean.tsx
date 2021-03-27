@@ -13,7 +13,6 @@ interface AnimatedBeanP {
 
 interface AnimatedBeanS{
   paused: boolean,
-  point: Point,
   spin: boolean;
   face: string;
   good?: string;
@@ -30,7 +29,6 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
       this.state = {
         paused: false,
-        point: props.static ? origin_point : props.bean.city ? props.bean.city.movers.bean[props.bean.key] : {x: 0, y: 0},
         spin: false,
         face: props.bean.getFace(),
       };
@@ -38,7 +36,6 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
     }
     animate = (deltaMS: number) => {
       this.setState({
-        point: this.props.bean.city ? this.props.bean.city.movers.bean[this.props.bean.key] : {x: 0, y: 0},
         spin: this.props.bean.state.data.act == 'work',
         face: this.props.bean.getFace(),
         good: BeanIsBuying(this.props.bean) ? GoodIcon[this.props.bean.state.data.good || 'food'] : undefined,
@@ -77,7 +74,6 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       }
 
       let style = {
-        ...transformPoint(this.state.point),
         animationDelay: '-'+this.delaySeedSec+'s'
       };
       style.animationDelay = '';

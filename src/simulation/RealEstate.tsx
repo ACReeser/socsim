@@ -33,7 +33,7 @@ export class Building implements IBuilding, IEnterprise{
         this.distributeCash();
     }
     distributeCash(){
-        const workers = this.getBeans();
+        const workers = this.getWorkerBeans();
         switch(this.enterpriseType){
             case 'company':
                 if (workers.length < 1) {
@@ -75,10 +75,10 @@ export class Building implements IBuilding, IEnterprise{
                 break;
         }
     }
-    getBeans(): Bean[]{
+    getWorkerBeans(): Bean[]{
         const beans: Bean[] = [];
         for(const bKey in this.getBeanKeys()){
-            const bean = this.city?.beans.find((y) => y.key === +bKey);
+            const bean = this.city?.beans.get.find((y) => y.key === +bKey);
             if (bean){
                 beans.push(bean);
             }
