@@ -8,14 +8,12 @@ import { PI2 } from "../WorldGen";
 import { City, Pickup, UFO } from "../simulation/City";
 import { AnimatedUFO } from "./AnimatedUFO";
 import { IEvent } from "../events/Events";
-import { Particles } from "../widgets/particles";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
-import { AnimatedPickup } from "./AnimatedPickup";
 import { BeanList, PickupList } from "./Mover";
 import { PetriBuildings } from "./Buildings";
 import { Magnet } from "./Magnet";
 
-const supportedBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater', 'courthouse', 'park', 'nature'];
+
 interface WorldTilePs {
   tile: Tile;
   city: City;

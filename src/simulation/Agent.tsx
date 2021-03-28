@@ -149,7 +149,7 @@ export class IdleState extends AgentState{
 
 export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]|null{
     if (!(agent instanceof Bean))
-        return [];
+        return null;
     else if (agent.city){
         const city = agent.city;
         switch(intent.act){
@@ -167,9 +167,10 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
             }
         }
     }
-    return [];
+    return null;
 }
 
+const ExplorationEmoteChance = 0.01;
 export class TravelState extends AgentState{
     static createFromIntent(agent: IAgent, intent: IActivityData): TravelState|null{
         const destination = IntentToDestination(agent, intent);
@@ -223,6 +224,9 @@ export class TravelState extends AgentState{
                     ChangeState(z, ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
                 });
                 return ChatState.create(this.data, chat);
+            } else if (agent.believesIn('Exploration') && Math.random() < ExplorationEmoteChance) {
+                agent.emote('happiness');
+                return this;
             } else {
                 return this;
             }

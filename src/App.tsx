@@ -49,7 +49,7 @@ export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   homeless: 'Homeless', sleepy: 'Sleepy', awake: 'Awake', rested: 'Rested',
   sick: 'Sick', sickly: 'Sickly', bruised: 'Bruised', fresh: 'Robust',
   sane: 'Sane', stressed: 'Confused', disturbed: 'Disturbed', 'psychotic': 'Psychotic',
-  house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Natural Scenery'
+  house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Elysian Scenery'
 };
 
 export type ModalView = 'greeting' | 'policy' | 'economy' | 'campaign' | 'party_creation' | 'party' | 'polisci' | 'brainwash' | 'traits';

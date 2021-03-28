@@ -30,6 +30,7 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Gossip'|'Extroversion'|
 'Charity'| // % to donate
 'Gluttony'|
+'Exploration'|
 'Greed'; // steal easier
 
 // 'talkative'|
@@ -131,6 +132,11 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         noun: 'Libertarianism', adj: 'Libertarian', icon: '🔫',
         description: "🎲 to 👎 when paying taxes",
         //idealCon: ['trad'], idealPro: ['prog']
+    },
+    Exploration: {
+        noun: 'Exploration', adj: 'Exploratory', icon: '🔭',
+        description: "🎲 to 👍 when travelling",
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
 
     // work traits

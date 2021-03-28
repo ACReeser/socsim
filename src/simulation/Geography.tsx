@@ -365,7 +365,11 @@ export class CityBook {
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
-//building that slowly sucks up emotions
+export type TopiaBuildingTypes = 'utopia_fields'|'utopia_pump'|'dystopia_refinery'|'dystopia_crypt';
+//utopian fields = free relax
+//utopia pump = slowly sucks up happiness/unhappiness?
+//dystopia refinery = slowly converts negative emotions to energy/bots
+//dystopia crypt = skips death notifications (limited use?)
 export type MoverTypes = 'bean'|'ufo'|'pickup';
 export type MatterTypes = MoverTypes|BuildingTypes;
 

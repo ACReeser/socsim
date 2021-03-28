@@ -416,6 +416,22 @@ export class Bean implements IBean{
                 if (employer){
                     econ.employAndPrice(employer, JobToGood(this.job), 4, this.fairGoodPrice);
                     workedForEmployer = true;
+                    switch(employer.enterpriseType){
+                        case 'company':
+                            if (this.believesIn('Communism') && Math.random() < 0.1)
+                                this.emote('unhappiness');
+                            break;
+                        case 'cooperative':
+                            if (this.believesIn('Capitalism') && Math.random() < 0.1)
+                                this.emote('unhappiness');
+                            if (this.believesIn('Socialism') && Math.random() < 0.1)
+                                this.emote('happiness');
+                            break;
+                        case 'commune':
+                            if (this.believesIn('Capitalism') && Math.random() < 0.1)
+                                this.emote('unhappiness');
+                            break;
+                    }
                 }
             }
             if (!workedForEmployer)
