@@ -84,7 +84,7 @@ export function accelerate_towards(
         y: target.y - mover.point.y
     };
     const magnitude = Math.sqrt((delta.x * delta.x) + (delta.y * delta.y));
-    if (magnitude < colDistance) return true;
+    if (magnitude <= colDistance) return true;
 
     delta.x /= magnitude;
     delta.y /= magnitude;

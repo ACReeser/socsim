@@ -795,8 +795,8 @@ table.classic .border-t{
   right: -100%;
   width: 300px;
   top: -20px;
-  color: black;
-  text-shadow: 0 0 2px white;
+  color: hsl(16, 100%, 70%);;
+  text-shadow: 0 0 2px black;
 }
 .badge{
   padding: 0 2px 2px 2px;

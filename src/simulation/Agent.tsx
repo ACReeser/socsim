@@ -185,7 +185,13 @@ export class TravelState extends AgentState{
         
         if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
             const target = this.data.destinations[0];
-            
+
+            if (isNaN(target.x) || isNaN(target.y)) {
+                //this is a sanity check
+                this.data.destinations.shift();
+                return this;
+            }
+
             let collide = accelerate_towards(
                 agent,
                 target,

@@ -113,7 +113,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                             })
                         }
                         {
-                            this.actDurations().map((x) => {
+                            this.actDurations().filter((x) => this.props.bean.activity_duration[x] > 0).map((x) => {
                                 const act = x as Act;
                                 return <tr>
                                     <td>{x}</td>

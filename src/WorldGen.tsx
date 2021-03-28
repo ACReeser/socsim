@@ -155,15 +155,17 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
     'Ellen', 'Dallas', 'Kane', 'Ash', 
     'Jim', 'James', 'Leonard', 'Nyota', 'Christine', 'Scotty', 'Tasha', 'Geordi', 'Beverly', 'Deanna', 'Wesley', 'Majel',
     'Malcolm','River',  
-    'Luke', 
+    'Luke', 'Han', 'Owen', 'Rey', 'Mace', 'Cody',
     'Dana', 'Walter',  
-    'Rick', 
+    'Rick', 'Holden', 'Roy', 'Pris', 'Eldon', 'Rachael',
     'Rose', 'Donna', 'Jack', 'Amy', 'Rory', 'Martha', 'Clara', 
     'Arnold', 'Dave', 'Holly', 
     'Kara', 'Gaius','William', 'Lee', 'Laura', 'Saul',
     'Max', 'Edison', 'Theora', 'Bryce', 'Murray', 'Ned',
     'Daniel', 'Samantha', 
-    'Logan', 'Francis', 'Jessica'
+    'Logan', 'Francis', 'Jessica',
+    'Thomas',
+    'Benny', 'James', 'John Henry', 'Sarah', 'Piper', 'Nick', 'Shaun', 'Preston'
     ]) + ' ';
     newBean.name += GetRandom([
         'Ripley', 'Bishop', 'Hicks', 'Vasquez', 'Hudson', 
@@ -172,12 +174,15 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
         'Reynolds', 'Tam', 
         'Scully', 'Mulder','Skinner', 
         'Connor', 
+        'Rex',
         'Thrace', 'Baltar', 'Smith','Adama', 'Roslin', 'Tigh', 'Song', 'Oswald', 
-        'Deckard', 
+        'Deckard', 'Bryant', 'Tyrell', 'Sebastian', 'Voight', 'Kampff',
         'Tyler', 'Harkness', 'Jones', 'Noble', 'Pond', 'Williams',
         'Rimmer', 'Lister', 
         'Head', 'Carter', 'Lynch', 'McKenzie', 'Grossberg',
-        "O'Neil", 'Jackson', 'Carter'
+        "O'Neil", 'Jackson', 'Carter',
+        'Whitmore',
+        'House', 'Mitchell', 'Eden', 'Lyons', 'Valentine', 'Garvey'
          ]);
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
@@ -189,11 +194,11 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
     
     if (job == null){
         switch (city.beanSeed){
-            case 0:
-                job = 'farmer'; break;
             case 1:
-                job = 'builder'; break;
+                job = 'farmer'; break;
             case 2:
+                job = 'builder'; break;
+            case 3:
                 job = 'doc'; break;
             default:
                 job = GetRandom(['farmer', 'builder', 'doc', 'entertainer']); break;
