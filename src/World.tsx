@@ -99,6 +99,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
         if (this.date.hour > Hour.Evening){
             this.date.hour = 0;
             this.date.day++;
+            this.beans.get.forEach((x) => {
+                x.hedonHistory.pop();
+                x.hedonHistory.unshift(0);
+            });
         }
         if (this.date.day > 30){
             this.date.day = 1;

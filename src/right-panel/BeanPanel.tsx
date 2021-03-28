@@ -105,7 +105,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         </tr>
                         {
                             GetPriorities(this.props.bean, this.props.alien.difficulty).values.map((x) => {
-                                return <tr>
+                                return <tr key={x.value.act}>
                                     <td>
                                     {x.priority.toFixed(1)} {ActivityIcon(x.value)}
                                     </td>
@@ -115,7 +115,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         {
                             this.actDurations().filter((x) => this.props.bean.activity_duration[x] > 0).map((x) => {
                                 const act = x as Act;
-                                return <tr>
+                                return <tr key={act}>
                                     <td>{x}</td>
                                     <td>
                                         {

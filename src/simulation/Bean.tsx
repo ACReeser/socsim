@@ -1,4 +1,4 @@
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity, EmotionWorth } from "../World";
 import { RandomEthno, GetRandom, GetRandomNumber } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
@@ -98,7 +98,7 @@ export class Bean implements IBean{
     public faith: TraitFaith = 'noFaith';
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
-    public partyLoyalty: number = 0.2;
+    public hedonHistory = [0, 0, 0, 0, 0];
     /**
      * -100 to 100
      */
@@ -627,6 +627,7 @@ export class Bean implements IBean{
     emote(emote: TraitEmote){
         this.ticksSinceLastEmote = 0;
         this.discrete_sanity = MathClamp(this.discrete_sanity + EmotionSanity[emote], 0, 10);
+        this.hedonHistory[0] += EmotionWorth[emote];
         this.city?.addEmotePickup(this.point, emote);
         if (this.believesIn('Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
             this.city?.addEmotePickup(this.point, emote);

@@ -20,7 +20,6 @@ export const Mover: React.FC<{
         onMove(props.startPoint);
         return () => props.onMove.unsubscribe(onMove)
     }, []);
-    console.log('mover render');
     return <div ref={el}>
         {props.children}
     </div>
