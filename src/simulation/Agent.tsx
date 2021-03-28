@@ -149,7 +149,7 @@ export class IdleState extends AgentState{
 
 export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]|null{
     if (!(agent instanceof Bean))
-        return null;
+        return [];
     else if (agent.city){
         const city = agent.city;
         switch(intent.act){
@@ -163,14 +163,16 @@ export function IntentToDestination(agent: IAgent, intent: IActivityData): Point
                 if (destination){
                     agent.destinationKey = destination.key;
                     return Route(city, agent, destination);
+                } else {
+                    return [];
                 }
             }
         }
     }
-    return null;
+    return [];
 }
 
-const ExplorationEmoteChance = 0.01;
+const ExplorationEmoteChance = 0.002;
 export class TravelState extends AgentState{
     static createFromIntent(agent: IAgent, intent: IActivityData): TravelState|null{
         const destination = IntentToDestination(agent, intent);

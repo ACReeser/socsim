@@ -244,6 +244,7 @@ class App extends React.Component<AppPs, AppState>{
   abduct = (bean: Bean) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.abduct)) {
       bean.abduct(this.state.world.alien);
+      bean.city?.beans.remove(bean);
       this.setState({ world: this.state.world });
     }
   }
@@ -252,6 +253,7 @@ class App extends React.Component<AppPs, AppState>{
       const lucky_bean = this.state.world.alien.abductedBeans.shift();
       if (lucky_bean instanceof Bean) {
         lucky_bean.lifecycle = 'alive';
+        lucky_bean.city?.beans.push(lucky_bean);
       } else {
         window.alert("releasing data beans is unimplemented");
       }
