@@ -13,7 +13,7 @@ import { shuffle } from './simulation/Utils';
 import { Act, IActListener, IChatData } from './simulation/Agent';
 import { IDifficulty } from './Game';
 import { type } from 'os';
-import { IsBeliefDivergent, SecondaryBeliefData } from './simulation/Beliefs';
+import { GetHedonReport, IsBeliefDivergent, SecondaryBeliefData } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
 
 export interface IBeanContainer{
@@ -49,6 +49,7 @@ export const BeanPhysics = {
     MaxSpeed: 4,
     CollisionDistance: 10
 }
+const MaxHedonHistory = 5;
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
     public readonly economy: Economy = new Economy(this.bus);
@@ -100,8 +101,11 @@ export class World implements IWorld, IBeanContainer, IActListener{
             this.date.hour = 0;
             this.date.day++;
             this.beans.get.forEach((x) => {
-                x.hedonHistory.pop();
-                x.hedonHistory.unshift(0);
+                if (x.hedonHistory.length >= MaxHedonHistory)
+                    x.hedonHistory.pop();
+                x.hedonHistory.unshift(x.currentHedons);
+                x.happiness = GetHedonReport(x.hedonHistory);
+                x.currentHedons = {};
             });
         }
         if (this.date.day > 30){
@@ -146,7 +150,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (e) this.publishEvent(e);
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
-            b.ticksSinceLastEmote++;
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();

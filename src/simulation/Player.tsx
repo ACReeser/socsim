@@ -90,8 +90,8 @@ export const Curriculums: {[difficulty: string]: ICurriculum} = {
     Default: {
         GradeWorld: (world: World) => {return{
             Happiness: BooleanAverageGrader(world.beans.get, (o) => o.lastHappiness >- .2),
-            Prosperity: BooleanAverageGrader(world.beans.get, (o) => o.food != 'hungry'),
-            Stability: BooleanAverageGrader(world.beans.get, (o) => o.sanity == 'sane'),
+            Prosperity: BooleanAverageGrader(world.beans.get, (o) => o.food !== 'hungry'),
+            Stability: BooleanAverageGrader(world.beans.get, (o) => o.sanity === 'sane'),
             Dogma: GradeUpToNumber((world.alien.speechcrimes[world.date.year] || 0), 10, 10),
         }},
         RubricDescription: {
@@ -217,9 +217,9 @@ export class Player implements IPlayerData, IProgressable{
     public currentlyResearchingTech: Tech|undefined;
 
     public canAfford(cost: PlayerResources, qty: number = 1): boolean{
-        return (cost.bots == undefined || this.bots.amount >= cost.bots * qty) &&
-        (cost.energy == undefined || this.energy.amount >= cost.energy * qty) && 
-        (cost.hedons == undefined || this.hedons.amount >= cost.hedons * qty);
+        return (cost.bots === undefined || this.bots.amount >= cost.bots * qty) &&
+        (cost.energy === undefined || this.energy.amount >= cost.energy * qty) && 
+        (cost.hedons === undefined || this.hedons.amount >= cost.hedons * qty);
     }
 
     public hasResearched(tech: Tech){

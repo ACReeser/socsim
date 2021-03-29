@@ -34,10 +34,10 @@ export const BeliefWidget: React.FC<{
                     <span className="pull-r">{props.cost}🧠</span>
                 </div>
                 {
-                props.data.description ? props.data.description.split(';').map((x) => 
-                <small className="marg-b-6"> {x}
-                </small>
-                ) : null
+                props.data.description ? props.data.description.split(';').map((x, i) => 
+                    <small className="marg-b-6" key={i}> {x}
+                    </small>
+                    ) : null
                 }
                 <div className="grow-1 text-center">
                     {

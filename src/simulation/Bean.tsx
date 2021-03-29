@@ -9,7 +9,7 @@ import { Act, AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IM
 import { JobToBuilding, Point, Vector } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
-import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
+import { GetHedonReport, HedonReport, HedonSourceToVal, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
@@ -98,7 +98,20 @@ export class Bean implements IBean{
     public faith: TraitFaith = 'noFaith';
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
-    public hedonHistory = [0, 0, 0, 0, 0];
+    /**
+     * hedon sources from current day
+     */
+    public currentHedons: HedonSourceToVal = {};
+    /**
+     * last X days of hedon history
+     * 
+     * do not modify - World.tsx simulate_world will handle it
+     */
+    public hedonHistory: HedonSourceToVal[] = [];
+    /**
+     * latest happiness report
+     */
+    public happiness: HedonReport = GetHedonReport(this.hedonHistory);
     /**
      * -100 to 100
      */
@@ -113,7 +126,6 @@ export class Bean implements IBean{
     public lastPartySentiment: number = 0;
     public ticksSinceLastSale: number = 0;
     public ticksSinceLastRelax: number = 0;
-    public ticksSinceLastEmote: number = 0;
     /**
      * days until needs sleep
      */
@@ -298,15 +310,13 @@ export class Bean implements IBean{
         return (cost.sanity === undefined || this.discrete_sanity >= cost.sanity);
     }
     public maybeParanoid() {
-        if (this.believesIn('Paranoia') && Math.random() < ParanoidUnhappyChance){
-            this.emote('unhappiness');
-        }
+        this.ifBelievesInMaybeEmote('Paranoia', 'unhappiness', ParanoidUnhappyChance)
     }
     public maybeAntagonised(){
-        this.emote('unhappiness');
+        this.emote('unhappiness', 'Antagonism');
     }
     public maybeEnthused(){
-        this.emote('happiness');
+        this.emote('happiness', 'Enthusiasm');
     }
     /**
      * chats or conversations use 🗣️ in descriptions
@@ -379,8 +389,7 @@ export class Bean implements IBean{
             switch(this.job){
                 case 'farmer':
                     this.discrete_food = Math.min(this.discrete_food+1, GoodToThreshold.food.sufficient*2);
-                    if (this.believesIn('Parochialism') && Math.random() <= ParochialHappyChance)
-                        this.emote('happiness');
+                    this.ifBelievesInMaybeEmote('Parochialism', 'happiness', ParochialHappyChance);
                     break;
                 case 'doc':
                     this.discrete_health = Math.min(this.discrete_health+1, GoodToThreshold.medicine.sufficient*2);
@@ -390,16 +399,11 @@ export class Bean implements IBean{
                     this.discrete_stamina = 7;
                     break;
                 case 'entertainer':
-                    if (this.believesIn('Cosmopolitanism') && Math.random() <= CosmopolitanHappyChance)
-                        this.emote('happiness');
+                    this.ifBelievesInMaybeEmote('Cosmopolitanism', 'happiness', CosmopolitanHappyChance);
                 break;
             }
-            if (this.believesIn('Diligence') && Math.random() <= DiligenceHappyChance){
-                this.emote('happiness');
-            }
-            if (this.believesIn('Hedonism') && Math.random() <= HedonismHateWorkChance){
-                this.emote('unhappiness');
-            }
+            this.ifBelievesInMaybeEmote('Diligence', 'happiness', DiligenceHappyChance);
+            this.ifBelievesInMaybeEmote('Hedonism', 'unhappiness', HedonismHateWorkChance);
             this.ticksSinceLastSale++;
             if (this.ticksSinceLastSale > 7){
                 const cityHasOtherWorkers = this.city ? this.city.beans.get.filter(x => x.job === this.job).length > 1 : false;
@@ -418,18 +422,15 @@ export class Bean implements IBean{
                     workedForEmployer = true;
                     switch(employer.enterpriseType){
                         case 'company':
-                            if (this.believesIn('Communism') && Math.random() < 0.1)
-                                this.emote('unhappiness');
+                            this.ifBelievesInMaybeEmote('Communism', 'unhappiness', 0.1);
                             break;
-                        case 'cooperative':
-                            if (this.believesIn('Capitalism') && Math.random() < 0.1)
-                                this.emote('unhappiness');
-                            if (this.believesIn('Socialism') && Math.random() < 0.1)
-                                this.emote('happiness');
+                        case 'cooperative':                            
+                            this.ifBelievesInMaybeEmote('Capitalism', 'unhappiness', 0.1);
+                                
+                            this.ifBelievesInMaybeEmote('Socialism', 'happiness', 0.1);
                             break;
-                        case 'commune':
-                            if (this.believesIn('Capitalism') && Math.random() < 0.1)
-                                this.emote('unhappiness');
+                        case 'commune':                            
+                            this.ifBelievesInMaybeEmote('Capitalism', 'unhappiness', 0.1);
                             break;
                     }
                 }
@@ -443,10 +444,8 @@ export class Bean implements IBean{
         if (groceries)
             this.discrete_food += groceries.bought;
         if (this.food === 'stuffed'){
-            this.emote('happiness');
-            if (this.believesIn('Gluttony')){
-                this.emote('happiness');
-            }
+            this.emote('happiness', 'Stuffed');
+            this.ifBelievesInMaybeEmote('Gluttony', 'happiness', 1);
         }
         return groceries;
     }
@@ -491,7 +490,7 @@ export class Bean implements IBean{
         const fun = economy.tryTransact(this, 'fun');
         if (fun) {
             this.discrete_fun = 1;
-            this.emote('happiness');
+            this.emote('happiness', 'entertainment');
         }
         return fun != null;
     }
@@ -510,10 +509,10 @@ export class Bean implements IBean{
         if (starve)
             return null;
         else if (this.food === 'starving' && wasNotHungry){
-            this.emote('unhappiness');
+            this.emote('unhappiness', 'Starving');
             if (this.believesIn('Gluttony')){
-                this.emote('unhappiness');
-                this.emote('unhappiness');
+                this.emote('unhappiness', 'Gluttony');
+                this.emote('unhappiness', 'Gluttony');
             }
         }
             
@@ -532,7 +531,7 @@ export class Bean implements IBean{
         if (sick)
             return null;
         else if (this.health === 'sick' && wasNotSick)
-            this.emote('unhappiness');
+            this.emote('unhappiness', 'sick');
 
         this.discrete_fun -= 1/10;
         this.discrete_fun = Math.max(0, this.discrete_fun);
@@ -543,7 +542,7 @@ export class Bean implements IBean{
         if (meds)
             this.discrete_health += meds.bought;
         if (this.health === 'fresh')
-            this.emote('happiness');
+            this.emote('happiness', 'Robust');
         return meds;
     }
     get babyChance(): number{
@@ -568,33 +567,6 @@ export class Bean implements IBean{
     canBaby(costOfLiving: number): boolean{
         return this.alive && this.cash > costOfLiving * 3 &&
             !this.isInCrisis;
-    }
-    maybeEmote(): TraitEmote | null {
-        if (this.lifecycle === 'alive'){
-            const unhappy = Math.random();
-            if (unhappy < this.unhappyChance)
-                return 'unhappiness';
-            else {
-                const happy = Math.random();
-                if (happy < this.happyChance)
-                    return 'happiness';
-            }
-        }
-        return null;
-    }
-    get unhappyChance(): number{
-        let base = UnhappyChance;
-        base -= Math.min(0, this.ticksSinceLastEmote / EmoteTickRamp);
-        
-        if (this.isInCrisis)
-            base += EmoteCrisisChance;
-        
-        return base;
-    }
-    get happyChance(): number{
-        let base = HappyChance;
-        base -= Math.min(0, this.ticksSinceLastEmote / EmoteTickRamp);
-        return base + (this.lastHappiness / 100 / 2);
     }
     maybeCrime(good: TraitGood): boolean {
         if (good === 'shelter') return false;
@@ -624,10 +596,14 @@ export class Bean implements IBean{
         }
         return chance <= roll;
     }
-    emote(emote: TraitEmote){
-        this.ticksSinceLastEmote = 0;
+    ifBelievesInMaybeEmote(belief: TraitBelief, emote: TraitEmote, chance: number){
+        if (this.believesIn(belief) && Math.random() < chance){
+            this.emote(emote, belief);
+        }
+    }
+    emote(emote: TraitEmote, source: string){
         this.discrete_sanity = MathClamp(this.discrete_sanity + EmotionSanity[emote], 0, 10);
-        this.hedonHistory[0] += EmotionWorth[emote];
+        this.currentHedons[source] = (this.currentHedons[source] || 0) + EmotionWorth[emote];
         this.city?.addEmotePickup(this.point, emote);
         if (this.believesIn('Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
             this.city?.addEmotePickup(this.point, emote);
@@ -647,7 +623,7 @@ export class Bean implements IBean{
         this.alive = false;
         const pains = GetRandomNumber(2, 3);
         for (let i = 0; i < pains; i++) {
-            this.emote('hate');
+            this.emote('hate', 'death');
         }
         this.city?.beans.remove(this);
         this.city?.historicalBeans.push(this);

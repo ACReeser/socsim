@@ -227,7 +227,7 @@ export class TravelState extends AgentState{
                 });
                 return ChatState.create(this.data, chat);
             } else if (agent.believesIn('Exploration') && Math.random() < ExplorationEmoteChance) {
-                agent.emote('happiness');
+                agent.emote('happiness', 'Exploration');
                 return this;
             } else {
                 return this;
@@ -333,9 +333,9 @@ export class RelaxState extends AgentState{
         super.exit(agent);
         if (agent instanceof Bean){
             agent.discrete_fun += 1;
-            agent.emote('happiness');
+            agent.emote('happiness', 'Relaxation');
             if (agent.believesIn('Naturalism'))
-                agent.emote('happiness');
+                agent.emote('happiness', 'Naturalism');
         }
     }
 }

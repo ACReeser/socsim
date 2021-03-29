@@ -344,3 +344,57 @@ export interface Belief{
     verb: BeliefVerb;
     adj: TraitBelief;
 }
+
+export type HedonSourceToVal = {[source: string]: number};
+export interface HedonReport {
+    flatAverage: number,
+    weightedAverage: number,
+    maxSource: string,
+    minSource: string,
+    all: HedonSourceToVal
+}
+
+export function GetHedonReport(hedonHistory: HedonSourceToVal[]): HedonReport {
+    if (hedonHistory.length === 0){
+        return {
+            all: {},
+            flatAverage: 0,
+            weightedAverage: 0,
+            maxSource: '',
+            minSource: ''
+        }
+    }
+    const all: {[source: string]: number} = {};
+    let weightedAverage: number = 0;
+    let allSum: number = 0;
+    for (let i = 0; i < hedonHistory.length; i++) {
+        const day = hedonHistory[i];
+        let daySum = 0;
+        const sources = Object.keys(day);
+        for (let j = 0; j < sources.length; j++) {
+            const source = sources[j];
+            daySum += day[source];
+            if (!all[source]) all[source] = 0;
+            all[source] += day[source];
+        }
+        weightedAverage += daySum / (i + 1);
+        allSum += daySum;
+    }
+
+    const allSources = Object.keys(all);
+    return {
+        flatAverage: allSum / hedonHistory.length,
+        weightedAverage: weightedAverage,
+        maxSource: allSources.reduce((max, source) => {
+            if (all[source] > max.val)
+                return {source: source, val: all[source]};
+            else return max;
+        }, {source: '', val: 0}).source,
+        minSource: allSources.reduce((max, source) => {
+            if (all[source] < max.val)
+                return {source: source, val: all[source]};
+            else return max;
+        }, {source: '', val: 0}).source,
+        all: all
+    }
+}

@@ -1,5 +1,5 @@
 import React from "react";
-import { IHappinessModifier, TraitIcon } from "../World";
+import { EmoteIcon, IHappinessModifier, TraitIcon } from "../World";
 import { keyToName } from "../App";
 import { Bean } from "../simulation/Bean";
 import { NeedReadout } from "../widgets/NeedReadout";
@@ -78,6 +78,16 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </tr>
         });
     }
+    hedonTable(){
+        return Object.keys(this.props.bean.happiness.all).filter(
+            (k) => k != this.props.bean.happiness.maxSource && k != this.props.bean.happiness.minSource
+            ).map((x, i) => {
+            return <tr key={i}>
+                <td className="small text-right">{this.props.bean.happiness.all[x]} {this.props.bean.happiness.all[x] >= 0 ? EmoteIcon['happiness'] : EmoteIcon['unhappiness']} from </td>
+                <td className="small">{x}</td>
+            </tr>
+        });
+    }
     renderInner(){
         if (!this.scanned){
             return <div className="width-100p text-center">
@@ -91,8 +101,23 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 return this.scanned ? this.beliefTable(this.props.bean.beliefs) : null
             case 'feelings':
                 return <table className="width-100p"><tbody>
-                    {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null}
-                    {/* {this.scanned ? this.happyTable(this.props.bean.getSentimentModifiers(this.props.economy, this.props.city, this.props.law, this.props.party).party) : null} */}
+                    {
+                        this.props.bean.happiness.maxSource.length > 0 ?  <tr>
+                            <td colSpan={2}>
+                                {this.props.bean.happiness.all[this.props.bean.happiness.maxSource]} {EmoteIcon['happiness']} from {this.props.bean.happiness.maxSource}
+                            </td>
+                        </tr> : null
+                    }
+                    {
+                        this.props.bean.happiness.minSource.length > 0 ?  
+                        <tr>
+                            <td colSpan={2}>
+                                {this.props.bean.happiness.all[this.props.bean.happiness.minSource]} {EmoteIcon['unhappiness']} from {this.props.bean.happiness.minSource}
+                            </td>
+                        </tr> : null
+                    }
+                    {/* {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null} */}
+                    {this.scanned ? this.hedonTable() : null}
                     </tbody>
                 </table>
             case 'priorities':
@@ -105,7 +130,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         </tr>
                         {
                             GetPriorities(this.props.bean, this.props.alien.difficulty).values.map((x) => {
-                                return <tr key={x.value.act}>
+                                return <tr key={`p-${x.value.act}-${x.value.good}`}>
                                     <td>
                                     {x.priority.toFixed(1)} {ActivityIcon(x.value)}
                                     </td>
@@ -143,10 +168,12 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
             </th>
             <td className="text-right">
-                {(SecondaryBeliefData[b].idealPro || []).map(y => <span>+{TraitIcon[y]}</span>)}
-                {(SecondaryBeliefData[b].idealCon || []).map(y => <span>-{TraitIcon[y]}</span>)}
+                {(SecondaryBeliefData[b].idealPro || []).map(y => <span key={y}>+{TraitIcon[y]}</span>)}
+                {(SecondaryBeliefData[b].idealCon || []).map(y => <span key={y}>-{TraitIcon[y]}</span>)}
             </td>
-        </tr><tr><td className="small text-center" colSpan={2}>{SecondaryBeliefData[b].description}</td></tr></tbody></table>});
+        </tr><tr><td className="small text-center" colSpan={2}>{
+            SecondaryBeliefData[b].description ? SecondaryBeliefData[b].description?.split(';').map((x, i) => <span key={i}>{x}</span>) : null
+        }</td></tr></tbody></table>});
     }
     get scanned(){
         return this.props.alien.scanned_bean[this.props.bean.key];
@@ -203,7 +230,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                         🙂 {Math.round(this.props.bean.lastHappiness)}%
                     </span>
                     <span className="text-center">
-                        👍 {Math.round(this.props.bean.lastPartySentiment)}%
+                        {Math.round(this.props.bean.happiness.flatAverage)} {EmoteIcon['happiness']} /day
                     </span>
                 </div>
                 {this.renderTraits()}

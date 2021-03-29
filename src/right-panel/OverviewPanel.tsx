@@ -45,7 +45,7 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
                 <div className="header"><b>Demographics</b></div>
                 <div>
                     <b>Population</b>&nbsp;
-                <span>{this.props.beans.get.length}</span>
+                    <span>{this.props.beans.get.length}</span>
                 </div>
                 <AxisReadout report={reportEthno(this.props.beans.get)}>Ethnicity</AxisReadout>
                 <div className="header"><b>Situation</b></div>
@@ -55,12 +55,11 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
                 <b>Avg. Money</b> ${avg_cash.toFixed(2)} &nbsp;
                 <b>Avg. Happiness</b> {Math.round(avg_happy)}%
                 <div className="header"><b>Electorate</b></div>
-                {/* <AxisReadout report={reportIdeals(this.props.beans.get)}>Sentiment</AxisReadout> */}
                 <AxisReadout report={reportCommunity(this.props.beans.get)}>Community</AxisReadout>
                 <AxisReadout report={reportIdeals(this.props.beans.get)}>Ideals</AxisReadout>
                 <div>
                     <b>Approval</b>&nbsp;
-                <span>{avg_approval.toFixed(0)}%</span>
+                    <span>{avg_approval.toFixed(0)}%</span>
                 </div>
             </div>
         )
