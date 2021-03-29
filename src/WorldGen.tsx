@@ -188,8 +188,11 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
     const beanBeliefCount = Math.ceil(Math.random() * 2);
-    for (let i = 0; i < beanBeliefCount; i++) {
-        newBean.beliefs.push(GetRandom(BeliefsAll));
+    while (newBean.beliefs.length < beanBeliefCount) {
+        const newBelief = GetRandom(BeliefsAll);
+        const hasAlready = newBean.beliefs.includes(newBelief);
+        if (!hasAlready)
+            newBean.beliefs.push(newBelief);
     }
     
     if (job == null){
