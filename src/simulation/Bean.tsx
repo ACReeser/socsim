@@ -32,6 +32,7 @@ const ExtrovertChatExtraChance = 0.25;
 const AntagonismBullyChance = 0.45;
 const GossipBullyChance = 0.35;
 const EnthusiasmPraiseChance = 0.45;
+const GermophobiaHospitalWorkChance = 0.25;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -99,15 +100,11 @@ export class Bean implements IBean{
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
     /**
-     * hedon sources from current day
-     */
-    public currentHedons: HedonSourceToVal = {};
-    /**
-     * last X days of hedon history
+     * current hedons on index 0, plus last len-1 days of hedon history
      * 
      * do not modify - World.tsx simulate_world will handle it
      */
-    public hedonHistory: HedonSourceToVal[] = [];
+    public hedonHistory: HedonSourceToVal[] = [{}];
     /**
      * latest happiness report
      */
@@ -345,7 +342,9 @@ export class Bean implements IBean{
                 }, null);
                 if (needy) {
                     this.cash -= 0.5;
+                    this.emote('happiness', 'Charity');
                     needy.cash += 0.5;
+                    needy.emote('happiness', 'Charity');
                     return {
                         participation: 'speaker',
                         type: 'gift',
@@ -393,6 +392,7 @@ export class Bean implements IBean{
                     break;
                 case 'doc':
                     this.discrete_health = Math.min(this.discrete_health+1, GoodToThreshold.medicine.sufficient*2);
+                    this.ifBelievesInMaybeEmote('Germophobia', 'unhappiness', GermophobiaHospitalWorkChance);
                     break;
                 case 'builder': 
                     this.stamina = 'awake';
@@ -423,6 +423,8 @@ export class Bean implements IBean{
                     switch(employer.enterpriseType){
                         case 'company':
                             this.ifBelievesInMaybeEmote('Communism', 'unhappiness', 0.1);
+                            if (employer.ownerBeanKey === this.key)
+                                this.ifBelievesInMaybeEmote('Capitalism', 'happiness', 0.1);
                             break;
                         case 'cooperative':                            
                             this.ifBelievesInMaybeEmote('Capitalism', 'unhappiness', 0.1);
@@ -530,8 +532,12 @@ export class Bean implements IBean{
         const sick = this.maybeDie('sickness', 0.4);
         if (sick)
             return null;
-        else if (this.health === 'sick' && wasNotSick)
+        else if (this.health === 'sick' && wasNotSick){
             this.emote('unhappiness', 'sick');
+            if (this.believesIn('Germophobia')){
+                this.emote('unhappiness', 'Germophobia');
+            }
+        }
 
         this.discrete_fun -= 1/10;
         this.discrete_fun = Math.max(0, this.discrete_fun);
@@ -603,7 +609,7 @@ export class Bean implements IBean{
     }
     emote(emote: TraitEmote, source: string){
         this.discrete_sanity = MathClamp(this.discrete_sanity + EmotionSanity[emote], 0, 10);
-        this.currentHedons[source] = (this.currentHedons[source] || 0) + EmotionWorth[emote];
+        this.hedonHistory[0][source] = (this.hedonHistory[0][source] || 0) + EmotionWorth[emote];
         this.city?.addEmotePickup(this.point, emote);
         if (this.believesIn('Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
             this.city?.addEmotePickup(this.point, emote);

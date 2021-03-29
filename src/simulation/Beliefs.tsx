@@ -30,7 +30,8 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Gossip'|'Extroversion'|
 'Charity'| // % to donate
 'Gluttony'|
-'Exploration'|
+'Wanderlust'|
+'Germophobia'|
 'Greed'; // steal easier
 
 // 'talkative'|
@@ -121,7 +122,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Charity: {
         noun: 'Charity', adj: 'Charitable', icon: '😇',
-        description: "🎲 to gift 💰 to the penniless", //implemented
+        description: "🎲 to gift 💰 to the penniless; and spread 👍", //implemented
         //idealCon: ['trad'], idealPro: ['prog']
     },
     Progressivism: {
@@ -133,9 +134,14 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         description: "🎲 to 👎 when paying taxes",
         //idealCon: ['trad'], idealPro: ['prog']
     },
-    Exploration: {
-        noun: 'Exploration', adj: 'Exploratory', icon: '🔭',
-        description: "🎲 to 👍 when travelling",
+    Wanderlust: {
+        noun: 'Wanderlust', adj: 'Wanderer', icon: '🔭',
+        description: "🎲 to 👍 when travelling", //implemented
+        //idealCon: ['trad'], idealPro: ['prog', 'state']
+    },
+    Germophobia: {
+        noun: 'Germophobia', adj: 'Germophobic', icon: '🤧',
+        description: "👎 when sick or working in hospital",
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
 
@@ -152,17 +158,17 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Capitalism: {
         noun: 'Capitalism', adj: 'Capitalist', icon: '🎩',
-        description: "👎 working in co-ops and communes; Extra 👍 when owner",
+        description: "👎 working in co-ops and communes; Extra 👍 when owner", //implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Socialism: {
         noun: 'Socialism', adj: 'Socialist', icon: '🤝',
-        description: "Extra 👍 working in co-ops",
+        description: "Extra 👍 working in co-ops", //implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Communism: {
         noun: 'Communism', adj: 'Communist', icon: '⚒️',
-        description: "👎 working in companies",
+        description: "👎 working in companies", //implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
 
@@ -196,12 +202,12 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // 😈 Crime traits
     Authority: {
         noun: 'Authority', adj: 'Authoritarian', icon: '👢',
-        description: "Less 🎲 for all 😈 Crime",
+        description: "Less 🎲 for all 😈 Crime", //implemented
         //idealCon: ['ego'], idealPro: ['state']
     },
     Anarchism: {
         noun: 'Anarchism', adj: 'Anarchist', icon: '🖕',
-        description: "Extra 🎲 for all 😈 Crime",
+        description: "Extra 🎲 for all 😈 Crime", //implemented
         //idealCon: ['state', 'prog'], idealPro: ['ego', 'trad']
     },
     Greed: {

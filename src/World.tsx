@@ -101,11 +101,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
             this.date.hour = 0;
             this.date.day++;
             this.beans.get.forEach((x) => {
-                if (x.hedonHistory.length >= MaxHedonHistory)
+                if (x.hedonHistory.length >= MaxHedonHistory) {
                     x.hedonHistory.pop();
-                x.hedonHistory.unshift(x.currentHedons);
-                x.happiness = GetHedonReport(x.hedonHistory);
-                x.currentHedons = {};
+                }
+                x.hedonHistory.unshift({});
             });
         }
         if (this.date.day > 30){
@@ -150,6 +149,8 @@ export class World implements IWorld, IBeanContainer, IActListener{
             if (e) this.publishEvent(e);
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
+            
+            b.happiness = GetHedonReport(b.hedonHistory);
         });
         this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
