@@ -1,6 +1,7 @@
 import React from "react";
 import { Player } from "../simulation/Player";
 import { CostSmall } from "../widgets/CostSmall";
+import { EmoteIcon } from "../World";
 
  export class MarketPanel extends React.Component<{
      player: Player,
@@ -15,7 +16,7 @@ import { CostSmall } from "../widgets/CostSmall";
             </div>
             <p>
                 <small>
-                    The premier exchange for ⚡️, 🤖,  and 👍!
+                    The premier exchange for ⚡️, 🤖,  and {EmoteIcon['happiness']}!
                 </small>
             </p>
             <div className="card-parent">

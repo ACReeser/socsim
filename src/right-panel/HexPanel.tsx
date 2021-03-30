@@ -91,7 +91,7 @@ export class HexPanel extends React.Component<{
                             bean: this.props.city.beans.get.find((y) => y.key === b.job_slots[x])
                         }
                     }).map((x) => <div key={x.key}>
-                        {BuildingJobIcon[b.type]} {x.bean?.name} {isEnterprise(b) && x.bean?.key === b.ownerBeanKey ? '🎩' : ''}
+                        {BuildingJobIcon[b.type]} {x.bean?.name} {isEnterprise(b) && b.enterpriseType === 'company' && x.bean?.key === b.ownerBeanKey ? '🎩' : ''}
                     </div>)
                 }
             </div>

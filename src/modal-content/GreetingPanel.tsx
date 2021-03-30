@@ -1,4 +1,5 @@
 import React from 'react';
+import { EmoteIcon } from '../World';
 
 export const GreetingPanel: React.FC = (props) => {
     return <div>
@@ -20,7 +21,7 @@ export const GreetingPanel: React.FC = (props) => {
                         <strong>🛸 Beam In</strong> <select><option>Human</option></select> subjects for cultivation.
                     </li>
                     <li>
-                        Harvest your subject's positive <strong>👍 Hedons</strong>.
+                        Harvest your subject's positive <strong>{EmoteIcon['happiness']} Hedons</strong>.
                     </li>
                     <li>
                         Sell the Hedons on the <br/><strong>🌌 Galactic 😨 Emotion 💰 Market</strong>.
@@ -38,10 +39,10 @@ export const GreetingPanel: React.FC = (props) => {
                         <strong>🛰️ Scan</strong> your subject's primitive minds for information on what pleases them.
                     </li>
                     <li>
-                        <strong>🚿 Brainwash</strong> subjects to change their <strong>🧠&nbsp;Traits</strong>. Try to add Traits that emit more <strong>👍&nbsp;Hedons</strong>.
+                        <strong>🚿 Brainwash</strong> subjects to change their <strong>🧠&nbsp;Traits</strong>. Try to add Traits that emit more <strong>{EmoteIcon['happiness']}&nbsp;Hedons</strong>.
                     </li>
                     <li>
-                        Avoid letting your subjects die or endure pain; this makes <strong>👎&nbsp;Antihedons</strong> which are less profitable.
+                        Avoid letting your subjects die or endure pain; this makes <strong>{EmoteIcon['unhappiness']}&nbsp;Antihedons</strong> which are less profitable.
                     </li>
                     <li>
                         Use your knowledge of Traits to modify the farm's <strong>🗳️&nbsp;Government</strong> to maximize Hedon generation.

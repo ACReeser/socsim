@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from "react";
-import { BeliefSubjectIcon, BeliefSubjectText, BeliefVerbOption, BeliefVerbIcon, BeliefVerbText, BeliefSubject, BeliefVerb } from "../simulation/Beliefs";
 
 export interface StringDropdownPS{
     options: Array<string>,
@@ -50,23 +49,5 @@ export class StringDropdown extends React.Component<StringDropdownPS, StringDrop
     }
     protected getTitleForOption(data: string): string|undefined{
         return undefined;
-    }
-}
-
-
-export class BeliefSubjectDropdown extends StringDropdown{
-    getTextForOption(data: string): string{
-        return BeliefSubjectIcon[data as BeliefSubject] + ' ' +BeliefSubjectText[data as BeliefSubject];
-    }
-}
-
-export class SelfVerbDropdown extends StringDropdown{
-    getTextForOption(data: string): string{
-        return BeliefVerbIcon[data as BeliefVerb]+' '+BeliefVerbText['self'][data as BeliefVerb];
-    }
-}
-export class OtherVerbDropdown extends StringDropdown{
-    getTextForOption(data: string): string{
-        return BeliefVerbIcon[data as BeliefVerb]+' '+BeliefVerbText['other'][data as BeliefVerb];
     }
 }

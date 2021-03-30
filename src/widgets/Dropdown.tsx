@@ -1,6 +1,5 @@
 import React, { ChangeEvent } from "react";
 import { City } from "../simulation/City";
-import { SecondaryBeliefData, BeliefSubjectIcon, BeliefSubjectText, BeliefVerbIcon, BeliefVerbText, TraitBelief, BeliefSubject, BeliefVerb, BeliefAdjOption, BeliefSubjectOption, BeliefVerbOption } from "../simulation/Beliefs";
 
 export interface DropdownPS<T>{
     options: Array<T&{key: any}>,

@@ -323,7 +323,7 @@ export class Bean implements IBean{
             return false;
         const roll = Math.random();
         let chance = (this.community === 'state') ? 0.2 : 0.1;
-        if (this.believesIn('Gossip')) 
+        if (this.believesIn('Extroversion')) 
             chance += ExtrovertChatExtraChance;
         return roll < chance;
     }

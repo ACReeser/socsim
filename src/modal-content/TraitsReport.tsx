@@ -33,39 +33,43 @@ export class TraitsReport extends React.Component<TraitsP, {
           </div>
           <div className="col-2-30-60">
             <div>
-              <strong>Trait Inventory</strong> <br/>
-              {
-                this.props.beliefInventory.get.length < 1 ? <div>
-                  No Traits! <br/>
-                  😵 Brainwash your subjects  <br/>
-                  or buy from the 🛍️ Market
-                  </div> : <div>
-                    {
-                      this.props.beliefInventory.get.map((x) => <div key={x.trait}>
-                        <div>
-                          <strong>
-                            {SecondaryBeliefData[x.trait].icon} {SecondaryBeliefData[x.trait].noun}
-                          </strong>
-                        </div>
-                        <div>
-                          This can be implanted {x.charges} more times
-                        </div>
-                      </div>)
-                    }
-                  </div>
-              }
+              <div className="scroll">
+                <div className="scoll-sticky-h">
+                  <strong>Trait Inventory</strong>
+                </div>
+                {
+                  this.props.beliefInventory.get.length < 1 ? <div>
+                    No Traits! <br/>
+                    😵 Brainwash your subjects  <br/>
+                    or buy from the 🛍️ Market
+                    </div> : this.props.beliefInventory.get.map((x) => <div key={x.trait}>
+                          <div>
+                            <strong>
+                              {SecondaryBeliefData[x.trait].icon} {SecondaryBeliefData[x.trait].noun}
+                            </strong>
+                          </div>
+                          <div>
+                            This can be implanted {x.charges} more times
+                          </div>
+                        </div>)
+                }
+              </div>
             </div>
             <div>
-              <strong>Discovered Traits</strong> <br/>
-              {
-                beliefs.length < 1 ? <div>
-                  No Traits! <br/>
-                  🛰️ Scan some of your subjects.
-                </div> : beliefs.map((x) => <BeliefWidget key={x.noun} data={x} cost={0}
-                titleView={<strong>{x.noun}</strong>}
-                bottomView={<span></span>}
-              ></BeliefWidget>)
-              }
+              <div className="scroll">
+                <div className="scroll-sticky-h">
+                  <strong>Discovered Traits</strong>
+                </div>
+                {
+                  beliefs.length < 1 ? <div>
+                    No Traits! <br/>
+                    🛰️ Scan some of your subjects.
+                  </div> : beliefs.map((x) => <BeliefWidget key={x.noun} data={x} cost={0}
+                  titleView={<strong>{x.noun}</strong>}
+                  bottomView={<span></span>}
+                ></BeliefWidget>)
+                }
+              </div>
             </div>
           </div>
         </div>

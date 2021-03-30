@@ -41,30 +41,7 @@ export type TraitBelief = 'Diligence'| // happy from work
 // 'open-minded'| // beliefs are easily changed
 
 export type BeliefSubject = 'self'|'other';
-export const BeliefSubjectText: {[key in BeliefSubject]: string} ={
-    other: 'People',
-    self: 'I'
-}
-export const BeliefSubjectIcon: {[key in BeliefSubject]: string} ={
-    other: '👇',
-    self: '👀'
-}
 export type BeliefVerb = 'are'|'arenot';
-export type BeliefSubjectVerbTree = {[key in BeliefSubject]: {[key in BeliefVerb]: string}};
-export const BeliefVerbIcon: {[key in BeliefVerb]: string} ={
-    are: '✔️',
-    arenot: '🛑'
-}
-export const BeliefVerbText: BeliefSubjectVerbTree ={
-    self: {
-        are: 'can be',
-        arenot: "shouldn't be"
-    },
-    other: {
-        are: 'should be',
-        arenot: 'cannot be'
-    }
-}
 export interface IBeliefData {
     noun: string,
     adj: string,

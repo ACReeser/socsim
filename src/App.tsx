@@ -134,6 +134,14 @@ class App extends React.Component<AppPs, AppState>{
       this.beam(this.state.world.cities[0], { q: 1, r: 0 });
       this.beam(this.state.world.cities[0], { q: 0, r: 1 });
       this.beam(this.state.world.cities[0], { q: 1, r: 1 });
+    } else if (event.key === 'S' && event.shiftKey) {
+      this.state.world.beans.get.forEach((b) => {
+        if (this.state.world.alien.difficulty.cost.bean.scan.energy){
+          if (this.state.world.alien.energy.amount < this.state.world.alien.difficulty.cost.bean.scan.energy)
+            this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.bean.scan.energy;
+        }
+        this.scan(b);
+      });
     }
   }
   foundParty = (state: FoundPartyS) => {
