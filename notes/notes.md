@@ -150,4 +150,4 @@ change job/opinions
   * making their punishment worse or better
 * goal reward cutscene modal for juice
 
-* buildings need "max occupancy" for job slots to force cities to grow
+
