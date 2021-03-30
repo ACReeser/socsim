@@ -24,15 +24,15 @@ const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
 export class Economy {
     market = new OrderBook();
     charity = new OrderBook();
-    unfulfilledSeasonalDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
-    totalSeasonalDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
-    totalSeasonalSupply: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
+    unfulfilledMonthlyDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
+    monthlyDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
+    monthlySupply: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
     constructor(public eventBus: IEventBus){
     }
-    public resetSeasonalDemand(){
-        this.unfulfilledSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
-        this.totalSeasonalDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
-        this.totalSeasonalSupply = { food: 0, shelter: 0, medicine: 0, fun: 0, };
+    public resetMonthlyDemand(){
+        this.unfulfilledMonthlyDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
+        this.monthlyDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
+        this.monthlySupply = { food: 0, shelter: 0, medicine: 0, fun: 0, };
     }
     tryTransact(
         buyer: IEconomicAgent, 
@@ -40,11 +40,11 @@ export class Economy {
         minDemand: number = 1,
         maxDemand: number = 1
         ): {bought: number, price: number}|null {
-        this.totalSeasonalDemand[good] += maxDemand;
+        this.monthlyDemand[good] += maxDemand;
         const listing = this.market.getLowestPriceListing(good, minDemand);
         if (listing == null){
             //console.log('agent could not find '+good);
-            this.unfulfilledSeasonalDemand[good] += maxDemand;
+            this.unfulfilledMonthlyDemand[good] += maxDemand;
             return null;
         }
         const actualDemand = Math.min(listing.quantity, maxDemand);
@@ -62,7 +62,7 @@ export class Economy {
             //     return this.charity.transact(charityTicket, good, actualDemand, buyer);
             // }
         }
-        this.unfulfilledSeasonalDemand[good] += actualDemand;
+        this.unfulfilledMonthlyDemand[good] += actualDemand;
         return null;
     }
     canBuy(buyer: IEconomicAgent, good: TraitGood,
@@ -91,7 +91,7 @@ export class Economy {
         return actualDemand;
     }
     produceAndPrice(seller: Bean, good: TraitGood, quantity: number, price: number) {
-        this.totalSeasonalSupply[good] += quantity;
+        this.monthlySupply[good] += quantity;
         const existing = this.market.getBeansListings(seller.cityKey, seller.key, good);
         if (existing){
             existing.quantity += quantity;
@@ -103,7 +103,7 @@ export class Economy {
         this.market.sort(good);
     }
     employAndPrice(seller: IEnterprise, good: TraitGood, quantity: number, price: number) {
-        this.totalSeasonalSupply[good] += quantity;
+        this.monthlySupply[good] += quantity;
         const existing = this.market.getEnterpriseListings(seller, good);
         if (existing){
             existing.quantity += quantity;
@@ -117,8 +117,8 @@ export class Economy {
     public mostInDemandJob(): TraitJob|null{
         const goods: TraitGood[] = AllGoods;
         const max = goods.reduce((last, good) => {
-            if (this.unfulfilledSeasonalDemand[good] > last.max){
-                last.max = this.unfulfilledSeasonalDemand[good];
+            if (this.unfulfilledMonthlyDemand[good] > last.max){
+                last.max = this.unfulfilledMonthlyDemand[good];
                 last.job = GoodToJob(good);
             }
             return last;
@@ -140,8 +140,8 @@ export class Economy {
         });
     }
     public getFairGoodPrice(good: TraitGood){
-        const supply = this.totalSeasonalSupply[good] || 1;
-        const demand = this.totalSeasonalDemand[good];
+        const supply = this.monthlySupply[good] || 1;
+        const demand = this.monthlyDemand[good];
         return 0.25 + (0.75 * Math.min(demand/supply, 1));
     }
     public getCostOfLiving(){

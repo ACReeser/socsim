@@ -116,7 +116,6 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                             </td>
                         </tr> : null
                     }
-                    {/* {this.scanned ? this.happyTable(this.props.bean.getHappinessModifiers(this.props.economy, this.props.city, this.props.law)) : null} */}
                     {this.scanned ? this.hedonTable() : null}
                     </tbody>
                 </table>

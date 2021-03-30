@@ -388,14 +388,30 @@ export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
     'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🪑', 'courthouse':'🏫',
     'park': '💐', 'nature': '♨️'
 };
+export const BuildingToGood: {[key in BuildingTypes]: TraitGood} = {
+    'farm': 'food',
+    'house': 'shelter', 
+    'hospital': 'medicine', 
+    'church': 'fun', 
+    'theater': 'fun', 
+    'courthouse': 'fun',
+    'park': 'fun', 
+    'nature': 'fun'
+};
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',
-    'shelter': 'house', 'medicine':'hospital', 'fun': 'theater'
+    'shelter': 'house',
+    'medicine':'hospital',
+    'fun': 'theater'
 };
 export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
     'farmer': 'farm',
-    'builder': 'house', 'doc':'hospital', 'entertainer': 'theater',
-    'cleric': 'church', 'jobless': 'house', 'polit': 'house'
+    'builder': 'house', 
+    'doc':'hospital', 
+    'entertainer': 'theater',
+    'cleric': 'church', 
+    'jobless': 'house', 
+    'polit': 'house'
 };
 
 export class Geography{

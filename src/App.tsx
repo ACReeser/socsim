@@ -161,7 +161,7 @@ class App extends React.Component<AppPs, AppState>{
     const cost = this.difficulty.cost.emptyHex.build[what];
     if (this.state.world.alien.canAfford(cost)) {
       this.state.world.alien.purchase(cost);
-      GenerateBuilding(city, what, where);
+      GenerateBuilding(city, what, where, city.economy);
     }
 
     this.setState({ world: this.state.world });

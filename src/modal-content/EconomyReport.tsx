@@ -74,7 +74,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
                       Supply: {food.supply} 🍞 @ ${food.avg.toFixed(2)}
                     </td>
                     <td className="text-right">
-                      Deficit: {this.props.world.economy.unfulfilledSeasonalDemand.food} 🍞
+                      Deficit: {this.props.world.economy.unfulfilledMonthlyDemand.food} 🍞
                     </td>
                   </tr>
                 </tbody>
@@ -91,7 +91,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
                       Supply: {meds.supply} 🩺 @ ${meds.avg.toFixed(2)}
                     </td>
                     <td className="text-right">
-                      Deficit: {this.props.world.economy.unfulfilledSeasonalDemand.medicine} 🩺
+                      Deficit: {this.props.world.economy.unfulfilledMonthlyDemand.medicine} 🩺
                     </td>
                   </tr>
                 </tbody>
@@ -110,7 +110,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
                       Supply: {houses.supply} 🏡 @ ${houses.avg.toFixed(2)}
                     </td>
                     <td className="text-right">
-                      Deficit: {this.props.world.economy.unfulfilledSeasonalDemand.shelter} 🏡
+                      Deficit: {this.props.world.economy.unfulfilledMonthlyDemand.shelter} 🏡
                     </td>
                   </tr>
                 </tbody>

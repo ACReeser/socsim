@@ -109,6 +109,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
         }
         if (this.date.day > 30){
             this.date.day = 1;
+            this.economy.resetMonthlyDemand();
             this.date.season++;
         }
         if (this.date.season > 3){
@@ -139,7 +140,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.alien.currentlyResearchingTech = undefined;
         }
         
-        this.economy.resetSeasonalDemand();
 
         this.organizations.forEach((org) => org.work(this.law, this.economy));
         

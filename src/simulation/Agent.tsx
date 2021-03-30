@@ -127,12 +127,19 @@ export class IdleState extends AgentState{
             if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
                 intent.act = 'relax'; //relaxing is free!
             else if (desiredGoodState === 'pricedout') {
-                if (agent instanceof Bean && agent.maybeCrime(intent.good)){
+                if (agent.maybeCrime(intent.good)){
                     intent.act = 'crime';
                 } else {
+                    const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
+                    if (isPhysical){
+                        agent.emote('unhappiness', 'Poverty');
+                    }
                     return null; //don't travel to buy something that you can't afford
                 }
             } else if (desiredGoodState === 'nosupply'){
+                if (intent.good){
+                    agent.maybeScarcity(intent.good);
+                }
                 return null; //don't travel to buy something that doesn't exist
             }
         }
@@ -256,15 +263,14 @@ export class WorkState extends AgentState{
 }
 export class BuyState extends AgentState{
     static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
+    static MaximumBuyDuration = 1100;
     private sinceLastAttemptMS: number = 0;
-    private attempts: number = 0;
     tryBuy(agent: IAgent){
         if (agent instanceof Bean && this.data.good && agent.city?.economy)
         {
             this._bought = agent.buy[this.data.good](agent.city.economy);
         }
         this.sinceLastAttemptMS = 0;
-        this.attempts++;
     }
     enter(agent: IAgent){
         this.tryBuy(agent);
@@ -282,8 +288,13 @@ export class BuyState extends AgentState{
                 // }
             }
         }
-        if (this.Elapsed > 1500)
+        if (this.Elapsed > BuyState.MaximumBuyDuration)
+        {
+            if (agent instanceof Bean && this.data.good){
+                agent.maybeScarcity(this.data.good);
+            }
             return IdleState.create();
+        }
         else
             return this;
     }

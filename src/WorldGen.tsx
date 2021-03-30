@@ -1,11 +1,14 @@
 import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
 import { Bean } from './simulation/Bean';
 import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
-import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint } from './simulation/Geography';
+import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, BuildingToGood } from './simulation/Geography';
 import { City } from './simulation/City';
 import { BeliefsAll } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
 import { Building } from './simulation/RealEstate';
+import { Economy } from './simulation/Economy';
+
+const EnterpriseStartingListing = 1;
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -61,7 +64,7 @@ export function GetBuildingR(type: BuildingTypes): number{
             return GetRandomNumber(80, 200);
     }
 }
-export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPoint){
+export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPoint, econ: Economy){
     const newBuilding = new Building();
     newBuilding.type = type;
     newBuilding.key = geo.book.getBuildings().length;
@@ -69,6 +72,9 @@ export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPo
     if (geo instanceof City)
         newBuilding.city = geo;
     geo.addBuilding(newBuilding);
+    const good = BuildingToGood[type];
+    if (good != 'fun')
+        econ.employAndPrice(newBuilding, good, EnterpriseStartingListing, econ.getFairGoodPrice(good))
 }
 
 const Number_Starting_Cities = 1;
@@ -84,10 +90,9 @@ export function GenerateWorld(): World{
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {
-        world.cities.push(GenerateCity(world.cities.length, world.sfx));
+        world.cities.push(GenerateCity(world.cities.length, world.sfx, world.economy));
         world.cities[i].eventBus = world.bus;
         world.cities[i].environment = world.date;
-        world.cities[i].economy = world.economy;
         world.cities[i].law = world.law;
         for (let j = 0; j < world.cities[i].beans.get.length; j++) {
             const bean = world.cities[i].beans.get[j];
@@ -96,9 +101,9 @@ export function GenerateWorld(): World{
                 bean.work(world.law, world.economy);
         }
     }
-    world.economy.totalSeasonalDemand.food = world.beans.get.length;
-    world.economy.totalSeasonalDemand.shelter = world.beans.get.length;
-    world.economy.totalSeasonalDemand.medicine = world.beans.get.length;
+    world.economy.monthlyDemand.food = world.beans.get.length;
+    world.economy.monthlyDemand.shelter = world.beans.get.length;
+    world.economy.monthlyDemand.medicine = world.beans.get.length;
 
     return world;
 }
@@ -108,17 +113,17 @@ export function GeneratePartyHQ(city: City, party: Party) {
 }
 
 export const Number_Starting_City_Pop = 0;
-export function GenerateCity(previousCityCount: number, sfx: WorldSound): City{
-    let newCity = new City(sfx);
+export function GenerateCity(previousCityCount: number, sfx: WorldSound, econ: Economy): City{
+    let newCity = new City(sfx, econ);
     newCity.key = previousCityCount;
     newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', '']);
     newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
     newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
     
-    GenerateBuilding(newCity, 'courthouse', newCity.hexes[0]); 
-    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)]); 
-    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(21, 25)]); 
-    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(26, 60)]);
+    GenerateBuilding(newCity, 'courthouse', newCity.hexes[0], newCity.economy); 
+    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)], newCity.economy); 
+    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(21, 25)], newCity.economy); 
+    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(26, 60)], newCity.economy);
     // GenerateBuilding(newCity, 'house', newCity.hexes[1]); 
     // GenerateBuilding(newCity, 'hospital', newCity.hexes[5]);
     

@@ -15,10 +15,7 @@ import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
 
 const BabyChance = 0.01;
-const HappyChance = 0.01;
-const UnhappyChance = 0.01;
 const EmoteCrisisChance = .10;
-const EmoteTickRamp = 12;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
 
@@ -443,11 +440,12 @@ export class Bean implements IBean{
     }
     private buyFood(economy: Economy) {
         const groceries = economy.tryTransact(this, 'food', 0.5, 3);
-        if (groceries)
+        if (groceries) {
             this.discrete_food += groceries.bought;
-        if (this.food === 'stuffed'){
-            this.emote('happiness', 'Stuffed');
-            this.ifBelievesInMaybeEmote('Gluttony', 'happiness', 1);
+            if (this.food === 'stuffed'){
+                this.emote('happiness', 'Stuffed');
+                this.ifBelievesInMaybeEmote('Gluttony', 'happiness', 1);
+            }
         }
         return groceries;
     }
@@ -492,7 +490,8 @@ export class Bean implements IBean{
         const fun = economy.tryTransact(this, 'fun');
         if (fun) {
             this.discrete_fun = 1;
-            this.emote('happiness', 'entertainment');
+            this.emote('happiness', 'Entertainment');
+            this.emote('happiness', 'Entertainment');
         }
         return fun != null;
     }
@@ -545,10 +544,11 @@ export class Bean implements IBean{
     }
     private buyMeds(economy: Economy) {
         const meds = economy.tryTransact(this, 'medicine', 0.5, 3);
-        if (meds)
+        if (meds){
             this.discrete_health += meds.bought;
-        if (this.health === 'fresh')
-            this.emote('happiness', 'Robust');
+            if (this.health === 'fresh')
+                this.emote('happiness', 'Robust');
+        }
         return meds;
     }
     get babyChance(): number{
@@ -592,7 +592,7 @@ export class Bean implements IBean{
             chance += .33;
         }
         if (this.believesIn('Authority')){
-            chance -= .25;
+            chance += -.25;
         }
         if (good === 'food' && this.food === 'starving'){
             chance += .25;
@@ -637,7 +637,18 @@ export class Bean implements IBean{
             icon: '☠️', trigger: 'death', message: `${this.name} died of ${cause}!`, 
             beanKey: this.key, cityKey: this.cityKey,
             point: this.point
-    });
+        });
+    }
+    maybeScarcity(good: TraitGood){
+        let scarce = false;
+        if (good === 'food' && (this.food === 'starving' || this.food === 'hungry'))
+            scarce = true;
+        else if (good === 'shelter' && (this.stamina === 'homeless' || this.stamina === 'sleepy'))
+            scarce = true;
+        else if (good === 'medicine' && (this.health === 'sick' || this.health === 'sickly'))
+            scarce = true;
+        if (scarce)
+            this.emote('unhappiness', 'Scarcity');
     }
     abduct(player: IPlayerData){
         this.lifecycle = 'abducted';

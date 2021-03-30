@@ -69,11 +69,10 @@ export class City extends Geography implements Tile, IBeanContainer {
     public majorityEthnicity: TraitEthno = 'circle';
     public costOfLiving: number = 1;
 
-    constructor(private sfx: WorldSound){
+    constructor(private sfx: WorldSound, public readonly economy: Economy){
         super();
     }
 
-    public economy?: Economy;
     public law?: Government;
     public environment?: IDate;
     public eventBus?: IEventBus;
