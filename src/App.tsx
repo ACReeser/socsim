@@ -504,9 +504,6 @@ class App extends React.Component<AppPs, AppState>{
               &nbsp;
               {season} {this.state.world.date.day} {this.renderHour()}
               </span>
-              <span>
-                6 mo 5 days til Grade
-            </span>
               <button type="button" onClick={() => this.setState({ activeMain: 'network' })}>🌐</button>
               <button type="button" onClick={() => this.setState({ activeMain: 'geo' })}>🌎</button>
 

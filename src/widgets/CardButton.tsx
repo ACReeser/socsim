@@ -12,7 +12,8 @@ export class CardButton extends React.Component<{
     title?: string,
     subtext?: string,
     thin?: boolean,
-    singleLine?: boolean
+    singleLine?: boolean,
+    disabled?: boolean
 }>{
     render(){
         let classes = "card button";
@@ -20,7 +21,7 @@ export class CardButton extends React.Component<{
         if (this.props.singleLine) classes += ' single';
         return <button className={classes} title={this.props.title} onClick={() => {
             if (this.props.onClick) this.props.onClick()
-        }} type="button">
+        }} type="button" disabled={this.props.disabled}>
             {this.props.icon} {this.props.name}
             {
                 (this.props.subtext != null) ? <small>{this.props.subtext}</small> : null

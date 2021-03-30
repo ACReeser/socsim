@@ -197,7 +197,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
             </div>
         } else {
             return <div className="card-parent">
-                <CardButton icon="🛰️" name="Scan" subtext="-Energy +Info" onClick={this.scan}></CardButton>
+                <CardButton icon="🛰️" name="Scan" subtext="-Energy +Info" onClick={this.scan} disabled={!this.props.alien.canAfford(this.props.alien.difficulty.cost.bean.scan)}></CardButton>
             </div>
         }
     }
@@ -257,19 +257,20 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     </button>
                 </div>
                 <div className="card-parent">
-                    <button type="button" className="button card"  onClick={() => this.props.brainwash()}
+                    <button type="button" className="button card"  onClick={() => this.props.brainwash()}  disabled={true}
                         title="Give this being food or meds or cash">
                         🎁 Gift
                         <small>-Energy +Things</small>
                     </button>
                 </div>
                 <div className="card-parent">
-                    <button type="button" className="button card" onClick={this.scan} 
+                    <button type="button" className="button card" onClick={this.scan} disabled={true}
                         title="Steal a bit of this being's mind">
                         🤪 Braindrain
                         <small>-Energy -Sanity</small>
                     </button>
                     <button type="button" className="button card" onClick={this.vaporize}
+                        disabled={!this.props.alien.canAfford(this.props.alien.difficulty.cost.bean.vaporize)}
                         title="Delete this being from the experiment"
                     >
                         ☠️ Vaporize
@@ -278,6 +279,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </div>
                 <div className="card-parent">
                     <button type="button" className="button card"
+                        disabled={!this.props.alien.canAfford(this.props.alien.difficulty.cost.bean.abduct)}
                         onClick={() => this.abduct()}
                         title="Remove this being for study"
                     >

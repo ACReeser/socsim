@@ -34,7 +34,7 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Germophobia'|
 'Greed'; // steal easier
 
-// 'talkative'|
+
 // 'friendly'| // likes all beings more
 // 'realistic'| // lower happiness
 // 'athletic'| // takes less health damage

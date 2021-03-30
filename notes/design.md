@@ -11,24 +11,24 @@ Give the earthlings the paradise they deserve.
 
 # Alien
 
-Time to work on your Xenosociology project!
+Time to farm some Xenosensations from the pathetic Humans!
 
-1. Decide what kind of Utopia you want to give the Earthlings.
-1. Abduct a small village and drop them into a petri-planet.
-1. Replace the village leader with a friendly replicabot.
+1. Create a small village on a petri-planet
+1. Beam in a bunch of puny Human subjects
+1. Harvest the hedons!
 
 # Utopia
 1. Provide your subjects with rules for social interaction: 
   * Economic systems to distribute necessities
   * Government systems to enhance the general welfare
   * Justice systems to punish naughty subjects.
-2. Some subjects may not embrace their new Utopia, so expect to crush some light resistance.
-1. Research new and exciting ideas to refine your Utopia.
+1. Some subjects may not embrace their new Utopia, so expect to crush some light resistance.
+1. Combine human ideas to refine your Utopia
 
 # Lab
 1. Observe the earthlings as they wander about their petri dish.
-1. Mold your subject's mushy minds into better citizens.
-1. Disappear subjects who go mad after learning their true fate.
+1. Mold your subject's mushy minds however you please
+1. Abduct subjects who just aren't meant for the utopia/dystopia
 
 # Goals
 1. Maintain high earthling happiness to receive good Utopia scores
@@ -48,25 +48,26 @@ Time to work on your Xenosociology project!
 ## Energy
 ### Pump 
 * Constantly but slowly replenishing
-* Granted by good utopia grades
+* Granted by goals
 ### Sink
-* Scanning earthlings to discover their beliefs
-* Disintegrating earthlings
+* Scanning subjects to discover their beliefs
+* Vaporizing subjects
 
 ## Hedons
 ### Pump
-* Harvest from abducted earthlings
+* Harvest from abducted subjects
 ### Sink
 * galactic emotion market
+* anti-hedons
 
 ## Bots
 ### Pump
-* Convert energy into bots
-* Granted by good utopia grades
+* Constantly but slowly replenishing
+* Granted by goals
 ### Sink
 * Constructing things
-* Abducting earthlings and putting them into the lab
-* Bugging earthlings to receive alerts
+* Abducting subjects (putting them into the lab)
+* Bugging subjects to receive alerts
 
 ## Leadership
 > Represents how much influence your government replicabot has
@@ -81,26 +82,27 @@ Time to work on your Xenosociology project!
 # Interface
 
 ## Petri Dish
-> Your earthling's tiny world
+> Your subject's tiny world
 * perfect circle floating in space
 * lightly forested grassland ringed with mountains
-* earthlings work, wander, and converse on its surface
+* subjects work, wander, and converse on its surface
 
-## Earthling Meetings
-* Earthlings randomly meet with each other
+## Subject Meetings
+* Subjects randomly meet with each other
 * Conversations:
   * Random chance for belief change? (influence)
-  * Chance to gain/lose happiness  (friends?)
+  * Chance to gain/lose happiness  (Antagonism, Enthusiasm)
   * Gain/lose sanity
-* Murder
-  * Murder by mad or bad subjects
-  * Robbery by bad subjects
+* Crime
+  * Murder (die) by mad or bad subjects
+  * Assault (-health) by mad or bad subjects
+  * Robbery (-cash) by bad subjects
 
 
 ## Area of Effect
 * Mad or unhappy subjects can rave, spreading insanity or unhappiness
-* Disintegrating earthlings spreads severe insanity nearby
-* Agitating Earthlings can incite mobs? 
+* Disintegrating subjects spreads severe insanity nearby
+* Agitating subjects can incite mobs?
 
 ## Public vs private economics
 
@@ -123,7 +125,6 @@ subjects have a set of beliefs.
 * subjects spend time thinking about their beliefs
 * subjects try to convince others of their beliefs
 * subject's actions are shaped by their beliefs
-* subject's feelings are shaped by their beliefs
 * subjects beliefs can be brainwashed
 
 the petri dish will automatically 🚨 alert when subjects think about or talk about things that violate the foundational beliefs of the utopia
@@ -142,50 +143,6 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 | **Independence** 🦅| Indpendent | ego | depend on oneself | low % of persuasion |
 | **Elitism** 👑| Elitist | trad | strive for power | can 👎 lower classes  |
 | **Progressivism** ⚖️| Progressive |  prog | strive for equality | can 👎 higher classes  |
-
-quest to simplify terms => xeno/phile/phobe better than collectivism/independence
-
-### Previous Literature
-
-[World Values Survey](https://en.wikipedia.org/wiki/World_Values_Survey)
-
-**traditional to rational vs xenophobe to xenophile**
-* Traditional values (high faith, no divorce, high authority)
-  * collectivism
-* Secular-rational values (low faith, divorce, low authority)
-  * independence
-
-and
-
-* Survival values (security-seeking, low trust, low tolerance)
-  * elitism
-* Expression values (freedom-seeking, high trust, high tolerance)
-  * progressivism
-
-[Theory of Basic Human Values](https://en.wikipedia.org/wiki/Theory_of_Basic_Human_Values)
-
-**tradition to openness vs selfish to altruistic**
-
-* Openness to change (self-direction, stimulation, novelty)
-  * Progressivism
-* Conservation (security, conformity, tradition)
-  * Elitism
-
-and
-
-* Self-enhancement (hedonism, achievement, power)
-  * indepdendent
-* Self-transcendence (universalism, benevolence)
-  * Collectivism
-
-[Nolan Chart/Political Compass](https://en.wikipedia.org/wiki/Nolan_Chart)
-
-**Personal freedom vs Economic freedom**
-
-* Authoritarian (state control of liberties and economics)
-* Libertarian  (personal control of liberties and economics)
-* Liberal (personal control of liberties, state control of economics)
-* Conservative (state control of liberties, personal control of economics)
 
 ## narrative beliefs
 | belief (n) | (adj)| key  | desc | actions |
