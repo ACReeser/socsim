@@ -7,12 +7,12 @@ import { TraitIcon } from "../World";
 import { IDifficulty } from "../Game";
 import { ConfirmButton } from "../widgets/ConfirmButton";
 import { RenderIdealBadges } from "../widgets/UniversalWidgets";
-import { JsxElement } from "typescript";
+
 
 export const BeliefWidget: React.FC<{
     data: IBeliefData,
-    cost: number,
-    leftButton?: JsxElement,
+    cost?: number,
+    leftButton?: ReactElement,
     titleView: ReactElement,
     bottomView: ReactElement
 }> = (props) => {
@@ -31,7 +31,11 @@ export const BeliefWidget: React.FC<{
                     {
                         props.titleView
                     }
-                    <span className="pull-r">{props.cost}🧠</span>
+                    {
+                        props.cost ? 
+                        <span className="pull-r">{props.cost}🧠</span>
+                        : null
+                    }
                 </div>
                 {
                 props.data.description ? props.data.description.split(';').map((x, i) => 
@@ -82,12 +86,12 @@ export class EditBeliefInput extends React.Component<{
                 </div>
                 <small className="marg-b-6">{this.props.data.description}</small>
                 <div className="grow-1 text-center">
-                    {
+                    {/* {
                         RenderIdealBadges(this.props.data.idealPro || [], 'pos')
                     }
                     {
                         RenderIdealBadges(this.props.data.idealCon || [], 'neg')
-                    } 
+                    }  */}
                 </div>
             </div>
         </div></div>

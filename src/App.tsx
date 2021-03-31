@@ -126,6 +126,8 @@ class App extends React.Component<AppPs, AppState>{
       } else {
         this.setState({ timeScale: 1 });
       }
+    } else if (event.key === 'Escape') {
+      this.setState({activeModal: null});
     } else if (event.key === 'Q' && event.shiftKey) {
       this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
       this.build(this.state.world.cities[0], { q: 1, r: 0 }, 'house');
