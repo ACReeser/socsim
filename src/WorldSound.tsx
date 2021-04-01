@@ -1,12 +1,13 @@
-export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav';
-export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate';
+export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav'|'death_bell.wav';
+export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate'|'death';
 
 const SFXToFile: {[sfx in SFX]: SFXFile} = {
     drop: "drop.mp3",
     love: "ding_soft.mp3",
     happiness: "ding_soft.mp3",
     unhappiness: "ding_bad.wav",
-    hate: "ding_bad.wav"
+    hate: "ding_bad.wav",
+    death: "death_bell.wav"
 };
 
 type SFXMap = {[sfx in SFX]: SoundBuffer};
@@ -36,6 +37,7 @@ export class WorldSound{
         'happiness': new SoundBuffer(SFXToFile['happiness']),
         'unhappiness': new SoundBuffer(SFXToFile['unhappiness']),
         'hate': new SoundBuffer(SFXToFile['unhappiness']),
+        'death': new SoundBuffer(SFXToFile['death']),
     }
 
     public play(sfx: SFX){

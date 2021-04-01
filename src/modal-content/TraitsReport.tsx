@@ -27,7 +27,7 @@ export class TraitsReport extends React.Component<TraitsP, {
       });
       beliefs.sort((a, b) => a.noun.localeCompare(b.noun));
       return (
-        <div>
+        <div className="vertical">
           <div className="pad-4p">
             <h2>Subject 🧠 Traits</h2>
           </div>

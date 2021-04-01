@@ -329,9 +329,11 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   implantBelief = (bean: Bean, a: TraitBelief) => {
-    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary)) {
+    //bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary) && 
+    if (this.state.world.alien.beliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
       bean.beliefs.push(a);
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
+      this.state.world.alien.useCharge(a);
+      //bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
       this.setState({ world: this.state.world });
       return true;
     }
@@ -342,6 +344,7 @@ class App extends React.Component<AppPs, AppState>{
     this.setState({ world: this.state.world });
   }
   onDeath = (event: IEvent) => {
+    this.state.world.sfx.play('death');
     this.startSpotlight(event);
   }
   private timescaleBeforeSpotlight: number = 1;

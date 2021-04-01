@@ -6,10 +6,12 @@ import { AddBeliefInput, BeliefWidget, EditBeliefInput } from "./BeliefRow";
 import { Bean } from "../simulation/Bean";
 import { LiveList } from "../events/Events";
 import { BeliefInventory } from "../simulation/Player";
+import { ConfirmButton } from "../widgets/ConfirmButton";
 
 export const TraitInventoryList: React.FC<{
     dogmatic: boolean,
-    live: LiveList<BeliefInventory>
+    live: LiveList<BeliefInventory>,
+    implant: (t: TraitBelief) => void
 }> = (props) => {
     const [list, setList] = useState(props.live.get);
     const onChange = (b: BeliefInventory[]) => {
@@ -23,7 +25,11 @@ export const TraitInventoryList: React.FC<{
     return <>
         {list.map((x) => <BeliefWidget 
         key={x.trait} data={SecondaryBeliefData[x.trait]} titleView={<strong>{SecondaryBeliefData[x.trait].noun}</strong>}
-        leftButton={<button className="callout marg-0" disabled={props.dogmatic}>Inject</button>}
+        leftButton={
+            <ConfirmButton onConfirm={() => props.implant(x.trait)} className="callout marg-0" confirmText="-1 Charge?" disabled={x.charges < 1 || props.dogmatic}>
+                Inject
+            </ConfirmButton>
+        }
         bottomView={<span>{x.charges} uses left</span>}>
         </BeliefWidget>)}
     </>
@@ -111,7 +117,10 @@ export class BrainwashingContent extends React.Component<{
                     🧠 Trait Inventory
                 </h3>
                 <div className="single-row-scroll">
-                    <TraitInventoryList live={this.props.world.alien.beliefInventory} dogmatic={dogmatic}></TraitInventoryList>
+                    <TraitInventoryList 
+                        live={this.props.world.alien.beliefInventory} 
+                        dogmatic={dogmatic} 
+                        implant={(t: TraitBelief) => this.props.implantBelief(bean, t)}></TraitInventoryList>
                 </div>
             </div>
         </div>

@@ -226,6 +226,15 @@ export class Player implements IPlayerData, IProgressable{
         return this.techProgress[tech] != null && this.techProgress[tech].researchPoints >= TechData[tech].techPoints;
     }
 
+    public useCharge(t: TraitBelief){
+        const all = this.beliefInventory.get;
+        const existing = all.find(x => x.trait === t);
+        if (existing){
+            existing.charges -= 1;
+            this.beliefInventory.set([...all.filter(x => x.charges > 0)]);
+        }
+    }
+
     public purchase(cost: PlayerResources, qty: number = 1){
         if (cost.bots){
             this.bots.amount -= cost.bots * qty;
