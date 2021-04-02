@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { BeliefSubject, BeliefVerb, TraitBelief, SecondaryBeliefData, Belief, PrimaryBeliefData, NarrativeBeliefData, IsBeliefDivergent } from "../simulation/Beliefs";
 import './modals.css';
-import { TraitCommunity, TraitFaith, TraitIdeals, World } from "../World";
+import { EmoteIcon, TraitCommunity, TraitFaith, TraitIdeals, World } from "../World";
 import { AddBeliefInput, BeliefWidget, EditBeliefInput } from "./BeliefRow";
 import { Bean } from "../simulation/Bean";
 import { LiveList } from "../events/Events";
@@ -66,57 +66,60 @@ export class BrainwashingContent extends React.Component<{
                 </div>
             </div>
             <div>
-                <div className="text-center">
-                    <strong>{bean.name}</strong> has {bean.discrete_sanity.toFixed(0)} sanity 🧠
-                </div>
+                <p className="pad-4p">
+                    <strong>{bean.name}</strong> has {bean.discrete_sanity.toFixed(0)} sanity 🧠. 
+                    {
+                        bean.sanity === 'stressed' || bean.sanity === 'disturbed' ?
+                            <small className="pull-r">(Low sanity 🧠 causes {EmoteIcon['unhappiness']}; Negative sanity 🧠 causes extremely negative traits)</small>
+                        : null
+                    }
+                </p>
                 {
                     dogmatic ? <div className="text-center">
                         🐶 Dogmatic subjects cannot change their minds
                     </div> : null
                 }
-                <div className="horizontal">
-                    { isScanned ? <div>
-                        <EditBeliefInput
-                            available={bean.discrete_sanity} frozen={dogmatic}
-                            wash={() => this.props.washCommunity(bean, bean.community)} 
-                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
-                            data={PrimaryBeliefData[bean.community]}
-                        ></EditBeliefInput>
-                        <EditBeliefInput
-                            available={bean.discrete_sanity}  frozen={dogmatic}
-                            wash={() => this.props.washMotive(bean, bean.ideals)} 
-                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
-                            data={PrimaryBeliefData[bean.ideals]}
-                        ></EditBeliefInput>
-                        <EditBeliefInput
-                            available={bean.discrete_sanity} frozen={dogmatic}
-                            wash={() => this.props.washNarrative(bean, bean.faith)} 
-                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
-                            data={NarrativeBeliefData[bean.faith]}
-                        ></EditBeliefInput>
-                        {
-                            bean.beliefs.map((b) => <EditBeliefInput key={b}
-                            available={bean.discrete_sanity} frozen={dogmatic && b != 'Dogmatism'}
-                            divergent={IsBeliefDivergent(b, this.props.world.party.ideals, this.props.world.party.community)}
-                            wash={() => this.props.washBelief(bean, b)} 
-                                cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0}
-                                data={SecondaryBeliefData[b]}
-                            >
-                            </EditBeliefInput>)
-                        }
-                        {/* {
-                            dogmatic ? null : <AddBeliefInput
-                                available={bean.discrete_sanity}
-                                add={(b) => this.props.implantBelief(bean, b)} 
-                                cost={this.props.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0}
-                            ></AddBeliefInput>
-                        } */}
-                    </div> : <div className="text-center">🛰️ Scan this subject to reveal its Traits! </div>}
-                </div>
+                { isScanned ? <div className="horizontal scroll">
+                    <EditBeliefInput
+                        available={bean.discrete_sanity} frozen={dogmatic}
+                        wash={() => this.props.washCommunity(bean, bean.community)} 
+                        cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
+                        data={PrimaryBeliefData[bean.community]}
+                    ></EditBeliefInput>
+                    <EditBeliefInput
+                        available={bean.discrete_sanity}  frozen={dogmatic}
+                        wash={() => this.props.washMotive(bean, bean.ideals)} 
+                        cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
+                        data={PrimaryBeliefData[bean.ideals]}
+                    ></EditBeliefInput>
+                    <EditBeliefInput
+                        available={bean.discrete_sanity} frozen={dogmatic}
+                        wash={() => this.props.washNarrative(bean, bean.faith)} 
+                        cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
+                        data={NarrativeBeliefData[bean.faith]}
+                    ></EditBeliefInput>
+                    {
+                        bean.beliefs.map((b) => <EditBeliefInput key={b}
+                        available={bean.discrete_sanity} frozen={dogmatic && b != 'Dogmatism'}
+                        divergent={IsBeliefDivergent(b, this.props.world.party.ideals, this.props.world.party.community)}
+                        wash={() => this.props.washBelief(bean, b)} 
+                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0}
+                            data={SecondaryBeliefData[b]}
+                        >
+                        </EditBeliefInput>)
+                    }
+                    {/* {
+                        dogmatic ? null : <AddBeliefInput
+                            available={bean.discrete_sanity}
+                            add={(b) => this.props.implantBelief(bean, b)} 
+                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0}
+                        ></AddBeliefInput>
+                    } */}
+                </div> : <div className="text-center">🛰️ Scan this subject to reveal its Traits! </div>}
                 <h3 className="pad-4p">
                     🧠 Trait Inventory
                 </h3>
-                <div className="single-row-scroll">
+                <div className="horizontal scroll">
                     <TraitInventoryList 
                         live={this.props.world.alien.beliefInventory} 
                         dogmatic={dogmatic} 

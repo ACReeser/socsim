@@ -218,8 +218,8 @@ button.pull-r{
 }
 
 .modal{
-  width: 60%;
-  height: 60%;
+  width: 60vw;
+  height: 60vh;
   position: fixed;
   top: 20%;
   left: 20%;
@@ -840,6 +840,9 @@ table.classic .border-t{
 }
 .horizontal > .grow-0{
   flex-grow: 0;
+}
+.horizontal.scroll{
+  overflow-x: auto;
 }
 
 select:invalid { color: gray; }

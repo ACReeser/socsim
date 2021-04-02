@@ -56,8 +56,8 @@ export class TraitsReport extends React.Component<TraitsP, {
               </div>
             </div>
             <div>
-              <div className="scroll">
-                <div className="scroll-sticky-h">
+              <div className="modal-scroll-v">
+                <div className="sticky-t-0">
                   <strong>Discovered Traits</strong>
                 </div>
                 {

@@ -82,3 +82,17 @@
     height: 44px;
     margin: 2px;
   }
+
+.modal-scroll-v{
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.modal-scroll-h{
+  max-width: 50vw;
+  overflow-x: auto;
+}
+.sticky-t-0{
+  position: sticky;
+  top: 0;
+  background: white;
+}

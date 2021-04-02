@@ -9,6 +9,7 @@ import { Building } from './simulation/RealEstate';
 import { Economy } from './simulation/Economy';
 
 const EnterpriseStartingListing = 1;
+const MaxNumBeanTraitsOnGenerate = 4;
 
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
@@ -192,7 +193,7 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
     newBean.community = RandomCommunity();
     newBean.ideals = RandomIdeal();
     newBean.faith = RandomFaith();
-    const beanBeliefCount = Math.ceil(Math.random() * 2);
+    const beanBeliefCount = Math.ceil(Math.random() * MaxNumBeanTraitsOnGenerate);
     while (newBean.beliefs.length < beanBeliefCount) {
         const newBelief = GetRandom(BeliefsAll);
         const hasAlready = newBean.beliefs.includes(newBelief);

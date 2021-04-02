@@ -36,7 +36,16 @@ export class Bean implements IBean{
     public dob: IDate = {year: 0, season: 0, day: 1, hour: 0};
     public bornInPetri: boolean = false;
     public name: string = 'Human Bean';
-    public sanity: TraitSanity = 'sane'
+    public get sanity(): TraitSanity {
+        if (this.discrete_sanity >= 8)
+            return 'sane';
+        else if (this.discrete_sanity >= 5)
+            return 'stressed'
+        else if (this.discrete_sanity >= 3)
+            return 'disturbed'
+        else
+            return 'psychotic';
+    }
     public discrete_sanity: number = 10;
     /**
      * 0-1
