@@ -120,7 +120,7 @@ export const DefaultDifficulty: IDifficulty = {
         },
         bean_brain: {
             brainwash_ideal: { sanity: 4},
-            brainimplant_secondary: { sanity: 3},
+            brainimplant_secondary: { sanity: 1},
             brainwash_secondary: {sanity: 2},
         },
         bean: {

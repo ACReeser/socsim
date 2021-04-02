@@ -300,7 +300,7 @@ export class Bean implements IBean{
         }
         return false;
     }
-    tryPurchase(cost: BeanResources) {
+    canPurchase(cost: BeanResources) {
         return (cost.sanity === undefined || this.discrete_sanity >= cost.sanity);
     }
     public maybeParanoid() {

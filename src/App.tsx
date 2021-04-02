@@ -71,6 +71,7 @@ export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
 
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
+const ChargePerWash = 3;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -280,7 +281,8 @@ class App extends React.Component<AppPs, AppState>{
         if (!this.state.world.alien.seenBeliefs.get.has(b)){
           this.state.world.alien.seenBeliefs.add(b, true);
         }
-      })
+      });
+      this.state.world.sfx.play('scan');
       this.setState({ world: this.state.world });
       return true;
     } else {
@@ -288,7 +290,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washCommunity = (bean: Bean, a: TraitCommunity) => {
-    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       if (bean.community === 'ego')
         bean.community = 'state';
@@ -298,7 +300,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washMotive = (bean: Bean, a: TraitIdeals) => {
-    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       if (bean.ideals === 'prog')
         bean.ideals = 'trad';
@@ -308,7 +310,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washNarrative = (bean: Bean, a: TraitFaith) => {
-    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       const oldFaith = bean.faith;
       while (bean.faith === oldFaith)
@@ -318,22 +320,29 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washBelief = (bean: Bean, a: TraitBelief) => {
-    if (bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary)) {
       bean.beliefs.splice(
         bean.beliefs.indexOf(a), 1
       );
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
-      this.state.world.alien.beliefInventory.push({trait: a, charges: 3});
+      const existing = this.state.world.alien.beliefInventory.get.find((x) => x.trait === a);
+      if (existing) {
+        existing.charges += ChargePerWash;
+        this.state.world.alien.beliefInventory.set([...this.state.world.alien.beliefInventory.get]);
+      } else
+        this.state.world.alien.beliefInventory.push({trait: a, charges: ChargePerWash});
+      this.state.world.sfx.play('wash_out');
       this.setState({ world: this.state.world });
       return true;
     }
   }
   implantBelief = (bean: Bean, a: TraitBelief) => {
-    //bean.tryPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary) && 
-    if (this.state.world.alien.beliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary) && 
+      this.state.world.alien.beliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
       bean.beliefs.push(a);
       this.state.world.alien.useCharge(a);
-      //bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
+      this.state.world.sfx.play('wash_in');
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
       this.setState({ world: this.state.world });
       return true;
     }
