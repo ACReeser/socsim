@@ -139,7 +139,6 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 
 # IMMEDIATE TODO
 
-1. finalize trait inventory (in brainwash modal) with scrolling
 1. marketplace: buy traits
 1. 1 or 2 basic government policies
 1. animatedBean animation/state performance rework (redux, probably)

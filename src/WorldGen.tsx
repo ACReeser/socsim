@@ -3,7 +3,7 @@ import { Bean } from './simulation/Bean';
 import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
 import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, BuildingToGood } from './simulation/Geography';
 import { City } from './simulation/City';
-import { BeliefsAll } from './simulation/Beliefs';
+import { BeliefsAll, RandomBeliefBucket } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
 import { Building } from './simulation/RealEstate';
 import { Economy } from './simulation/Economy';
@@ -195,7 +195,7 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
     newBean.faith = RandomFaith();
     const beanBeliefCount = Math.ceil(Math.random() * MaxNumBeanTraitsOnGenerate);
     while (newBean.beliefs.length < beanBeliefCount) {
-        const newBelief = GetRandom(BeliefsAll);
+        const newBelief = GetRandom(RandomBeliefBucket);
         const hasAlready = newBean.beliefs.includes(newBelief);
         if (!hasAlready)
             newBean.beliefs.push(newBelief);

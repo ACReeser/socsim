@@ -43,3 +43,18 @@
 .belief .divergent{
     color: firebrick;
 }
+
+.belief-name.uncommon{
+    color: #13ac0d;
+    text-shadow: 0 0 3px hsla(187, 100%, 57%, .75);
+}
+.belief-name.uncommon:after{
+    content: '★';
+}
+.belief-name.rare{
+    color: #0078d7;
+    text-shadow: 0 0 3px hsla(187, 100%, 57%, .75);
+}
+.belief-name.rare:after{
+    content: '★★';
+}

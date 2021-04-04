@@ -1,12 +1,10 @@
 import React, { ReactElement } from "react";
-import './beliefs.css';
-import { BeliefSubject, BeliefVerb, SecondaryBeliefData, TraitBelief, Belief, BeliefSubjectOption, BeliefVerbOption, BeliefAdjOption, BeliefsAll, BeliefSubjectAll, BeliefVerbAll, IBeliefData } from "../simulation/Beliefs";
-
+import { BeliefsAll, IBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
+import { ConfirmButton } from "../widgets/ConfirmButton";
 import { StringDropdown } from "../widgets/StringDropdown";
 import { TraitIcon } from "../World";
-import { IDifficulty } from "../Game";
-import { ConfirmButton } from "../widgets/ConfirmButton";
-import { RenderIdealBadges } from "../widgets/UniversalWidgets";
+import './beliefs.css';
+
 
 
 export const BeliefWidget: React.FC<{

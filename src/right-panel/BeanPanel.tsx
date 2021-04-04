@@ -161,9 +161,9 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     }
     beliefTable(beliefs: TraitBelief[]): React.ReactNode {
         return beliefs.map((b, i) => {
-            const divergent = IsBeliefDivergent(b, this.props.party.ideals, this.props.party.community);
+            const classes = 'belief-name text-left '+SecondaryBeliefData[b].rarity;
             return <table className="width-100p" key={b+i}><tbody><tr>
-            <th className={divergent ? 'divergent text-left': "text-left"}>
+            <th className={classes}>
                 {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
             </th>
             <td className="text-right">
@@ -171,7 +171,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 {(SecondaryBeliefData[b].idealCon || []).map(y => <span key={y}>-{TraitIcon[y]}</span>)}
             </td>
         </tr><tr><td className="small text-center" colSpan={2}>{
-            SecondaryBeliefData[b].description ? SecondaryBeliefData[b].description?.split(';').map((x, i) => <span key={i}>{x}</span>) : null
+            SecondaryBeliefData[b].description ? SecondaryBeliefData[b].description?.split(';').map((x, i) => <div key={i}>{x}</div>) : null
         }</td></tr></tbody></table>});
     }
     get scanned(){
