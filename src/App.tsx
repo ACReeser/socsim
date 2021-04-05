@@ -25,7 +25,7 @@ import { GoalsPanel } from './right-panel/Goals';
 import { CampaignsPanel } from './modal-content/Campaigns';
 import { GovernmentPanel } from './modal-content/Gov';
 import { ResearchPanel } from './modal-content/Research';
-import { StopPlayFastButtons } from './widgets/StopPlayFast';
+import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
 import { BuildingTypes, HexPoint, IBuilding, Point, transformPoint } from './simulation/Geography';
 import { HexPanel } from './right-panel/HexPanel';
 import { City, UFO } from './simulation/City';
@@ -514,19 +514,11 @@ class App extends React.Component<AppPs, AppState>{
           </Modal>
           <div className="left">
             <div className="top">
-              <span>
-                👽 Alien 🌍 Utopia 🔬 Lab
-            </span>
-              <span>
-                &nbsp;
-              Year {this.state.world.date.year},
-              &nbsp;
-              {season} {this.state.world.date.day} {this.renderHour()}
-              </span>
-              <button type="button" onClick={() => this.setState({ activeMain: 'network' })}>🌐</button>
-              <button type="button" onClick={() => this.setState({ activeMain: 'geo' })}>🌎</button>
-
+              <span>👽 Alien 🌍 Utopia 🔬 Lab</span>
+              <span>&nbsp;Year {this.state.world.date.year},&nbsp;{season} {this.state.world.date.day} {this.renderHour()}</span>
               <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
+              <GeoNetworkButtons setActiveMain={(v) => this.setState({ activeMain: v })} activeMain={this.state.activeMain} ></GeoNetworkButtons>
+              <span></span>
             </div>
             <div className="bottom">
               <BubbleNumberText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
