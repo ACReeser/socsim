@@ -39,6 +39,7 @@ import { WorldSound } from './WorldSound';
 import { MarketPanel } from './right-panel/MarketPanel';
 import { TraitsReport } from './modal-content/TraitsReport';
 import { GreetingPanel } from './modal-content/GreetingPanel';
+import { MarketTraitListing } from './simulation/MarketTraits';
 
 export const keyToName: { [key in Trait | BuildingTypes]: string } = {
   state: 'Collectivist', ego: 'Independent',
@@ -72,6 +73,7 @@ export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
 const ChargePerWash = 3;
+const ChargePerMarket = 3;
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -231,6 +233,18 @@ class App extends React.Component<AppPs, AppState>{
       this.state.world.alien.hedons.change.publish({change: -old});
     }
 
+    this.setState({ world: this.state.world });
+  }
+  buyTrait = (l: MarketTraitListing) => {
+    if (this.state.world.alien.tryPurchase(l.cost)) {
+      
+      const existing = this.state.world.alien.beliefInventory.get.find((x) => x.trait === l.trait);
+      if (existing) {
+        existing.charges += ChargePerMarket;
+        this.state.world.alien.beliefInventory.set([...this.state.world.alien.beliefInventory.get]);
+      } else
+        this.state.world.alien.beliefInventory.push({trait: l.trait, charges: ChargePerMarket});
+    }
     this.setState({ world: this.state.world });
   }
   removeUFO(city: City, key: number) {
@@ -416,7 +430,7 @@ class App extends React.Component<AppPs, AppState>{
             this.setState({ activeCityID: this.state.world.cities[0].key, activeBeanID: beankey, activeHex: null, activeRightPanel: 'overview' })
         }}></EventsPanel>
       case 'market': 
-        return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons}
+        return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons} buyTrait={this.buyTrait}
          player={this.state.world.alien} market={this.state.world.marketTraitsForSale}></MarketPanel>
     }
   }

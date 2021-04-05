@@ -161,7 +161,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
     }
     beliefTable(beliefs: TraitBelief[]): React.ReactNode {
         return beliefs.map((b, i) => {
-            const classes = 'belief-name text-left '+SecondaryBeliefData[b].rarity;
+            const classes = 'belief-name shadow text-left '+SecondaryBeliefData[b].rarity;
             return <table className="width-100p" key={b+i}><tbody><tr>
             <th className={classes}>
                 {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}

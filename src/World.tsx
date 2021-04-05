@@ -109,7 +109,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 }
                 x.hedonHistory.unshift({});
             });
-            if (this.date.day % 10 === 0){
+            if (this.date.day % 7 === 0){
                 this.marketTraitsForSale.set(GetMarketTraits());
                 this.publishEvent({message: 'New traits in the Market!', icon: '', trigger: 'marketrefresh'});
             }

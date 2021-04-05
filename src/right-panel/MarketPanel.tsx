@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { LiveList } from "../events/Events";
-import { SecondaryBeliefData } from "../simulation/Beliefs";
+import { IDifficulty } from "../Game";
+import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { MarketTraitListing } from "../simulation/MarketTraits";
 import { BeliefInventory, Player } from "../simulation/Player";
 import { CostSmall } from "../widgets/CostSmall";
@@ -12,6 +13,7 @@ import { EmoteIcon } from "../World";
      buyEnergy: (amount: number) => void,
      buyBots: (amount: number) => void,
      scrubHedons: () => void,
+     buyTrait: (l: MarketTraitListing) => void
  }>{
      render(){
         return <div>
@@ -67,7 +69,7 @@ import { EmoteIcon } from "../World";
             </div>
             <div className="short-scroll">
                 {
-                    <MarketTraits live={this.props.market} buy={() => {}}></MarketTraits>
+                    <MarketTraits hedons={this.props.player.hedons.amount} live={this.props.market} buy={this.props.buyTrait}></MarketTraits>
                 }
             </div>
         </div>
@@ -77,6 +79,7 @@ import { EmoteIcon } from "../World";
  
 export const MarketTraits: React.FC<{
     live: LiveList<MarketTraitListing>,
+    hedons: number,
     buy: (l: MarketTraitListing) => void
 }> = (props) => {
     const [list, setList] = useState(props.live.get);
@@ -93,7 +96,7 @@ export const MarketTraits: React.FC<{
         const t = SecondaryBeliefData[l.trait];
         const className = 'belief-name '+t.rarity;
         return <div className="card-parent" key={i}>
-            <button className="card button">
+            <button className="card button" onClick={() => props.buy(l)} disabled={props.hedons < (l.cost.hedons || 0)}>
                 <span className={className}>
                     {t.icon} {t.noun}
                 </span>
