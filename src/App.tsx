@@ -446,45 +446,36 @@ class App extends React.Component<AppPs, AppState>{
       )
     });
   }
-  renderNetwork() {
-    return <div>
-      <div className="horizontal max-w-500 m-t-2em">
-        <button type="button">
-          😎 Influence
-        </button>
-        <button type="button">
-          🚩 Party Preference
-        </button>
-        <button type="button">
-          📈 Demographics
-        </button>
-      </div>
-      <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()}
-        beans={this.state.world.beans}
-        onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key })} ></SocialGraph>
-    </div>
-  }
-  main() {
-    switch (this.state.activeMain) {
-      case 'network':
-        return this.renderNetwork();
-      default:
-        return this.renderGeo();
-    }
-  }
   render() {
     const season = Season[this.state.world.date.season];
     return (
       <div className="canvas"><SfxContext.Provider value={this.state.world.sfx}>
-        <TransformWrapper
-          defaultScale={1}
-          wheel={{ step: 48 }}>
-          <TransformComponent>
-            <div className="world">
-              {this.main()}
-            </div>
-          </TransformComponent>
-        </TransformWrapper>
+        {
+          this.state.activeMain === 'network' ? <div className="canvas">
+            {/* <div className="horizontal max-w-500 m-t-2em">
+              <button type="button">
+                😎 Influence
+              </button>
+              <button type="button">
+                🚩 Party Preference
+              </button>
+              <button type="button">
+                📈 Demographics
+              </button>
+            </div> */}
+            <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()}
+              beans={this.state.world.beans}
+              onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key, activeHex: null })} ></SocialGraph>
+          </div> : <TransformWrapper
+            defaultScale={1}
+            wheel={{ step: 48 }}>
+            <TransformComponent>
+              <div className="world">
+                {this.renderGeo()}
+              </div>
+            </TransformComponent>
+          </TransformWrapper>
+        }
         <div className="overlay">
           <Modal show={this.state.activeModal == 'greeting'} onClick={() => this.setState({ activeModal: null })}>
             <GreetingPanel></GreetingPanel>

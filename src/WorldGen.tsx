@@ -56,7 +56,7 @@ export function GetRandomFloat(): number{
  */
 export function GetRandomRoll(chance: number): boolean{
     const randomNumber = GetRandomFloat();
-    console.log(`DC ${(chance*100).toFixed(3)} rolled ${(randomNumber*100).toFixed(4)}`);
+    //console.log(`DC ${(chance*100).toFixed(3)} rolled ${(randomNumber*100).toFixed(4)}`);
     return randomNumber <= chance;
 }
 

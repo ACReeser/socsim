@@ -1,5 +1,9 @@
 .social-graph{
     width: calc(100% - 300px);
+    height: calc(100% - 60px);
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
 }
 .bean-node{
     display: inline-block;

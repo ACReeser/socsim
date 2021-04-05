@@ -24,7 +24,7 @@ export class SocialGraph extends React.Component<SocialGraphP, SocialGraphS>{
         return <div className="social-graph">
             {
                 this.props.beans.get.map((b) => 
-                <div className="bean-node" onClick={() => this.props.onClick(b)}>
+                <div key={b.key} className="bean-node" onClick={() => this.props.onClick(b)}>
                     <AnimatedBean bean={b} static={true} sitStill={true} 
                         onClick={() => {this.props.onClick(b);}}>
                     </AnimatedBean>
