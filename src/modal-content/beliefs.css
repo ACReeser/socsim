@@ -56,6 +56,6 @@
 .belief-name.rare:after{
     content: '★★';
 }
-.belief-name.shadow{
+.belief-name.rare.shadow .belief-name.uncommon.shadow{
     text-shadow: 0 0 3px hsla(187, 100%, 57%, .75);
 }

@@ -111,7 +111,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             });
             if (this.date.day % 7 === 0){
                 this.marketTraitsForSale.set(GetMarketTraits());
-                this.publishEvent({message: 'New traits in the Market!', icon: '', trigger: 'marketrefresh'});
+                this.publishEvent({message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
             }
         }
         if (this.date.day > 30){
@@ -153,7 +153,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.beans.get.forEach((b: Bean, i: number) => {
             b.age(this.economy, this.alien.difficulty);
             const e = b.maybeBaby(this.economy);
-            if (e) this.publishEvent(e);
+            if (e) {
+                this.publishEvent(e);
+                this.sfx.play('squeak');
+            }
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
             

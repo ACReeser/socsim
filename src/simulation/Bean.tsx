@@ -661,6 +661,7 @@ export class Bean implements IBean{
     }
     abduct(player: IPlayerData){
         this.lifecycle = 'abducted';
+        this.city?.unsetJob(this);
         player.abductedBeans.push(this);
     }
 
