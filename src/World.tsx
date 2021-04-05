@@ -11,10 +11,11 @@ import { accelerate_towards, accelerator_coast, Geography, move_towards } from '
 import { City, Pickup } from './simulation/City';
 import { shuffle } from './simulation/Utils';
 import { Act, IActListener, IChatData } from './simulation/Agent';
-import { IDifficulty } from './Game';
+import { IDifficulty, PlayerResources } from './Game';
 import { type } from 'os';
-import { GetHedonReport, IsBeliefDivergent, SecondaryBeliefData } from './simulation/Beliefs';
+import { GetHedonReport, IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
+import { GetMarketTraits, MarketTraitListing } from './simulation/MarketTraits';
 
 export interface IBeanContainer{
     /**
@@ -56,6 +57,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     public cities: City[] = [];
     public law: Government = new Government();
     public institutions: IInstitution[] = [];
+    public marketTraitsForSale: LiveList<MarketTraitListing> = new LiveList<MarketTraitListing>([]);
     public party: Party = new BaseParty();
     public date: IDate = {year: 1, season: Season.Spring, day: 1, hour: 1};
 
@@ -80,6 +82,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
     constructor(){
         this.bus.death.subscribe(this.onBeanDie);
+        this.marketTraitsForSale.set(GetMarketTraits());
     }
 
     /**
@@ -106,6 +109,10 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 }
                 x.hedonHistory.unshift({});
             });
+            if (this.date.day % 10 === 0){
+                this.marketTraitsForSale.set(GetMarketTraits());
+                this.publishEvent({message: 'New traits in the Market!', icon: '', trigger: 'marketrefresh'});
+            }
         }
         if (this.date.day > 30){
             this.date.day = 1;

@@ -417,7 +417,7 @@ class App extends React.Component<AppPs, AppState>{
         }}></EventsPanel>
       case 'market': 
         return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons}
-         player={this.state.world.alien}></MarketPanel>
+         player={this.state.world.alien} market={this.state.world.marketTraitsForSale}></MarketPanel>
     }
   }
   renderGeo() {

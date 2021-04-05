@@ -1,6 +1,6 @@
 import { Point } from "../simulation/Geography";
 
-export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots';
+export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots'|'marketrefresh';
 
 export interface IEvent{
     icon: string;
@@ -47,7 +47,7 @@ export class EventBus implements IEventBus, IEventBuffer{
     nojobslots = new PubSub<IEvent>(this.sendToBuffer);
     birth = new PubSub<IEvent>(this.sendToBuffer);
     death = new PubSub<IEvent>(this.sendToBuffer);
-
+    marketrefresh = new PubSub<IEvent>(this.sendToBuffer);
 }
 
 export class Live<T>{

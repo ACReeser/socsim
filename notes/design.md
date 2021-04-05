@@ -144,12 +144,13 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 1. animatedBean animation/state performance rework (redux, probably)
 
 # FEATURE TODO
-1. trait rarity
 1. add murder and violent traits
 1. insanity traits
 1. alien traits (radical behavior)
 1. husk/harvest/vaporization action (needs design)
 1. punishment for crime
+1. sell antihedons to market
+1. special buildings
 
 # FUTURE TODO
 1. optimize distance checking (spatial binning)

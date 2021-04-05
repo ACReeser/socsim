@@ -1,10 +1,14 @@
-import React from "react";
-import { Player } from "../simulation/Player";
+import React, { useEffect, useState } from "react";
+import { LiveList } from "../events/Events";
+import { SecondaryBeliefData } from "../simulation/Beliefs";
+import { MarketTraitListing } from "../simulation/MarketTraits";
+import { BeliefInventory, Player } from "../simulation/Player";
 import { CostSmall } from "../widgets/CostSmall";
 import { EmoteIcon } from "../World";
 
  export class MarketPanel extends React.Component<{
      player: Player,
+     market: LiveList<MarketTraitListing>,
      buyEnergy: (amount: number) => void,
      buyBots: (amount: number) => void,
      scrubHedons: () => void,
@@ -62,25 +66,41 @@ import { EmoteIcon } from "../World";
                 </small>
             </div>
             <div className="short-scroll">
-                <div className="card-parent">
-                    <button className="card button">
-                        🍸 Cosmopolitanism
-                        <CostSmall cost={this.props.player.difficulty.cost.market.resource.bots}></CostSmall>
-                    </button>
-                </div>
-                <div className="card-parent">
-                    <button className="card button">
-                        👽 Paranoia
-                        <CostSmall cost={this.props.player.difficulty.cost.market.resource.bots}></CostSmall>
-                    </button>
-                </div>
-                <div className="card-parent">
-                    <button className="card button">
-                        🤬 Antagonism
-                        <CostSmall cost={this.props.player.difficulty.cost.market.resource.bots}></CostSmall>
-                    </button>
-                </div>
+                {
+                    <MarketTraits live={this.props.market} buy={() => {}}></MarketTraits>
+                }
             </div>
         </div>
      }
  }
+
+ 
+export const MarketTraits: React.FC<{
+    live: LiveList<MarketTraitListing>,
+    buy: (l: MarketTraitListing) => void
+}> = (props) => {
+    const [list, setList] = useState(props.live.get);
+    const onChange = (b: MarketTraitListing[]) => {
+        setList(b);
+    };
+    useEffect(() => {
+        props.live.onChange.subscribe(onChange);
+        return () => props.live.onChange.unsubscribe(onChange)
+    });
+    return <>
+    {
+    list.map((l, i) => {
+        const t = SecondaryBeliefData[l.trait];
+        const className = 'belief-name '+t.rarity;
+        return <div className="card-parent" key={i}>
+            <button className="card button">
+                <span className={className}>
+                    {t.icon} {t.noun}
+                </span>
+                <CostSmall cost={l.cost}></CostSmall>
+            </button>
+        </div>
+    })
+    }
+    </>
+}
