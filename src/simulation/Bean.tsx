@@ -1,5 +1,5 @@
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity, EmotionWorth } from "../World";
-import { RandomEthno, GetRandom, GetRandomNumber } from "../WorldGen";
+import { RandomEthno, GetRandom, GetRandomNumber, GetRandomRoll } from "../WorldGen";
 import { Economy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
@@ -14,8 +14,7 @@ import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
 
-const BabyChance = 0.01;
-const EmoteCrisisChance = .10;
+const BabyChance = 0.008;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
 
@@ -30,6 +29,7 @@ const AntagonismBullyChance = 0.45;
 const GossipBullyChance = 0.35;
 const EnthusiasmPraiseChance = 0.45;
 const GermophobiaHospitalWorkChance = 0.25;
+const NatalismExtraBabyChance = 0.04;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -563,13 +563,13 @@ export class Bean implements IBean{
     get babyChance(): number{
         let base = BabyChance;
         if (this.believesIn('Natalism'))
-            return base + .15;
+            return base + NatalismExtraBabyChance;
         else
             return base;
     }
     maybeBaby(economy: Economy): IEvent | null {
         if (this.canBaby(economy.getCostOfLiving()) &&
-            Math.random() <= this.babyChance) {
+            GetRandomRoll(this.babyChance)) {
             if (this.city)
                 this.city.breedBean(this);
             else

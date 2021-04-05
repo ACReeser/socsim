@@ -420,6 +420,9 @@ ul.boxes li{
 .h-12{
   height: 12px;
 }
+.max-w-300{
+  max-width: 300px;
+}
 .max-w-500{
   max-width: 500px;
 }
@@ -846,6 +849,15 @@ table.classic .border-t{
 }
 
 select:invalid { color: gray; }
+
+.overview-belief{
+  display: inline-block;
+  padding: 1px;
+  border-radius: 6px;
+  border: 1px solid grey;
+  margin-right: 6px;
+  margin-bottom: 4px;;
+}
 
 @keyframes hop-marg {
   0% {

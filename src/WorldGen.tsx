@@ -9,8 +9,14 @@ import { Building } from './simulation/RealEstate';
 import { Economy } from './simulation/Economy';
 
 const EnterpriseStartingListing = 1;
-const MaxNumBeanTraitsOnGenerate = 4;
+const MaxNumBeanTraitsOnGenerate = 3;
 
+/**
+ * return better random values
+ * @param min 
+ * @param max 
+ * @returns 
+ */
 export function GetRandomNumber(min: number, max: number): number{
     const randomBuffer = new Uint32Array(1);
     window.crypto.getRandomValues(randomBuffer);
@@ -19,9 +25,50 @@ export function GetRandomNumber(min: number, max: number): number{
     max = Math.floor(max);
     return Math.floor(randomNumber * (max - min + 1)) + min;
 }
+
+/**
+ * 
+ * @returns float between 0 and 1
+ */
+export function GetRandomFloat(): number{
+    //https://stackoverflow.com/questions/34575635/cryptographically-secure-float
+    // A buffer with just the right size to convert to Float64
+    let buffer = new ArrayBuffer(8);
+
+    // View it as an Int8Array and fill it with 8 random ints
+    let ints = new Int8Array(buffer);
+    window.crypto.getRandomValues(ints);
+
+    // Set the sign (ints[7][7]) to 0 and the
+    // exponent (ints[7][6]-[6][5]) to just the right size 
+    // (all ones except for the highest bit)
+    ints[7] = 63;
+    ints[6] |= 0xf0;
+
+    // Now view it as a Float64Array, and read the one float from it
+    return new DataView(buffer).getFloat64(0, true) - 1; 
+}
+
+/**
+ * given a chance (0-1) return true if random float is <= chance
+ * @param chance 
+ * @returns 
+ */
+export function GetRandomRoll(chance: number): boolean{
+    const randomNumber = GetRandomFloat();
+    console.log(`DC ${(chance*100).toFixed(3)} rolled ${(randomNumber*100).toFixed(4)}`);
+    return randomNumber <= chance;
+}
+
+/**
+ * convenience random function
+ * @param length 
+ * @returns 
+ */
 export function GetRandomIndex(length: number): number{
     return GetRandomNumber(0, length-1)
 }
+
 export function GetRandom<S>(choices: S[]):S {
     const max = choices.length;
     if (max == 1)

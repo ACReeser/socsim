@@ -5,13 +5,16 @@ import { Bean } from "../simulation/Bean";
 import { NeedReadout } from "../widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";
 import { Party } from "../simulation/Politics";
-import { PrimaryBeliefData } from "../simulation/Beliefs";
+import { PrimaryBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { LiveList } from "../events/Events";
+import { CardButton } from "../widgets/CardButton";
+import { Player } from "../simulation/Player";
 
 interface OverviewPanelP {
     city?: City,
     beans: LiveList<Bean>,
     utopia: Party,
+    alien: Player,
     clearCity: () => void;
 }
 
@@ -38,29 +41,39 @@ export class OverviewPanel extends React.Component<OverviewPanelP> {
         }
         const avg_happy = this.props.beans.get.reduce((sum, x) => sum + x.lastHappiness, 0) / (this.props.beans.get.length || 1);
         const avg_cash = this.props.beans.get.reduce((sum, x) => sum + x.cash, 0) / (this.props.beans.get.length || 1);
-        const avg_approval = this.props.beans.get.reduce((sum, x) => sum + x.lastPartySentiment, 0) / (this.props.beans.get.length || 1);
         return (
             <div>
                 {header}
-                <div className="header"><b>Demographics</b></div>
+                {/* <div className="header"><b>Demographics</b></div> */}
+                <div className="header"><b>👥 Subjects</b></div>
                 <div>
                     <b>Population</b>&nbsp;
                     <span>{this.props.beans.get.length}</span>
                 </div>
-                <AxisReadout report={reportEthno(this.props.beans.get)}>Ethnicity</AxisReadout>
-                <div className="header"><b>Situation</b></div>
+                {/* <AxisReadout report={reportEthno(this.props.beans.get)}>Ethnicity</AxisReadout> */}
                 <NeedReadout beans={this.props.beans.get} need={(b) => b.food} dire="starving" abundant="stuffed">Food Security</NeedReadout>
                 <NeedReadout beans={this.props.beans.get} need={(b) => b.stamina} dire="homeless" abundant="rested">Housing</NeedReadout>
                 <NeedReadout beans={this.props.beans.get} need={(b) => b.health} dire="sick" abundant="fresh">Healthcare</NeedReadout>
                 <b>Avg. Money</b> ${avg_cash.toFixed(2)} &nbsp;
                 <b>Avg. Happiness</b> {Math.round(avg_happy)}%
-                <div className="header"><b>Electorate</b></div>
-                <AxisReadout report={reportCommunity(this.props.beans.get)}>Community</AxisReadout>
-                <AxisReadout report={reportIdeals(this.props.beans.get)}>Ideals</AxisReadout>
-                <div>
-                    <b>Approval</b>&nbsp;
-                    <span>{avg_approval.toFixed(0)}%</span>
-                </div>
+                {
+                    this.props.city ? <>
+                        <div className="header"><b>🧠 Traits</b></div>
+                        <div className="max-w-300">
+                            { 
+                                this.props.city.getPopulationTraitsList(this.props.alien.scanned_bean).map((v) => 
+                                    <span key={v.noun} className="overview-belief">
+                                        {v.icon}&nbsp;{v.noun}&nbsp;x{v.count}
+                                    </span>)
+                            }
+                        </div>
+                    </> : null
+                }
+                {
+                    this.props.city?.beans.get?.length || 0 > 7 ? <div className="card-parent">
+                        <CardButton icon="🛰️" name="Scan All" disabled={true} subtext="-Energy +Info" onClick={() => {}}></CardButton>
+                    </div> : null
+                }
             </div>
         )
     }

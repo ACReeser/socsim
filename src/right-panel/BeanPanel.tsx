@@ -79,9 +79,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
         });
     }
     hedonTable(){
-        return Object.keys(this.props.bean.happiness.all).filter(
-            (k) => k != this.props.bean.happiness.maxSource && k != this.props.bean.happiness.minSource
-            ).map((x, i) => {
+        return Object.keys(this.props.bean.happiness.all).map((x, i) => {
             return <tr key={i}>
                 <td className="small text-right">{this.props.bean.happiness.all[x]} {this.props.bean.happiness.all[x] >= 0 ? EmoteIcon['happiness'] : EmoteIcon['unhappiness']} from </td>
                 <td className="small">{x}</td>
@@ -101,21 +99,6 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 return this.scanned ? this.beliefTable(this.props.bean.beliefs) : null
             case 'feelings':
                 return <table className="width-100p"><tbody>
-                    {
-                        this.props.bean.happiness.maxSource.length > 0 ?  <tr>
-                            <td colSpan={2}>
-                                {this.props.bean.happiness.all[this.props.bean.happiness.maxSource]} {EmoteIcon['happiness']} from {this.props.bean.happiness.maxSource}
-                            </td>
-                        </tr> : null
-                    }
-                    {
-                        this.props.bean.happiness.minSource.length > 0 ?  
-                        <tr>
-                            <td colSpan={2}>
-                                {this.props.bean.happiness.all[this.props.bean.happiness.minSource]} {EmoteIcon['unhappiness']} from {this.props.bean.happiness.minSource}
-                            </td>
-                        </tr> : null
-                    }
                     {this.scanned ? this.hedonTable() : null}
                     </tbody>
                 </table>

@@ -11,6 +11,7 @@ import { BuildingJobSlot } from "./Occupation";
 import { IEventBus, Live, LiveList, PubSub } from "../events/Events";
 import { WorldSound } from "../WorldSound";
 import { isEnterprise } from "./Institutions";
+import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -176,6 +177,31 @@ export class City extends Geography implements Tile, IBeanContainer {
             const squared = Math.pow(p.x - q.x, 2)+Math.pow(p.y - q.y, 2);
 
             return squared < 1600 && squared > 600;
+        });
+    }
+    getPopulationTraitsList(scannedBeans: {[beanKey: number]: boolean}, beans = this.beans.get): {icon: string, noun: string, count: number}[]{
+        return Array.from(
+            beans.reduce((m, b) => {
+                if (scannedBeans[b.key]){
+                    b.beliefs.forEach((t) => {
+                        const prev = m.get(t) || 0;
+                        m.set(t, prev+1);
+                    });
+                } else {
+                    m.set('Unknown', (m.get('Unknown') || 0) + 1);
+                }
+                return m;
+            }, new Map<TraitBelief|'Unknown', number>()).entries()
+        ).sort(([aT, aC], [bT, bC]) => bC - aC).map(([t, c]) => {
+            return t === 'Unknown' ? {
+                icon: '❔',
+                noun: 'Unknown',
+                count: c
+            } : {
+                icon: SecondaryBeliefData[t].icon,
+                noun: SecondaryBeliefData[t].noun,
+                count: c
+            }
         });
     }
 }

@@ -138,10 +138,12 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 
 
 # IMMEDIATE TODO
-
-1. marketplace: buy traits
 1. 1 or 2 basic government policies
+1. beam-in with assign-to-job when beaming in to hex with building
 1. animatedBean animation/state performance rework (redux, probably)
+1. unless you have a person selected in the geo view before switching to network view clicking a person does nothing
+1. overview of traits
+1. spotlight auto resume sometimes breaks
 
 # FEATURE TODO
 1. add murder and violent traits
