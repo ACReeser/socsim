@@ -129,12 +129,7 @@ const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
     const world = new World();
  
-    world.law.laws = [
-        {group: 'Welfare', key: 'eat_cake', axis: 'wel_food'},
-        {group: 'Welfare', key: 'outside', axis: 'wel_house'},
-        {group: 'Welfare', key: 'stay_healthy', axis: 'wel_health'},
-        {group: 'Culture', key: 'secularism', axis: 'cul_rel'}
-    ];
+    world.law.laws = [];
     world.party = new BaseParty();
     world.institutions.push(world.party);
     for (let i = 0; i < Number_Starting_Cities; i++) {

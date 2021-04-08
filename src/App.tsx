@@ -484,7 +484,8 @@ class App extends React.Component<AppPs, AppState>{
             <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
           </Modal>
           <Modal show={this.state.activeModal == 'party'} onClick={() => this.setState({ activeModal: null })}>
-            <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview>
+            <GovernmentPanel world={this.state.world}></GovernmentPanel>
+            {/* <PartyOverview world={this.state.world} setPolicy={this.setPolicy}></PartyOverview> */}
           </Modal>
           <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({ activeModal: null })}>
             <ResearchPanel release={this.releaseBean} setResearch={this.setResearch} player={this.state.world.alien}></ResearchPanel>

@@ -3,6 +3,7 @@
     border: 1px solid black;
     font-size: 2em;
     width: 2em;
+    min-width: 2em; /*when inside flex layouts*/
     height: 2em;
     display: block;
     flex-grow: 0;

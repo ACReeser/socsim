@@ -11,7 +11,7 @@ export interface PartyOverviewPS{
     setPolicy(axis: LawAxis, policy: IPolicy): void;
 }
 interface PartyOverviewS{
-    overView: 'laws'|'leadership'|'finances',
+    overView: 'laws'|'finances',
     detailView: 'none'|'group_add'|'law_view',
     detailGroup?: LawGroup,
     detailLaw?: ILaw,
@@ -48,9 +48,6 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             <strong className="f-size-15em">
                 {ldata.name}
             </strong>
-            <span>
-                {RenderIdealBadges(ldata.idealPro || [], 'pos')}
-            </span>
             {
                 view === 'add' ? 
                 <button className="callout marg-0">
@@ -139,10 +136,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
             const data = LawData[x.key];
             return <tr key={x.key}>
             <td>
-                <i>{data.name}</i> 
-                {
-                    (data.idealPro || []).map((x) => TraitIcon[x])
-                }
+                <i>{data.name}</i>
             </td>
             <td>
                 <button onClick={() => this.setState({detailView: 'law_view', detailLaw: x})} className="callout marg-0">View 🔍</button>
@@ -159,28 +153,17 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
                         <button type="button" onClick={() => this.setState({overView: 'laws'})} className={this.state.overView === 'laws' ? 'active': ''}>
                             📜 Laws
                         </button>
-                        <button type="button" onClick={() => this.setState({overView: 'leadership'})} className={this.state.overView === 'leadership' ? 'active': ''}>
-                            {this.props.world.party.leadership} 🗳️ Leadership
-                        </button>
                         <button type="button" onClick={() => this.setState({overView: 'finances'})} className={this.state.overView === 'finances' ? 'active': ''}>
                             💰 Funding
                         </button>
                     </div>
                 </div>
             </div>
-            {/* <div className="pad-4p">
-                {this.props.world.party.name} is a&nbsp;
-                {PrimaryBeliefData[this.props.world.party.community].adj} {PrimaryBeliefData[this.props.world.party.community].icon}&nbsp; 
-                {PrimaryBeliefData[this.props.world.party.ideals].adj} {PrimaryBeliefData[this.props.world.party.ideals].icon}&nbsp;
-                Utopia
-            </div> */}
             {this.renderOver()}
         </div>
     }
     renderOver(): React.ReactNode {
         switch(this.state.overView){
-            case 'leadership':
-                return this.renderLeadership();
             case 'finances':
                 return this.renderFinances();
             default:
