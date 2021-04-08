@@ -132,9 +132,17 @@ class App extends React.Component<AppPs, AppState>{
     } else if (event.key === 'Escape') {
       this.setState({activeModal: null});
     } else if (event.key === 'Q' && event.shiftKey) {
-      this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
-      this.build(this.state.world.cities[0], { q: 1, r: 0 }, 'house');
-      this.build(this.state.world.cities[0], { q: 0, r: 1 }, 'hospital');
+
+      if (this.state.world.cities[0].book.getBuildings().filter(x => x.type === 'farm').length < 1){
+        this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.energy || 0;
+        this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.bots || 0;
+        this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.energy || 0;
+        this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.bots || 0;
+        this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
+        this.build(this.state.world.cities[0], { q: 1, r: 0 }, 'house');
+        this.build(this.state.world.cities[0], { q: 0, r: 1 }, 'hospital');
+      }
+      this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0) * 4;
       this.beam(this.state.world.cities[0], { q: 0, r: 0 });
       this.beam(this.state.world.cities[0], { q: 1, r: 0 });
       this.beam(this.state.world.cities[0], { q: 0, r: 1 });

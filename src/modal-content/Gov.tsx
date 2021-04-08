@@ -52,7 +52,7 @@ export const LawDetailList: React.FC<{
                 </div>
                 <div>
                     {
-                        laws.map((x) => <LawFormula seenBeliefs={props.seenBeliefs} id={x.key} beliefs={props.beliefs} key={x.key}></LawFormula>)
+                        laws.map((x) => <LawFormula seenBeliefs={props.seenBeliefs} id={x.key} beliefs={props.beliefs} key={x.key} selectLaw={(l) => setLaw(l)}></LawFormula>)
                     }
                 </div>
             </div>
@@ -76,7 +76,8 @@ export const LawDetailList: React.FC<{
 export const LawFormula: React.FC<{
     id: LawKey,
     seenBeliefs: Map<string, boolean>,
-    beliefs: BeliefInventory[]
+    beliefs: BeliefInventory[],
+    selectLaw: (l: LawKey) => void
 }> = (props) => {
     const law = LawData[props.id];
     const canSeeName = law.prereqTraits.length === 0 || law.prereqTraits.some((x) => props.seenBeliefs.get(x));
@@ -91,7 +92,7 @@ export const LawFormula: React.FC<{
                     {canSeeName ? law.name : 'Unknown'}
                 </strong>
                 {
-                    unlocked ? <button className="pull-r">
+                    unlocked ? <button className="pull-r" onClick={() => props.selectLaw(props.id)}>
                         🔍
                     </button> : null
                 }

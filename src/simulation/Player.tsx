@@ -198,7 +198,7 @@ export class Player implements IPlayerData, IProgressable{
     public beliefInventory = new LiveList<BeliefInventory>([]);
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
-    public energy = { amount: 29, income: 2/30, change: new ChangePubSub()};
+    public energy = { amount: 16, income: 2/30, change: new ChangePubSub()};
     public bots = { amount: 10, income: 2/30, change: new ChangePubSub()};
     public hedons = { amount: 0, income: 0, change: new ChangePubSub()};
     public tortrons = { amount: 0, income: 0, change: new ChangePubSub()};
