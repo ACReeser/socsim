@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { SecondaryBeliefData } from "../simulation/Beliefs";
-import { LawData, LawGroup, LawKey } from "../simulation/Government";
+import { LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
 import { BeliefInventory } from "../simulation/Player";
 import { World } from "../World";
 
@@ -80,8 +80,8 @@ export const LawFormula: React.FC<{
     selectLaw: (l: LawKey) => void
 }> = (props) => {
     const law = LawData[props.id];
-    const canSeeName = law.prereqTraits.length === 0 || law.prereqTraits.some((x) => props.seenBeliefs.get(x));
-    const unlocked = law.prereqTraits.length === 0 || law.prereqTraits.every((x) => props.seenBeliefs.get(x));
+    const canSeeName = PlayerCanSeePrereqs(law.prereqs, props.seenBeliefs);
+    const unlocked = PlayerMeetsPrereqs(law.prereqs, props.seenBeliefs);
     return <div className="vertical law-formula">
         <div className="horizontal">
             <div className="circular">
@@ -94,7 +94,7 @@ export const LawFormula: React.FC<{
                 {
                     unlocked ? <button className="pull-r" onClick={() => props.selectLaw(props.id)}>
                         🔍
-                    </button> : null
+                    </button> : <span className="pull-r grey">🔒</span>
                 }
                 <div>
                     {
@@ -105,12 +105,13 @@ export const LawFormula: React.FC<{
         </div>
         <div className="vertical">
             {
-                law.prereqTraits.map((x) => {
-                    const has = props.seenBeliefs.has(x);
-                    return !has ? <span className="law-formula-ingredient unknown" key={x}>
+                law.prereqs.map((x) => {
+                    const has = PlayerKnowsPrereq(x, props.seenBeliefs);
+                    const key = PrereqKey(x);
+                    return !has ? <span className="law-formula-ingredient unknown" key={key}>
                         ❔ Unknown
-                    </span> : <span className="law-formula-ingredient" key={x}>
-                        {SecondaryBeliefData[x].icon}&nbsp;{SecondaryBeliefData[x].noun}
+                    </span> : <span className="law-formula-ingredient" key={key}>
+                        {PrereqString(x)}
                     </span>
                 })
             }

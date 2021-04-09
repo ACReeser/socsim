@@ -122,6 +122,7 @@ class App extends React.Component<AppPs, AppState>{
     }
     window.requestAnimationFrame(this.tick);
   }
+  cheatMode: boolean = false;
   keyupHandler = (event: KeyboardEvent) => {
     if (event.key === ' ') {
       if (this.state.timeScale > 0) {
@@ -131,15 +132,19 @@ class App extends React.Component<AppPs, AppState>{
       }
     } else if (event.key === 'Escape') {
       this.setState({activeModal: null});
-    } else if (event.key === 'Q' && event.shiftKey) {
-
+    } else if (this.cheatMode && event.key === 'B') {
+      this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0);
+      this.beam(this.state.world.cities[0], { q: 0, r: 0 });
+    } else if (this.cheatMode && event.key === 'Q') {
       if (this.state.world.cities[0].book.getBuildings().filter(x => x.type === 'farm').length < 1){
         this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.energy || 0;
         this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.bots || 0;
+        this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
         this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.energy || 0;
         this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.bots || 0;
-        this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
         this.build(this.state.world.cities[0], { q: 1, r: 0 }, 'house');
+        this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.hospital.energy || 0;
+        this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.hospital.bots || 0;
         this.build(this.state.world.cities[0], { q: 0, r: 1 }, 'hospital');
       }
       this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0) * 4;
@@ -147,7 +152,7 @@ class App extends React.Component<AppPs, AppState>{
       this.beam(this.state.world.cities[0], { q: 1, r: 0 });
       this.beam(this.state.world.cities[0], { q: 0, r: 1 });
       this.beam(this.state.world.cities[0], { q: 1, r: 1 });
-    } else if (event.key === 'S' && event.shiftKey) {
+    } else if (this.cheatMode && event.key === 'S') {
       this.state.world.beans.get.forEach((b) => {
         if (this.state.world.alien.difficulty.cost.bean.scan.energy){
           if (this.state.world.alien.energy.amount < this.state.world.alien.difficulty.cost.bean.scan.energy)
@@ -156,6 +161,7 @@ class App extends React.Component<AppPs, AppState>{
         this.scan(b);
       });
     }
+    this.cheatMode = event.shiftKey && event.key === 'C';
   }
   foundParty = (state: FoundPartyS) => {
     this.state.world.party.name = state.name;

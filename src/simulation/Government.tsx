@@ -1,5 +1,5 @@
 import { TraitCommunity, TraitIdeals } from "../World";
-import { TraitBelief } from "./Beliefs";
+import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPolicy } from "./Politics";
 
 export type LawGroup = 'Taxation'|'Welfare'|'Economics'|'Crime'|'Culture';
@@ -29,6 +29,30 @@ export type LawKey = 'food_aid'
 // |'prop_tax'
 |'death_tax';
 
+export type LawPrereq = TraitBelief|TraitBelief[];
+
+export function PlayerCanSeePrereqs(prereqs: LawPrereq[], seen: Map<string, boolean>){
+    return prereqs.length === 0 || prereqs.some((x) => PlayerKnowsPrereq(x, seen));
+}
+export function PlayerMeetsPrereqs(prereqs: LawPrereq[], seen: Map<string, boolean>){
+    return prereqs.length === 0 || prereqs.every((x) => PlayerKnowsPrereq(x, seen));
+}
+export function PlayerKnowsPrereq(prereq: LawPrereq, seen: Map<string, boolean>){
+    return Array.isArray(prereq) ? prereq.some((x) => PlayerKnowsBelief(x, seen)) : PlayerKnowsBelief(prereq, seen);
+}
+export function PlayerKnowsBelief(prereq: TraitBelief, seen: Map<string, boolean>){
+    return seen.has(prereq);
+}
+export function PrereqKey(prereq: LawPrereq){
+    return Array.isArray(prereq) ? prereq.join('/') : prereq;
+}
+export function PrereqString(prereq: LawPrereq){
+    return Array.isArray(prereq) ? prereq.map(x => BeliefString(x)).join(' / ') : BeliefString(prereq);
+}
+export function BeliefString(prereq: TraitBelief){
+    return SecondaryBeliefData[prereq].icon+' '+SecondaryBeliefData[prereq].noun;
+}
+
 export type LawPunishment = 'fine'|'imprison'|'death';
 
 export interface ILaw{
@@ -50,7 +74,7 @@ export interface IGovernment{
     lawTree: {[key in LawAxis]: ILaw};
 }
 export interface ILawData extends ILaw{
-    prereqTraits: TraitBelief[]
+    prereqs: LawPrereq[];
     name: string;
     hint?: string;
     description?: string;
@@ -70,10 +94,10 @@ export const LawAxisData: {[key in LawAxis]: {name: string}} = {
 export const LawData: {[key in LawKey]: ILawData} = {
     'food_aid':{
         key: 'food_aid', group: 'Welfare', name: 'Food Aid', axis: 'wel_food', icon: '👨‍🌾',
-        description: 'The government buys Hungry Subjects food.', prereqTraits: ['Charity', 'Parochialism']},
+        description: 'The government buys Hungry Subjects food.', prereqs: [['Gluttony','Parochialism'], ['Charity', 'Socialism']]},
     'medical_aid':{
         key: 'medical_aid', group: 'Welfare', name: 'Med Aid', axis: 'wel_health', icon: '👩‍⚕️',
-        description: 'The government buys Sick Subjects medicine.', prereqTraits: ['Charity', 'Cosmopolitanism']},
+        description: 'The government buys Sick Subjects medicine.', prereqs: ['Charity', 'Cosmopolitanism']},
     // 'food_bank':{
     //     key: 'food_bank', group: 'Welfare', name: 'Food Bank', axis: 'wel_food',
     //     description: 'Hungry Subjects are provided food purchased by the government.'
@@ -133,10 +157,10 @@ export const LawData: {[key in LawKey]: ILawData} = {
     // '':{key: // , group: '', name: 'University Grants', 'ego', axis: 'cul_ed'},
     // '':{key: // , group: '', name: 'College For All', 'state', idealPro: [ 'prog', axis: 'cul_ed'},
     'poll_tax':{
-        key: 'poll_tax', group: 'Taxation', name: 'Head Tax', axis: 'tax_basic', prereqTraits: [], icon: '👑',
+        key: 'poll_tax', group: 'Taxation', name: 'Head Tax', axis: 'tax_basic', prereqs: [], icon: '👑',
         description: 'Subjects must pay a flat tax.'},
     'sales_tax':{
-        key: 'sales_tax', group: 'Taxation', name: 'Sales Tax', axis: 'tax_basic', prereqTraits: [], icon: '💸',
+        key: 'sales_tax', group: 'Taxation', name: 'Sales Tax', axis: 'tax_basic', prereqs: [], icon: '💸',
         description: 'Subjects must pay a percentage tax for every transaction.'},
     // 'wealth_tax':{
     //     key: 'wealth_tax', group: 'Taxation', name: 'Wealth Tax', axis: 'tax_basic',
@@ -148,7 +172,7 @@ export const LawData: {[key in LawKey]: ILawData} = {
     //     key: 'prop_tax', group: 'Taxation', name: 'Property Tax', axis: 'tax_second',
     //     description: 'Subjects must pay a tax on housing.'},
     'death_tax':{
-        key: 'death_tax', group: 'Taxation', name: 'Death Tax', axis: 'tax_second', prereqTraits: [], icon: '☠️',
+        key: 'death_tax', group: 'Taxation', name: 'Death Tax', axis: 'tax_second', prereqs: [], icon: '☠️',
         description: 'Dead subjects pay a portion of their cash to the government.'},
 }
 

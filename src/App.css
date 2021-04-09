@@ -980,3 +980,7 @@ select:invalid { color: gray; }
   position: absolute;
   opacity: 0;
 }
+
+.grey{
+  filter: saturate(0);
+}
