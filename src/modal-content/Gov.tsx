@@ -2,10 +2,13 @@ import React, { useState } from "react";
 import { SecondaryBeliefData } from "../simulation/Beliefs";
 import { LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
 import { BeliefInventory } from "../simulation/Player";
+import { TreasuryReport } from "../widgets/TreasuryReport";
 import { World } from "../World";
 
 export const GovernmentPanel: React.FC<{
-    world: World
+    world: World,
+    enactLaw: (l: LawKey) => void
+    revokeLaw: (l: LawKey) => void
 }> = (props) => {
     const [view, setView] = useState<LawGroup|'funds'>('Welfare');
     return <div>
@@ -30,8 +33,13 @@ export const GovernmentPanel: React.FC<{
         </div>
         {
             view === 'funds' ? <div>
-
-            </div> : <LawDetailList group={view} seenBeliefs={props.world.alien.seenBeliefs.get} beliefs={props.world.alien.beliefInventory.get}></LawDetailList>
+                <TreasuryReport treasury={props.world.law.treasury}></TreasuryReport>
+            </div> : <LawDetailList 
+                group={view} seenBeliefs={props.world.alien.seenBeliefs.get} beliefs={props.world.alien.beliefInventory.get}
+                isLaw={(l) => props.world.law.isLaw(l)}
+                enactLaw={(l: LawKey) => props.enactLaw(l)}
+                revokeLaw={(l: LawKey) => props.revokeLaw(l)}
+            ></LawDetailList>
         }
     </div>
 }
@@ -40,34 +48,20 @@ export const GovernmentPanel: React.FC<{
 export const LawDetailList: React.FC<{
     group: LawGroup,
     seenBeliefs: Map<string, boolean>,
-    beliefs: BeliefInventory[]
+    beliefs: BeliefInventory[],
+    isLaw(l: LawKey): boolean,
+    enactLaw: (l: LawKey) => void
+    revokeLaw: (l: LawKey) => void
 }> = (props) => {
     const laws = Object.values(LawData).filter(x => x.group === props.group);
-    const [law, setLaw] = useState<LawKey|null>(null);
-    return <div className="col-2-30-60">
-        <div>
-            <div className="scroll">
-                <div className="scoll-sticky-h">
-                    <strong>{props.group} Laws</strong>
-                </div>
-                <div>
-                    {
-                        laws.map((x) => <LawFormula seenBeliefs={props.seenBeliefs} id={x.key} beliefs={props.beliefs} key={x.key} selectLaw={(l) => setLaw(l)}></LawFormula>)
-                    }
-                </div>
-            </div>
-        </div>
-        <div>
-            <div className="modal-scroll-v">
-                <div className="sticky-t-0">
-                    {
-                        law === null ? <strong>Select a Law</strong> : <strong>{LawData[law].name}</strong>
-                    }
-                </div>
-                {
-
-                }
-            </div>
+    return <div className="pad-4p">
+        <strong>{props.group} Laws</strong>
+        <div className="horizontal scroll">
+        {
+            laws.map((x) => <LawFormula seenBeliefs={props.seenBeliefs} id={x.key} beliefs={props.beliefs} key={x.key} enacted={props.isLaw(x.key)}
+                enactLaw={(l) => props.enactLaw(l)} revokeLaw={(l) => props.revokeLaw(l)}>
+            </LawFormula>)
+        }
         </div>
     </div>
 }
@@ -77,7 +71,9 @@ export const LawFormula: React.FC<{
     id: LawKey,
     seenBeliefs: Map<string, boolean>,
     beliefs: BeliefInventory[],
-    selectLaw: (l: LawKey) => void
+    enacted: boolean,
+    enactLaw: (l: LawKey) => void
+    revokeLaw: (l: LawKey) => void
 }> = (props) => {
     const law = LawData[props.id];
     const canSeeName = PlayerCanSeePrereqs(law.prereqs, props.seenBeliefs);
@@ -91,11 +87,6 @@ export const LawFormula: React.FC<{
                 <strong>
                     {canSeeName ? law.name : 'Unknown'}
                 </strong>
-                {
-                    unlocked ? <button className="pull-r" onClick={() => props.selectLaw(props.id)}>
-                        🔍
-                    </button> : <span className="pull-r grey">🔒</span>
-                }
                 <div>
                     {
                         canSeeName ? <small> {law.description} </small> : null
@@ -116,5 +107,16 @@ export const LawFormula: React.FC<{
                 })
             }
         </div>
+        {
+            props.enacted ? <button className="callout"  onClick={() => props.revokeLaw(props.id)}>
+                🗑️&nbsp;Revoke Active Law
+            </button> : <button className="callout" disabled={!unlocked} onClick={() => props.enactLaw(props.id)}>
+                {
+                    unlocked ? '✒️' : <span className="grey">🔒</span>
+                }
+                &nbsp;Enact
+            </button>
+        }
+        {props.children}
     </div>;
 }

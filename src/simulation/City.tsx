@@ -128,10 +128,16 @@ export class City extends Geography implements Tile, IBeanContainer {
     }
     onCitizenDie(deadBean: Bean){
         if (deadBean.cash > 0){
-            const lucky = this.getRandomCitizen();
-            if (lucky) {
-                lucky.cash = lucky.cash + deadBean.cash;
+            if (this.law && this.law.isLaw('death_tax')){
+                this.law.treasury.set(this.law.treasury.get + deadBean.cash);
                 deadBean.cash = 0;
+            } else {
+                //inheritance
+                const lucky = this.getRandomCitizen();
+                if (lucky) {
+                    lucky.cash = lucky.cash + deadBean.cash;
+                    deadBean.cash = 0;
+                }
             }
         }
         this.unsetJob(deadBean);

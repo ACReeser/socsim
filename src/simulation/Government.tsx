@@ -1,4 +1,6 @@
-import { TraitCommunity, TraitIdeals } from "../World";
+import { Live } from "../events/Events";
+import { TraitCommunity, TraitGood, TraitIdeals } from "../World";
+import { Bean } from "./Bean";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPolicy } from "./Politics";
 
@@ -179,9 +181,10 @@ export const LawData: {[key in LawKey]: ILawData} = {
 export type LawGroupToLaws = {
     [key in LawGroup]: ILaw[]
 };
+const SalesTaxPercentage = 0.05;
 export class Government{
     public get laws(): ILaw[] {
-        return Object.values(this.lawTree);
+        return Object.values(this.lawTree).flatMap(law => law ? [law] : []);
     }
     public set laws(val: ILaw[]) {
         val.forEach((v) => {
@@ -200,5 +203,37 @@ export class Government{
             Culture: [] as ILaw[]
         });
     }
-    public lawTree: {[key in LawAxis]: ILaw} = {} as {[key in LawAxis]: ILaw};
+    public lawTree: {[key in LawAxis]: ILaw|undefined} = {} as {[key in LawAxis]: ILaw|undefined};
+    public treasury: Live<number> = new Live<number>(0);
+
+    isLaw(l: LawKey): boolean{
+        return this.lawTree[LawData[l].axis]?.key === l;
+    }
+
+    enact(l: LawKey): void {
+        const data = LawData[l];
+        this.lawTree[data.axis] = data;
+    }
+
+    revoke(l: LawKey): void {
+        const data = LawData[l];
+        this.lawTree[data.axis] = undefined;
+    }
+
+    get salesTaxPercentage(): number{
+        return this.isLaw('sales_tax') ? SalesTaxPercentage : 0;
+    }
+    
+    PurchaseQualifiesForWelfare(bean: Bean, good: TraitGood): boolean{
+        switch(good){
+            case 'food':
+                return (bean.food === 'starving' || bean.food === 'hungry') && this.isLaw('food_aid');
+            case 'medicine':
+                return (bean.health === 'sick' || bean.health === 'sickly') && this.isLaw('medical_aid');
+        }
+        return false;
+    }
+    CanPayWelfare(price: number): boolean{
+        return this.treasury.get >= price;
+    }
 }

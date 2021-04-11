@@ -864,6 +864,7 @@ select:invalid { color: gray; }
 
 .law-formula{
   margin-bottom: 8px;
+  max-width: 220px;
 }
 .law-formula-ingredient{
   border: 1px solid black;

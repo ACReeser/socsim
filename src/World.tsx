@@ -51,6 +51,7 @@ export const BeanPhysics = {
     CollisionDistance: 10
 }
 const MaxHedonHistory = 5;
+const PollTaxWeeklyAmount = 0.1;
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
     public readonly economy: Economy = new Economy(this.bus);
@@ -82,6 +83,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
 
     constructor(){
         this.bus.death.subscribe(this.onBeanDie);
+        this.economy.law = this.law;
         this.marketTraitsForSale.set(GetMarketTraits());
     }
 
@@ -103,26 +105,19 @@ export class World implements IWorld, IBeanContainer, IActListener{
         if (this.date.hour > Hour.Evening){
             this.date.hour = 0;
             this.date.day++;
-            this.beans.get.forEach((x) => {
-                if (x.hedonHistory.length >= MaxHedonHistory) {
-                    x.hedonHistory.pop();
-                }
-                x.hedonHistory.unshift({});
-            });
+            this.simulate_every_day();
             if (this.date.day % 7 === 0){
-                this.marketTraitsForSale.set(GetMarketTraits());
-                this.publishEvent({message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
+                this.simulate_every_week();
             }
         }
         if (this.date.day > 30){
             this.date.day = 1;
-            this.economy.resetMonthlyDemand();
+            this.simulate_every_month()
             this.date.season++;
         }
         if (this.date.season > 3){
             this.date.year++;
-            this.inflate();
-            this.resetYearlyCounters();
+            this.simulate_every_year();
             this.date.season = 0;
         }
 
@@ -166,6 +161,38 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.calculateComputedState();
         this.alien.checkGoals(this);
         this.alien.checkReportCard(this);
+    }
+    simulate_every_year(){
+        this.inflate();
+        this.resetYearlyCounters();
+    }
+    simulate_every_month(){
+        this.economy.resetMonthlyDemand();
+
+    }
+    simulate_every_week(){
+        this.marketTraitsForSale.set(GetMarketTraits());
+        this.publishEvent({message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
+        if (this.law.isLaw('poll_tax')){
+            let collected = 0;
+            this.cities.forEach((x) => {
+                x.beans.get.forEach((y) => {
+                    if (y.cash >= PollTaxWeeklyAmount){
+                        y.cash -= PollTaxWeeklyAmount;
+                        collected += PollTaxWeeklyAmount;
+                    }
+                });
+            });
+            this.law.treasury.set(this.law.treasury.get + collected);
+        }
+    }
+    simulate_every_day(){
+        this.beans.get.forEach((x) => {
+            if (x.hedonHistory.length >= MaxHedonHistory) {
+                x.hedonHistory.pop();
+            }
+            x.hedonHistory.unshift({});
+        });
     }
     simulate_beans(deltaMS: number){
         this.beans.get.forEach((b) => {
