@@ -452,7 +452,7 @@ export class Bean implements IBean{
                             if (employer.ownerBeanKey === this.key)
                                 this.ifBelievesInMaybeEmote('Capitalism', 'happiness', 0.1);
                             break;
-                        case 'cooperative':                            
+                        case 'co-op':                            
                             this.ifBelievesInMaybeEmote('Capitalism', 'unhappiness', 0.1);
                                 
                             this.ifBelievesInMaybeEmote('Socialism', 'happiness', 0.1);

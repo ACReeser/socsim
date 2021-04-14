@@ -297,14 +297,10 @@ button.pull-r{
 
 .tile{
   border: 1px solid black;
-  width: 1100px;
-  height: 1100px;
-  border-radius: 600px;
+  border-radius: 100%;
   position: relative;
 }
 .tile .hex{
-  width: 120px; height: 120px;
-  top: -60px; left: -60px;
   border: 1px solid rgba(200, 200, 200, .1);
   border-radius: 100px;
   position: absolute;
@@ -325,7 +321,6 @@ button.pull-r{
 .petri-lid, .petri-base{
   position: absolute;
   left: 0; 
-  width: 1100px; height: 1100px;
   pointer-events: none;
 }
 .petri-lid{
@@ -564,8 +559,8 @@ table.classic .border-t{
   z-index: 0;
   opacity: .5;
   position: absolute;
-  font-size: 30px; height: 30px; width: 30px;
-  left: -20px; top: -20px;
+  font-size: 44px; line-height: 44px; width: 44px;
+  left: -30px; top: -30px;
   pointer-events: none;
 }
 .dead{

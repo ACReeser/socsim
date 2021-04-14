@@ -26,6 +26,10 @@ export class HexPanel extends React.Component<{
                 <strong>Empty Lot</strong> in <strong>{this.props.city.name}</strong>
                 <button type="button" className="pull-r" onClick={() => this.props.clearHex()} >❌</button>
             </div>
+            <div>
+                {this.props.hex.q}x
+                {this.props.hex.r}
+            </div>
             <h3>Build:</h3>
             <div className="card-parent">
                 <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'house')}>

@@ -180,9 +180,17 @@ class Orientation {
         public b0: number, public b1: number,public b2: number,public b3: number,
         public start_angle: number){}
 };
-export const layout_flat: Orientation = new Orientation(3.0 / 2.0, 0.0, Math.sqrt(3.0) / 2.0, Math.sqrt(3.0),
-                2.0 / 3.0, 0.0, -1.0 / 3.0, Math.sqrt(3.0) / 3.0,
-                0.0);
+export const layout_flat: Orientation = new Orientation(
+    3.0 / 2.0, 
+    0.0, 
+    Math.sqrt(3.0) / 2.0, 
+    Math.sqrt(3.0),
+    2.0 / 3.0, 
+    0.0, 
+    -1.0 / 3.0, 
+    Math.sqrt(3.0) / 3.0,
+    0.0
+);
 export const origin_point: Point = {x: 0, y: 0};
 export const hex_origin: HexPoint = {q: 0, r: 0};
 export function hex_to_pixel(size: Point, origin: Point, h: HexPoint): Point {
@@ -414,6 +422,8 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
     'polit': 'house'
 };
 
+export const HexSizePX = 70;
+export const HexSizeR = 120; // rounded sqrt(3) * HexSizePX
 export class Geography{
     public book: CityBook = new CityBook(new Map());
 
@@ -431,9 +441,9 @@ export class Geography{
             return ent;
         return undefined;
     }
-    public numberOfRings = 5;
+    public readonly numberOfRings = 5;
     public hexes: HexPoint[] = hex_spiral({q:0, r:0}, this.numberOfRings);
-    public hex_size: Point = {x: 70, y: 70};
-    public readonly petriRadius = 550;
+    public hex_size: Point = {x: HexSizePX, y: HexSizePX};
+    public readonly petriRadius = ((this.numberOfRings - 0.5) * HexSizeR) + this.numberOfRings;
     public readonly petriOrigin = {x: this.petriRadius, y: this.petriRadius};
 }

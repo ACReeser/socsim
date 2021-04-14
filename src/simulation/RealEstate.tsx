@@ -59,7 +59,7 @@ export class Building implements IBuilding, IEnterprise{
                     });
                 }
                 break;
-            case 'cooperative':
+            case 'co-op':
                 const share = this.bank / workers.length;
                 this.bank = 0;
                 workers.forEach(x => {

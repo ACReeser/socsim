@@ -2,7 +2,7 @@ import { Tile } from "../World";
 import { Bean } from "../simulation/Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformPoint, HexPoint, Point } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformPoint, HexPoint, Point, HexSizeR } from "../simulation/Geography";
 import { PetriBuilding } from "./Building";
 import { PI2 } from "../WorldGen";
 import { City, Pickup, UFO } from "../simulation/City";
@@ -13,6 +13,12 @@ import { BeanList, PickupList } from "./Mover";
 import { PetriBuildings } from "./Buildings";
 import { Magnet } from "./Magnet";
 
+const hex_style = {
+  width: HexSizeR + 'px', 
+  height: HexSizeR + 'px', 
+  top: (-HexSizeR/2)+'px',
+  left: (-HexSizeR/2)+'px'
+}
 
 interface WorldTilePs {
   tile: Tile;
@@ -29,12 +35,11 @@ export class WorldTile extends React.Component<WorldTilePs> {
     super(props);
     this.state = {
     }
-    const mtnRadius = 530;
-    const worldR = 550;
+    const mtnRadius = props.city.petriRadius - 20;
     for (let i = 0; i < 360 / 5; i++) {
       const az = i * 5 * Math.PI / 180;
       const pt = polarToPoint({ r: mtnRadius, az: az });
-      pt.x += worldR; pt.y += worldR;
+      pt.x += props.city.petriRadius; pt.y += props.city.petriRadius;
       this.mtn_transforms.push(transformPoint(pt));
     }
   }
@@ -51,7 +56,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
   renderHexes(){
     return this.props.city.hexes.map((hex, i) => {
       const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
-      return <div className="hex" key={i} style={transformPoint(xy)} 
+      return <div className="hex" key={i} style={{...hex_style, ...transformPoint(xy)}} 
         onMouseEnter={(e) => { this.props.city.pickupMagnetPoint.set(xy); }}
         onClick={(e) => { this.props.onHexClick(hex); e.stopPropagation(); return false; }}>
         {/* todo: move renderbuildings to here */}
@@ -70,8 +75,12 @@ export class WorldTile extends React.Component<WorldTilePs> {
     const mtns = this.mtn_transforms.map((x, i) => {
       return <span key={i} style={x} className="mtn">⛰️</span>
     });
+    const style = {
+      height: (this.props.city.petriRadius * 2) + 'px',
+      width: (this.props.city.petriRadius * 2) + 'px',
+    }
     return (
-      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.pickupMagnetPoint.set(undefined);}}>
+      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.pickupMagnetPoint.set(undefined);}} style={style}>
         <svg style={{ width: '100%', height: '100%' }} className="petri-base">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 1)" />
         </svg>
