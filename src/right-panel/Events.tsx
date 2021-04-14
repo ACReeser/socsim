@@ -21,8 +21,8 @@ export class EventsPanel extends React.Component<EventsPanelPS> {
     render(){
         let events = this.props.events.map((e, i) => {
             const alert = e.icon === '🚨';
-            const slot = e.trigger === 'nojobslots';
-            return <div key={i} className={alert||slot ? 'tall': ''}>
+            const tallTrigger = e.trigger === 'nojobslots' || e.trigger === 'persuasion';
+            return <div key={i} className={alert||tallTrigger ? 'tall': ''}>
                 <span className={alert ? 'police-siren': ''}>{e.icon}</span>&nbsp;
                 {
                     shouldEventJumpToBean(e) ? <a onClick={() => this.props.selectBean(e.beanKey)} href="javascript:void(0)">{e.message}</a> : <span>{e.message}</span>

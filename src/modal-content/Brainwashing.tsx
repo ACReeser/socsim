@@ -51,6 +51,7 @@ export class BrainwashingContent extends React.Component<{
     render(){
         const bean = this.props.world.beans.get.find(x => x.key == this.props.beanID);
         const isScanned =  this.props.beanID && this.props.world.alien.scanned_bean[this.props.beanID];
+        const sanityCostBonus = this.props.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
         if (bean == null) return <div></div>;
         const dogmatic = bean.believesIn('Dogmatism');
         return <div>
@@ -103,7 +104,7 @@ export class BrainwashingContent extends React.Component<{
                         available={bean.discrete_sanity} frozen={dogmatic && b != 'Dogmatism'}
                         divergent={IsBeliefDivergent(b, this.props.world.party.ideals, this.props.world.party.community)}
                         wash={() => this.props.washBelief(bean, b)} 
-                            cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0}
+                            cost={(this.props.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0) + sanityCostBonus}
                             data={SecondaryBeliefData[b]}
                         >
                         </EditBeliefInput>)

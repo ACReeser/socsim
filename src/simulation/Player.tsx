@@ -138,7 +138,7 @@ export function GetAverage(reportCard: IReportCard): Grade{
     ) / 20);
 }
 
-export type Tech = 'halve_sanity'|'fast_resources'|'trauma_nanobots'|'fast_leadership'|'neural_duplicator';
+export type Tech = 'sanity_bonus'|'fast_resources'|'trauma_nanobots'|'neural_duplicator';
 export interface ITechInfo{
     tech: Tech,
     /**
@@ -149,11 +149,11 @@ export interface ITechInfo{
     description: string
 }
 export const TechData: {[key in Tech]: ITechInfo} = {
-    'halve_sanity': {
-        tech: 'halve_sanity',
+    'sanity_bonus': {
+        tech: 'sanity_bonus',
         name: 'Surgical Psychops',
         techPoints: 30,
-        description: 'Brainwashing causes -1 🧠 sanity damage'
+        description: 'Brainwashing causes -1 🧠 Sanity damage'
     },
     'fast_resources': {
         tech: 'fast_resources',
@@ -167,17 +167,11 @@ export const TechData: {[key in Tech]: ITechInfo} = {
         techPoints: 30,
         description: 'Spend 🤖 to stop Subject from dying'
     },
-    'fast_leadership': {
-        tech: 'fast_leadership',
-        name: 'Advanced Marketing',
-        techPoints: 30,
-        description: 'Faster 🗳️ Leadership accumulation'
-    },
     'neural_duplicator': {
         tech: 'neural_duplicator',
         name: 'Level 2 Neural Duplication',
         techPoints: 30,
-        description: 'Copy Traits 1 additional time'
+        description: 'Copy 🧠 Traits 1 additional time'
     }
 }
 export interface IPlayerTechProgress{

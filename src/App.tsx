@@ -327,7 +327,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washCommunity = (bean: Bean, a: TraitCommunity) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       if (bean.community === 'ego')
         bean.community = 'state';
@@ -337,7 +337,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washMotive = (bean: Bean, a: TraitIdeals) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       if (bean.ideals === 'prog')
         bean.ideals = 'trad';
@@ -347,7 +347,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washNarrative = (bean: Bean, a: TraitFaith) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal)) {
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
       const oldFaith = bean.faith;
       while (bean.faith === oldFaith)
@@ -357,24 +357,27 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   washBelief = (bean: Bean, a: TraitBelief) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary)) {
+    const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
       bean.beliefs.splice(
         bean.beliefs.indexOf(a), 1
       );
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
       const existing = this.state.world.alien.beliefInventory.get.find((x) => x.trait === a);
+      const chargeBonus = this.state.world.alien.hasResearched('neural_duplicator') ? 1 : 0;
       if (existing) {
-        existing.charges += ChargePerWash;
+        existing.charges += ChargePerWash + chargeBonus;
         this.state.world.alien.beliefInventory.set([...this.state.world.alien.beliefInventory.get]);
       } else
-        this.state.world.alien.beliefInventory.push({trait: a, charges: ChargePerWash});
+        this.state.world.alien.beliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
       this.state.world.sfx.play('wash_out');
       this.setState({ world: this.state.world });
       return true;
     }
   }
   implantBelief = (bean: Bean, a: TraitBelief) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary) && 
+    const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
+    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
       this.state.world.alien.beliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
       bean.beliefs.push(a);
       this.state.world.alien.useCharge(a);

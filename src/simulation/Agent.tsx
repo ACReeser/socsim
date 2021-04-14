@@ -317,11 +317,14 @@ export class ChatState extends AgentState{
         if (agent instanceof Bean && this.data.chat){
             agent.lastChatMS = Date.now();
             if (this.data.chat.participation === 'listener'){
-                if (this.data.chat.type === 'bully'){
-                    agent.maybeAntagonised();
-                }
-                else if (this.data.chat.type === 'praise'){
-                    agent.maybeEnthused();
+                switch(this.data.chat.type){
+                    case 'bully':
+                        agent.maybeAntagonised();
+                    case 'praise':
+                        agent.maybeEnthused();
+                    case 'preach':
+                        if (this.data.chat.preachBelief && this.data.chat.persuasionStrength)
+                            agent.maybePersuade(this.data.chat.preachBelief, this.data.chat.persuasionStrength);
                 }
             }
         }

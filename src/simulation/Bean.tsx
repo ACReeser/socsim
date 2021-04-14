@@ -309,8 +309,8 @@ export class Bean implements IBean{
         }
         return false;
     }
-    canPurchase(cost: BeanResources) {
-        return (cost.sanity === undefined || this.discrete_sanity >= cost.sanity);
+    canPurchase(cost: BeanResources, sanityBonus: number) {
+        return (cost.sanity === undefined || this.discrete_sanity >= cost.sanity + sanityBonus);
     }
     public maybeParanoid() {
         this.ifBelievesInMaybeEmote('Paranoia', 'unhappiness', ParanoidUnhappyChance)
@@ -320,6 +320,25 @@ export class Bean implements IBean{
     }
     public maybeEnthused(){
         this.emote('happiness', 'Enthusiasm');
+    }
+    maybePersuade(belief: TraitBelief, strength: number) {
+        if (this.believesIn('Dogmatism'))
+            return;
+        if (!this.beliefs.includes(belief)){
+            let defense = GetRandomNumber(1, 20);
+            let offense = GetRandomNumber(1, 20) + strength;
+    
+            if (offense > defense){
+                this.beliefs = [...this.beliefs, belief]
+                this.city?.eventBus?.persuasion.publish({
+                    icon: '🗣️', 
+                    trigger: 'persuasion', 
+                    message: `${this.name} now believes in ${SecondaryBeliefData[belief].icon} ${SecondaryBeliefData[belief].noun}!`, 
+                    beanKey: this.key, cityKey: this.cityKey,
+                    point: this.point
+                });
+            }
+        }
     }
     /**
      * chats or conversations use 🗣️ in descriptions
@@ -379,7 +398,8 @@ export class Bean implements IBean{
             return {
                 participation: 'speaker',
                 type: 'preach',
-                preachBelief: GetRandom(this.beliefs)
+                preachBelief: GetRandom(this.beliefs),
+                persuasionStrength: 1
             }
         } else {
             return {
