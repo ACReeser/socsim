@@ -11,7 +11,7 @@
     width: 40px;
     height: 40px;
     border: 1px solid black;
-    background: dodgerblue;
+    background: hsla(209.6,100%,55.9%, .6);
     border-radius: 200px;
     padding: 10px;
     text-align: center;
@@ -21,8 +21,8 @@
     margin-bottom: 30px;
 }
 .bean-node:hover{
-    background: darkblue;
-    border-color: dodgerblue;
+    background: hsla(16, 90%, 50%, .8);
+    border-color: black;
 }
 .bean-node .bean{
     top: 0px;

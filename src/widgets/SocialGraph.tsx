@@ -7,6 +7,7 @@ import { LiveList } from "../events/Events";
 
 interface SocialGraphP{
     beans: LiveList<Bean>;
+    scanned_beans: {[beanKey: number]: boolean},
     costOfLiving: number;
     onClick: (b: Bean) => void
 }
@@ -28,6 +29,9 @@ export class SocialGraph extends React.Component<SocialGraphP, SocialGraphS>{
                     <AnimatedBean bean={b} static={true} sitStill={true} 
                         onClick={() => {this.props.onClick(b);}}>
                     </AnimatedBean>
+                    {
+                        this.props.scanned_beans[b.key] ? null : <span className="social-graph-unscanned prohibited-emoji">🛰️</span>
+                    }
                 </div>)
             }
         </div>

@@ -32,6 +32,7 @@ export type LawKey = 'food_aid'
 |'death_tax';
 
 export type LawPrereq = TraitBelief|TraitBelief[];
+export const DollarPerBeanRebateThreshold = 1;
 
 export function PlayerCanSeePrereqs(prereqs: LawPrereq[], seen: Map<string, boolean>){
     return prereqs.length === 0 || prereqs.some((x) => PlayerKnowsPrereq(x, seen));
@@ -235,5 +236,14 @@ export class Government{
     }
     CanPayWelfare(price: number): boolean{
         return this.treasury.get >= price;
+    }
+    MaybeRebate(beans: Bean[]){
+        const allowedTreasury = beans.length * DollarPerBeanRebateThreshold;
+        if (this.treasury.get > allowedTreasury){
+            const overage = this.treasury.get - allowedTreasury;
+            const perBean = overage / beans.length;
+            this.treasury.set(allowedTreasury);
+            beans.forEach((b) => b.cash += perBean);
+        }
     }
 }

@@ -460,6 +460,19 @@ ul.boxes li{
   border: 1px solid black;
 }
 
+.social-graph-unscanned{
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.prohibited-emoji::after{
+  content: '❌';
+  position: absolute;
+  left: 0px;
+  bottom: 0px;
+  font-size: .8em;
+}
+
 .capsule-label{
   border-radius: 6px;
   border: 1px solid black;

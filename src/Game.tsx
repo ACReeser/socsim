@@ -167,8 +167,8 @@ export const DefaultDifficulty: IDifficulty = {
         degrade_per_tick: {
             food: 1/12,
             health: 1/20,
-            stamina: 1/12,
-            fun: 1/6
+            stamina: 1,
+            fun: 1/12
         },
         penalty: {
             homeless_health: 1/20,

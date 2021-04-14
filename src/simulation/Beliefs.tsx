@@ -217,12 +217,10 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     Extroversion: {
         noun: 'Extroversion', adj: 'Extrovert', icon: '🤩', rarity: 'common',
         description: "Extra 🎲 to start a 🗣️", //implemented
-        //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Gossip: {
         noun: 'Gossip', adj: 'Gossipy', icon: '📞', rarity: 'common',
         description: "🎲 to spread 💢 in a 🗣️", //implemented
-        //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
     Antagonism: {
         noun: 'Antagonism', adj: 'Antagonistic', icon: '🤬', rarity: 'common',
@@ -293,12 +291,10 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     Neuroticism: {
         noun: 'Neuroticism', adj: 'Neurotic', icon: '😱', rarity: 'rare',
         description: "+100% 🧠 damage", //implemented
-        idealCon: ['state'], idealPro: ['ego']
     },
     Dogmatism: {
         noun: 'Dogmatism', adj: 'Dogmatic', icon: '🐶', rarity: 'uncommon',
         description: "Cannot change beliefs", //implemented
-        idealCon: ['ego'], idealPro: ['state']
     },
 };
 

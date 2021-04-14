@@ -511,11 +511,11 @@ export class Bean implements IBean{
         const wasNotHungry = this.food !== 'starving';
         const wasNotSick = this.health !== 'sick';
 
-        this.discrete_food -= 1/7;
+        this.discrete_food -= diff.bean_life.degrade_per_tick.food;
         if (this.discrete_food < 0)
             this.discrete_health -= 0.2;
 
-        const starve = this.maybeDie('starvation', 0.6);
+        const starve = this.maybeDie('starvation', this.food === 'starving', 0.6);
         if (starve)
             return null;
         else if (this.food === 'starving' && wasNotHungry){
@@ -526,18 +526,15 @@ export class Bean implements IBean{
             }
         }
             
-        if (this.stamina === 'homeless')
-            this.discrete_health -= 1/14;
-        
-        this.discrete_stamina--;
+        this.discrete_stamina -= diff.bean_life.degrade_per_tick.stamina;
     
-        const exposure = this.maybeDie('exposure', 0.2);
+        const exposure = this.maybeDie('exposure', this.stamina === 'homeless', 0.2);
         if (exposure)
             return null;
 
-        this.discrete_health -= 1/20;
+        this.discrete_health -= diff.bean_life.degrade_per_tick.health;
         this.discrete_health = Math.min(this.discrete_health, 3);
-        const sick = this.maybeDie('sickness', 0.4);
+        const sick = this.maybeDie('sickness', this.health === 'sick', 0.4);
         if (sick)
             return null;
         else if (this.health === 'sick' && wasNotSick){
@@ -547,7 +544,7 @@ export class Bean implements IBean{
             }
         }
 
-        this.discrete_fun -= 1/10;
+        this.discrete_fun -= diff.bean_life.degrade_per_tick.fun;
         this.discrete_fun = Math.max(0, this.discrete_fun);
         return null;
     }
@@ -627,8 +624,8 @@ export class Bean implements IBean{
     canBuy(good: TraitGood): 'yes'|'nosupply'|'pricedout' {
         return this.city?.economy?.canBuy(this, good) || 'nosupply';
     }
-    maybeDie(cause: BeanDeathCause, chance = 0.5): boolean{
-        if (this.discrete_health < 0 && Math.random() <= chance) {
+    maybeDie(cause: BeanDeathCause, isDire: boolean, chance = 0.5): boolean{
+        if (isDire && Math.random() <= chance) {
             this.die(cause);
             return true;
         }

@@ -185,6 +185,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             });
             this.law.treasury.set(this.law.treasury.get + collected);
         }
+        this.law.MaybeRebate(this.beans.get);
     }
     simulate_every_day(){
         this.beans.get.forEach((x) => {

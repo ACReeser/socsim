@@ -32,8 +32,12 @@ export const GovernmentPanel: React.FC<{
             </div>
         </div>
         {
-            view === 'funds' ? <div>
-                <TreasuryReport treasury={props.world.law.treasury}></TreasuryReport>
+            view === 'funds' ? <div className="col-2">
+                <div>
+                    <TreasuryReport treasury={props.world.law.treasury}></TreasuryReport>
+                </div>
+                <div>
+                </div>
             </div> : <LawDetailList 
                 group={view} seenBeliefs={props.world.alien.seenBeliefs.get} beliefs={props.world.alien.beliefInventory.get}
                 isLaw={(l) => props.world.law.isLaw(l)}

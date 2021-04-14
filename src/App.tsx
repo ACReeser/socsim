@@ -152,6 +152,7 @@ class App extends React.Component<AppPs, AppState>{
       this.beam(this.state.world.cities[0], { q: 1, r: 0 });
       this.beam(this.state.world.cities[0], { q: 0, r: 1 });
       this.beam(this.state.world.cities[0], { q: 1, r: 1 });
+      this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'S') {
       this.state.world.beans.get.forEach((b) => {
         if (this.state.world.alien.difficulty.cost.bean.scan.energy){
@@ -485,7 +486,7 @@ class App extends React.Component<AppPs, AppState>{
                 📈 Demographics
               </button>
             </div> */}
-            <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()}
+            <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
               beans={this.state.world.beans}
               onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key, activeHex: null })} ></SocialGraph>
           </div> : <TransformWrapper
