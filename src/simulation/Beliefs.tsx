@@ -30,6 +30,7 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Authority'| //less crime, more crime reports
 'Anarchism'| // breaks rules easily
 //'Sadism'| 
+//'Vandalism'|
 'Antagonism'|
 'Enthusiasm'|
 'Gossip'|'Extroversion'|
@@ -37,6 +38,12 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Gluttony'|
 'Wanderlust'|
 'Germophobia'|
+//'Bloodthirst'|
+//'Introversion'|
+//'Charisma'|
+//'Depression'|
+//'Optimism'|
+//'Fraud'|
 'Greed'; // steal easier
 
 
@@ -124,7 +131,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Germophobia: {
         noun: 'Germophobia', adj: 'Germophobic', icon: '🤧', rarity: 'rare',
-        description: "💢 when sick or working in hospital",
+        description: "💢 when sick or working in hospital", //implemented
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
 
@@ -157,7 +164,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
 
     // Fraud: {
     //     noun: 'Fraud', adj: 'Fraudulent', icon: '🤥',
-    //     description: "??",
+    //     description: "🎲 to avoid taxes; Extra 🎲 for theft 😈 Crime",
     //     idealCon: ['trad'], idealPro: ['prog', 'state']
     // },
 
@@ -181,6 +188,14 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         description: "🎲 to 💢 at any time",  //implemented
         //idealCon: ['state'], idealPro: ['ego']
     },
+    // Depression: {
+    //     noun: 'Depression', adj: 'Depressive', icon: '😓', rarity: 'common',
+    //     description: "🎲 to 💢 when unhappy",
+    // },
+    // Optimism: {
+    //     noun: 'Optimism', adj: 'Optimistic', icon: '😺', rarity: 'uncommon',
+    //     description: "🎲 to 👍 when happy",
+    // },
 
     // 😈 Crime traits
     Authority: {
@@ -199,8 +214,8 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         //idealCon: ['prog'], idealPro: ['trad']
     },
     // Bloodthirst: {
-    //     noun: 'Bloodthirst', adj: 'Bloodthirsty', icon: '🩸', rarity: 'common',
-    //     description: "🎲 for assault 😈 Crime in a 🗣️"
+    //     noun: 'Bloodthirst', adj: 'Bloodthirsty', icon: '🩸', rarity: 'rare',
+    //     description: "High 🎲 to ☠️ Kill during 😈 Crime"
     // },
     // Pacifism: {
     //     noun: 'Pacifism', adj: 'Pacifist', icon: '😘', rarity: 'common',
@@ -215,12 +230,20 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
 
     // 🗣️ traits
     Extroversion: {
-        noun: 'Extroversion', adj: 'Extrovert', icon: '🤩', rarity: 'common',
+        noun: 'Extroversion', adj: 'Extroverted', icon: '🤩', rarity: 'common',
         description: "Extra 🎲 to start a 🗣️", //implemented
     },
+    // Introversion: {
+    //     noun: 'Introversion', adj: 'Introverted', icon: '🤩', rarity: 'uncommon',
+    //     description: "Less 🎲 to be in a 🗣️",
+    // },
+    // Charisma: {
+    //     noun: 'Charisma', adj: 'Charismatic', icon: '🤩', rarity: 'uncommon',
+    //     description: "More 🎲 to persuade in a 🗣️",
+    // },
     Gossip: {
         noun: 'Gossip', adj: 'Gossipy', icon: '📞', rarity: 'common',
-        description: "🎲 to spread 💢 in a 🗣️", //implemented
+        description: "🎲 to spread 💢 in a 🗣️; 🎲 to 👍 after 🗣️", //implemented
     },
     Antagonism: {
         noun: 'Antagonism', adj: 'Antagonistic', icon: '🤬', rarity: 'common',
@@ -241,6 +264,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     //     idealCon: ['prog'], idealPro: ['state', 'ego']
     // },
 
+    // narrative traits
     // Evangelism: {
     //     noun: 'Evangelism', adj: 'Evangelist', icon: '📣', rarity: 'common',
     //     description: "+50% persuasion of 🎭",
@@ -251,15 +275,6 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     //     description: "🎲 to 💢 other 🎭",
     //     idealCon: ['prog'], idealPro: []
     // },
-
-    // Depression: {
-    //     noun: 'Depression', adj: 'Depressive', icon: '😓', rarity: 'common',
-    //     description: "🎲 to 💢 when unhappy",
-    // },
-    // Optimism: {
-    //     noun: 'Optimism', adj: 'Optimistic', icon: '😺', rarity: 'common',
-    //     description: "🎲 to 👍 when unhappy",
-    // },
     // Xenophobia: {
     //     noun: 'Xenophobia', adj: 'Xenophobic', icon: '🛑', rarity: 'common',
     //     description: "🎲 to 💢 when living with other hair colors",
@@ -267,23 +282,25 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
 
     // super bad traits
     // Sadism: {
-    //     noun: 'Sadism', adj: 'Sadistic', icon: '😈', rarity: 'common',
-    //     description: "🎲 to ☠️ other after a 🗣️"
+    //     noun: 'Sadism', adj: 'Sadistic', icon: '😈', rarity: 'rare',
+    //     description: "🎲 to ☠️ Kill in a 🗣️;👍 from ☠️ Kill"
     // },
     // Vandalism: {
-    //     noun: 'Vandalism', adj: 'Vandal', icon: '💩', rarity: 'common',
-    //     description: "🎲 to destroy goods"
+    //     noun: 'Vandalism', adj: 'Vandal', icon: '💩', rarity: 'rare',
+    //     description: "🎲 to destroy goods;👍 from 😈 Theft Crime"
     // },
+
+    // madness traits
     // Delirium: {
-    //     noun: 'Delirium', adj: 'Delirious', icon: '😪', rarity: 'common',
+    //     noun: 'Delirium', adj: 'Delirious', icon: '😪', rarity: 'rare',
     //     description: "Chooses actions at random"
     // },
     // DelusionalMania: {
-    //     noun: 'Delusional Mania', adj: 'Delusional Maniac', icon: '😵', rarity: 'common',
+    //     noun: 'Delusional Mania', adj: 'Delusional Maniac', icon: '😵', rarity: 'rare',
     //     description: "🎲 to ☠️ nearby subjects"
     // },
     // Catatonia: {
-    //     noun: 'Catatonia', adj: 'Catatonic', icon: '😶', rarity: 'common',
+    //     noun: 'Catatonia', adj: 'Catatonic', icon: '😶', rarity: 'rare',
     //     description: "-50% walk speed. Cannot work."
     // },
 
