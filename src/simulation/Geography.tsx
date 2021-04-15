@@ -311,6 +311,7 @@ export class CityBook {
     constructor(_db: Map<number, IBuilding>){
         this.db = new LiveMap<number, IBuilding>(_db);
         this.buildIndexes();
+        this.db.afterSetBeforePublish = () => this.buildIndexes();
     }
 
     private buildIndexes(){
@@ -351,7 +352,7 @@ export class CityBook {
     public findBuildingByCoordinate(h: HexPoint){
         const address = h.q+','+h.r;
         const key = this.map.get.get(address);
-        if (key) 
+        if (key != null) 
             return this.db.get.get(key);
         return undefined;
     }

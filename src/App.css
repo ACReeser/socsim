@@ -169,9 +169,7 @@ button.pull-r{
   fill: transparent;
 }
 .tile-label{
-  margin-left: -40px;
   display: block;
-  width: 122px;
   text-align: center;
   font-size: 14px;
 }
@@ -315,7 +313,7 @@ button.pull-r{
 .tile .mtn{
   position: absolute;
   top: -37px; left: -20px;
-  font-size: 2em;
+  font-size: 38px;
   opacity: .5;
 }
 .petri-lid, .petri-base{
@@ -558,10 +556,16 @@ table.classic .border-t{
 .building{
   z-index: 0;
   opacity: .5;
-  position: absolute;
-  font-size: 44px; line-height: 44px; width: 44px;
-  left: -30px; top: -30px;
+  /* position: absolute; */
+  font-size: 44px; line-height: 44px; 
+  /* width: 44px;
+  left: -30px; top: -30px; */
   pointer-events: none;
+  height: 100%;
+  position: relative;
+}
+.hex .building{
+  padding-top: 32px;
 }
 .dead{
   position: absolute;

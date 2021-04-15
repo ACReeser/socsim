@@ -10,10 +10,10 @@ import { AnimatedUFO } from "./AnimatedUFO";
 import { IEvent } from "../events/Events";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 import { BeanList, PickupList } from "./Mover";
-import { PetriBuildings } from "./Buildings";
+import { HexPetriBuilding, PetriBuildings, PetriHexes } from "./Buildings";
 import { Magnet } from "./Magnet";
 
-const hex_style = {
+export const hex_style = {
   width: HexSizeR + 'px', 
   height: HexSizeR + 'px', 
   top: (-HexSizeR/2)+'px',
@@ -59,7 +59,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
       return <div className="hex" key={i} style={{...hex_style, ...transformPoint(xy)}} 
         onMouseEnter={(e) => { this.props.city.pickupMagnetPoint.set(xy); }}
         onClick={(e) => { this.props.onHexClick(hex); e.stopPropagation(); return false; }}>
-        {/* todo: move renderbuildings to here */}
+          <HexPetriBuilding city={this.props.city} hex={hex}></HexPetriBuilding>
       </div>
     });
   }
@@ -84,10 +84,10 @@ export class WorldTile extends React.Component<WorldTilePs> {
         <svg style={{ width: '100%', height: '100%' }} className="petri-base">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 1)" />
         </svg>
-        {this.renderHexes()}
+        <PetriHexes city={this.props.city} hexes={this.props.city.hexes} onHexClick={this.props.onHexClick}></PetriHexes>
         {mtns}
         {/* {deaths} */}
-        <PetriBuildings city={this.props.city}></PetriBuildings>
+        {/* <PetriBuildings city={this.props.city}></PetriBuildings> */}
         <PickupList pickups={this.props.city.pickups}></PickupList>
         <BeanList beans={this.props.city.beans} activeBeanID={this.props.activeBeanID} onBeanClick={(b: Bean) => this.props.onBeanClick(b)}></BeanList>
         {ufos}

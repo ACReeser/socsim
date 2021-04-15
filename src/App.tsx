@@ -490,7 +490,8 @@ class App extends React.Component<AppPs, AppState>{
               </button>
             </div> */}
             <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
-              beans={this.state.world.beans}
+              beans={this.state.world.beans} city={this.state.world.cities[0]}
+              onClickBuilding={(b) => this.setState({ activeCityID: this.state.world.cities[0].key, activeHex: b.address, activeBeanID: null, activeRightPanel: 'overview' })}
               onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key, activeHex: null })} ></SocialGraph>
           </div> : <TransformWrapper
             defaultScale={1}

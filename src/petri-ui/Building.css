@@ -5,8 +5,8 @@
     border-radius: 15px;
     /* border: 1px solid dodgerblue; */
     position: absolute;
-    left: 5px;
-    top: 5px;
+    left: 45px;
+    top: 45px;
     pointer-events: none;
     font-size: 21px;
 }

@@ -56,11 +56,14 @@ export class Live<T>{
     constructor(protected current: T){}
     public set(newValue: T){
         this.current = newValue;
+        if (this.afterSetBeforePublish)
+            this.afterSetBeforePublish(newValue);
         this.onChange.publish(newValue);
     }
     public get get(): T{
         return this.current;
     }
+    public afterSetBeforePublish?: (val: T) => void; 
 }
 export class LiveList<T> extends Live<Array<T>>{
     public readonly onPush = new PubSub<T>();
