@@ -138,17 +138,19 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 
 
 # IMMEDIATE TODO
-1. 1 or 2 basic government policies
 1. beam-in with assign-to-job when beaming in to hex with building
 1. animatedBean animation/state performance rework (redux, probably)
 1. spotlight auto resume sometimes breaks
+1. implement dire-death grace period
+1. add icon-only belief traits in bean panel
 
 # FEATURE TODO
+1. add props (flags, statues, signs) in building slots
 1. add murder and violent traits
 1. insanity traits
 1. alien traits (radical behavior)
 1. husk/harvest/vaporization action (needs design)
-1. punishment for crime
+1. punishment for crime - cops and prisons
 1. sell antihedons to market
 1. special buildings
 

@@ -2,6 +2,11 @@
     height: 100%;
     justify-content: space-between;
 }
+.bean-panel-content{    
+    max-height: 50%;
+    overflow-y: auto;
+    pointer-events: all;
+}
 
 .bean-view .bean{
     top: -6px;

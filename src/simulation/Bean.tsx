@@ -30,6 +30,7 @@ const GossipBullyChance = 0.35;
 const EnthusiasmPraiseChance = 0.45;
 const GermophobiaHospitalWorkChance = 0.25;
 const NatalismExtraBabyChance = 0.04;
+const MaxGraceTicks = 6;
 export class Bean implements IBean{
     public key: number = 0;
     public cityKey: number = 0;
@@ -105,6 +106,7 @@ export class Bean implements IBean{
     public faith: TraitFaith = 'noFaith';
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
+    public graceTicks = MaxGraceTicks;
     /**
      * current hedons on index 0, plus last len-1 days of hedon history
      * 
@@ -566,6 +568,10 @@ export class Bean implements IBean{
 
         this.discrete_fun -= diff.bean_life.degrade_per_tick.fun;
         this.discrete_fun = Math.max(0, this.discrete_fun);
+
+        if (!this.isInCrisis)
+            this.graceTicks = MathClamp(this.graceTicks+1, 0, MaxGraceTicks);
+        
         return null;
     }
     private buyMeds(economy: Economy) {
@@ -646,8 +652,11 @@ export class Bean implements IBean{
     }
     maybeDie(cause: BeanDeathCause, isDire: boolean, chance = 0.5): boolean{
         if (isDire && Math.random() <= chance) {
-            this.die(cause);
-            return true;
+            if (this.graceTicks <= 0){
+                this.die(cause);
+                return true;
+            }
+            this.graceTicks--;
         }
         return false;
     }
