@@ -169,8 +169,9 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                     {TraitToCard(this.props.bean, this.props.bean.faith, brainwash)}
                 </div>
                 <div className="card-parent">
-                    {TraitToCard(this.props.bean, this.props.bean.ideals, brainwash)}
-                    {TraitToCard(this.props.bean, this.props.bean.community, brainwash)}
+                    {
+                        this.props.bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title='' name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
+                    }
                 </div>
                 <div className="card-parent">
                     {TraitToCard(this.props.bean, this.props.bean.food, undefined)}
@@ -217,7 +218,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </div>
                 {this.renderTraits()}
             </div>
-            <div className="grow-1 pad-4">
+            <div className="grow-1 pad-4 bean-panel-content">
                 <div className="cylinder blue-orange horizontal">
                     <button type="button" className={this.state.innerView=='beliefs'?'active':''} onClick={()=>this.setState({innerView:'beliefs'})}>
                         😇 Traits
