@@ -9,6 +9,7 @@ export const CommonalityChances: {[b in BeliefCommonality]: number} = {
 
 export type TraitBelief = 'Diligence'| // happy from work
 'Natalism'| // increased % of having kids
+'Antinatalism'|
 'Naturalism'|
 'Hedonism'| //more entertainment
 'Progressivism'|
@@ -29,8 +30,8 @@ export type TraitBelief = 'Diligence'| // happy from work
 // 'Fanaticism'| // doesn't like beings that don't share narrative 
 'Authority'| //less crime, more crime reports
 'Anarchism'| // breaks rules easily
-//'Sadism'| 
-//'Vandalism'|
+'Sadism'| 
+'Vandalism'|
 'Antagonism'|
 'Enthusiasm'|
 'Gossip'|'Extroversion'|
@@ -38,12 +39,12 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Gluttony'|
 'Wanderlust'|
 'Germophobia'|
-//'Bloodthirst'|
-//'Introversion'|
-//'Charisma'|
-//'Depression'|
-//'Optimism'|
-//'Fraud'|
+'Bloodthirst'|
+'Introversion'|
+'Charisma'|
+'Depression'|
+'Optimism'|
+'Fraud'|
 'Greed'; // steal easier
 
 
@@ -108,7 +109,11 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Natalism: {
         noun: 'Natalism', adj: 'Natalist', icon: '👶', rarity: 'common',
-        description: "Extra 🎲 for 👶" //implemented
+        description: "Extra 🎲 for 👶;Extra 👍 after birth" //implemented
+    },
+    Antinatalism: {
+        noun: 'Antinatalism', adj: 'Antinatalist', icon: '🚷', rarity: 'uncommon',
+        description: "Less 🎲 for 👶;💢 after birth" //implemented
     },
     Charity: {
         noun: 'Charity', adj: 'Charitable', icon: '😇', rarity: 'uncommon',
@@ -162,11 +167,10 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         //idealCon: ['trad'], idealPro: ['prog', 'state']
     },
 
-    // Fraud: {
-    //     noun: 'Fraud', adj: 'Fraudulent', icon: '🤥',
-    //     description: "🎲 to avoid taxes; Extra 🎲 for theft 😈 Crime",
-    //     idealCon: ['trad'], idealPro: ['prog', 'state']
-    // },
+    Fraud: {
+        noun: 'Fraud', adj: 'Fraudulent', icon: '🤥', rarity: 'uncommon',
+        description: "🎲 to avoid taxes; Extra 🎲 for theft 😈 Crime"
+    },
 
     // 👍 traits
     Naturalism: {
@@ -188,14 +192,14 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         description: "🎲 to 💢 at any time",  //implemented
         //idealCon: ['state'], idealPro: ['ego']
     },
-    // Depression: {
-    //     noun: 'Depression', adj: 'Depressive', icon: '😓', rarity: 'common',
-    //     description: "🎲 to 💢 when unhappy",
-    // },
-    // Optimism: {
-    //     noun: 'Optimism', adj: 'Optimistic', icon: '😺', rarity: 'uncommon',
-    //     description: "🎲 to 👍 when happy",
-    // },
+    Depression: {
+        noun: 'Depression', adj: 'Depressive', icon: '😓', rarity: 'common',
+        description: "🎲 to 💢 when unhappy",
+    },
+    Optimism: {
+        noun: 'Optimism', adj: 'Optimistic', icon: '😺', rarity: 'uncommon',
+        description: "🎲 to 👍 when happy",
+    },
 
     // 😈 Crime traits
     Authority: {
@@ -213,10 +217,10 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         description: "Extra 🎲 for theft 😈 Crime; Extra 👍 when rich",
         //idealCon: ['prog'], idealPro: ['trad']
     },
-    // Bloodthirst: {
-    //     noun: 'Bloodthirst', adj: 'Bloodthirsty', icon: '🩸', rarity: 'rare',
-    //     description: "High 🎲 to ☠️ Kill during 😈 Crime"
-    // },
+    Bloodthirst: {
+        noun: 'Bloodthirst', adj: 'Bloodthirsty', icon: '🩸', rarity: 'rare',
+        description: "High 🎲 to ☠️ Kill during 😈 Crime"
+    },
     // Pacifism: {
     //     noun: 'Pacifism', adj: 'Pacifist', icon: '😘', rarity: 'common',
     //     description: "will never punish others",
@@ -233,14 +237,14 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
         noun: 'Extroversion', adj: 'Extroverted', icon: '🤩', rarity: 'common',
         description: "Extra 🎲 to start a 🗣️", //implemented
     },
-    // Introversion: {
-    //     noun: 'Introversion', adj: 'Introverted', icon: '🤩', rarity: 'uncommon',
-    //     description: "Less 🎲 to be in a 🗣️",
-    // },
-    // Charisma: {
-    //     noun: 'Charisma', adj: 'Charismatic', icon: '🤩', rarity: 'uncommon',
-    //     description: "More 🎲 to persuade in a 🗣️",
-    // },
+    Introversion: {
+        noun: 'Introversion', adj: 'Introverted', icon: '🤓', rarity: 'uncommon',
+        description: "Less 🎲 to be in a 🗣️", //implemented
+    },
+    Charisma: {
+        noun: 'Charisma', adj: 'Charismatic', icon: '😏', rarity: 'uncommon',
+        description: "More 🎲 to persuade in a 🗣️", //implemented
+    },
     Gossip: {
         noun: 'Gossip', adj: 'Gossipy', icon: '📞', rarity: 'common',
         description: "🎲 to spread 💢 in a 🗣️; 🎲 to 👍 after 🗣️", //implemented
@@ -281,14 +285,14 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // },
 
     // super bad traits
-    // Sadism: {
-    //     noun: 'Sadism', adj: 'Sadistic', icon: '😈', rarity: 'rare',
-    //     description: "🎲 to ☠️ Kill in a 🗣️;👍 from ☠️ Kill"
-    // },
-    // Vandalism: {
-    //     noun: 'Vandalism', adj: 'Vandal', icon: '💩', rarity: 'rare',
-    //     description: "🎲 to destroy goods;👍 from 😈 Theft Crime"
-    // },
+    Sadism: {
+        noun: 'Sadism', adj: 'Sadistic', icon: '😈', rarity: 'rare',
+        description: "🎲 to ☠️ Kill in a 🗣️;👍 from ☠️ Kill"
+    },
+    Vandalism: {
+        noun: 'Vandalism', adj: 'Vandal', icon: '💩', rarity: 'rare',
+        description: "🎲 to destroy goods;👍 from 😈 Theft Crime"
+    },
 
     // madness traits
     // Delirium: {

@@ -1,5 +1,5 @@
 import { TraitGood, TraitJob, GoodToJob, Trait } from "../World";
-import { Bean } from "./Bean";
+import { Bean, LibertarianTaxUnhappyChance, ProgressivismTaxHappyChance } from "./Bean";
 import { IOrganization, Charity, IEnterprise } from "./Institutions";
 import { City } from "./City";
 import { GetRandom } from "../WorldGen";
@@ -54,6 +54,10 @@ export class Economy {
             const receipt = this.market.transact(listing, good, actualDemand, buyer, this.salesTaxPercentage);
             if (receipt.tax && this.law){
                 this.law.treasury.set(this.law.treasury.get+receipt.tax);
+                if (buyer instanceof Bean){
+                    buyer.ifBelievesInMaybeEmote('Libertarianism', 'unhappiness', LibertarianTaxUnhappyChance);
+                    buyer.ifBelievesInMaybeEmote('Progressivism', 'happiness', ProgressivismTaxHappyChance);
+                }
             }
             return receipt;
         } else if (buyer instanceof Bean) {

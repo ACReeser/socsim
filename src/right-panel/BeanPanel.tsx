@@ -170,7 +170,7 @@ export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
                 </div>
                 <div className="card-parent">
                     {
-                        this.props.bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title='' name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
+                        this.props.bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
                     }
                 </div>
                 <div className="card-parent">

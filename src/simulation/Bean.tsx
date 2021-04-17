@@ -17,6 +17,11 @@ import { MathClamp } from "./Utils";
 const BabyChance = 0.008;
 export const DaysUntilSleepy = 7;
 const ChatCooldownMS = 4000;
+/**
+ * beans with belief # < this are more likely to be persuaded
+ * with belief # > this are less likely to be persuaded
+ */
+const PersuasionBeliefTarget = 2; 
 
 const HedonismExtraChance = 0.1;
 const ParanoidUnhappyChance = 0.05;
@@ -25,11 +30,17 @@ const DiligenceHappyChance = 0.25;
 const ParochialHappyChance = 0.25;
 const CosmopolitanHappyChance = 0.25;
 const ExtrovertChatExtraChance = 0.25;
+const IntrovertChatExtraChance = -.15;
 const AntagonismBullyChance = 0.45;
 const GossipBullyChance = 0.35;
 const EnthusiasmPraiseChance = 0.45;
 const GermophobiaHospitalWorkChance = 0.25;
 const NatalismExtraBabyChance = 0.04;
+const AntinatalismExtraBabyChance = -0.002;
+const CharismaExtraPersuasionStrength = 2; //d20 based, so 10% extra strength
+export const LibertarianTaxUnhappyChance = 0.1;
+export const ProgressivismTaxHappyChance = 0.1;
+
 const MaxGraceTicks = 6;
 export class Bean implements IBean{
     public key: number = 0;
@@ -327,7 +338,8 @@ export class Bean implements IBean{
         if (this.believesIn('Dogmatism'))
             return;
         if (!this.beliefs.includes(belief)){
-            let defense = GetRandomNumber(1, 20);
+            let defense = 10 + GetRandomNumber(1, 6);
+            defense += this.beliefs.length - PersuasionBeliefTarget;
             let offense = GetRandomNumber(1, 20) + strength;
     
             if (offense > defense){
@@ -355,6 +367,8 @@ export class Bean implements IBean{
         let chance = (this.community === 'state') ? 0.2 : 0.1;
         if (this.believesIn('Extroversion')) 
             chance += ExtrovertChatExtraChance;
+        if (this.believesIn('Introversion')) 
+            chance += IntrovertChatExtraChance;
         return roll < chance;
     }
     public getRandomChat(nearby: Bean[]): IChatData {
@@ -401,7 +415,7 @@ export class Bean implements IBean{
                 participation: 'speaker',
                 type: 'preach',
                 preachBelief: GetRandom(this.beliefs),
-                persuasionStrength: 1
+                persuasionStrength: 1 + (this.believesIn('Charisma') ? CharismaExtraPersuasionStrength : 0)
             }
         } else {
             return {
@@ -586,9 +600,10 @@ export class Bean implements IBean{
     get babyChance(): number{
         let base = BabyChance;
         if (this.believesIn('Natalism'))
-            return base + NatalismExtraBabyChance;
-        else
-            return base;
+            base += NatalismExtraBabyChance;
+        if (this.believesIn('Antinatalism'))
+            base += AntinatalismExtraBabyChance;
+        return base;
     }
     maybeBaby(economy: Economy): IEvent | null {
         if (this.canBaby(economy.getCostOfLiving()) &&
@@ -597,6 +612,13 @@ export class Bean implements IBean{
                 this.city.breedBean(this);
             else
                 throw 'bean does not have city object';
+            if (this.believesIn('Natalism')){
+                this.emote('love', 'Natalist Parent');
+            } else if (this.believesIn('Antinatalism')) {
+                this.emote('hate', 'Antinatalism');
+            } else {
+                this.emote('happiness', 'Proud Parent');
+            }
             return {icon: '🎉', trigger: 'birth', message: `${this.name} has a baby!`}
         } else {
             return null;

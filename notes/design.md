@@ -141,8 +141,7 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 1. beam-in with assign-to-job when beaming in to hex with building
 1. animatedBean animation/state performance rework (redux, probably)
 1. spotlight auto resume sometimes breaks
-1. implement dire-death grace period
-1. add icon-only belief traits in bean panel
+1. hedon-based happiness %
 
 # FEATURE TODO
 1. add props (flags, statues, signs) in building slots

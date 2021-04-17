@@ -359,10 +359,10 @@ class App extends React.Component<AppPs, AppState>{
   washBelief = (bean: Bean, a: TraitBelief) => {
     const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
     if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
       bean.beliefs.splice(
         bean.beliefs.indexOf(a), 1
       );
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
       const existing = this.state.world.alien.beliefInventory.get.find((x) => x.trait === a);
       const chargeBonus = this.state.world.alien.hasResearched('neural_duplicator') ? 1 : 0;
       if (existing) {
