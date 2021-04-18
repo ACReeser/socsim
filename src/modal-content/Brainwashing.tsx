@@ -81,7 +81,7 @@ export class BrainwashingContent extends React.Component<{
                     </div> : null
                 }
                 { isScanned ? <div className="horizontal scroll">
-                    <EditBeliefInput
+                    {/* <EditBeliefInput
                         available={bean.discrete_sanity} frozen={dogmatic}
                         wash={() => this.props.washCommunity(bean, bean.community)} 
                         cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
@@ -92,7 +92,7 @@ export class BrainwashingContent extends React.Component<{
                         wash={() => this.props.washMotive(bean, bean.ideals)} 
                         cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
                         data={PrimaryBeliefData[bean.ideals]}
-                    ></EditBeliefInput>
+                    ></EditBeliefInput> */}
                     <EditBeliefInput
                         available={bean.discrete_sanity} frozen={dogmatic}
                         wash={() => this.props.washNarrative(bean, bean.faith)} 

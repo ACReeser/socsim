@@ -34,7 +34,8 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Vandalism'|
 'Antagonism'|
 'Enthusiasm'|
-'Gossip'|'Extroversion'|
+'Gossip'|
+'Extroversion'|
 'Charity'| // % to donate
 'Gluttony'|
 'Wanderlust'|
@@ -122,12 +123,11 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Progressivism: {
         noun: 'Progressivism', adj: 'Progressive', icon: '⚖️', rarity: 'uncommon',
-        description: "🎲 to 👍 when paying taxes"
+        description: "🎲 to 👍 when paying taxes" //implemented
     },
     Libertarianism: {
         noun: 'Libertarianism', adj: 'Libertarian', icon: '🔫', rarity: 'rare',
-        description: "🎲 to 💢 when paying taxes",
-        //idealCon: ['trad'], idealPro: ['prog']
+        description: "🎲 to 💢 when paying taxes", //implemented
     },
     Wanderlust: {
         noun: 'Wanderlust', adj: 'Wanderer', icon: '🔭', rarity: 'uncommon',
@@ -210,7 +210,6 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     Anarchism: {
         noun: 'Anarchism', adj: 'Anarchist', icon: '🖕', rarity: 'uncommon',
         description: "Extra 🎲 for all 😈 Crime", //implemented
-        //idealCon: ['state', 'prog'], idealPro: ['ego', 'trad']
     },
     Greed: {
         noun: 'Greed', adj: 'Greedy', icon: '🤑', rarity: 'common',
@@ -368,6 +367,7 @@ export interface HedonReport {
     minSource: string,
     all: HedonSourceToVal
 }
+export interface HedonExtremes { max:number, min:number }
 
 export function GetHedonReport(hedonHistory: HedonSourceToVal[]): HedonReport {
     if (hedonHistory.length === 0){

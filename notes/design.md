@@ -142,6 +142,9 @@ beliefs names must fit "Joe is talking about X" and "Joe believes in X" and "Joe
 1. animatedBean animation/state performance rework (redux, probably)
 1. spotlight auto resume sometimes breaks
 1. hedon-based happiness %
+  * absolute hedon sum = + or -, but how to measure degree?
+  * index against best/worst day ever? (keep min and max)
+  * bell curve "middle recent days" to index against?
 
 # FEATURE TODO
 1. add props (flags, statues, signs) in building slots

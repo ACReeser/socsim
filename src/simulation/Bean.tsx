@@ -9,7 +9,7 @@ import { Act, AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IM
 import { JobToBuilding, Point, Vector } from "./Geography";
 import { City } from "./City";
 import { PriorityQueue } from "./Priorities";
-import { GetHedonReport, HedonReport, HedonSourceToVal, SecondaryBeliefData, TraitBelief } from "./Beliefs";
+import { GetHedonReport, HedonExtremes, HedonReport, HedonSourceToVal, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
@@ -117,6 +117,9 @@ export class Bean implements IBean{
     public faith: TraitFaith = 'noFaith';
     public beliefs: TraitBelief[] = [];
     public cash: number = 3;
+    /**
+     * # of ticks before bean can possibly die of dire conditions
+     */
     public graceTicks = MaxGraceTicks;
     /**
      * current hedons on index 0, plus last len-1 days of hedon history
@@ -128,18 +131,12 @@ export class Bean implements IBean{
      * latest happiness report
      */
     public happiness: HedonReport = GetHedonReport(this.hedonHistory);
+    public hedonDailyRecord: HedonExtremes = {min: 0, max: 0};
     /**
      * -100 to 100
      */
     public lastHappiness: number = 0;
-    /**
-     * -100-100
-     */
-    public lastSentiment: number = 0;
-    /**
-     * -100-100
-     */
-    public lastPartySentiment: number = 0;
+    
     public ticksSinceLastSale: number = 0;
     public ticksSinceLastRelax: number = 0;
     /**
@@ -206,10 +203,26 @@ export class Bean implements IBean{
         return result;
     }
     calculateBeliefs(econ: Economy, homeCity: City, law: Government, party: Party): void{
-        this.lastHappiness = GetHappiness(this.getHappinessModifiers(econ, homeCity, law));
-        const sent = this.getSentimentModifiers(econ, homeCity, law, party);
-        this.lastSentiment = GetHappiness(sent.law);
-        this.lastPartySentiment = GetHappiness(sent.party);
+        this.hedonDailyRecord = this.hedonHistory.reduce((prevExtremes, day) => {
+            const sum = Object.values(day).reduce((sum, v) => sum+v, 0);
+            if (sum > prevExtremes.max){
+                return {
+                    max: sum,
+                    min: prevExtremes.min
+                }
+            } else if (sum < prevExtremes.min){
+                return {
+                    min: sum,
+                    max: prevExtremes.max
+                }
+            }
+            return prevExtremes;
+        }, this.hedonDailyRecord);
+        if (this.happiness.flatAverage === 0){
+            this.lastHappiness = 0;
+        } else {
+            this.lastHappiness = this.happiness.flatAverage >= 0 ? (this.happiness.flatAverage / this.hedonDailyRecord.max) * 100 : (this.happiness.flatAverage / this.hedonDailyRecord.min) * 100;
+        }
 
         if (this.job === 'jobless'){
             this.fairGoodPrice = 1;
