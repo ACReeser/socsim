@@ -1,23 +1,23 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "274f6274bbf4f23983f60b42a4e9814b",
+    "revision": "b2d826fb9bc0d69ff5b2ae484183147d",
     "url": "/socsim/index.html"
   },
   {
-    "revision": "3476782e555b81a2c386",
-    "url": "/socsim/static/css/main.e269d968.chunk.css"
+    "revision": "bf5d16324ade38ab3c96",
+    "url": "/socsim/static/css/main.4d0b3830.chunk.css"
   },
   {
-    "revision": "99c8cb0ded94f66eae2f",
-    "url": "/socsim/static/js/2.e173b244.chunk.js"
+    "revision": "e814c77498481e0a7a4f",
+    "url": "/socsim/static/js/2.44f9fd3c.chunk.js"
   },
   {
     "revision": "e88a3e95b5364d46e95b35ae8c0dc27d",
-    "url": "/socsim/static/js/2.e173b244.chunk.js.LICENSE.txt"
+    "url": "/socsim/static/js/2.44f9fd3c.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "3476782e555b81a2c386",
-    "url": "/socsim/static/js/main.8f260fc1.chunk.js"
+    "revision": "bf5d16324ade38ab3c96",
+    "url": "/socsim/static/js/main.d46083e7.chunk.js"
   },
   {
     "revision": "07db42d5db22dc47575b",
