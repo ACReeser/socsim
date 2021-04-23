@@ -106,6 +106,7 @@ export class City extends Geography implements Tile, IBeanContainer {
             const building = all[i];
             if (building.tryFreeBean(bean.key)){
                 bean.employerEnterpriseKey = undefined;
+                bean.job = 'jobless';
                 break;
             }
         }

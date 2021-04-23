@@ -1,5 +1,5 @@
-export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav'|'death_bell.wav'|'scan.mp3'|'squish_pop.mp3'|'squish_suck.mp3'|'baby_squeak.wav';
-export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate'|'death'|'scan'|'wash_in'|'wash_out'|'squeak';
+export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav'|'death_bell.wav'|'scan.mp3'|'squish_pop.mp3'|'squish_suck.mp3'|'baby_squeak.wav'|'mhmm.mp3';
+export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate'|'death'|'scan'|'wash_in'|'wash_out'|'squeak'|'mhmm';
 
 const SFXToFile: {[sfx in SFX]: SFXFile} = {
     drop: "drop.mp3",
@@ -11,7 +11,8 @@ const SFXToFile: {[sfx in SFX]: SFXFile} = {
     scan: 'scan.mp3',
     wash_in: 'squish_pop.mp3',
     wash_out: 'squish_suck.mp3',
-    squeak: 'baby_squeak.wav'
+    squeak: 'baby_squeak.wav',
+    mhmm: 'mhmm.mp3',
 };
 
 type SFXMap = {[sfx in SFX]: SoundBuffer};
@@ -46,6 +47,7 @@ export class WorldSound{
         'wash_in': new SoundBuffer(SFXToFile['wash_in']),
         'wash_out': new SoundBuffer(SFXToFile['wash_out']),
         'squeak': new SoundBuffer(SFXToFile['squeak'], 0.3),
+        'mhmm': new SoundBuffer(SFXToFile['mhmm'], 0.5),
     }
 
     public play(sfx: SFX){

@@ -131,7 +131,7 @@ export class Bean implements IBean{
      * latest happiness report
      */
     public happiness: HedonReport = GetHedonReport(this.hedonHistory);
-    public hedonDailyRecord: HedonExtremes = {min: 0, max: 0};
+    public hedonFiveDayRecord: HedonExtremes = {min: 0, max: 0};
     /**
      * -100 to 100
      */
@@ -203,25 +203,16 @@ export class Bean implements IBean{
         return result;
     }
     calculateBeliefs(econ: Economy, homeCity: City, law: Government, party: Party): void{
-        this.hedonDailyRecord = this.hedonHistory.reduce((prevExtremes, day) => {
-            const sum = Object.values(day).reduce((sum, v) => sum+v, 0);
-            if (sum > prevExtremes.max){
-                return {
-                    max: sum,
-                    min: prevExtremes.min
-                }
-            } else if (sum < prevExtremes.min){
-                return {
-                    min: sum,
-                    max: prevExtremes.max
-                }
-            }
-            return prevExtremes;
-        }, this.hedonDailyRecord);
+        this.hedonFiveDayRecord = {
+          min: Math.min(this.hedonFiveDayRecord.min, this.happiness.flatAverage),
+          max: Math.max(this.hedonFiveDayRecord.max, this.happiness.flatAverage)  
+        };
         if (this.happiness.flatAverage === 0){
             this.lastHappiness = 0;
         } else {
-            this.lastHappiness = this.happiness.flatAverage >= 0 ? (this.happiness.flatAverage / this.hedonDailyRecord.max) * 100 : (this.happiness.flatAverage / this.hedonDailyRecord.min) * 100;
+            this.lastHappiness = this.happiness.flatAverage >= 0 ? (
+                this.happiness.flatAverage / this.hedonFiveDayRecord.max) * 100 : (
+                this.happiness.flatAverage / this.hedonFiveDayRecord.min) * 100;
         }
 
         if (this.job === 'jobless'){

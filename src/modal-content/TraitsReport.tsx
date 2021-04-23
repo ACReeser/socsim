@@ -1,7 +1,7 @@
 import { Bean } from "../simulation/Bean";
 import React, { ReactElement } from "react";
 import { World, TraitJob } from "../World";
-import { IBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
+import { BeliefsAll, IBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { BeliefWidget } from "./BeliefRow";
 import { LiveList, LiveMap } from "../events/Events";
 import { BeliefInventory } from "../simulation/Player";
@@ -58,7 +58,7 @@ export class TraitsReport extends React.Component<TraitsP, {
             <div>
               <div className="modal-scroll-v">
                 <div className="sticky-t-0">
-                  <strong>Discovered Traits</strong>
+                  <strong>Discovered {beliefs.length} of {BeliefsAll.length} Traits</strong>
                 </div>
                 {
                   beliefs.length < 1 ? <div>

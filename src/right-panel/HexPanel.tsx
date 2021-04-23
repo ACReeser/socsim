@@ -15,6 +15,7 @@ export class HexPanel extends React.Component<{
     build: (where: HexPoint, what: BuildingTypes) => void,
     beam: (where: HexPoint) => void,
     upgrade: (what: IBuilding) => void,
+    fire: (beanKey: number) => void,
     changeEnterprise: (what: IBuilding) => void,
 }, {
 
@@ -26,10 +27,10 @@ export class HexPanel extends React.Component<{
                 <strong>Empty Lot</strong> in <strong>{this.props.city.name}</strong>
                 <button type="button" className="pull-r" onClick={() => this.props.clearHex()} >❌</button>
             </div>
-            <div>
+            {/* <div>
                 {this.props.hex.q}x
                 {this.props.hex.r}
-            </div>
+            </div> */}
             <h3>Build:</h3>
             <div className="card-parent">
                 <button className="card button" type="button" onClick={() => this.props.build(this.props.hex, 'house')}>
@@ -96,6 +97,9 @@ export class HexPanel extends React.Component<{
                         }
                     }).map((x) => <div key={x.key}>
                         {BuildingJobIcon[b.type]} {x.bean?.name} {isEnterprise(b) && b.enterpriseType === 'company' && x.bean?.key === b.ownerBeanKey ? '🎩' : ''}
+                        <button title="Fire" className="callout marg-0" onClick={() => x.bean ? this.props.fire(x.bean.key) : null}>
+                            🔥
+                        </button>
                     </div>)
                 }
             </div>

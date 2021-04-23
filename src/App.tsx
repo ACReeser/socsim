@@ -90,6 +90,7 @@ class App extends React.Component<AppPs, AppState>{
     };
     this.state.world.calculateComputedState();
     this.state.world.bus.death.subscribe(this.onDeath);
+    this.state.world.bus.persuasion.subscribe(() => this.state.world.sfx.play('mhmm'));
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
@@ -197,6 +198,13 @@ class App extends React.Component<AppPs, AppState>{
   changeEnterprise = (city: City, what: IBuilding) => {
     
     this.setState({ world: this.state.world });
+  }
+  fireBean = (city: City, beanKey: number) => {
+    const b = city.beans.get.find(x => x.key === beanKey);
+    if (b){
+      city.unsetJob(b);
+      this.setState({ world: this.state.world });
+    }
   }
   upgrade = (city: City, what: IBuilding) => {
     const cost = this.difficulty.cost.hex.upgrade;
@@ -428,6 +436,7 @@ class App extends React.Component<AppPs, AppState>{
                 upgrade={(what) => this.upgrade(city, what)}
                 build={(where, what) => { this.build(city, where, what) }}
                 changeEnterprise={(what) => this.changeEnterprise(city, what)}
+                fire={(beanKey) => this.fireBean(city, beanKey)}
                 ></HexPanel>
             }
             else if (this.state.activeBeanID != null) {
