@@ -17,14 +17,15 @@ export class StopPlayFastButtons extends React.Component<{
 
 
 export const GeoNetworkButtons: React.FC<{
-    activeMain: 'geo' | 'network';
-    setActiveMain: (v: 'geo' | 'network') => void
+    activeMain: 'geo' | 'network' | 'draft';
+    setActiveMain: (v: 'geo' | 'network' | 'draft') => void
 }> = (props) => {
     
     return <div className="s-p-f button-group cylinder blue-orange">
         👁️
         <button type="button" className={props.activeMain == 'geo' ? 'active': ''} onClick={() => props.setActiveMain('geo')}>🌎</button>
         <button type="button" className={props.activeMain == 'network' ? 'active': ''} onClick={() => props.setActiveMain('network')}>🌐</button>
+        <button type="button" className={props.activeMain == 'draft' ? 'active': ''} onClick={() => props.setActiveMain('draft')}>🐇</button>
     </div>
     
 }

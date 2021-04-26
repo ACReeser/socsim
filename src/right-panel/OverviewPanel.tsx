@@ -1,6 +1,6 @@
 import React from "react";
 import { Trait } from "../World";
-import { keyToName } from "../App";
+import { keyToName } from "../i18n/text";
 import { Bean } from "../simulation/Bean";
 import { NeedReadout } from "../widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";

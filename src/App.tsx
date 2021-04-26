@@ -1,4 +1,6 @@
 import React from 'react';
+import { Provider } from 'react-redux';
+
 import './App.css';
 import './chrome/chrome.css';
 import { World, TraitGood, Trait, TraitCommunity, TraitIdeals, TraitFaith } from './World';
@@ -40,18 +42,8 @@ import { MarketPanel } from './right-panel/MarketPanel';
 import { TraitsReport } from './modal-content/TraitsReport';
 import { GreetingPanel } from './modal-content/GreetingPanel';
 import { MarketTraitListing } from './simulation/MarketTraits';
-
-export const keyToName: { [key in Trait | BuildingTypes]: string } = {
-  state: 'Collectivist', ego: 'Independent',
-  trad: 'Elitist', prog: 'Progressive',
-  circle: 'Brunette', square: 'Blonde', triangle: 'Redhead',
-  rocket: 'Futuristic', dragon: 'Mythical', music: 'Dramatic', noFaith: 'Nihilistic',
-  starving: 'Starving', hungry: 'Hungry', sated: 'Sated', stuffed: 'Stuffed',
-  homeless: 'Homeless', sleepy: 'Sleepy', awake: 'Awake', rested: 'Rested',
-  sick: 'Sick', sickly: 'Sickly', bruised: 'Bruised', fresh: 'Robust',
-  sane: 'Sane', stressed: 'Confused', disturbed: 'Disturbed', 'psychotic': 'Psychotic',
-  house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Elysian Scenery'
-};
+import { store as StoreState } from './state/state';
+import { WorldTile2 } from './petri-ui/WorldTile2';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'party_creation' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -62,7 +54,7 @@ interface AppState {
   activeBeanID: number | null;
   activeHex: HexPoint | null;
   activeModal: ModalView | null;
-  activeMain: 'geo' | 'network';
+  activeMain: 'geo' | 'network' | 'draft';
   activeRightPanel: 'events' | 'overview' | 'goals' | 'market';
   timeScale: number;
   spotlightEvent: IEvent | undefined;
@@ -74,6 +66,8 @@ const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
 const ChargePerWash = 3;
 const ChargePerMarket = 3;
+const store = StoreState;
+
 class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
@@ -484,123 +478,130 @@ class App extends React.Component<AppPs, AppState>{
   render() {
     const season = Season[this.state.world.date.season];
     return (
-      <div className="canvas"><SfxContext.Provider value={this.state.world.sfx}>
-        {
-          this.state.activeMain === 'network' ? <div className="canvas">
-            {/* <div className="horizontal max-w-500 m-t-2em">
-              <button type="button">
-                😎 Influence
-              </button>
-              <button type="button">
-                🚩 Party Preference
-              </button>
-              <button type="button">
-                📈 Demographics
-              </button>
-            </div> */}
-            <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
-              beans={this.state.world.beans} city={this.state.world.cities[0]}
-              onClickBuilding={(b) => this.setState({ activeCityID: this.state.world.cities[0].key, activeHex: b.address, activeBeanID: null, activeRightPanel: 'overview' })}
-              onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key, activeHex: null })} ></SocialGraph>
-          </div> : <TransformWrapper
-            defaultScale={1}
-            wheel={{ step: 48 }}>
-            <TransformComponent>
-              <div className="world">
-                {this.renderGeo()}
+      <Provider store={store}>
+        <div className="canvas"><SfxContext.Provider value={this.state.world.sfx}>
+          {
+            this.state.activeMain === 'network' ? <div className="canvas">
+              <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
+                beans={this.state.world.beans} city={this.state.world.cities[0]}
+                onClickBuilding={(b) => this.setState({ activeCityID: this.state.world.cities[0].key, activeHex: b.address, activeBeanID: null, activeRightPanel: 'overview' })}
+                onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key, activeHex: null })} ></SocialGraph>
+            </div> : this.state.activeMain === 'draft' ? <TransformWrapper
+              defaultScale={1}
+              wheel={{ step: 48 }}>
+              <TransformComponent>
+                <div className="world">
+                  {
+                  this.state.world.cities.map((t) => {
+                    return (
+                      <WorldTile2 cityKey={t.key} costOfLiving={0} key={t.key} spotlightEvent={this.state.spotlightEvent} activeBeanID={this.state.activeBeanID}
+                        onClick={() => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null })}
+                        onBeanClick={(b: Bean) => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key })}
+                        onHexClick={(hex: HexPoint) => { this.setState({ activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview' }) }}
+                      ></WorldTile2>
+                    )
+                  })}
+                </div>
+              </TransformComponent>
+            </TransformWrapper> : <TransformWrapper
+              defaultScale={1}
+              wheel={{ step: 48 }}>
+              <TransformComponent>
+                <div className="world">
+                  {this.renderGeo()}
+                </div>
+              </TransformComponent>
+            </TransformWrapper>
+          }
+          <div className="overlay">
+            <Modal show={this.state.activeModal == 'greeting'} onClick={() => this.setState({ activeModal: null })}>
+              <GreetingPanel></GreetingPanel>
+            </Modal>
+            <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({ activeModal: null })} hideCloseButton={true}>
+              <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
+            </Modal>
+            <Modal show={this.state.activeModal == 'gov'} onClick={() => this.setState({ activeModal: null })}>
+              <GovernmentPanel world={this.state.world} enactLaw={this.enactLaw} revokeLaw={this.revokeLaw}></GovernmentPanel>
+            </Modal>
+            <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({ activeModal: null })}>
+              <ResearchPanel release={this.releaseBean} setResearch={this.setResearch} player={this.state.world.alien}></ResearchPanel>
+            </Modal>
+            <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({ activeModal: null })}>
+              <CampaignsPanel></CampaignsPanel>
+            </Modal>
+            <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({ activeModal: null })}>
+              {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
+            </Modal>
+            <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
+              <TraitsReport seenBeliefs={this.state.world.alien.seenBeliefs} beliefInventory={this.state.world.alien.beliefInventory}
+              ></TraitsReport>
+            </Modal>
+            <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
+              {(this.state.activeModal == 'brainwash' ? <BrainwashingContent
+                world={this.state.world} beanID={this.state.activeBeanID}
+                washCommunity={this.washCommunity}
+                washMotive={this.washMotive}
+                washNarrative={this.washNarrative}
+                washBelief={this.washBelief}
+                implantBelief={this.implantBelief}>
+              </BrainwashingContent> : '')}
+            </Modal>
+            <div className="left">
+              <div className="top">
+                <span>👽 Alien 🌍 Utopia 🔬 Lab</span>
+                <span>&nbsp;Year {this.state.world.date.year},&nbsp;{season} {this.state.world.date.day} {this.renderHour()}</span>
+                <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
+                <GeoNetworkButtons setActiveMain={(v) => this.setState({ activeMain: v })} activeMain={this.state.activeMain} ></GeoNetworkButtons>
+                <span></span>
               </div>
-            </TransformComponent>
-          </TransformWrapper>
-        }
-        <div className="overlay">
-          <Modal show={this.state.activeModal == 'greeting'} onClick={() => this.setState({ activeModal: null })}>
-            <GreetingPanel></GreetingPanel>
-          </Modal>
-          <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({ activeModal: null })} hideCloseButton={true}>
-            <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
-          </Modal>
-          <Modal show={this.state.activeModal == 'gov'} onClick={() => this.setState({ activeModal: null })}>
-            <GovernmentPanel world={this.state.world} enactLaw={this.enactLaw} revokeLaw={this.revokeLaw}></GovernmentPanel>
-          </Modal>
-          <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({ activeModal: null })}>
-            <ResearchPanel release={this.releaseBean} setResearch={this.setResearch} player={this.state.world.alien}></ResearchPanel>
-          </Modal>
-          <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({ activeModal: null })}>
-            <CampaignsPanel></CampaignsPanel>
-          </Modal>
-          <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({ activeModal: null })}>
-            {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
-          </Modal>
-          <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
-            <TraitsReport seenBeliefs={this.state.world.alien.seenBeliefs} beliefInventory={this.state.world.alien.beliefInventory}
-            ></TraitsReport>
-          </Modal>
-          <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
-            {(this.state.activeModal == 'brainwash' ? <BrainwashingContent
-              world={this.state.world} beanID={this.state.activeBeanID}
-              washCommunity={this.washCommunity}
-              washMotive={this.washMotive}
-              washNarrative={this.washNarrative}
-              washBelief={this.washBelief}
-              implantBelief={this.implantBelief}>
-            </BrainwashingContent> : '')}
-          </Modal>
-          <div className="left">
-            <div className="top">
-              <span>👽 Alien 🌍 Utopia 🔬 Lab</span>
-              <span>&nbsp;Year {this.state.world.date.year},&nbsp;{season} {this.state.world.date.day} {this.renderHour()}</span>
-              <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
-              <GeoNetworkButtons setActiveMain={(v) => this.setState({ activeMain: v })} activeMain={this.state.activeMain} ></GeoNetworkButtons>
-              <span></span>
+              <div className="bottom">
+                <BubbleNumberText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
+                  <CapsuleLabel icon="⚡️" label="Energy">
+                    {this.state.world.alien.energy.amount.toFixed(1)}
+                  </CapsuleLabel>
+                </BubbleNumberText>
+                <BubbleNumberText changeEvent={this.state.world.alien.bots.change} icon="🤖">
+                  <CapsuleLabel icon="🤖" label="Bots">
+                    {this.state.world.alien.bots.amount.toFixed(1)}
+                  </CapsuleLabel>
+                </BubbleNumberText>
+                <BubbleNumberText changeEvent={this.state.world.alien.hedons.change} icon="👍">
+                  <CapsuleLabel icon="👍" label="Hedons">
+                    {this.state.world.alien.hedons.amount.toFixed(0)}
+                  </CapsuleLabel>
+                </BubbleNumberText>
+                {/* <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
+                  <CapsuleLabel icon="💔" label="Tortrons">
+                    {this.state.world.alien.tortrons.amount.toFixed(0)}
+                  </CapsuleLabel>
+                </BubbleText> */}
+                <span>
+                  <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
+                  <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'gov' })}>🗳️ Gov</button>
+                  <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
+                  
+                  <BubbleSeenTraitsText changeEvent={this.state.world.alien.seenBeliefs.onAdd} icon="🧠">
+                    <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
+                  </BubbleSeenTraitsText>
+                </span>
+              </div>
             </div>
-            <div className="bottom">
-              <BubbleNumberText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
-                <CapsuleLabel icon="⚡️" label="Energy">
-                  {this.state.world.alien.energy.amount.toFixed(1)}
-                </CapsuleLabel>
-              </BubbleNumberText>
-              <BubbleNumberText changeEvent={this.state.world.alien.bots.change} icon="🤖">
-                <CapsuleLabel icon="🤖" label="Bots">
-                  {this.state.world.alien.bots.amount.toFixed(1)}
-                </CapsuleLabel>
-              </BubbleNumberText>
-              <BubbleNumberText changeEvent={this.state.world.alien.hedons.change} icon="👍">
-                <CapsuleLabel icon="👍" label="Hedons">
-                  {this.state.world.alien.hedons.amount.toFixed(0)}
-                </CapsuleLabel>
-              </BubbleNumberText>
-              {/* <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
-                <CapsuleLabel icon="💔" label="Tortrons">
-                  {this.state.world.alien.tortrons.amount.toFixed(0)}
-                </CapsuleLabel>
-              </BubbleText> */}
-              <span>
-                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
-                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'gov' })}>🗳️ Gov</button>
-                <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
-                
-                <BubbleSeenTraitsText changeEvent={this.state.world.alien.seenBeliefs.onAdd} icon="🧠">
-                  <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
-                </BubbleSeenTraitsText>
-                {/* <button type="button" onClick={() => this.setState({activeModal:'campaign'})}>Campaigns</button> */}
-              </span>
+            <div className="right">
+              <div className="full-width-tabs">
+                <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Info</button>
+                <button onClick={() => this.setState({ activeRightPanel: 'market' })}>🛍️ Market</button>
+                <button onClick={() => this.setState({ activeRightPanel: 'events' })}>
+                  <TimelyEventToggle event={this.state.world.bus.speechcrime} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
+                </button>
+                <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🏆 Goals</button>
+              </div>
+              <div className="right-panel">
+                {this.getPanel()}
+              </div>
             </div>
           </div>
-          <div className="right">
-            <div className="full-width-tabs">
-              <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Info</button>
-              <button onClick={() => this.setState({ activeRightPanel: 'market' })}>🛍️ Market</button>
-              <button onClick={() => this.setState({ activeRightPanel: 'events' })}>
-                <TimelyEventToggle event={this.state.world.bus.speechcrime} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
-              </button>
-              <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🏆 Goals</button>
-            </div>
-            <div className="right-panel">
-              {this.getPanel()}
-            </div>
-          </div>
-        </div>
-        </SfxContext.Provider></div>
+          </SfxContext.Provider></div>
+      </Provider>
     )
   }
   renderHour(): string {

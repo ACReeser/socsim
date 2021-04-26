@@ -1,6 +1,5 @@
 import React from "react";
 import { EmoteIcon, IHappinessModifier, TraitIcon } from "../World";
-import { keyToName } from "../App";
 import { Bean } from "../simulation/Bean";
 import { NeedReadout } from "../widgets/NeedReadout";
 import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";

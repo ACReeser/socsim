@@ -1,7 +1,7 @@
 import React from "react";
 import { Bean } from "../simulation/Bean";
 import { Trait } from "../World";
-import { keyToName } from "../App";
+import { keyToName } from "../i18n/text";
 
 export class NeedReadout extends React.Component<{
     beans: Bean[], 

@@ -29,7 +29,7 @@ export class Economy {
     monthlyDemand: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
     monthlySupply: {[key in TraitGood]: number} = { food: 0, shelter: 0, medicine: 0, fun: 0, }
     law?: Government;
-    constructor(public eventBus: IEventBus){
+    constructor(){
     }
     public resetMonthlyDemand(){
         this.unfulfilledMonthlyDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };

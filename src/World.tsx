@@ -54,7 +54,7 @@ const MaxHedonHistory = 5;
 const PollTaxWeeklyAmount = 0.1;
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
-    public readonly economy: Economy = new Economy(this.bus);
+    public readonly economy: Economy = new Economy();
     public cities: City[] = [];
     public law: Government = new Government();
     public institutions: IInstitution[] = [];

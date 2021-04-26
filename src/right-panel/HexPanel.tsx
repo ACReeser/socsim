@@ -1,5 +1,5 @@
 import React from "react";
-import { keyToName } from "../App";
+import { keyToName } from "../i18n/text";
 import { Subtabs } from "../chrome/Subtab";
 import { IDifficulty } from "../Game";
 import { City } from "../simulation/City";
