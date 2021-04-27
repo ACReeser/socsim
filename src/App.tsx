@@ -494,7 +494,7 @@ class App extends React.Component<AppPs, AppState>{
                   {
                   this.state.world.cities.map((t) => {
                     return (
-                      <WorldTile2 cityKey={t.key} costOfLiving={0} key={t.key} spotlightEvent={this.state.spotlightEvent} activeBeanID={this.state.activeBeanID}
+                      <WorldTile2 cityKey={t.key} key={t.key} activeBeanID={this.state.activeBeanID}
                         onClick={() => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null })}
                         onBeanClick={(b: Bean) => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key })}
                         onHexClick={(hex: HexPoint) => { this.setState({ activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview' }) }}

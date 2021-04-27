@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { SfxContext } from "../App";
 import { UFO, City, Pickup } from "../simulation/City";
 import { transformPoint, hex_to_pixel } from "../simulation/Geography";
+import { IPickup } from "../simulation/Pickup";
 import { EmoteIcon } from "../World";
 
 export const AnimatedPickup: React.FC<{
-    pickup: Pickup,
-    //city: City
+    pickup: IPickup
 }> = (props) => {
     const [played, setPlayed] = useState(false);
     const sfx = React.useContext(SfxContext);

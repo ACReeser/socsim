@@ -3,6 +3,8 @@ import { LiveList, PubSub } from "../events/Events";
 import { Bean } from "../simulation/Bean";
 import { Pickup } from "../simulation/City";
 import { Point } from "../simulation/Geography";
+import { IPickup } from "../simulation/Pickup";
+import { useAppSelector } from "../state/hooks";
 import { AnimatedBean } from "./AnimatedBean";
 import { AnimatedPickup } from "./AnimatedPickup";
 
@@ -66,6 +68,23 @@ export const BeanList: React.FC<{
                 return <Mover onMove={bean.onMove} key={bean.key} startPoint={bean.point}>
                     <AnimatedBean bean={bean} selected={bean.key === props.activeBeanID} onClick={() => props.onBeanClick(bean)}></AnimatedBean>
                 </Mover>
+            })
+        }
+    </>;
+}
+
+
+export const PickupList2: React.FC<{
+    cityKey: number
+}> = (props) => {
+    const list = useAppSelector(state => state.world.cities.byID[props.cityKey].pickupKeys);
+    return <>
+        {
+            list.map((pKey: number) => {
+                return ;
+                // <Mover onMove={p.onMove} key={p.key} startPoint={p.point}>
+                //     <AnimatedPickup pickup={p}></AnimatedPickup>
+                // </Mover>
             })
         }
     </>;

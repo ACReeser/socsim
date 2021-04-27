@@ -442,9 +442,29 @@ export class Geography{
             return ent;
         return undefined;
     }
-    public readonly numberOfRings = 5;
-    public hexes: HexPoint[] = hex_spiral({q:0, r:0}, this.numberOfRings);
-    public hex_size: Point = {x: HexSizePX, y: HexSizePX};
-    public readonly petriRadius = ((this.numberOfRings - 0.5) * HexSizeR) + this.numberOfRings;
-    public readonly petriOrigin = {x: this.petriRadius, y: this.petriRadius};
+    constructor(){
+        const geo = GenerateGeography();
+        this.numberOfRings = geo.numberOfRings;
+        this.hexes = geo.hexes;
+        this.hex_size = geo.hex_size;
+        this.petriRadius = geo.petriRadius;
+        this.petriOrigin = geo.petriOrigin;
+    }
+    public readonly numberOfRings: number;
+    public readonly hexes: HexPoint[];
+    public readonly hex_size: Point;
+    public readonly petriRadius: number;
+    public readonly petriOrigin: Point;
+}
+
+export function GenerateGeography(){
+    const numberOfRings = 5;
+    const radius = ((numberOfRings - 0.5) * HexSizeR) + numberOfRings;
+    return {
+        numberOfRings: numberOfRings,
+        hexes: hex_spiral({q:0, r:0}, numberOfRings),
+        hex_size: {x: HexSizePX, y: HexSizePX},
+        petriRadius: radius,
+        petriOrigin: {x: radius, y: radius}
+    }
 }

@@ -1,4 +1,4 @@
-import { Tile } from "../World";
+import { ITile } from "../World";
 import { Bean } from "../simulation/Bean";
 import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
@@ -21,7 +21,7 @@ export const hex_style = {
 }
 
 interface WorldTilePs {
-  tile: Tile;
+  tile: ITile;
   city: City;
   activeBeanID: number | null;
   costOfLiving: number;

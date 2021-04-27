@@ -299,7 +299,7 @@ export interface IEnvironment{
     season: Season;
 }
 
-export interface Tile {
+export interface ITile {
     name?: string, 
     url: string, 
     type: string,

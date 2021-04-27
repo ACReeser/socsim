@@ -178,7 +178,9 @@ export const LawData: {[key in LawKey]: ILawData} = {
         key: 'death_tax', group: 'Taxation', name: 'Death Tax', axis: 'tax_second', prereqs: [], icon: '☠️',
         description: 'Dead subjects pay a portion of their cash to the government.'},
 }
-
+export interface IGovernment{
+    
+}
 export type LawGroupToLaws = {
     [key in LawGroup]: ILaw[]
 };

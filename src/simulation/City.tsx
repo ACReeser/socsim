@@ -1,4 +1,4 @@
-import { IBeanContainer, Tile, Trait, TraitEthno, TraitJob, TraitEmote } from "../World";
+import { IBeanContainer, ITile, Trait, TraitEthno, TraitJob, TraitEmote } from "../World";
 import { Bean } from "./Bean";
 import { Economy } from "./Economy";
 import { Government } from "./Government";
@@ -50,8 +50,20 @@ export class Pickup{
     public onMove = new PubSub<Point>();
 }
 
+export interface ICity{
+    key: number,
+    name: string,
+    petriRadius: number,
+    petriOrigin: Point,
+    hex_size: Point,
+    deadBeanKeys: number[],
+    ufoKeys: number[],
+    pickupMagnetPoint: Point|undefined,
+    hexes: HexPoint[],
+    pickupKeys: number[]
+}
 
-export class City extends Geography implements Tile, IBeanContainer {
+export class City extends Geography implements ITile, IBeanContainer {
     public name: string = '';
     public url: string = '';
     public type: string = '';

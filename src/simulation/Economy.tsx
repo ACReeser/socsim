@@ -22,6 +22,9 @@ export interface Listing{
 }
 const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
 
+export interface IEconomy{
+    
+}
 export class Economy {
     market = new OrderBook();
     charity = new OrderBook();
