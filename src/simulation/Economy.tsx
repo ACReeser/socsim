@@ -23,7 +23,9 @@ export interface Listing{
 const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
 
 export interface IEconomy{
-    
+    unfulfilledMonthlyDemand: {[key in TraitGood]: number}
+    monthlyDemand: {[key in TraitGood]: number}
+    monthlySupply: {[key in TraitGood]: number}
 }
 export class Economy {
     market = new OrderBook();
@@ -159,12 +161,10 @@ export class Economy {
         });
     }
     public getFairGoodPrice(good: TraitGood){
-        const supply = this.monthlySupply[good] || 1;
-        const demand = this.monthlyDemand[good];
-        return 0.25 + (0.75 * Math.min(demand/supply, 1));
+        return GetFairGoodPrice(this, good);
     }
     public getCostOfLiving(){
-        return this.getFairGoodPrice('food')+this.getFairGoodPrice('shelter')+this.getFairGoodPrice('medicine');
+        return GetCostOfLiving(this);
     }
     get salesTaxPercentage(): number{
         return this.law?.salesTaxPercentage || 0;
@@ -260,4 +260,13 @@ export class OrderBook{
     public sort(good: TraitGood){        
         this.listings[good].sort((a, b) => a.price - b.price);
     }
+}
+
+export function GetFairGoodPrice(econ: IEconomy, good: TraitGood){
+    const supply = econ.monthlySupply[good] || 1;
+    const demand = econ.monthlyDemand[good];
+    return 0.25 + (0.75 * Math.min(demand/supply, 1));
+}
+export function GetCostOfLiving(econ: IEconomy){
+    return GetFairGoodPrice(econ, 'food')+GetFairGoodPrice(econ, 'shelter')+GetFairGoodPrice(econ,'medicine');
 }

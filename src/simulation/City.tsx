@@ -1,6 +1,6 @@
 import { IBeanContainer, ITile, Trait, TraitEthno, TraitJob, TraitEmote } from "../World";
 import { Bean } from "./Bean";
-import { Economy } from "./Economy";
+import { Economy, GetCostOfLiving, IEconomy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom, GetRandomNumber } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
@@ -57,10 +57,12 @@ export interface ICity{
     petriOrigin: Point,
     hex_size: Point,
     deadBeanKeys: number[],
+    beanKeys: number[],
     ufoKeys: number[],
     pickupMagnetPoint: Point|undefined,
     hexes: HexPoint[],
-    pickupKeys: number[]
+    pickupKeys: number[],
+    costOfLiving: number
 }
 
 export class City extends Geography implements ITile, IBeanContainer {
@@ -76,7 +78,6 @@ export class City extends Geography implements ITile, IBeanContainer {
     public beanSeed = 0;
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
-    public yearsPartyDonations: number = 0;
 
     /// computed properties
     public majorityEthnicity: TraitEthno = 'circle';
@@ -167,9 +168,7 @@ export class City extends Geography implements ITile, IBeanContainer {
             bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day, hour: this.environment?.hour};
         this.beans.push(bean);
     }
-    getTaxesAndDonations(party: Party, economy: Economy){
-    }
-    calculate(economy: Economy, law: Government) {
+    calculateCityComputed(economy: Economy, law: Government) {
         this.costOfLiving = economy.getCostOfLiving();
         const c = this.beans.get.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
             switch(bean.ethnicity){
@@ -223,4 +222,8 @@ export class City extends Geography implements ITile, IBeanContainer {
             }
         });
     }
+}
+
+export function CalculateCityComputed(city: ICity, economy: IEconomy){
+    city.costOfLiving = GetCostOfLiving(economy);
 }

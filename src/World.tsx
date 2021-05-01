@@ -5,17 +5,18 @@ import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus, LiveList } from './events/Events';
 import { Season, IDate, Hour } from './simulation/Time';
-import { Government } from './simulation/Government';
+import { Government, PollTaxWeeklyAmount } from './simulation/Government';
 import { Player, TechData } from './simulation/Player';
 import { accelerate_towards, accelerator_coast, Geography, move_towards } from './simulation/Geography';
 import { City, Pickup } from './simulation/City';
 import { shuffle } from './simulation/Utils';
-import { Act, IActListener, IChatData } from './simulation/Agent';
+import { Act, IActListener, IBean, IChatData } from './simulation/Agent';
 import { IDifficulty, PlayerResources } from './Game';
 import { type } from 'os';
 import { GetHedonReport, IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
 import { GetMarketTraits, MarketTraitListing } from './simulation/MarketTraits';
+import { IWorldState } from './state/features/world';
 
 export interface IBeanContainer{
     /**
@@ -50,8 +51,7 @@ export const BeanPhysics = {
     MaxSpeed: 4,
     CollisionDistance: 10
 }
-const MaxHedonHistory = 5;
-const PollTaxWeeklyAmount = 0.1;
+export const MaxHedonHistory = 5;
 export class World implements IWorld, IBeanContainer, IActListener{
     public readonly bus = new EventBus();
     public readonly economy: Economy = new Economy();
@@ -92,7 +92,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
      */
     public calculateComputedState(){
         this.cities.forEach(c => {
-            c.calculate(this.economy, this.law);
+            c.calculateCityComputed(this.economy, this.law);
             c.beans.get.forEach(b => b.calculateBeliefs(this.economy, c, this.law, this.party));
         });
     }
@@ -160,18 +160,15 @@ export class World implements IWorld, IBeanContainer, IActListener{
             
             b.happiness = GetHedonReport(b.hedonHistory);
         });
-        this.cities.forEach((c) => c.getTaxesAndDonations(this.party, this.economy));
         this.calculateComputedState();
         this.alien.checkGoals(this);
         this.alien.checkReportCard(this);
     }
     simulate_every_year(){
         this.inflate();
-        this.resetYearlyCounters();
     }
     simulate_every_month(){
         this.economy.resetMonthlyDemand();
-
     }
     simulate_every_week(){
         this.marketTraitsForSale.set(GetMarketTraits());
@@ -264,26 +261,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
         this.bus[e.trigger].publish(e);
     }
     inflate() {
-        const allMoney = this.beans.get.reduce((sum, b) => sum+b.cash, 0) + this.organizations.reduce((sum, o) => sum + o.cash, 0);
-        const percent = allMoney / 100;
-        const yearlyInflationDollars = Math.round(percent * 1);
-        if (yearlyInflationDollars > 0){
-            const richest = this.beans.get.reduce((obj: {winner?: Bean, max: number}, b) => {
-                if (b.cash > obj.max){
-                    obj.winner = b;
-                    obj.max = b.cash;
-                }
-                return obj;
-            }, {max: 0});
-            if (richest.winner){
-                richest.winner.cash += yearlyInflationDollars;
-            }
-        }
-    }
-    resetYearlyCounters() {
-        this.cities.forEach((c) => {
-            c.yearsPartyDonations = 0;
-        })
     }
     addCharity(good: TraitGood, name: string, budget: number) {
         const charity = new Charity();
@@ -420,3 +397,22 @@ export const EmotionSanity: {[key in TraitEmote]: number} ={
     'unhappiness': 0,
     'hate': -1
 };
+
+export function Inflate(world: IWorldState){
+    const beans = world.beans.allIDs.reduce((arr, key) => { arr.push(world.beans.byID[key]); return arr;}, [] as IBean[])
+    const allMoney = beans.reduce((sum, b) => sum+b.cash, 0);
+    const percent = allMoney / 100;
+    const yearlyInflationDollars = Math.round(percent * 1);
+    if (yearlyInflationDollars > 0){
+        const richest = beans.reduce((obj: {winner?: IBean, max: number}, b) => {
+            if (b.cash > obj.max){
+                obj.winner = b;
+                obj.max = b.cash;
+            }
+            return obj;
+        }, {max: 0});
+        if (richest.winner){
+            richest.winner.cash += yearlyInflationDollars;
+        }
+    }
+}

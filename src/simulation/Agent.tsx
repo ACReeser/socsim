@@ -1,14 +1,14 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote, BeanPhysics } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote, BeanPhysics, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
 import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IAccelerater, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
 import { IDifficulty } from "../Game";
-import { TraitBelief } from "./Beliefs";
+import { HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { ISeller } from "./Economy";
 import { IterationStatement } from "typescript";
 
@@ -495,7 +495,10 @@ export interface IBean extends ISeller, IMover, IAgent{
     cash: number;
     dob: IDate;
     sanity: TraitSanity;
-    lifecycle: 'alive'|'dead'|'abducted'
+    lifecycle: 'alive'|'dead'|'abducted',
+    hedonHistory: HedonSourceToVal[],
+    job: TraitJob,
+    happiness: HedonReport
 }
 
 export interface IMover extends IAccelerater{

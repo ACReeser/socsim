@@ -1,10 +1,11 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { IEvent } from '../../events/Events'
+import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { ChangePubSub, IEvent } from '../../events/Events'
+import { DefaultDifficulty } from '../../Game'
 import { IBean } from '../../simulation/Agent'
 import { ICity } from '../../simulation/City'
 import { Economy, IEconomy } from '../../simulation/Economy'
 import { GenerateGeography, HexPoint, Point } from '../../simulation/Geography'
-import { Government, IGovernment } from '../../simulation/Government'
+import { Government, IGovernment, ILaw, LawAxis } from '../../simulation/Government'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData, Player } from '../../simulation/Player'
@@ -13,7 +14,7 @@ import { IUFO } from '../../simulation/Ufo'
 import { ITile } from '../../World'
 import { CreateEmptyEntitySlice, CreateEntitySlice, IEntitySlice } from '../entity.state'
 
-interface IWorldState {
+export interface IWorldState {
   tiles: IEntitySlice<ITile>,
   cities: IEntitySlice<ICity>,
   beans: IEntitySlice<IBean>,
@@ -37,20 +38,53 @@ export const worldSlice = createSlice({
         key: 0,
         name: 'string',
         deadBeanKeys: [],
+        beanKeys: [],
         ufoKeys: [],
         hexes: [],
         pickupKeys: [],
-        pickupMagnetPoint: undefined
+        pickupMagnetPoint: undefined,
+        costOfLiving: 0
       }
     ]),
     beans: CreateEmptyEntitySlice<IBean>(),
     ufos: CreateEmptyEntitySlice<IUFO>(),
     pickups: CreateEmptyEntitySlice<IPickup>(),
-    economy: new Economy(),
-    law: new Government(),
+    economy: {
+      unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
+      monthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
+      monthlySupply: { food: 0, shelter: 0, medicine: 0, fun: 0, }
+    },
+    law: {
+      treasury: 0,
+      lawTree: {} as {[key in LawAxis]: ILaw|undefined},
+      laws: [] as ILaw[]
+    },
     date: {year: 1, season: Season.Spring, day: 1, hour: 1},
     marketTraitsForSale: [],
-    alien: new Player(),
+    alien: {
+      scanned_bean: {},
+      seenBeliefs: [],
+      beliefInventory: [],
+      speechcrimes: {},
+      abductedBeans: [],
+      energy: { amount: 16, income: 2/30, change: new ChangePubSub()},
+      bots: { amount: 10, income: 2/30, change: new ChangePubSub()},
+      hedons: { amount: 0, income: 0, change: new ChangePubSub()},
+      tortrons: { amount: 0, income: 0, change: new ChangePubSub()},
+      next_grade: { year: 1, season: 3, day: 1, hour: 0 },
+      difficulty: {...DefaultDifficulty},
+      goals: ['found_utopia', 'build_house_n_farm',  'beam_3', 'scan', 'brainwash', 'set_policy', 'c+_grade'],
+      goalProgress: {},
+      pastReportCards: [],
+      workingReportCard: {
+          Happiness: 'D',
+          Prosperity: 'D',
+          Stability: 'D',
+          Dogma: 'D',
+      },
+      techProgress: {},
+      currentlyResearchingTech: undefined
+    },
     spotlightEvent: undefined
   } as IWorldState,
   reducers: {
@@ -68,12 +102,43 @@ export const worldSlice = createSlice({
     },
     worldTick: state => {
       
+    },
+    newGame: state => {
+
     }
   }
 })
 
 export const { refreshMarket, generate, magnetChange, selectHex  } = worldSlice.actions
 
+export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;
+export const selectBeans = (state: IWorldState) => state.beans.byID;
+export const selectBeansByCity = createSelector(
+  selectCityBeanIDs,
+  selectBeans,
+  (cityBeanIDs, beansByID) => cityBeanIDs.reduce((all, cityBeanKey) => {
+    all.push(beansByID[cityBeanKey])
+    return all;
+  }, [] as IBean[])
+);
+
+export const selectMajorityEthnicity = createSelector(selectBeansByCity, (cityBeans) => {
+  const c = cityBeans.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
+      switch(bean.ethnicity){
+          case 'circle': count.circle++;break;
+          case 'square': count.square++;break;
+          case 'triangle': count.triangle++;break;
+      }
+      return count;
+  }, {circle: 0, square: 0, triangle: 0});
+  if (c.circle > c.square && c.circle > c.triangle){
+    return 'circle';
+  } else if (c.square > c.circle && c.square > c.triangle){
+    return 'square';
+  } else {
+    return 'triangle';
+  }
+});
 
 export default worldSlice.reducer;
 

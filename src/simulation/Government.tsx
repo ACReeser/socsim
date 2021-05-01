@@ -1,5 +1,6 @@
 import { Live } from "../events/Events";
 import { TraitCommunity, TraitGood, TraitIdeals } from "../World";
+import { IBean } from "./Agent";
 import { Bean } from "./Bean";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPolicy } from "./Politics";
@@ -33,6 +34,7 @@ export type LawKey = 'food_aid'
 
 export type LawPrereq = TraitBelief|TraitBelief[];
 export const DollarPerBeanRebateThreshold = 1;
+export const PollTaxWeeklyAmount = 0.1;
 
 export function PlayerCanSeePrereqs(prereqs: LawPrereq[], seen: Map<string, boolean>){
     return prereqs.length === 0 || prereqs.some((x) => PlayerKnowsPrereq(x, seen));
@@ -74,7 +76,8 @@ export interface ILaw{
 }
 export interface IGovernment{
     laws: ILaw[];
-    lawTree: {[key in LawAxis]: ILaw};
+    lawTree: {[key in LawAxis]: ILaw|undefined};
+    treasury: number;
 }
 export interface ILawData extends ILaw{
     prereqs: LawPrereq[];
@@ -247,5 +250,18 @@ export class Government{
             this.treasury.set(allowedTreasury);
             beans.forEach((b) => b.cash += perBean);
         }
+    }
+}
+
+export function IsLaw(gov: IGovernment, l: LawKey){
+    return gov.lawTree[LawData[l].axis]?.key === l;
+}
+export function MaybeRebate(gov: IGovernment, beans: IBean[]){
+    const allowedTreasury = beans.length * DollarPerBeanRebateThreshold;
+    if (gov.treasury > allowedTreasury){
+        const overage = gov.treasury - allowedTreasury;
+        const perBean = overage / beans.length;
+        gov.treasury = allowedTreasury;
+        beans.forEach((b) => b.cash += perBean);
     }
 }

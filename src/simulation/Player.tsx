@@ -1,5 +1,6 @@
 import { ChangePubSub, LiveList, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
+import { IWorldState } from "../state/features/world";
 import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
 import { IBean } from "./Agent";
@@ -12,9 +13,14 @@ export interface IPlayerData{
     abductedBeans: IBean[];
     energy: IResource;
     bots: IResource;
+    hedons: IResource;
     workingReportCard: IReportCard;
     techProgress: TechProgress;
     currentlyResearchingTech: Tech|undefined;
+    difficulty: IDifficulty;
+    beliefInventory: BeliefInventory[];
+    goalProgress: {[key: string]: IGoalProgress};
+    goals: GoalKey[]
 }
 
 export interface IResource{
@@ -217,7 +223,7 @@ export class Player implements IPlayerData, IProgressable{
     }
 
     public hasResearched(tech: Tech){
-        return this.techProgress[tech] != null && this.techProgress[tech].researchPoints >= TechData[tech].techPoints;
+        return HasResearched(this, tech);
     }
 
     public useCharge(t: TraitBelief){
@@ -287,4 +293,45 @@ export class Player implements IPlayerData, IProgressable{
     public checkReportCard(world: World) {
         this.workingReportCard = Curriculums.Default.GradeWorld(world);
     }
+}
+
+
+export function Reward(player: IPlayerData, reward: PlayerResources){
+    if (reward.bots){
+        player.bots.amount += reward.bots;
+        player.bots.change.publish({change: reward.bots});
+    }
+    if (reward.energy){
+        player.energy.amount += reward.energy;
+        player.energy.change.publish({change: reward.energy});
+    }
+    if (reward.hedons){
+        player.hedons.amount += reward.hedons;
+        player.hedons.change.publish({change: reward.hedons});
+    }
+}
+
+export function CheckGoals(world: IWorldState, player: IPlayerData){
+    for (let i = 0; i < player.goals.length; i++) {
+        const goal = player.goals[i];
+        if (player.goalProgress[goal] == null){
+            player.goalProgress[goal] = {done: false, step: 0};
+        }
+        if (!player.goalProgress[goal].done) {
+            //REDUX TODO
+            const done = false; //REDUX TODO Goals[goal].check(world);
+            const reward = Goals[goal].reward;
+            player.goalProgress[goal].done = done;
+            if (done && reward != null){
+                Reward(player, reward);
+            }
+        }
+    }
+}
+export function CheckReportCard(world: IWorldState, player: IPlayerData) {
+    //REDUX TODO
+    //player.workingReportCard = Curriculums.Default.GradeWorld(world);
+}
+export function HasResearched(player: IPlayerData, tech: Tech){
+    return player.techProgress[tech] != null && player.techProgress[tech].researchPoints >= TechData[tech].techPoints
 }
