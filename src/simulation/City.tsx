@@ -13,6 +13,7 @@ import { WorldSound } from "../WorldSound";
 import { isEnterprise } from "./Institutions";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPickup } from "./Pickup";
+import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -60,6 +61,7 @@ export interface ICity{
     deadBeanKeys: number[],
     beanKeys: number[],
     ufoKeys: number[],
+    buildingKeys: number[],
     pickupMagnetPoint: Point|undefined,
     hexes: HexPoint[],
     pickupKeys: number[],
@@ -99,7 +101,7 @@ export class City extends Geography implements ITile, IBeanContainer {
         
         for (let i = 0; i < allOfType.length; i++) {
             const building = allOfType[i];
-            const slots = building.openSlots();
+            const slots = BuildingOpenSlots(building);
             if (slots.length > 0){
                 const slot = slots.shift() as BuildingJobSlot;
                 building.job_slots[slot] = bean.key;
@@ -118,7 +120,7 @@ export class City extends Geography implements ITile, IBeanContainer {
         const all = this.book.getBuildings();
         for (let i = 0; i < all.length; i++) {
             const building = all[i];
-            if (building.tryFreeBean(bean.key)){
+            if (BuildingTryFreeBean(building, bean.key)){
                 bean.employerEnterpriseKey = undefined;
                 bean.job = 'jobless';
                 break;

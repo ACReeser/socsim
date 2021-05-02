@@ -17,15 +17,19 @@ export interface Listing{
     sellerBeanKey?: number;
     sellerEnterpriseKey?: number;
     price: number;
-    seller: ISeller;
+    seller?: ISeller;
     quantity: number;
 }
 const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
 
 export interface IEconomy{
-    unfulfilledMonthlyDemand: {[key in TraitGood]: number}
-    monthlyDemand: {[key in TraitGood]: number}
-    monthlySupply: {[key in TraitGood]: number}
+    unfulfilledMonthlyDemand: {[key in TraitGood]: number};
+    monthlyDemand: {[key in TraitGood]: number};
+    monthlySupply: {[key in TraitGood]: number};
+    market: IMarket;
+}
+export interface IMarket{
+    listings: {[key in TraitGood]: Listing[]};
 }
 export class Economy {
     market = new OrderBook();
@@ -213,8 +217,10 @@ export class OrderBook{
         const tax = listPrice * salesTaxPercentage;
         const grossPrice = listPrice + tax;
         buyer.cash -= grossPrice;
-        listing.seller.cash += listPrice;
-        listing.seller.ticksSinceLastSale = 0;
+        if (listing.seller){
+            listing.seller.cash += listPrice;
+            listing.seller.ticksSinceLastSale = 0;
+        }
         return {
             bought: demand,
             price: listPrice,
@@ -226,8 +232,10 @@ export class OrderBook{
         const listPrice = listing.price * demand;
         const grossPrice = listPrice;
         treasury.set(treasury.get - grossPrice);
-        listing.seller.cash += listPrice;
-        listing.seller.ticksSinceLastSale = 0;
+        if (listing.seller){
+            listing.seller.cash += listPrice;
+            listing.seller.ticksSinceLastSale = 0;
+        }
         return {
             bought: demand,
             price: listPrice,
@@ -261,7 +269,22 @@ export class OrderBook{
         this.listings[good].sort((a, b) => a.price - b.price);
     }
 }
-
+export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, good: TraitGood, quantity: number, price: number) {
+    econ.monthlySupply[good] += quantity;
+    const existing = econ.market.listings[good].find((x) => x.sellerEnterpriseKey == seller.key);
+    if (existing){
+        existing.quantity += quantity;
+        existing.price = price;
+        existing.quantity = Math.min(existing.quantity, 6);
+    } else {
+        econ.market.listings[good].push({
+            sellerEnterpriseKey: seller.key,
+            price: price,
+            quantity: quantity
+        });
+    }
+    econ.market.listings[good].sort((a, b) => a.price - b.price);
+}
 export function GetFairGoodPrice(econ: IEconomy, good: TraitGood){
     const supply = econ.monthlySupply[good] || 1;
     const demand = econ.monthlyDemand[good];

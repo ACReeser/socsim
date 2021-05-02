@@ -317,8 +317,8 @@ class App extends React.Component<AppPs, AppState>{
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.scan)) {
       this.state.world.alien.scanned_bean[bean.key] = true;
       bean.beliefs.forEach((b) => {
-        if (!this.state.world.alien.seenBeliefs.get.has(b)){
-          this.state.world.alien.seenBeliefs.add(b, true);
+        if (!this.state.world.alien.lSeenBeliefs.get.has(b)){
+          this.state.world.alien.lSeenBeliefs.add(b, true);
         }
       });
       this.state.world.sfx.play('scan');
@@ -533,7 +533,7 @@ class App extends React.Component<AppPs, AppState>{
               {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
             </Modal>
             <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
-              <TraitsReport seenBeliefs={this.state.world.alien.seenBeliefs} beliefInventory={this.state.world.alien.lBeliefInventory}
+              <TraitsReport seenBeliefs={this.state.world.alien.lSeenBeliefs} beliefInventory={this.state.world.alien.lBeliefInventory}
               ></TraitsReport>
             </Modal>
             <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
@@ -580,7 +580,7 @@ class App extends React.Component<AppPs, AppState>{
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'gov' })}>🗳️ Gov</button>
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
                   
-                  <BubbleSeenTraitsText changeEvent={this.state.world.alien.seenBeliefs.onAdd} icon="🧠">
+                  <BubbleSeenTraitsText changeEvent={this.state.world.alien.lSeenBeliefs.onAdd} icon="🧠">
                     <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
                   </BubbleSeenTraitsText>
                 </span>

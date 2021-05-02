@@ -6,6 +6,7 @@ import { City } from "../simulation/City";
 import { BuildingIcon, BuildingJobIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
 import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, isEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";
+import { BuildingOpenSlots, BuildingUsedSlots } from "../simulation/RealEstate";
 
 export class HexPanel extends React.Component<{
     city: City,
@@ -72,8 +73,8 @@ export class HexPanel extends React.Component<{
     </div>
     }
     buildingPanel(b: IBuilding){
-        const slots = b.usedSlots();
-        const free = b.openSlots();
+        const slots = BuildingUsedSlots(b);
+        const free = BuildingOpenSlots(b);
         const hasJobs = b.type != 'park' && b.type != 'nature';
         return <div>
             <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong> in <strong>{this.props.city.name}</strong>

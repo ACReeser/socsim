@@ -254,15 +254,8 @@ export interface IBuilding{
     key: number;
     address: HexPoint;
     type: BuildingTypes;
-    job_slots: {[key in BuildingJobSlot]: number|null};
-    upgraded: boolean,
-    openSlots(): BuildingJobSlot[];
-    usedSlots(): BuildingJobSlot[];
-    /**
-     * returns true when bean is found in slot and freed
-     * @param beanKey 
-     */
-    tryFreeBean(beanKey: number): boolean;
+    job_slots: {[key in BuildingJobSlot]: number|undefined};
+    upgraded: boolean
 }
 
 /**

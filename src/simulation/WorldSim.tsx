@@ -1,6 +1,7 @@
 import { IEvent } from "../events/Events";
-import { IWorldState, selectBeansByCity } from "../state/features/world";
-import { Inflate, MaxHedonHistory, TraitJob } from "../World";
+import { IWorldState } from "../state/features/world";
+import { selectBeansByCity } from "../state/features/world.reducer";
+import { WorldInflate, MaxHedonHistory, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
 import { IBean } from "./Agent";
 import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
@@ -89,7 +90,7 @@ export function simulate_world(world: IWorldState){
     return world;
 }
 export function simulate_every_year(world: IWorldState){
-    Inflate(world);
+    WorldInflate(world);
 }
 export function simulate_every_month(world: IWorldState){
     //resetMonthlyDemand

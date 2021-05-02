@@ -13,14 +13,8 @@ export class Building implements IBuilding, IEnterprise{
     public occupied_slots: Point[] = [];
     public empty_slots: Point[] = [];
     public upgraded: boolean = false;
-    public job_slots: {[key in BuildingJobSlot]: number|null} = {
-        0: null,
-        1: null,
-        2: null,
-        3: null,
-        4: null,
-        5: null,
-    }
+    public job_slots: {[key in BuildingJobSlot]: number|undefined} = {
+    } as {[key in BuildingJobSlot]: number|undefined};
     public enterpriseType: EnterpriseType = 'company';
     public ownerBeanKey?: number | undefined;
     public ticksSinceLastSale: number = 0;
@@ -98,25 +92,37 @@ export class Building implements IBuilding, IEnterprise{
         return ids;
     }
     openSlots(): BuildingJobSlot[]{
-        return Object.keys(this.job_slots).filter((s, i) => {
-            return this.job_slots[+s as BuildingJobSlot] === null && (i < 3 || this.upgraded);
-        }).map((x) => +x);
+        return BuildingOpenSlots(this);
     }
     usedSlots(): BuildingJobSlot[]{
-        return Object.keys(this.job_slots).filter((s) => {
-            return this.job_slots[+s as BuildingJobSlot] != null;
-        }).map((x) => +x);
+        return BuildingUsedSlots(this);
     }
     tryFreeBean(beanKey: number): boolean{
-        const usedSlots = this.usedSlots();
-        for (let i = 0; i < usedSlots.length; i++) {
-            const slot = usedSlots[i];
-            const beanInSlot = this.job_slots[slot];
-            if (beanInSlot === beanKey){
-                this.job_slots[slot] = null;
-                return true;
-            }
-        }
-        return false;
+        return BuildingTryFreeBean(this, beanKey);
     }
+}
+
+export function BuildingOpenSlots(b: IBuilding): BuildingJobSlot[]{
+    return Object.keys(b.job_slots).filter((s, i) => {
+        return b.job_slots[+s as BuildingJobSlot] === null && (i < 3 || b.upgraded);
+    }).map((x) => +x);
+}
+
+export function BuildingUsedSlots(b: IBuilding): BuildingJobSlot[]{
+    return Object.keys(b.job_slots).filter((s) => {
+        return b.job_slots[+s as BuildingJobSlot] != null;
+    }).map((x) => +x);
+}
+
+export function BuildingTryFreeBean(b: IBuilding, beanKey: number): boolean{
+    const usedSlots = BuildingUsedSlots(b);
+    for (let i = 0; i < usedSlots.length; i++) {
+        const slot = usedSlots[i];
+        const beanInSlot = b.job_slots[slot];
+        if (beanInSlot === beanKey){
+            b.job_slots[slot] = undefined;
+            return true;
+        }
+    }
+    return false;
 }

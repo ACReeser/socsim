@@ -1,5 +1,5 @@
 import { configureStore, createSelector } from '@reduxjs/toolkit';
-import { worldSlice } from './features/world';
+import { worldSlice } from './features/world.reducer';
 
 export const store = configureStore({
   reducer: {

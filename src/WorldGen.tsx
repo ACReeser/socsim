@@ -2,11 +2,12 @@ import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } 
 import { Bean } from './simulation/Bean';
 import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
 import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, BuildingToGood } from './simulation/Geography';
-import { City } from './simulation/City';
+import { City, ICity } from './simulation/City';
 import { BeliefsAll, RandomBeliefBucket } from './simulation/Beliefs';
 import { WorldSound } from './WorldSound';
 import { Building } from './simulation/RealEstate';
-import { Economy } from './simulation/Economy';
+import { Economy, EconomyEmployAndPrice, GetFairGoodPrice, IEconomy } from './simulation/Economy';
+import { BuildingJobSlot } from './simulation/Occupation';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
@@ -124,6 +125,19 @@ export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPo
     if (good != 'fun')
         econ.employAndPrice(newBuilding, good, EnterpriseStartingListing, econ.getFairGoodPrice(good))
 }
+export function GenerateIBuilding(geo: ICity, type: BuildingTypes, hex: HexPoint, econ: IEconomy){
+    const newBuilding: IBuilding = {
+        type: type,
+        key: geo.buildingKeys.length,
+        address: hex,
+        job_slots: {} as {[key in BuildingJobSlot]: number|undefined},
+        upgraded: false
+    }
+    const good = BuildingToGood[type];
+    // todo redux todo
+    // if (good != 'fun')
+    //     EconomyEmployAndPrice(econ, newBuilding, good, EnterpriseStartingListing, GetFairGoodPrice(econ, good))
+}
 
 const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{
@@ -154,14 +168,17 @@ export function GenerateWorld(): World{
 export function GeneratePartyHQ(city: City, party: Party) {
     
 }
-
+const CityPrefixes = ['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', ''];
+const CityFirstsnames = ['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash'];
+const CityLastnames = ['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest'];
+export function GetRandomCityName(){
+    return `${GetRandom(CityPrefixes)}${GetRandom(CityFirstsnames)}${GetRandom(CityLastnames)}`;
+}
 export const Number_Starting_City_Pop = 0;
 export function GenerateCity(previousCityCount: number, sfx: WorldSound, econ: Economy): City{
     let newCity = new City(sfx, econ);
     newCity.key = previousCityCount;
-    newCity.name = GetRandom(['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', '']);
-    newCity.name += GetRandom(['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash']);
-    newCity.name += GetRandom(['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest']);
+    newCity.name = GetRandomCityName();
     
     GenerateBuilding(newCity, 'courthouse', newCity.hexes[0], newCity.economy); 
     GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)], newCity.economy); 

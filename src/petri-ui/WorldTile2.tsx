@@ -1,12 +1,11 @@
 import React from "react";
 import { Bean } from "../simulation/Bean";
 import { HexPoint, polarToPoint, transformPoint } from "../simulation/Geography";
-import { magnetChange } from "../state/features/world";
+import { magnetChange } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { AnimatedUFO2 } from "./AnimatedUFO2";
 import { PetriHexes2 } from "./Buildings";
 import { Magnet2 } from "./Magnet";
-import { BeanList, PickupList2 } from "./Mover";
 
 
 

@@ -398,7 +398,7 @@ export const EmotionSanity: {[key in TraitEmote]: number} ={
     'hate': -1
 };
 
-export function Inflate(world: IWorldState){
+export function WorldInflate(world: IWorldState){
     const beans = world.beans.allIDs.reduce((arr, key) => { arr.push(world.beans.byID[key]); return arr;}, [] as IBean[])
     const allMoney = beans.reduce((sum, b) => sum+b.cash, 0);
     const percent = allMoney / 100;

@@ -11,6 +11,10 @@ import { IDate } from "./Time";
 export interface IPlayerData{
     scanned_bean: {[beanKey: number]: boolean};
     abductedBeans: IBean[];
+    seenBeliefs: {[key: string]: boolean};
+    speechcrimes: {[year: number]: number};
+    next_grade: IDate;
+    pastReportCards: IReportCard[];
     energy: IResource;
     bots: IResource;
     hedons: IResource;
@@ -193,7 +197,8 @@ export interface BeliefInventory{
 
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
-    public seenBeliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
+    public seenBeliefs = {};
+    public lSeenBeliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
     public beliefInventory = [];
     public lBeliefInventory = new LiveList<BeliefInventory>([]);
     public speechcrimes: {[year: number]: number} = {};

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { LiveMap } from "../events/Events";
 import { City } from "../simulation/City";
-import { CityBook, HexPoint, hex_to_pixel, IBuilding, transformPoint } from "../simulation/Geography";
-import { magnetChange, selectHex } from "../state/features/world";
+import { HexPoint, hex_to_pixel, IBuilding, transformPoint } from "../simulation/Geography";
+import { magnetChange, selectHex } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { PetriBuilding, UIBuilding } from "./Building";
 import { hex_style } from "./WorldTile";
