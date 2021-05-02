@@ -3,6 +3,7 @@ import { Point } from "../simulation/Geography";
 export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots'|'marketrefresh'|'persuasion';
 
 export interface IEvent{
+    key: number;
     icon: string;
     message: string;
     beanKey?: number;

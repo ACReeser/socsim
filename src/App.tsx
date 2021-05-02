@@ -255,12 +255,12 @@ class App extends React.Component<AppPs, AppState>{
   buyTrait = (l: MarketTraitListing) => {
     if (this.state.world.alien.tryPurchase(l.cost)) {
       
-      const existing = this.state.world.alien.beliefInventory.get.find((x) => x.trait === l.trait);
+      const existing = this.state.world.alien.lBeliefInventory.get.find((x) => x.trait === l.trait);
       if (existing) {
         existing.charges += ChargePerMarket;
-        this.state.world.alien.beliefInventory.set([...this.state.world.alien.beliefInventory.get]);
+        this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
       } else
-        this.state.world.alien.beliefInventory.push({trait: l.trait, charges: ChargePerMarket});
+        this.state.world.alien.lBeliefInventory.push({trait: l.trait, charges: ChargePerMarket});
     }
     this.setState({ world: this.state.world });
   }
@@ -365,13 +365,13 @@ class App extends React.Component<AppPs, AppState>{
       bean.beliefs.splice(
         bean.beliefs.indexOf(a), 1
       );
-      const existing = this.state.world.alien.beliefInventory.get.find((x) => x.trait === a);
+      const existing = this.state.world.alien.lBeliefInventory.get.find((x) => x.trait === a);
       const chargeBonus = this.state.world.alien.hasResearched('neural_duplicator') ? 1 : 0;
       if (existing) {
         existing.charges += ChargePerWash + chargeBonus;
-        this.state.world.alien.beliefInventory.set([...this.state.world.alien.beliefInventory.get]);
+        this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
       } else
-        this.state.world.alien.beliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
+        this.state.world.alien.lBeliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
       this.state.world.sfx.play('wash_out');
       this.setState({ world: this.state.world });
       return true;
@@ -380,7 +380,7 @@ class App extends React.Component<AppPs, AppState>{
   implantBelief = (bean: Bean, a: TraitBelief) => {
     const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
     if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
-      this.state.world.alien.beliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
+      this.state.world.alien.lBeliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
       bean.beliefs.push(a);
       this.state.world.alien.useCharge(a);
       this.state.world.sfx.play('wash_in');
@@ -533,7 +533,7 @@ class App extends React.Component<AppPs, AppState>{
               {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
             </Modal>
             <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
-              <TraitsReport seenBeliefs={this.state.world.alien.seenBeliefs} beliefInventory={this.state.world.alien.beliefInventory}
+              <TraitsReport seenBeliefs={this.state.world.alien.seenBeliefs} beliefInventory={this.state.world.alien.lBeliefInventory}
               ></TraitsReport>
             </Modal>
             <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>

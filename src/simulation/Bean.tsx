@@ -1,18 +1,19 @@
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity, EmotionWorth } from "../World";
 import { RandomEthno, GetRandom, GetRandomNumber, GetRandomRoll } from "../WorldGen";
-import { Economy, ISeller } from "./Economy";
+import { Economy, GetFairGoodPrice, IEconomy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
 import { IDate, withinLastYear } from "./Time";
-import { Government } from "./Government";
+import { Government, IGovernment } from "./Government";
 import { Act, AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover } from "./Agent";
 import { JobToBuilding, Point, Vector } from "./Geography";
-import { City } from "./City";
+import { City, ICity } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { GetHedonReport, HedonExtremes, HedonReport, HedonSourceToVal, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
+import { IPickup } from "./Pickup";
 
 const BabyChance = 0.008;
 export const DaysUntilSleepy = 7;
@@ -146,12 +147,10 @@ export class Bean implements IBean{
     public fairGoodPrice: number = 1;
     public lastChatMS: number = Date.now();
     get isInCrisis(): boolean{
-        return this.food === 'starving' ||
-        this.stamina === 'homeless' ||
-        this.health === 'sick';
+        return BeanIsInCrisis(this);
     }
     believesIn(belief: TraitBelief): boolean{
-        return this.beliefs.indexOf(belief) !== -1;
+        return BeanBelievesIn(this, belief);
     }
     loseSanity(amount: number){
         const multiplier = this.believesIn('Neuroticism') ? 2 : 1;
@@ -315,7 +314,7 @@ export class Bean implements IBean{
         const job: TraitJob = GetRandom(['builder', 'doc', 'farmer', 'entertainer']);
         if (!this.trySetJob(job)){
             
-            this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`});
+            this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`, key:1});
         }
     }
     trySetJob(job: TraitJob): boolean{
@@ -349,6 +348,7 @@ export class Bean implements IBean{
             if (offense > defense){
                 this.beliefs = [...this.beliefs, belief]
                 this.city?.eventBus?.persuasion.publish({
+                    key: 0,
                     icon: '🗣️', 
                     trigger: 'persuasion', 
                     message: `${this.name} now believes in ${SecondaryBeliefData[belief].icon} ${SecondaryBeliefData[belief].noun}!`, 
@@ -623,7 +623,8 @@ export class Bean implements IBean{
             } else {
                 this.emote('happiness', 'Proud Parent');
             }
-            return {icon: '🎉', trigger: 'birth', message: `${this.name} has a baby!`}
+            return {icon: '🎉', trigger: 'birth', message: `${this.name} has a baby!`,
+            key: 0,}
         } else {
             return null;
         }
@@ -697,7 +698,8 @@ export class Bean implements IBean{
         this.city?.eventBus?.death.publish({
             icon: '☠️', trigger: 'death', message: `${this.name} died of ${cause}!`, 
             beanKey: this.key, cityKey: this.cityKey,
-            point: this.point
+            point: this.point,
+            key: 0,
         });
     }
     maybeScarcity(good: TraitGood){
@@ -720,4 +722,157 @@ export class Bean implements IBean{
     state: AgentState = IdleState.create();
     jobQueue: PriorityQueue<AgentState> = new PriorityQueue<AgentState>([]);
     onAct = new PubSub<number>();
+}
+
+export function CalculateBeliefs(bean: IBean, econ: IEconomy, homeCity: ICity, law: IGovernment){
+    bean.hedonFiveDayRecord = {
+        min: Math.min(bean.hedonFiveDayRecord.min, bean.happiness.flatAverage),
+        max: Math.max(bean.hedonFiveDayRecord.max, bean.happiness.flatAverage)  
+    };
+    if (bean.happiness.flatAverage === 0){
+        bean.lastHappiness = 0;
+    } else {
+        bean.lastHappiness = bean.happiness.flatAverage >= 0 ? (
+            bean.happiness.flatAverage / bean.hedonFiveDayRecord.max) * 100 : (
+            bean.happiness.flatAverage / bean.hedonFiveDayRecord.min) * 100;
+    }
+
+    if (bean.job === 'jobless'){
+        bean.fairGoodPrice = 1;
+    } else {
+        bean.fairGoodPrice = GetFairGoodPrice(econ, JobToGood(bean.job))
+    }
+}
+
+
+export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes?: IPickup[]}|undefined {
+    if (!bean.alive) return undefined;
+    const emotes: IPickup[] = [];
+
+    const wasNotHungry = bean.food !== 'starving';
+    const wasNotSick = bean.health !== 'sick';
+
+    bean.discrete_food -= diff.bean_life.degrade_per_tick.food;
+    if (bean.discrete_food < 0)
+        bean.discrete_health -= 0.2;
+
+    const starve = BeanMaybeDie(bean, 'starvation', bean.food === 'starving', 0.6);
+    if (starve)
+        return starve;
+    else if (bean.food === 'starving' && wasNotHungry){
+        emotes.push(...BeanEmote(bean, 'unhappiness', 'Starving'));
+        if (BeanBelievesIn(bean, 'Gluttony')){
+            emotes.push(...BeanEmote(bean, 'unhappiness', 'Gluttony'));
+            emotes.push(...BeanEmote(bean, 'unhappiness', 'Gluttony'));
+        }
+    }
+        
+    bean.discrete_stamina -= diff.bean_life.degrade_per_tick.stamina;
+
+    const exposure = BeanMaybeDie(bean, 'exposure', bean.stamina === 'homeless', 0.2);
+    if (exposure)
+        return exposure;
+
+    bean.discrete_health -= diff.bean_life.degrade_per_tick.health;
+    bean.discrete_health = Math.min(bean.discrete_health, 3);
+    const sick = BeanMaybeDie(bean, 'sickness', bean.health === 'sick', 0.4);
+    if (sick)
+        return sick;
+    else if (bean.health === 'sick' && wasNotSick){
+        emotes.push(...BeanEmote(bean, 'unhappiness', 'Sick'));
+        if (BeanBelievesIn(bean, 'Germophobia')){
+            emotes.push(...BeanEmote(bean, 'unhappiness', 'Germophobia'));
+        }
+    }
+
+    bean.discrete_fun -= diff.bean_life.degrade_per_tick.fun;
+    bean.discrete_fun = Math.max(0, bean.discrete_fun);
+
+    if (!BeanIsInCrisis(bean))
+        bean.graceTicks = MathClamp(bean.graceTicks+1, 0, MaxGraceTicks);
+    
+    if (emotes.length)
+        return {
+            emotes: emotes
+        };
+    else 
+        return undefined;
+}
+
+export function BeanEmote(bean: IBean, emote: TraitEmote, source: string): IPickup[]{
+    bean.discrete_sanity = MathClamp(bean.discrete_sanity + EmotionSanity[emote], 0, 10);
+    bean.hedonHistory[0][source] = (bean.hedonHistory[0][source] || 0) + EmotionWorth[emote];
+    const out = [
+        {
+            key: 0, 
+            point: {...bean.point}, 
+            type: emote,
+            velocity: {x: 0, y: 0}
+        }
+    ];
+    if (BeanBelievesIn(bean, 'Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
+        out.push(...BeanEmote(bean, 'happiness', 'Hedonism'));
+    }
+    return out; 
+}
+export function BeanBelievesIn(bean: IBean, trait: TraitBelief): boolean{
+    return bean.beliefs.indexOf(trait) !== -1;
+}
+export function BeanMaybeBaby(bean: IBean, costOfLiving: number): IEvent|undefined{
+    if (BeanCanBaby(bean, costOfLiving) &&
+        GetRandomRoll(BeanBabyChance(bean))) {
+        if (BeanBelievesIn(bean, 'Natalism')){
+            BeanEmote(bean, 'love', 'Natalist Parent');
+        } else if (BeanBelievesIn(bean, 'Antinatalism')) {
+            BeanEmote(bean, 'hate', 'Antinatalism');
+        } else {
+            BeanEmote(bean, 'happiness', 'Proud Parent');
+        }
+        return {icon: '🎉', trigger: 'birth', message: `${bean.name} has a baby!`,
+        key: 0,}
+    } else {
+        return undefined;
+    }
+}
+export function BeanCanBaby(bean: IBean, costOfLiving: number): boolean{
+    return bean.alive && 
+        bean.cash > costOfLiving * 3 &&
+        !BeanIsInCrisis(bean);
+}
+export function BeanBabyChance(bean: IBean): number{
+    let base = BabyChance;
+    if (BeanBelievesIn(bean, 'Natalism'))
+        base += NatalismExtraBabyChance;
+    if (BeanBelievesIn(bean, 'Antinatalism'))
+        base += AntinatalismExtraBabyChance;
+    return base;
+}
+export function BeanMaybeDie(bean: IBean, cause: string, isDire: boolean, chance: number): {death: IEvent, emotes: IPickup[]}|undefined{
+    if (isDire && Math.random() <= chance) {
+        if (bean.graceTicks <= 0){
+            return BeanDie(bean, cause);
+        }
+        bean.graceTicks--;
+    }
+    return undefined;
+}
+export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPickup[]}{
+    bean.alive = false;
+    const pains = GetRandomNumber(2, 3);
+    const emotes = (new Array(pains)).map((x) => BeanEmote(bean, 'hate', 'Death')).reduce((all, one) => all.concat(one), []);
+    return {
+        death: {
+            icon: '☠️', trigger: 'death', message: `${bean.name} died of ${cause}!`, 
+            beanKey: bean.key, cityKey: bean.cityKey,
+            point: bean.point,
+            key: 0,
+        },
+        emotes: emotes
+    }
+}
+
+export function BeanIsInCrisis(bean: IBean): boolean{
+    return bean.food === 'starving' ||
+    bean.stamina === 'homeless' ||
+    bean.health === 'sick';
 }

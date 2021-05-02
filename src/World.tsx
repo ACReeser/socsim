@@ -140,7 +140,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.alien.techProgress[tech].researchPoints += this.alien.abductedBeans.length;
             if (current >= max){
                 if (this.alien.currentlyResearchingTech === 'neural_duplicator')
-                    this.alien.beliefInventory.get.forEach((x) => x.charges += 1);
+                    this.alien.lBeliefInventory.get.forEach((x) => x.charges += 1);
                 this.alien.currentlyResearchingTech = undefined;
 
             }
@@ -172,7 +172,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     }
     simulate_every_week(){
         this.marketTraitsForSale.set(GetMarketTraits());
-        this.publishEvent({message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
+        this.publishEvent({key: 0, message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
         if (this.law.isLaw('poll_tax')){
             let collected = 0;
             this.cities.forEach((x) => {
@@ -233,7 +233,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
     onChat = (b: Bean, chat: IChatData) => {
         if (this.party && chat.preachBelief){
             if (IsBeliefDivergent(chat.preachBelief, this.party.ideals, this.party.community)){
-                this.publishEvent({
+                this.publishEvent({key: 0, 
                     icon: '🚨', trigger: 'speechcrime',
                     message: `Speechcrime! ${b.name} is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
                     beanKey: b.key

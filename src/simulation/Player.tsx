@@ -26,7 +26,6 @@ export interface IPlayerData{
 export interface IResource{
     amount: number;
     income: number;
-    change: ChangePubSub;
 }
 
 export type GoalKey = 'found_utopia'|'build_house_n_farm'|'beam_3'|'scan'|'set_policy'|'brainwash'|'c+_grade';
@@ -195,7 +194,8 @@ export interface BeliefInventory{
 export class Player implements IPlayerData, IProgressable{
     public scanned_bean: {[beanKey: number]: boolean} = {};
     public seenBeliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
-    public beliefInventory = new LiveList<BeliefInventory>([]);
+    public beliefInventory = [];
+    public lBeliefInventory = new LiveList<BeliefInventory>([]);
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
     public energy = { amount: 16, income: 2/30, change: new ChangePubSub()};
@@ -227,11 +227,11 @@ export class Player implements IPlayerData, IProgressable{
     }
 
     public useCharge(t: TraitBelief){
-        const all = this.beliefInventory.get;
+        const all = this.lBeliefInventory.get;
         const existing = all.find(x => x.trait === t);
         if (existing){
             existing.charges -= 1;
-            this.beliefInventory.set([...all.filter(x => x.charges > 0)]);
+            this.lBeliefInventory.set([...all.filter(x => x.charges > 0)]);
         }
     }
 
@@ -299,15 +299,18 @@ export class Player implements IPlayerData, IProgressable{
 export function Reward(player: IPlayerData, reward: PlayerResources){
     if (reward.bots){
         player.bots.amount += reward.bots;
-        player.bots.change.publish({change: reward.bots});
+        if (player instanceof Player)
+            player.bots.change.publish({change: reward.bots});
     }
     if (reward.energy){
         player.energy.amount += reward.energy;
-        player.energy.change.publish({change: reward.energy});
+        if (player instanceof Player)
+            player.energy.change.publish({change: reward.energy});
     }
     if (reward.hedons){
         player.hedons.amount += reward.hedons;
-        player.hedons.change.publish({change: reward.hedons});
+        if (player instanceof Player)
+            player.hedons.change.publish({change: reward.hedons});
     }
 }
 

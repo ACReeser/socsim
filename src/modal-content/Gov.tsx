@@ -39,7 +39,7 @@ export const GovernmentPanel: React.FC<{
                 <div>
                 </div>
             </div> : <LawDetailList 
-                group={view} seenBeliefs={props.world.alien.seenBeliefs.get} beliefs={props.world.alien.beliefInventory.get}
+                group={view} seenBeliefs={props.world.alien.seenBeliefs.get} beliefs={props.world.alien.lBeliefInventory.get}
                 isLaw={(l) => props.world.law.isLaw(l)}
                 enactLaw={(l: LawKey) => props.enactLaw(l)}
                 revokeLaw={(l: LawKey) => props.revokeLaw(l)}

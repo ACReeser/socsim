@@ -1,14 +1,14 @@
 import { Agent } from "https";
 import { Bean, DaysUntilSleepy } from "./Bean";
 import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote, BeanPhysics, TraitJob } from "../World";
+import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote, BeanPhysics, TraitJob, TraitFood } from "../World";
 import { GetRandom } from "../WorldGen";
 import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IAccelerater, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { PubSub } from "../events/Events";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
 import { IDifficulty } from "../Game";
-import { HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
+import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { ISeller } from "./Economy";
 import { IterationStatement } from "typescript";
 
@@ -54,7 +54,6 @@ export interface IChatData{
 
 export interface IAgent {
     state: AgentState;
-    onAct?: PubSub<number>;
     jobQueue: PriorityQueue<AgentState>;
 }
 export function ChangeState(agent: IAgent, newState: AgentState){
@@ -66,7 +65,7 @@ export function ChangeState(agent: IAgent, newState: AgentState){
 }
 export function Act(agent: IAgent, deltaMS: number, difficulty: IDifficulty, listener: IActListener): void{
     const result = agent.state.act(agent, deltaMS, difficulty);
-    if (agent.onAct)
+    if (agent instanceof Bean)
         agent.onAct.publish(deltaMS);
     if (result != agent.state){
         ChangeState(agent, result);
@@ -489,21 +488,29 @@ export interface IBean extends ISeller, IMover, IAgent{
     faith: TraitFaith;
     stamina: TraitStamina;
     health: TraitHealth;
+    food: TraitFood;
+    alive: boolean,
     discrete_food: number;
+    discrete_health: number;
     discrete_sanity: number;
     discrete_stamina: number;
+    discrete_fun: number;
+    graceTicks: number;
     cash: number;
     dob: IDate;
     sanity: TraitSanity;
+    beliefs: TraitBelief[];
     lifecycle: 'alive'|'dead'|'abducted',
     hedonHistory: HedonSourceToVal[],
     job: TraitJob,
-    happiness: HedonReport
+    happiness: HedonReport,
+    lastHappiness: number,
+    hedonFiveDayRecord: HedonExtremes,
+    fairGoodPrice: number
 }
 
 export interface IMover extends IAccelerater{
     key: number;
-    onMove: PubSub<Point>;
     destinationKey: number;
 }
 

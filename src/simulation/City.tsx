@@ -12,6 +12,7 @@ import { IEventBus, Live, LiveList, PubSub } from "../events/Events";
 import { WorldSound } from "../WorldSound";
 import { isEnterprise } from "./Institutions";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
+import { IPickup } from "./Pickup";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -44,7 +45,7 @@ export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) 
 export class UFO{
     constructor(public key: number, public point: HexPoint, public action: string){}
 }
-export class Pickup{
+export class Pickup implements IPickup{
     constructor(public key: number, public point: Point, public type: TraitEmote){}
     public velocity: Vector = {x: 0, y: 0};
     public onMove = new PubSub<Point>();

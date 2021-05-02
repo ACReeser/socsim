@@ -122,7 +122,7 @@ export class BrainwashingContent extends React.Component<{
                 </h3>
                 <div className="horizontal scroll">
                     <TraitInventoryList 
-                        live={this.props.world.alien.beliefInventory} 
+                        live={this.props.world.alien.lBeliefInventory} 
                         dogmatic={dogmatic} 
                         implant={(t: TraitBelief) => this.props.implantBelief(bean, t)}></TraitInventoryList>
                 </div>

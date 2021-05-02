@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Live } from "../events/Events";
-import { LawGroup, LawKey, LawData } from "../simulation/Government";
-import { BeliefInventory } from "../simulation/Player";
 
 
 export const TreasuryReport: React.FC<{

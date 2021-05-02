@@ -3,14 +3,15 @@ import { ChangePubSub, IEvent } from '../../events/Events'
 import { DefaultDifficulty } from '../../Game'
 import { IBean } from '../../simulation/Agent'
 import { ICity } from '../../simulation/City'
-import { Economy, IEconomy } from '../../simulation/Economy'
+import { IEconomy } from '../../simulation/Economy'
 import { GenerateGeography, HexPoint, Point } from '../../simulation/Geography'
-import { Government, IGovernment, ILaw, LawAxis } from '../../simulation/Government'
+import { IGovernment, ILaw, LawAxis } from '../../simulation/Government'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData, Player } from '../../simulation/Player'
 import { IDate, Season } from '../../simulation/Time'
 import { IUFO } from '../../simulation/Ufo'
+import { simulate_world } from '../../simulation/WorldSim'
 import { ITile } from '../../World'
 import { CreateEmptyEntitySlice, CreateEntitySlice, IEntitySlice } from '../entity.state'
 
@@ -19,6 +20,7 @@ export interface IWorldState {
   cities: IEntitySlice<ICity>,
   beans: IEntitySlice<IBean>,
   ufos: IEntitySlice<IUFO>,
+  events: IEntitySlice<IEvent>,
   pickups: IEntitySlice<IPickup>,
   economy: IEconomy,
   law: IGovernment,
@@ -48,6 +50,7 @@ export const worldSlice = createSlice({
     ]),
     beans: CreateEmptyEntitySlice<IBean>(),
     ufos: CreateEmptyEntitySlice<IUFO>(),
+    events: CreateEmptyEntitySlice<IEvent>(),
     pickups: CreateEmptyEntitySlice<IPickup>(),
     economy: {
       unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
@@ -67,10 +70,10 @@ export const worldSlice = createSlice({
       beliefInventory: [],
       speechcrimes: {},
       abductedBeans: [],
-      energy: { amount: 16, income: 2/30, change: new ChangePubSub()},
-      bots: { amount: 10, income: 2/30, change: new ChangePubSub()},
-      hedons: { amount: 0, income: 0, change: new ChangePubSub()},
-      tortrons: { amount: 0, income: 0, change: new ChangePubSub()},
+      energy: { amount: 16, income: 2/30},
+      bots: { amount: 10, income: 2/30},
+      hedons: { amount: 0, income: 0},
+      tortrons: { amount: 0, income: 0},
       next_grade: { year: 1, season: 3, day: 1, hour: 0 },
       difficulty: {...DefaultDifficulty},
       goals: ['found_utopia', 'build_house_n_farm',  'beam_3', 'scan', 'brainwash', 'set_policy', 'c+_grade'],
@@ -101,7 +104,7 @@ export const worldSlice = createSlice({
       
     },
     worldTick: state => {
-      
+      return simulate_world(state);
     },
     newGame: state => {
 

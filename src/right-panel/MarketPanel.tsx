@@ -3,7 +3,7 @@ import { LiveList } from "../events/Events";
 import { IDifficulty } from "../Game";
 import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { MarketTraitListing } from "../simulation/MarketTraits";
-import { BeliefInventory, Player } from "../simulation/Player";
+import { Player } from "../simulation/Player";
 import { CostSmall } from "../widgets/CostSmall";
 import { EmoteIcon } from "../World";
 
