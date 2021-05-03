@@ -64,11 +64,12 @@ export interface ICity{
     buildingKeys: number[],
     pickupMagnetPoint: Point|undefined,
     hexes: HexPoint[],
+    buildingMap: {[hexKey: string]: number},
     pickupKeys: number[],
     costOfLiving: number
 }
 
-export class City extends Geography implements ITile, IBeanContainer {
+export class City extends Geography implements ITile, IBeanContainer, ICity {
     public name: string = '';
     public url: string = '';
     public type: string = '';
@@ -82,6 +83,10 @@ export class City extends Geography implements ITile, IBeanContainer {
     public houses: any[] = [];
     public partyHQ?: ICityPartyHQ;
 
+    deadBeanKeys = []; beanKeys = []; ufoKeys = []; buildingKeys = [];
+    buildingMap = {}; 
+    pickupKeys = []
+
     /// computed properties
     public majorityEthnicity: TraitEthno = 'circle';
     public costOfLiving: number = 1;
@@ -93,7 +98,8 @@ export class City extends Geography implements ITile, IBeanContainer {
     public law?: Government;
     public environment?: IDate;
     public eventBus?: IEventBus;
-    public pickupMagnetPoint = new Live<Point|undefined>(undefined);
+    public lpickupMagnetPoint = new Live<Point|undefined>(undefined);
+    public pickupMagnetPoint: Point|undefined;
 
     tryGetJob(bean: Bean, job: TraitJob): boolean{
         if(job === 'jobless') return false;

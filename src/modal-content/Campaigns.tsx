@@ -94,11 +94,6 @@ export class CampaignsPanel extends React.Component<{
             </span>
           </button>
         </div>
-        {/* <CharityPanel world={this.state.world} onFoundCharity={this.foundCharity}></CharityPanel>
-        <div>
-          <b>Campaign Finances</b> <br/>
-          <b>Expenses</b> ${seasonalCost} <b>Surplus</b> ${this.state.world.party.seasonalIncome - seasonalCost}
-        </div> */}
       </div>
     }
 }

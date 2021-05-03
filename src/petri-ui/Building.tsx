@@ -1,6 +1,6 @@
 
 import React from "react";
-import { City } from "../simulation/City";
+import { City, ICity } from "../simulation/City";
 import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GetRandom } from "../WorldGen";
@@ -29,7 +29,7 @@ const hexDirectionToJobSlot: {[key: number]: BuildingJobSlot} = {
 }
 
 export const PetriBuilding: React.FC<{
-    city: City,
+    city: ICity,
     building: IBuilding
 }> = (props) => {
     // const buildingHex = props.building.address;

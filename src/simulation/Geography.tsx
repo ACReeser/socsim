@@ -13,8 +13,8 @@ export class Hex implements HexPoint{
     constructor(public q: number, public r: number){}
 }
 export const hex_directions: HexPoint[] = [
-    new Hex(+1, 0), new Hex(+1, -1), new Hex(0, -1), 
-    new Hex(-1, 0), new Hex(-1, +1), new Hex(0, +1), 
+    {q:+1, r:0}, {q: +1, r: -1}, {q: 0, r: -1}, 
+    {q:-1, r:0}, {q: -1, r: +1}, {q: 0, r: +1}, 
 ];
 export function hex_direction(direction: number): HexPoint{
     return hex_directions[direction]
@@ -22,7 +22,7 @@ export function hex_direction(direction: number): HexPoint{
 
 export function hex_neighbor(hex: HexPoint, direction: number): HexPoint{
     var dir = hex_direction(direction)
-    return new Hex(hex.q + dir.q, hex.r + dir.r)
+    return {q: hex.q + dir.q, r: hex.r + dir.r};
 }
 export function hex_distance(a: HexPoint, b: HexPoint): number{
     return (Math.abs(a.q - b.q) 
@@ -30,10 +30,10 @@ export function hex_distance(a: HexPoint, b: HexPoint): number{
           + Math.abs(a.r - b.r)) / 2
 }
 export function hex_add(a: HexPoint, b: HexPoint): HexPoint {
-    return new Hex(a.q + b.q, a.r + b.r);
+    return {q: a.q + b.q, r: a.r + b.r};
 }
 export function hex_scale(a: HexPoint, k: number): HexPoint {
-    return new Hex(a.q * k, a.r * k);
+    return {q:a.q * k, r:a.r * k};
 }
 export function hex_ring(center: HexPoint, radius: number): HexPoint[]{
     var results: HexPoint[] = [];

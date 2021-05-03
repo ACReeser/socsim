@@ -1,6 +1,8 @@
+import { IWorldState } from "../state/features/world";
 import { Bean } from "./Bean";
-import { City } from "./City";
-import { BuildingTypes, HexPoint, IBuilding, Point } from "./Geography";
+import { City, ICity } from "./City";
+import { IEconomy } from "./Economy";
+import { BuildingToGood, BuildingTypes, HexPoint, IBuilding, Point } from "./Geography";
 import { EnterpriseType, IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 
@@ -125,4 +127,21 @@ export function BuildingTryFreeBean(b: IBuilding, beanKey: number): boolean{
         }
     }
     return false;
+}
+export function GenerateIBuilding(world: IWorldState, city: ICity, type: BuildingTypes, hex: HexPoint, econ: IEconomy): IBuilding{
+    const newBuilding: IBuilding = {
+        type: type,
+        key: world.buildings.nextID++,
+        address: hex,
+        job_slots: {} as {[key in BuildingJobSlot]: number|undefined},
+        upgraded: false
+    }
+    city.buildingKeys.push(newBuilding.key);
+    world.buildings.byID[newBuilding.key] = newBuilding;
+    city.buildingMap[`${hex.q},${hex.r}`] = newBuilding.key;
+    const good = BuildingToGood[type];
+    // todo redux todo
+    // if (good != 'fun')
+    //     EconomyEmployAndPrice(econ, newBuilding, good, EnterpriseStartingListing, GetFairGoodPrice(econ, good))
+    return newBuilding;
 }

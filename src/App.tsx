@@ -44,6 +44,7 @@ import { GreetingPanel } from './modal-content/GreetingPanel';
 import { MarketTraitListing } from './simulation/MarketTraits';
 import { store as StoreState } from './state/state';
 import { WorldTile2 } from './petri-ui/WorldTile2';
+import { newGame } from './state/features/world.reducer';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'party_creation' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -270,10 +271,6 @@ class App extends React.Component<AppPs, AppState>{
       if (myUFOI > -1)
         city.ufos.splice(myUFOI, 1);
     }, 7000);
-  }
-  foundCharity = (good: TraitGood, name: string, budget: number) => {
-    this.state.world.addCharity(good, name, budget);
-    this.setState({ world: this.state.world });
   }
   vaporize = (bean: Bean) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)) {
@@ -514,7 +511,11 @@ class App extends React.Component<AppPs, AppState>{
             </TransformWrapper>
           }
           <div className="overlay">
-            <Modal show={this.state.activeModal == 'greeting'} onClick={() => this.setState({ activeModal: null })}>
+            <Modal show={this.state.activeModal == 'greeting'} onClick={() => {
+              this.setState({ activeModal: null });
+              store.dispatch(newGame());
+              }
+            }>
               <GreetingPanel></GreetingPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({ activeModal: null })} hideCloseButton={true}>

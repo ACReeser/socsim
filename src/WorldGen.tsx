@@ -125,19 +125,6 @@ export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPo
     if (good != 'fun')
         econ.employAndPrice(newBuilding, good, EnterpriseStartingListing, econ.getFairGoodPrice(good))
 }
-export function GenerateIBuilding(geo: ICity, type: BuildingTypes, hex: HexPoint, econ: IEconomy){
-    const newBuilding: IBuilding = {
-        type: type,
-        key: geo.buildingKeys.length,
-        address: hex,
-        job_slots: {} as {[key in BuildingJobSlot]: number|undefined},
-        upgraded: false
-    }
-    const good = BuildingToGood[type];
-    // todo redux todo
-    // if (good != 'fun')
-    //     EconomyEmployAndPrice(econ, newBuilding, good, EnterpriseStartingListing, GetFairGoodPrice(econ, good))
-}
 
 const Number_Starting_Cities = 1;
 export function GenerateWorld(): World{

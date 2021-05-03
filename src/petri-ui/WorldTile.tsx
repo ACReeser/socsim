@@ -10,7 +10,7 @@ import { AnimatedUFO } from "./AnimatedUFO";
 import { IEvent } from "../events/Events";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
 import { BeanList, PickupList } from "./Mover";
-import { HexPetriBuilding, PetriBuildings, PetriHexes } from "./Buildings";
+import { HexPetriBuilding, PetriHexes } from "./Buildings";
 import { Magnet } from "./Magnet";
 
 export const hex_style = {
@@ -57,7 +57,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
     return this.props.city.hexes.map((hex, i) => {
       const xy = hex_to_pixel(this.props.city.hex_size, this.props.city.petriOrigin, hex);
       return <div className="hex" key={i} style={{...hex_style, ...transformPoint(xy)}} 
-        onMouseEnter={(e) => { this.props.city.pickupMagnetPoint.set(xy); }}
+        onMouseEnter={(e) => { this.props.city.lpickupMagnetPoint.set(xy); }}
         onClick={(e) => { this.props.onHexClick(hex); e.stopPropagation(); return false; }}>
           <HexPetriBuilding city={this.props.city} hex={hex}></HexPetriBuilding>
       </div>
@@ -80,18 +80,17 @@ export class WorldTile extends React.Component<WorldTilePs> {
       width: (this.props.city.petriRadius * 2) + 'px',
     }
     return (
-      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.pickupMagnetPoint.set(undefined);}} style={style}>
+      <div className="tile" onClick={() => this.props.onClick()} onMouseLeave={() => {this.props.city.lpickupMagnetPoint.set(undefined);}} style={style}>
         <svg style={{ width: '100%', height: '100%' }} className="petri-base">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 1)" />
         </svg>
         <PetriHexes city={this.props.city} hexes={this.props.city.hexes} onHexClick={this.props.onHexClick}></PetriHexes>
         {mtns}
         {/* {deaths} */}
-        {/* <PetriBuildings city={this.props.city}></PetriBuildings> */}
         <PickupList pickups={this.props.city.pickups}></PickupList>
         <BeanList beans={this.props.city.beans} activeBeanID={this.props.activeBeanID} onBeanClick={(b: Bean) => this.props.onBeanClick(b)}></BeanList>
         {ufos}
-        <Magnet pickupMagnetPoint={this.props.city.pickupMagnetPoint}></Magnet>
+        <Magnet pickupMagnetPoint={this.props.city.lpickupMagnetPoint}></Magnet>
         <svg style={{ width: '100%', height: '100%' }} className="petri-lid">
           <circle cx="50%" cy="50%" r="50%" stroke="grey" fill="rgba(255, 255, 255, 0.2)" />
         </svg>

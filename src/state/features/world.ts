@@ -38,11 +38,11 @@ export function GetBlankWorldState(): IWorldState{
         deadBeanKeys: [],
         beanKeys: [],
         ufoKeys: [],
-        hexes: [],
         pickupKeys: [],
         buildingKeys: [],
         pickupMagnetPoint: undefined,
-        costOfLiving: 0
+        costOfLiving: 0,
+        buildingMap: {}
       }
     ]),
     beans: CreateEmptyEntitySlice<IBean>(),

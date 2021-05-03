@@ -207,7 +207,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
         for(let i = pickups.length - 1; i >= 0; i--) {
             const pickup = pickups[i];
             let collide = false;
-            const magnet = city.pickupMagnetPoint.get;
+            const magnet = city.lpickupMagnetPoint.get;
             if (magnet){
                 collide = accelerate_towards(
                     pickup, 
