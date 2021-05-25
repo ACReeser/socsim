@@ -1,7 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { PlayerResources } from '../../Game'
 import { IBean } from '../../simulation/Agent'
-import { HexPoint, Point } from '../../simulation/Geography'
-import { GenerateIBuilding } from '../../simulation/RealEstate'
+import { BuildingTypes, HexPoint, Point } from '../../simulation/Geography'
+import { EnterpriseType } from '../../simulation/Institutions'
+import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase } from '../../simulation/Player'
+import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
+import { IUFO } from '../../simulation/Ufo'
 import { simulate_world } from '../../simulation/WorldSim'
 import { GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { GetBlankWorldState, IWorldState } from './world'
@@ -29,11 +33,61 @@ export const worldSlice = createSlice({
         GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(15, 20)], state.economy);
         GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(21, 25)], state.economy);
         GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(26, 60)], state.economy);
+      },
+      build: (state, action: PayloadAction<{city: number, where: HexPoint, what: BuildingTypes}>) => {
+        const cost: PlayerResources = state.alien.difficulty.cost.emptyHex.build[action.payload.what];
+        if (PlayerTryPurchase(state.alien, cost)) {
+          GenerateIBuilding(state, state.cities.byID[action.payload.city], action.payload.what, action.payload.where, state.economy);
+        }
+      },
+      changeEnterprise: (state, action: PayloadAction<{enterpriseKey: number, newType: EnterpriseType}>) => {
+        state.enterprises.byID[action.payload.enterpriseKey].enterpriseType = action.payload.newType;
+      },
+      fireBean: (state, action: PayloadAction<{cityKey: number, beanKey: number}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        state.enterprises.allIDs.forEach((eKey) => {
+          const enterprise = state.enterprises.byID[eKey];
+          if (enterprise.ownerBeanKey === bean.key){
+            enterprise.ownerBeanKey = undefined;
+          }
+        });
+        state.buildings.allIDs.forEach((bKey) => {
+          const building = state.buildings.byID[bKey];
+          BuildingTryFreeBean(building, bean.key);
+        });
+      },
+      upgrade: (state, action: PayloadAction<{buildingKey: number}>) => {
+        const cost = state.alien.difficulty.cost.hex.upgrade;
+        const what = state.buildings.byID[action.payload.buildingKey];
+        if (PlayerTryPurchase(state.alien, cost)) {
+          what.upgraded = true;
+        }
+      },
+      beam: (state, action: PayloadAction<{cityKey: number, where: HexPoint}>) => {
+        const cost = state.alien.difficulty.cost.hex.beam;
+        if (PlayerCanAfford(state.alien, cost)) {
+          PlayerPurchase(state.alien, cost);
+          const ufo: IUFO = {
+            key: state.ufos.nextID++,
+            action: 'beam-in',
+            point: {...action.payload.where} 
+          };
+          state.ufos.allIDs.push(ufo.key);
+          state.ufos.byID[ufo.key] = ufo;
+
+          // window.setTimeout(() => {
+          //   city.beans.push(GenerateBean(city, where));
+          //   this.setState({ world: state });
+          // }, 3000);
+        }
       }
     }
   })
   
-  export const { refreshMarket, magnetChange, selectHex, worldTick, newGame  } = worldSlice.actions
+  export const { 
+    refreshMarket, magnetChange, selectHex, worldTick, 
+    newGame, build, changeEnterprise, fireBean, upgrade, beam  
+  } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;
   export const selectBeans = (state: IWorldState) => state.beans.byID;

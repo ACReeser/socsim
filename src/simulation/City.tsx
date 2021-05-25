@@ -14,6 +14,7 @@ import { isEnterprise } from "./Institutions";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPickup } from "./Pickup";
 import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";
+import { IBean } from "./Agent";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -235,4 +236,11 @@ export class City extends Geography implements ITile, IBeanContainer, ICity {
 
 export function CalculateCityComputed(city: ICity, economy: IEconomy){
     city.costOfLiving = GetCostOfLiving(economy);
+}
+export function BuildingUnsetJob(building: IBuilding, bean: IBean){
+    if (bean.job === 'jobless') return;
+    if (BuildingTryFreeBean(building, bean.key)){
+        bean.employerEnterpriseKey = undefined;
+        bean.job = 'jobless';
+    }
 }

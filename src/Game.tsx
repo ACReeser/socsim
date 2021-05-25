@@ -43,7 +43,9 @@ export interface SecondaryResources{
 }
 export interface IDifficulty{
     cost: {
-        emptyHex: {[key in PlayerEmptyHexAction]: {[key in BuildingTypes]: PlayerResources}},
+        emptyHex: {[key in PlayerEmptyHexAction]: {
+            [key in BuildingTypes]: PlayerResources}
+        },
         hex: {[key in PlayerHexAction]: PlayerResources} 
         bean: {[key in PlayerBeanAction]: PlayerResources},
         bean_brain: {[key in PlayerBeanBrainAction]: BeanResources}

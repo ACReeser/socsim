@@ -5,6 +5,7 @@ import { ICity } from '../../simulation/City'
 import { IEconomy } from '../../simulation/Economy'
 import { GenerateGeography, IBuilding } from '../../simulation/Geography'
 import { IGovernment, ILaw, LawAxis } from '../../simulation/Government'
+import { IEnterprise } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData } from '../../simulation/Player'
@@ -14,6 +15,7 @@ import { CreateEmptyEntitySlice, CreateEntitySlice, IEntitySlice } from '../enti
 
 export interface IWorldState {
   buildings: IEntitySlice<IBuilding>,
+  enterprises: IEntitySlice<IEnterprise>,
   cities: IEntitySlice<ICity>,
   beans: IEntitySlice<IBean>,
   ufos: IEntitySlice<IUFO>,
@@ -30,6 +32,7 @@ export interface IWorldState {
 export function GetBlankWorldState(): IWorldState{
   return {
     buildings: CreateEmptyEntitySlice<IBuilding>(),
+    enterprises: CreateEmptyEntitySlice<IEnterprise>(),
     cities: CreateEntitySlice<ICity>([
       {
         ...GenerateGeography(),

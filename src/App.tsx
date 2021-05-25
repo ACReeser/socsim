@@ -46,7 +46,7 @@ import { store as StoreState } from './state/state';
 import { WorldTile2 } from './petri-ui/WorldTile2';
 import { newGame } from './state/features/world.reducer';
 
-export type ModalView = 'greeting' | 'economy' | 'campaign' | 'party_creation' | 'gov' | 'polisci' | 'brainwash' | 'traits';
+export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
 }
 interface AppState {
@@ -160,24 +160,6 @@ class App extends React.Component<AppPs, AppState>{
     }
     this.cheatMode = event.shiftKey && event.key === 'C';
   }
-  foundParty = (state: FoundPartyS) => {
-    this.state.world.party.name = state.name;
-    this.state.world.party.slogan = state.slogan;
-    this.state.world.cities[0].name = state.name;
-    if (state.community)
-      this.state.world.party.community = state.community;
-    if (state.ideal)
-      this.state.world.party.ideals = state.ideal;
-    const city = this.state.world.cities.find((x) => x.key == state.cityKey);
-    if (city) {
-      GeneratePartyHQ(city, this.state.world.party);
-    }
-    this.state.world.calculateComputedState();
-    this.setState({
-      world: this.state.world,
-      activeModal: null
-    });
-  }
   get difficulty() {
     return this.state.world.alien.difficulty;
   }
@@ -191,7 +173,6 @@ class App extends React.Component<AppPs, AppState>{
     this.setState({ world: this.state.world });
   }
   changeEnterprise = (city: City, what: IBuilding) => {
-    
     this.setState({ world: this.state.world });
   }
   fireBean = (city: City, beanKey: number) => {
@@ -517,9 +498,6 @@ class App extends React.Component<AppPs, AppState>{
               }
             }>
               <GreetingPanel></GreetingPanel>
-            </Modal>
-            <Modal show={this.state.activeModal == 'party_creation'} onClick={() => this.setState({ activeModal: null })} hideCloseButton={true}>
-              <FoundParty cities={this.state.world.cities} onFound={this.foundParty}></FoundParty>
             </Modal>
             <Modal show={this.state.activeModal == 'gov'} onClick={() => this.setState({ activeModal: null })}>
               <GovernmentPanel world={this.state.world} enactLaw={this.enactLaw} revokeLaw={this.revokeLaw}></GovernmentPanel>

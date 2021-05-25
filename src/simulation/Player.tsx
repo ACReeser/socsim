@@ -343,3 +343,26 @@ export function CheckReportCard(world: IWorldState, player: IPlayerData) {
 export function HasResearched(player: IPlayerData, tech: Tech){
     return player.techProgress[tech] != null && player.techProgress[tech].researchPoints >= TechData[tech].techPoints
 }
+export function PlayerCanAfford(player: IPlayerData, cost: PlayerResources, qty: number = 1): boolean{
+    return (cost.bots === undefined || player.bots.amount >= cost.bots * qty) &&
+    (cost.energy === undefined || player.energy.amount >= cost.energy * qty) && 
+    (cost.hedons === undefined || player.hedons.amount >= cost.hedons * qty);
+}
+export function PlayerTryPurchase(player: IPlayerData, cost: PlayerResources, qty: number = 1): boolean{
+    if (PlayerCanAfford(player, cost, qty)){
+        PlayerPurchase(player, cost, qty);
+        return true;
+    }
+    return false;
+}
+export function PlayerPurchase(player: IPlayerData, cost: PlayerResources, qty: number = 1): void{
+    if (cost.bots){
+        player.bots.amount -= cost.bots * qty;
+    }
+    if (cost.energy){
+        player.energy.amount -= cost.energy * qty;
+    }
+    if (cost.hedons){
+        player.hedons.amount -= cost.hedons * qty;
+    }
+}

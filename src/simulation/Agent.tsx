@@ -506,7 +506,8 @@ export interface IBean extends ISeller, IMover, IAgent{
     happiness: HedonReport,
     lastHappiness: number,
     hedonFiveDayRecord: HedonExtremes,
-    fairGoodPrice: number
+    fairGoodPrice: number,
+    employerEnterpriseKey?: number
 }
 
 export interface IMover extends IAccelerater{
