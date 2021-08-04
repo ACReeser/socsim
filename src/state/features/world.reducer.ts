@@ -67,16 +67,21 @@ export const worldSlice = createSlice({
           const ufo: IUFO = {
             key: state.ufos.nextID++,
             action: 'beam-in',
+            duration: 0,
             point: {...action.payload.where} 
           };
           state.ufos.allIDs.push(ufo.key);
           state.ufos.byID[ufo.key] = ufo;
+          state.cities.byID[action.payload.cityKey].ufoKeys.push(ufo.key);
 
           // window.setTimeout(() => {
           //   city.beans.push(GenerateBean(city, where));
           //   this.setState({ world: state });
           // }, 3000);
         }
+      },
+      sim_ufos: (state, action: PayloadAction<{deltaMS: number}>) => {
+
       },
       abduct: () => {
 
@@ -95,6 +100,7 @@ export const worldSlice = createSlice({
   
   export const { 
     refreshMarket, magnetChange, worldTick, 
+    sim_ufos,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, brainwash, scan, vaporize
   } = worldSlice.actions

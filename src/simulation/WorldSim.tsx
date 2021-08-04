@@ -2,7 +2,7 @@ import { IEvent } from "../events/Events";
 import { IWorldState } from "../state/features/world";
 import { selectBeansByCity } from "../state/features/world.reducer";
 import { WorldInflate, MaxHedonHistory, TraitJob } from "../World";
-import { GetRandom } from "../WorldGen";
+import { GenerateBean, GetRandom } from "../WorldGen";
 import { IBean } from "./Agent";
 import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
 import { CityBeanTrySetJob } from "./BeanAndCity";
@@ -128,6 +128,15 @@ export function WorldAddEvent(world: IWorldState, e: IEvent){
     e.key = world.events.nextID++;
     world.events.byID[e.key] = e;
     world.events.allIDs.push(e.key);
+}
+export function simulate_ufos(world: IWorldState, deltaMS: number){
+    world.ufos.allIDs.forEach((u) => {
+        const ufo = world.ufos.byID[u];
+        ufo.duration += deltaMS;
+        if (ufo.duration > 3000){
+            //GenerateBean(world.cities.byID[0], ufo.point)
+        }
+    });
 }
 // export function simulate_beans(world: IWorldState, deltaMS: number){
 //     world.beans.allIDs.forEach((b) => {

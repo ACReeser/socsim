@@ -3,5 +3,6 @@ import { HexPoint } from "./Geography";
 export interface IUFO{
     key: number,
     point: HexPoint,
-    action: string
+    action: string,
+    duration: number
 }

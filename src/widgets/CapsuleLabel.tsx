@@ -1,4 +1,5 @@
 import React from "react";
+import { useAppSelector } from "../state/hooks";
 
 export class CapsuleLabel extends React.Component<{
     icon?: string,
@@ -26,4 +27,17 @@ export class CapsuleLabel extends React.Component<{
             </span>
         </span>
     }
+}
+
+export const EnergyAmount: React.FC = () => {
+    const amt = useAppSelector(x => x.world.alien.energy.amount);
+    return <span>{amt.toFixed(1)}</span>
+}
+export const BotsAmount: React.FC = () => {
+    const amt = useAppSelector(x => x.world.alien.bots.amount);
+    return <span>{amt.toFixed(1)}</span>
+}
+export const HedonAmount: React.FC = () => {
+    const amt = useAppSelector(x => x.world.alien.hedons.amount);
+    return <span>{amt.toFixed(0)}</span>
 }

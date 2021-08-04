@@ -20,11 +20,11 @@ export const DetailPanel: React.FC<{
         brainwash={() => props.openBrainwash()}
         ></BeanPanel>
     }
-    if (city) {
-        return <OverviewPanel city={city} clearCity={() => dispatch(doSelectNone())} alien={alien}></OverviewPanel>
-    }
     if (hex) {
         return <HexPanel difficulty={alien.difficulty}></HexPanel>
+    }
+    if (city) {
+        return <OverviewPanel city={city} clearCity={() => dispatch(doSelectNone())} alien={alien}></OverviewPanel>
     }
     return <div></div>
 }

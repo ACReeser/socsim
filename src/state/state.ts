@@ -16,14 +16,14 @@ export type AppDispatch = typeof store.dispatch;
 
 export const selectCityById = (state: RootState, cityKey: number) => state.world.cities.byID[cityKey];
 export const selectSelectedCity = (state: RootState) => {
-  return state.selected.selectedCityKey ? state.world.cities.byID[state.selected.selectedCityKey] : undefined;
+  return state.selected.selectedCityKey != null ? state.world.cities.byID[state.selected.selectedCityKey] : undefined;
 }
 export const selectSelectedBean = (state: RootState) => {
-  return state.selected.selectedBeanKey ? state.world.beans.byID[state.selected.selectedBeanKey] : undefined;
+  return state.selected.selectedBeanKey != null ? state.world.beans.byID[state.selected.selectedBeanKey] : undefined;
 }
 export const selectSelectedBuilding = (state: RootState) => {
-  const city = state.selected.selectedCityKey && state.selected.selectedCityKey > 0 && state.world.cities.byID[state.selected.selectedCityKey];
-  if (city && state.selected.selectedHexKey)
+  const city = state.selected.selectedCityKey != null && state.selected.selectedCityKey > 0 && state.world.cities.byID[state.selected.selectedCityKey];
+  if (city && state.selected.selectedHexKey != null)
   {
     const buildingID = city.buildingMap[state.selected.selectedHexKey];
     return state.world.buildings.byID[buildingID];

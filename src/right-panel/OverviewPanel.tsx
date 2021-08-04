@@ -1,16 +1,12 @@
 import React from "react";
-import { Trait } from "../World";
 import { keyToName } from "../i18n/text";
-import { Bean } from "../simulation/Bean";
-import { NeedReadout } from "../widgets/NeedReadout";
-import { reportIdeals, reportCommunity, reportEthno, City, ICity, CityGetPopulationTraitsList } from "../simulation/City";
-import { Party } from "../simulation/Politics";
-import { PrimaryBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
-import { LiveList } from "../events/Events";
-import { CardButton } from "../widgets/CardButton";
-import { IPlayerData, Player } from "../simulation/Player";
-import { useAppSelector } from "../state/hooks";
+import { CityGetPopulationTraitsList, ICity } from "../simulation/City";
+import { IPlayerData } from "../simulation/Player";
 import { selectBeansByCity } from "../state/features/world.reducer";
+import { useAppSelector } from "../state/hooks";
+import { CardButton } from "../widgets/CardButton";
+import { NeedReadout } from "../widgets/NeedReadout";
+import { Trait } from "../World";
 
 interface OverviewPanelP {
     city: ICity,

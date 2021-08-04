@@ -19,7 +19,7 @@ import { PartyOverview } from './modal-content/PartyOverview';
 import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
 import { Season, Now, Hour } from './simulation/Time';
 import { SocialGraph } from './widgets/SocialGraph';
-import { CapsuleLabel } from './widgets/CapsuleLabel';
+import { BotsAmount, CapsuleLabel, EnergyAmount, HedonAmount } from './widgets/CapsuleLabel';
 
 
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
@@ -44,7 +44,7 @@ import { GreetingPanel } from './modal-content/GreetingPanel';
 import { MarketTraitListing } from './simulation/MarketTraits';
 import { selectSelectedBean, store as StoreState } from './state/state';
 import { WorldTile2 } from './petri-ui/WorldTile2';
-import { newGame, selectBuilding } from './state/features/world.reducer';
+import { newGame, selectBuilding, sim_ufos, worldTick } from './state/features/world.reducer';
 import { DetailPanel } from './right-panel/DetailPanel';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
 
@@ -105,10 +105,10 @@ class App extends React.Component<AppPs, AppState>{
       this.logicTickAccumulatorMS += deltaTimeMS;
       this.state.world.simulate_beans(deltaTimeMS);
       this.state.world.simulate_pickups(deltaTimeMS);
+      store.dispatch(sim_ufos({deltaMS: deltaTimeMS}))
 
       if (this.logicTickAccumulatorMS > LogicTickMS) {
-        this.state.world.simulate_world();
-        this.setState({ world: this.state.world });
+        store.dispatch(worldTick())
         this.logicTickAccumulatorMS = 0;
       }
     }
@@ -123,6 +123,8 @@ class App extends React.Component<AppPs, AppState>{
         this.setState({ timeScale: 1 });
       }
     } else if (event.key === 'Escape') {
+      if (this.state.activeModal === 'greeting')
+        store.dispatch(newGame())
       this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'B') {
       this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0);
@@ -480,17 +482,17 @@ class App extends React.Component<AppPs, AppState>{
               <div className="bottom">
                 <BubbleNumberText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
                   <CapsuleLabel icon="⚡️" label="Energy">
-                    {this.state.world.alien.energy.amount.toFixed(1)}
+                    <EnergyAmount></EnergyAmount>
                   </CapsuleLabel>
                 </BubbleNumberText>
                 <BubbleNumberText changeEvent={this.state.world.alien.bots.change} icon="🤖">
                   <CapsuleLabel icon="🤖" label="Bots">
-                    {this.state.world.alien.bots.amount.toFixed(1)}
+                    <BotsAmount></BotsAmount>
                   </CapsuleLabel>
                 </BubbleNumberText>
                 <BubbleNumberText changeEvent={this.state.world.alien.hedons.change} icon="👍">
                   <CapsuleLabel icon="👍" label="Hedons">
-                    {this.state.world.alien.hedons.amount.toFixed(0)}
+                    <HedonAmount></HedonAmount>
                   </CapsuleLabel>
                 </BubbleNumberText>
                 {/* <BubbleText changeEvent={this.state.world.alien.tortrons.change} icon="💔">
