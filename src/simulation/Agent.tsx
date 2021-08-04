@@ -11,6 +11,7 @@ import { IDifficulty } from "../Game";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { ISeller } from "./Economy";
 import { IterationStatement } from "typescript";
+import { ICity } from "./City";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
 
@@ -103,7 +104,7 @@ export class IdleState extends AgentState{
             return this;
         }
         if (agent instanceof Bean && agent.city){
-            const priorities = GetPriorities(agent, difficulty);
+            const priorities = GetPriorities(agent, agent.city, difficulty);
             let top = priorities.dequeue();
             let travelState: TravelState|null = null;
 
@@ -379,47 +380,47 @@ const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
 }
 
 export const GetPriority = {
-    work: function(bean:Bean): number{
-        if (bean.job == 'jobless' && bean.city){
+    work: function(bean: IBean, city: ICity): number{
+        if (bean.job == 'jobless'){
             return 9;
         }
-        else if (bean.city){
+        else if (city){
             //beans with no inventory prioritize work higher
             let inventory_priority = 99;
-            if (bean.city.economy){
-                const quant = bean.city.economy.market.getStakeListings(bean.key, bean.employerEnterpriseKey, JobToGood(bean.job))?.quantity || 0;
-                inventory_priority = quant;
-            }
+            // if (city.economy){
+            //     const quant = bean.city.economy.market.getStakeListings(bean.key, bean.employerEnterpriseKey, JobToGood(bean.job))?.quantity || 0;
+            //     inventory_priority = quant;
+            // }
             //beans with lots of cash prioritize work higher
-            const wealth_priority = bean.cash / bean.city.costOfLiving / 2;
+            const wealth_priority = bean.cash / city.costOfLiving / 2;
             return Math.min(inventory_priority, wealth_priority);
         } else {
             return 0;
         }
     },
-    food: function(bean:Bean, difficulty: IDifficulty): number{
+    food: function(bean: IBean, difficulty: IDifficulty): number{
         if ((bean.discrete_food <= difficulty.bean_life.vital_thresh.food.warning ))
             return bean.discrete_food;
         return 0.5 + (bean.discrete_food / difficulty.bean_life.vital_thresh.food.sufficient )
     },
-    medicine:function(bean:Bean, difficulty: IDifficulty): number{
+    medicine:function(bean: IBean, difficulty: IDifficulty): number{
         if ((bean.discrete_health <= difficulty.bean_life.vital_thresh.medicine.warning ))
             return 0.25 + bean.discrete_health;
         return 0.75 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
     },
-    stamina: function(bean:Bean, difficulty: IDifficulty): number{
+    stamina: function(bean: IBean, difficulty: IDifficulty): number{
         if ((bean.discrete_stamina <= difficulty.bean_life.vital_thresh.shelter.warning ))
             return 0.50 + bean.discrete_stamina;
         return 1 + (bean.discrete_stamina / difficulty.bean_life.vital_thresh.shelter.sufficient )
     },
-    fun:function(bean:Bean, difficulty: IDifficulty): number{
+    fun:function(bean: IBean, difficulty: IDifficulty): number{
         return 3
     }
 }
 
-export function GetPriorities(bean: Bean, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
+export function GetPriorities(bean: IBean, city: ICity, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
     const queue = new DumbPriorityQueue<IActivityData>([]);
-    let node = new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean));
+    let node = new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean, city));
     queue.enqueue(node);
     node = new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, difficulty));
     queue.enqueue(node);
@@ -507,7 +508,8 @@ export interface IBean extends ISeller, IMover, IAgent{
     lastHappiness: number,
     hedonFiveDayRecord: HedonExtremes,
     fairGoodPrice: number,
-    employerEnterpriseKey?: number
+    employerEnterpriseKey?: number,
+    activity_duration: {[act in Act]: number}
 }
 
 export interface IMover extends IAccelerater{

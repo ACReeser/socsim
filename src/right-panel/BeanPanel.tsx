@@ -1,277 +1,260 @@
-import React from "react";
-import { EmoteIcon, IHappinessModifier, TraitIcon } from "../World";
-import { Bean } from "../simulation/Bean";
-import { NeedReadout } from "../widgets/NeedReadout";
-import { reportIdeals, reportCommunity, reportEthno, City } from "../simulation/City";
-import { Economy } from "../simulation/Economy";
-import { Party } from "../simulation/Politics";
-import { IEvent, EventBus } from "../events/Events";
-import { withinLastYear } from "../simulation/Time";
-import { Government } from "../simulation/Government";
-import { Player } from "../simulation/Player";
+import React, { useState } from "react";
+import { EventBus } from "../events/Events";
+import { Act, ActivityIcon, GetPriorities, IBean } from "../simulation/Agent";
+import { Bean, BeanGetFace } from "../simulation/Bean";
+import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
+import { ICity } from "../simulation/City";
+import { IEconomy } from "../simulation/Economy";
+import { IGovernment } from "../simulation/Government";
+import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
+import { doSelectNone } from "../state/features/selected.reducer";
+import { abduct, scan, selectCity, vaporize } from "../state/features/world.reducer";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
+import { selectSelectedBean, selectSelectedCity } from "../state/state";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
-
-import './BeanPanel.css';
-import { Act, ActivityIcon, GetPriorities } from "../simulation/Agent";
-import { IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { CostSmall } from "../widgets/CostSmall";
+import { EmoteIcon, IHappinessModifier, TraitIcon } from "../World";
+import './BeanPanel.css';
+
 
 interface BeanPanelP{
-    city: City,
-    bean: Bean,
-    economy: Economy,
-    law: Government,
-    party: Party,
-    alien: Player,
-    clearCity: () => void;
-    bus: EventBus
-    scan: (bean: Bean) => boolean;
-    vaporize: (bean: Bean) => void;
-    abduct: (bean: Bean) => void;
+    city: ICity,
+    bean: IBean,
+    alien: IPlayerData;
     brainwash: () => void;
-    gift: () => void;
 }
-
-interface BeanPanelS{
-    faceOverride?: string;
-    innerView: 'priorities'|'feelings'|'beliefs';
+function happyTable(mods: IHappinessModifier[]){
+    return mods.filter((y) => y.mod != 0).map((x, i) => {
+        return <tr key={i}>
+            <td className="small text-right">{x.reason}</td>
+            <td className="small">{Math.round(x.mod * 100)}%</td>
+        </tr>
+    });
 }
-
-export class BeanPanel extends React.Component<BeanPanelP, BeanPanelS> {
-    constructor(props: BeanPanelP) {
-        super(props);
-        this.state = {
-            innerView: 'beliefs'
-        }
+function hedonTable(bean: IBean){
+    return Object.keys(bean.happiness.all).map((x, i) => {
+        return <tr key={i}>
+            <td className="small text-right">{bean.happiness.all[x]} {bean.happiness.all[x] >= 0 ? EmoteIcon['happiness'] : EmoteIcon['unhappiness']} from </td>
+            <td className="small">{x}</td>
+        </tr>
+    });
+}
+function actDurations(bean: IBean){
+    const acts = Object.keys(bean.activity_duration).map((x) => x as Act);
+    acts.sort((a, b) => bean.activity_duration[b] - bean.activity_duration[a]);
+    return acts;
+}
+function beliefTable(beliefs: TraitBelief[]): React.ReactNode {
+    return beliefs.map((b, i) => {
+        const classes = 'belief-name shadow text-left '+SecondaryBeliefData[b].rarity;
+        return <table className="width-100p" key={b+i}><tbody><tr>
+        <th className={classes}>
+            {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
+        </th>
+        <td className="text-right">
+            {(SecondaryBeliefData[b].idealPro || []).map(y => <span key={y}>+{TraitIcon[y]}</span>)}
+            {(SecondaryBeliefData[b].idealCon || []).map(y => <span key={y}>-{TraitIcon[y]}</span>)}
+        </td>
+    </tr><tr><td className="small text-center" colSpan={2}>{
+        SecondaryBeliefData[b].description ? SecondaryBeliefData[b].description?.split(';').map((x, i) => <div key={i}>{x}</div>) : null
+    }</td></tr></tbody></table>});
+}
+function renderInner(scanned: boolean, innerView: string, bean: IBean, city: ICity, alien: IPlayerData){
+    if (!scanned){
+        return <div className="width-100p text-center">
+            <small>
+                Subject needs a Scan to reveal their thoughts
+            </small>
+        </div>
     }
-    scan = () => {
-        if (this.props.scan(this.props.bean)){
-            this.setState({faceOverride: '🤨'});
-            this._resetFace();
-        }
-    }
-    vaporize = () => {
-        this.props.vaporize(this.props.bean);
-        this.setState({faceOverride: '💀'});
-        this._resetFace();
-    }
-    support = () => {
-        this.setState({faceOverride: '🤩'});
-        this._resetFace();
-    }
-    abduct = () => {
-        this.props.abduct(this.props.bean);
-        this.setState({faceOverride: '😨'});
-        this._resetFace();
-    }
-    _resetFace(){
-        setTimeout(() => {
-            this.setState({faceOverride: undefined})
-        }, 5000);
-    }
-    happyTable(mods: IHappinessModifier[]){
-        return mods.filter((y) => y.mod != 0).map((x, i) => {
-            return <tr key={i}>
-                <td className="small text-right">{x.reason}</td>
-                <td className="small">{Math.round(x.mod * 100)}%</td>
-            </tr>
-        });
-    }
-    hedonTable(){
-        return Object.keys(this.props.bean.happiness.all).map((x, i) => {
-            return <tr key={i}>
-                <td className="small text-right">{this.props.bean.happiness.all[x]} {this.props.bean.happiness.all[x] >= 0 ? EmoteIcon['happiness'] : EmoteIcon['unhappiness']} from </td>
-                <td className="small">{x}</td>
-            </tr>
-        });
-    }
-    renderInner(){
-        if (!this.scanned){
-            return <div className="width-100p text-center">
-                <small>
-                    Subject needs a Scan to reveal their thoughts
-                </small>
-            </div>
-        }
-        switch(this.state.innerView){
-            case 'beliefs':
-                return this.scanned ? this.beliefTable(this.props.bean.beliefs) : null
-            case 'feelings':
-                return <table className="width-100p"><tbody>
-                    {this.scanned ? this.hedonTable() : null}
-                    </tbody>
-                </table>
-            case 'priorities':
-                return <table className="width-100p">
-                    <tbody>
-                        <tr>
-                            <td>
-                                Currently {this.props.bean.state.display}
-                            </td>
-                        </tr>
-                        {
-                            GetPriorities(this.props.bean, this.props.alien.difficulty).values.map((x) => {
-                                return <tr key={`p-${x.value.act}-${x.value.good}`}>
-                                    <td>
-                                    {x.priority.toFixed(1)} {ActivityIcon(x.value)}
-                                    </td>
-                                </tr>
-                            })
-                        }
-                        {
-                            this.actDurations().filter((x) => this.props.bean.activity_duration[x] > 0).map((x) => {
-                                const act = x as Act;
-                                return <tr key={act}>
-                                    <td>{x}</td>
-                                    <td>
-                                        {
-                                            (this.props.bean.activity_duration[act] / 1000).toFixed(1)
-                                        }s
-                                    </td>
-                                </tr>
-                                
-                            })
-                        }
-                    </tbody>
-                </table>
-        }
-    }
-    actDurations(){
-        const acts = Object.keys(this.props.bean.activity_duration).map((x) => x as Act);
-        acts.sort((a, b) => this.props.bean.activity_duration[b] - this.props.bean.activity_duration[a]);
-        return acts;
-    }
-    beliefTable(beliefs: TraitBelief[]): React.ReactNode {
-        return beliefs.map((b, i) => {
-            const classes = 'belief-name shadow text-left '+SecondaryBeliefData[b].rarity;
-            return <table className="width-100p" key={b+i}><tbody><tr>
-            <th className={classes}>
-                {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
-            </th>
-            <td className="text-right">
-                {(SecondaryBeliefData[b].idealPro || []).map(y => <span key={y}>+{TraitIcon[y]}</span>)}
-                {(SecondaryBeliefData[b].idealCon || []).map(y => <span key={y}>-{TraitIcon[y]}</span>)}
-            </td>
-        </tr><tr><td className="small text-center" colSpan={2}>{
-            SecondaryBeliefData[b].description ? SecondaryBeliefData[b].description?.split(';').map((x, i) => <div key={i}>{x}</div>) : null
-        }</td></tr></tbody></table>});
-    }
-    get scanned(){
-        return this.props.alien.scanned_bean[this.props.bean.key];
-    }
-    renderTraits(){
-        if (this.scanned){
-            const brainwash = this.props.brainwash.bind(this);
-            return <div>
-                <div className="card-parent">
-                    {TraitToCard(this.props.bean, this.props.bean.ethnicity, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.faith, brainwash)}
-                </div>
-                <div className="card-parent">
+    switch(innerView){
+        case 'beliefs':
+            return scanned ? beliefTable(bean.beliefs) : null
+        case 'feelings':
+            return <table className="width-100p"><tbody>
+                {scanned ? hedonTable(bean) : null}
+                </tbody>
+            </table>
+        default:
+        case 'priorities':
+            return <table className="width-100p">
+                <tbody>
+                    <tr>
+                        <td>
+                            Currently {bean.state.display}
+                        </td>
+                    </tr>
                     {
-                        this.props.bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
+                        GetPriorities(bean, city, alien.difficulty).values.map((x) => {
+                            return <tr key={`p-${x.value.act}-${x.value.good}`}>
+                                <td>
+                                {x.priority.toFixed(1)} {ActivityIcon(x.value)}
+                                </td>
+                            </tr>
+                        })
                     }
-                </div>
-                <div className="card-parent">
-                    {TraitToCard(this.props.bean, this.props.bean.food, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.stamina, undefined)}
-                    {TraitToCard(this.props.bean, this.props.bean.health, undefined)}
-                </div>
-            </div>
-        } else {
-            return <div className="card-parent">
-                <CardButton icon="🛰️" name="Scan" subtext="-Energy +Info" onClick={this.scan} disabled={!this.props.alien.canAfford(this.props.alien.difficulty.cost.bean.scan)}></CardButton>
-            </div>
-        }
+                    {
+                        actDurations(bean).filter((x) => bean.activity_duration[x] > 0).map((x) => {
+                            const act = x as Act;
+                            return <tr key={act}>
+                                <td>{x}</td>
+                                <td>
+                                    {
+                                        (bean.activity_duration[act] / 1000).toFixed(1)
+                                    }s
+                                </td>
+                            </tr>
+                            
+                        })
+                    }
+                </tbody>
+            </table>
     }
-    render(){
-        const classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
-        return (                
-        <div className="vertical bean-panel">
-            <div className="bean-panel-header">
-                <div>
-                    <b>{this.props.bean.name}&nbsp;
-                    <small>
-                        of {this.props.city.name}
-                    </small>
-                    </b>
-                    <button type="button" className="pull-r" onClick={() => this.props.clearCity()} >❌</button>
-                </div>
-                <div className="bean-view">                
-                    <span className={classes+" bean"}>
-                        {
-                            this.state.faceOverride === undefined ? this.props.bean.getFace() : this.state.faceOverride
-                        }
-                    </span>
-                </div>
-                <div className="horizontal">
-                    <span className="text-center">
-                        💰 ${this.props.bean.cash.toFixed(2)}
-                    </span>
-                    <span className="text-center">
-                        🙂 {Math.round(this.props.bean.lastHappiness)}%
-                    </span>
-                    <span className="text-center">
-                        {Math.round(this.props.bean.happiness.flatAverage)} {EmoteIcon['happiness']} /day
-                    </span>
-                </div>
-                {this.renderTraits()}
+}
+function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwash: () => void, scan: () => void){
+    if (scanned){
+        return <div>
+            <div className="card-parent">
+                {TraitToCard(bean, bean.ethnicity, undefined)}
+                {TraitToCard(bean, bean.faith, brainwash)}
             </div>
-            <div className="grow-1 pad-4 bean-panel-content">
-                <div className="cylinder blue-orange horizontal">
-                    <button type="button" className={this.state.innerView=='beliefs'?'active':''} onClick={()=>this.setState({innerView:'beliefs'})}>
-                        😇 Traits
-                    </button>
-                    <button type="button" className={this.state.innerView=='feelings'?'active':''} onClick={()=>this.setState({innerView:'feelings'})}>
-                        😐 Feelings
-                    </button>
-                    <button type="button" className={this.state.innerView=='priorities'?'active':''} onClick={()=>this.setState({innerView:'priorities'})}>
-                        💪 Priorities
-                    </button>
-                </div>
-                {this.renderInner()}
+            <div className="card-parent">
+                {
+                    bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
+                }
             </div>
-            <div className="bean-action-card-parent">
-                <div className="card-parent">
-                    <button type="button" className="button card" onClick={() => this.props.brainwash()}
-                        title="Rewrite one of this being's traits"
-                    >😵 Brainwash
-                        <small>-Sanity +-Trait</small>
-                    </button>
-                </div>
-                <div className="card-parent">
-                    <button type="button" className="button card"  onClick={() => this.props.brainwash()}  disabled={true}
-                        title="Give this being food or meds or cash">
-                        🎁 Gift
-                        <small>-Energy +Things</small>
-                    </button>
-                </div>
-                <div className="card-parent">
-                    <button type="button" className="button card" onClick={this.scan} disabled={true}
-                        title="Steal a bit of this being's mind">
-                        🤪 Braindrain
-                        <small>-Energy -Sanity</small>
-                    </button>
-                    <button type="button" className="button card" onClick={this.vaporize}
-                        disabled={!this.props.alien.canAfford(this.props.alien.difficulty.cost.bean.vaporize)}
-                        title="Delete this being from the experiment"
-                    >
-                        ☠️ Vaporize
-                        <CostSmall cost={this.props.alien.difficulty.cost.bean.vaporize}></CostSmall>
-                    </button>
-                </div>
-                <div className="card-parent">
-                    <button type="button" className="button card"
-                        disabled={!this.props.alien.canAfford(this.props.alien.difficulty.cost.bean.abduct)}
-                        onClick={() => this.abduct()}
-                        title="Remove this being for study"
-                    >
-                        👾 Abduct for Research
-                        <CostSmall cost={this.props.alien.difficulty.cost.bean.abduct} rider="+Tech"></CostSmall>
-                    </button>
-                </div>
+            <div className="card-parent">
+                {TraitToCard(bean, bean.food, undefined)}
+                {TraitToCard(bean, bean.stamina, undefined)}
+                {TraitToCard(bean, bean.health, undefined)}
             </div>
         </div>
-        )
+    } else {
+        return <div className="card-parent">
+            <CardButton icon="🛰️" name="Scan" subtext="-Energy +Info" onClick={scan} disabled={!PlayerCanAfford(alien, alien.difficulty.cost.bean.scan)}></CardButton>
+        </div>
     }
+}
+
+export const BeanPanel: React.FC<BeanPanelP> = (props) => {
+    const dispatch = useAppDispatch();
+    const [faceOverride, setFaceOverride] = useState<string|undefined>(undefined);
+    const [innerView, setInnerView] = useState<'priorities'|'feelings'|'beliefs'>('beliefs');
+    const alien = useAppSelector(state => state.world.alien);
+    const bean = useAppSelector(selectSelectedBean);
+    const city = useAppSelector(selectSelectedCity);
+    function _resetFace(){
+        setTimeout(() => {
+            setFaceOverride(undefined);
+        }, 5000);
+    }
+    if (!bean || !city) 
+        return null;
+    const classes = bean.job + ' ' + bean.ethnicity;
+    return (                
+    <div className="vertical bean-panel">
+        <div className="bean-panel-header">
+            <div>
+                <b>{bean.name}&nbsp;
+                {
+                    city ? <small> of {city.name} </small>
+                    : null
+                }
+                </b>
+                <button type="button" className="pull-r" onClick={() => {
+                    dispatch(doSelectNone())
+                }} >❌</button>
+            </div>
+            <div className="bean-view">                
+                <span className={classes+" bean"}>
+                    {
+                        faceOverride === undefined ? BeanGetFace(bean) : faceOverride
+                    }
+                </span>
+            </div>
+            <div className="horizontal">
+                <span className="text-center">
+                    💰 ${bean.cash.toFixed(2)}
+                </span>
+                <span className="text-center">
+                    🙂 {Math.round(bean.lastHappiness)}%
+                </span>
+                <span className="text-center">
+                    {Math.round(bean.happiness.flatAverage)} {EmoteIcon['happiness']} /day
+                </span>
+            </div>
+            {renderTraits(alien.scanned_bean[bean.key], bean, alien, () => {
+                dispatch(brainwash())
+            }, () => {
+                dispatch(scan());
+                setFaceOverride('😨');
+                _resetFace();
+            })}
+        </div>
+        <div className="grow-1 pad-4 bean-panel-content">
+            <div className="cylinder blue-orange horizontal">
+                <button type="button" className={innerView=='beliefs'?'active':''} onClick={()=>setInnerView('beliefs')}>
+                    😇 Traits
+                </button>
+                <button type="button" className={innerView=='feelings'?'active':''} onClick={()=>setInnerView('feelings')}>
+                    😐 Feelings
+                </button>
+                <button type="button" className={innerView=='priorities'?'active':''} onClick={()=>setInnerView('priorities')}>
+                    💪 Priorities
+                </button>
+            </div>
+            {renderInner(alien.scanned_bean[bean.key], innerView, bean, city, alien)}
+        </div>
+        <div className="bean-action-card-parent">
+            <div className="card-parent">
+                <button type="button" className="button card" onClick={() => {
+                    props.brainwash()
+                }}
+                    title="Rewrite one of this being's traits"
+                >😵 Brainwash
+                    <small>-Sanity +-Trait</small>
+                </button>
+            </div>
+            {/* <div className="card-parent">
+                <button type="button" className="button card"  onClick={() => brainwash()}  disabled={true}
+                    title="Give this being food or meds or cash">
+                    🎁 Gift
+                    <small>-Energy +Things</small>
+                </button>
+            </div> */}
+            <div className="card-parent">
+                {/* <button type="button" className="button card" onClick={scan} disabled={true}
+                    title="Steal a bit of this being's mind">
+                    🤪 Braindrain
+                    <small>-Energy -Sanity</small>
+                </button> */}
+                <button type="button" className="button card" onClick={() => {
+                    dispatch(vaporize());
+                    setFaceOverride('😨');
+                    _resetFace();
+                }}
+                    disabled={!PlayerCanAfford(alien, alien.difficulty.cost.bean.vaporize)}
+                    title="Delete this being from the experiment"
+                >
+                    ☠️ Vaporize
+                    <CostSmall cost={alien.difficulty.cost.bean.vaporize}></CostSmall>
+                </button>
+            </div>
+            <div className="card-parent">
+                <button type="button" className="button card"
+                    disabled={!PlayerCanAfford(alien, alien.difficulty.cost.bean.abduct)}
+                    onClick={() => dispatch(abduct())}
+                    title="Remove this being for study"
+                >
+                    👾 Abduct for Research
+                    <CostSmall cost={alien.difficulty.cost.bean.abduct} rider="+Tech"></CostSmall>
+                </button>
+            </div>
+        </div>
+    </div>
+    )
+}
+
+function brainwash(): any {
+    throw new Error("Function not implemented.");
 }

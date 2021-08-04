@@ -1,7 +1,7 @@
 import React from "react";
 import { EventTrigger, IEvent } from "../events/Events";
 import { BeanDeathCause } from "../Game";
-import { Bean } from "../simulation/Bean";
+import { Bean, BeanGetFace } from "../simulation/Bean";
 import { transformPoint } from "../simulation/Geography";
 import { Particles } from "../widgets/particles";
 import './spotlight.css';
@@ -175,7 +175,7 @@ export class AnimatedSpotlight extends React.Component<{
         <div className="bean-parent">
           <span className={classes+" bean"}>
             <span className="bean-face">
-            {this.state.faceOV || this.props.bean.getFace()}
+            {this.state.faceOV || BeanGetFace(this.props.bean)}
             </span>
           </span>
           {

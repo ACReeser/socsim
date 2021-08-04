@@ -37,7 +37,7 @@ export const TraitInventoryList: React.FC<{
 
 export class BrainwashingContent extends React.Component<{
     world: World,
-    beanID: number|null,
+    beanID: number|undefined,
     washCommunity: (bean: Bean, c: TraitCommunity) => void,
     washMotive: (bean: Bean, m: TraitIdeals) => void,
     washNarrative: (bean: Bean, n: TraitFaith) => void,

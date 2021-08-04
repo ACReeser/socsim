@@ -2,10 +2,11 @@ import React from "react";
 import { Bean } from "../simulation/Bean";
 import { Trait } from "../World";
 import { keyToName } from "../i18n/text";
+import { IBean } from "../simulation/Agent";
 
 export class NeedReadout extends React.Component<{
-    beans: Bean[], 
-    need: (b: Bean) => Trait, 
+    beans: IBean[], 
+    need: (b: IBean) => Trait, 
     dire: Trait, 
     abundant: Trait,
     className?: string}> {

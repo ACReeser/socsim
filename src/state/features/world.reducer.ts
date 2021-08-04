@@ -20,9 +20,6 @@ export const worldSlice = createSlice({
       magnetChange: (state, action: PayloadAction<{cityKey: number, px?: Point}>) => {
         state.cities.byID[action.payload.cityKey].pickupMagnetPoint = action.payload.px;
       },
-      selectHex: (state, action: PayloadAction<{cityKey: number, hex: HexPoint}>) => {
-        
-      },
       worldTick: state => {
         return simulate_world(state);
       },
@@ -80,13 +77,26 @@ export const worldSlice = createSlice({
           //   this.setState({ world: state });
           // }, 3000);
         }
+      },
+      abduct: () => {
+
+      },
+      brainwash: () => {
+
+      },
+      scan: () => {
+
+      },
+      vaporize: () => {
+
       }
     }
   })
   
   export const { 
-    refreshMarket, magnetChange, selectHex, worldTick, 
-    newGame, build, changeEnterprise, fireBean, upgrade, beam  
+    refreshMarket, magnetChange, worldTick, 
+    newGame, build, changeEnterprise, fireBean, upgrade, beam,
+    abduct, brainwash, scan, vaporize
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;

@@ -12,10 +12,7 @@ import { Magnet2 } from "./Magnet";
 interface WorldTilePs {
   // tileKey: number;
   cityKey: number;
-  activeBeanID: number | null;
   onClick: () => void;
-  onBeanClick: (b: Bean) => void;
-  onHexClick: (hex: HexPoint) => void;
 }
 export const WorldTile2: React.FC<WorldTilePs> = (props) => {
 

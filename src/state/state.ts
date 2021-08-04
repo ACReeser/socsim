@@ -1,9 +1,11 @@
-import { configureStore, createSelector } from '@reduxjs/toolkit';
-import { worldSlice } from './features/world.reducer';
+import { combineReducers, configureStore, createSelector } from '@reduxjs/toolkit';
+import { selectedSlice } from './features/selected.reducer';
+import { selectBeans, worldSlice } from './features/world.reducer';
 
 export const store = configureStore({
   reducer: {
-    world: worldSlice.reducer
+    world: worldSlice.reducer,
+    selected: selectedSlice.reducer
   }
 })
 
@@ -13,3 +15,20 @@ export type RootState = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;
 
 export const selectCityById = (state: RootState, cityKey: number) => state.world.cities.byID[cityKey];
+export const selectSelectedCity = (state: RootState) => {
+  return state.selected.selectedCityKey ? state.world.cities.byID[state.selected.selectedCityKey] : undefined;
+}
+export const selectSelectedBean = (state: RootState) => {
+  return state.selected.selectedBeanKey ? state.world.beans.byID[state.selected.selectedBeanKey] : undefined;
+}
+export const selectSelectedBuilding = (state: RootState) => {
+  const city = state.selected.selectedCityKey && state.selected.selectedCityKey > 0 && state.world.cities.byID[state.selected.selectedCityKey];
+  if (city && state.selected.selectedHexKey)
+  {
+    const buildingID = city.buildingMap[state.selected.selectedHexKey];
+    return state.world.buildings.byID[buildingID];
+
+  } else {
+    return undefined;
+  }
+}

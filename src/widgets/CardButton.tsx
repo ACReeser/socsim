@@ -1,6 +1,7 @@
 import { ReactComponent } from "*.svg";
 import React from "react";
 import { keyToName } from "../i18n/text";
+import { IBean } from "../simulation/Agent";
 import { Bean } from "../simulation/Bean";
 import { NarrativeBeliefData, PrimaryBeliefData } from "../simulation/Beliefs";
 import { Trait, TraitIcon } from "../World";
@@ -30,7 +31,7 @@ export class CardButton extends React.Component<{
     }
 }
 
-export function TraitToCard(bean: Bean, trait: Trait, onClick?: () => void){
+export function TraitToCard(bean: IBean, trait: Trait, onClick?: () => void){
     switch(trait){
         case 'trad':
         case 'prog':

@@ -240,43 +240,6 @@ export class Bean implements IBean{
             traits[this.faith] = true;
         return traits;
     }
-    getFace(): string{
-        // if (!this.alive)
-        //     return '💀';
-        if (this.state.data.act === 'buy' && this.state.data.good === 'shelter'){
-            return '😴';
-        }
-        if (this.state.data.act === 'crime'){
-            return '😈';
-        }
-        if (this.state.data.act === 'relax'){
-            return '😎';
-        }
-        if (this.state.data.act === 'chat'){
-            if (this.state.data.chat?.participation === 'speaker'){
-                switch(this.state.data?.chat?.type){
-                    default: return '😃';
-                    case 'gift': return '😇';
-                    case 'praise': return '🥳';
-                    case 'bully': return '😈';
-                }
-            }
-            return '🤨';
-        }
-        if (this.food === 'starving')
-            return '😫';
-        if (this.health === 'sick')
-            return '🤢';
-        if (this.stamina === 'homeless')
-            return '🥶';
-        if (this.job === 'jobless')
-            return '😧';
-        if (this.lastHappiness < 0)
-            return '☹️';
-        if (this.lastHappiness >= 50)
-            return '🙂';
-        return '😐';
-    }
     getIdea(costOfLiving: number): {bad: boolean, idea: string}|null {
         if (this.food === 'hungry')
             return {bad: true, idea: '🍗'};
@@ -875,4 +838,43 @@ export function BeanIsInCrisis(bean: IBean): boolean{
     return bean.food === 'starving' ||
     bean.stamina === 'homeless' ||
     bean.health === 'sick';
+}
+
+
+export function BeanGetFace(bean: IBean): string{
+    // if (!this.alive)
+    //     return '💀';
+    if (bean.state.data.act === 'buy' && bean.state.data.good === 'shelter'){
+        return '😴';
+    }
+    if (bean.state.data.act === 'crime'){
+        return '😈';
+    }
+    if (bean.state.data.act === 'relax'){
+        return '😎';
+    }
+    if (bean.state.data.act === 'chat'){
+        if (bean.state.data.chat?.participation === 'speaker'){
+            switch(bean.state.data?.chat?.type){
+                default: return '😃';
+                case 'gift': return '😇';
+                case 'praise': return '🥳';
+                case 'bully': return '😈';
+            }
+        }
+        return '🤨';
+    }
+    if (bean.food === 'starving')
+        return '😫';
+    if (bean.health === 'sick')
+        return '🤢';
+    if (bean.stamina === 'homeless')
+        return '🥶';
+    if (bean.job === 'jobless')
+        return '😧';
+    if (bean.lastHappiness < 0)
+        return '☹️';
+    if (bean.lastHappiness >= 50)
+        return '🙂';
+    return '😐';
 }

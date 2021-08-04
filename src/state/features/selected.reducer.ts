@@ -5,6 +5,7 @@ export interface ISelectedSlice{
     selectedCityKey: number|undefined;
     selectedHexKey: string|undefined;
     selectedBeanKey: number|undefined;
+    selectedBuildingKey: number|undefined;
 }
 export const selectedSlice = createSlice({
     name: 'selected',
@@ -14,28 +15,47 @@ export const selectedSlice = createSlice({
         selectedBeanKey: undefined
     } as ISelectedSlice,
     reducers: {
-      selectHex: (state, action: PayloadAction<{cityKey: number, hex: HexPoint}>) => {
-        return {
-            selectedHexKey: `${action.payload.hex.q},${action.payload.hex.r}`,
-            selectedCityKey: action.payload.cityKey,
-            selectedBeanKey: undefined
-        }
-      },
-      selectBean: (state, action: PayloadAction<{cityKey: number, beanKey: number}>) => {
+      doSelectCity: (state, action: PayloadAction<{cityKey: number}>) => {
         return {
             selectedHexKey: undefined,
             selectedCityKey: action.payload.cityKey,
-            selectedBeanKey: action.payload.beanKey
+            selectedBeanKey: undefined,
+            selectedBuildingKey: undefined
         }
       },
-      selectNone: (state) => {
+      doSelectHex: (state, action: PayloadAction<{cityKey: number, hex: HexPoint}>) => {
+        return {
+            selectedHexKey: `${action.payload.hex.q},${action.payload.hex.r}`,
+            selectedCityKey: action.payload.cityKey,
+            selectedBeanKey: undefined,
+            selectedBuildingKey: undefined
+        }
+      },
+      doSelectBuilding: (state, action: PayloadAction<{cityKey: number, buildingKey: number}>) => {
+        return {
+            selectedHexKey: undefined,
+            selectedCityKey: action.payload.cityKey,
+            selectedBeanKey: undefined,
+            selectedBuildingKey: action.payload.buildingKey
+        }
+      },
+      doSelectBean: (state, action: PayloadAction<{cityKey: number, beanKey: number}>) => {
+        return {
+            selectedHexKey: undefined,
+            selectedCityKey: action.payload.cityKey,
+            selectedBeanKey: action.payload.beanKey,
+            selectedBuildingKey: undefined
+        }
+      },
+      doSelectNone: (state) => {
         return {
             selectedBeanKey: undefined, 
             selectedCityKey: undefined,
-            selectedHexKey: undefined
+            selectedHexKey: undefined,
+            selectedBuildingKey: undefined
         }
       },
     }
   })
   
-  export const { selectHex, selectNone, selectBean  } = selectedSlice.actions
+  export const { doSelectHex, doSelectNone, doSelectBean, doSelectCity, doSelectBuilding  } = selectedSlice.actions;

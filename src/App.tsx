@@ -42,18 +42,17 @@ import { MarketPanel } from './right-panel/MarketPanel';
 import { TraitsReport } from './modal-content/TraitsReport';
 import { GreetingPanel } from './modal-content/GreetingPanel';
 import { MarketTraitListing } from './simulation/MarketTraits';
-import { store as StoreState } from './state/state';
+import { selectSelectedBean, store as StoreState } from './state/state';
 import { WorldTile2 } from './petri-ui/WorldTile2';
-import { newGame } from './state/features/world.reducer';
+import { newGame, selectBuilding } from './state/features/world.reducer';
+import { DetailPanel } from './right-panel/DetailPanel';
+import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
 }
 interface AppState {
   world: World,
-  activeCityID: number | null;
-  activeBeanID: number | null;
-  activeHex: HexPoint | null;
   activeModal: ModalView | null;
   activeMain: 'geo' | 'network' | 'draft';
   activeRightPanel: 'events' | 'overview' | 'goals' | 'market';
@@ -74,9 +73,6 @@ class App extends React.Component<AppPs, AppState>{
     super(props);
     this.state = {
       world: GenerateWorld(),
-      activeCityID: null,
-      activeBeanID: null,
-      activeHex: null,
       activeMain: 'geo',
       activeModal: 'greeting',
       activeRightPanel: 'overview',
@@ -395,63 +391,19 @@ class App extends React.Component<AppPs, AppState>{
   getPanel() {
     switch (this.state.activeRightPanel) {
       case 'overview':
-        if (this.state.activeCityID == null) {
-          return <OverviewPanel beans={this.state.world.beans} utopia={this.state.world.party} clearCity={() => this.setState({ activeCityID: null })} alien={this.state.world.alien}></OverviewPanel>
-        } else {
-          const city = this.state.world.cities.find((x) => x.key == this.state.activeCityID);
-          if (city) {
-
-            if (this.state.activeHex != null) {
-              return <HexPanel city={city} hex={this.state.activeHex} difficulty={this.state.world.alien.difficulty}
-                clearHex={() => this.setState({ activeHex: null })}
-                beam={(where) => this.beam(city, where)}
-                upgrade={(what) => this.upgrade(city, what)}
-                build={(where, what) => { this.build(city, where, what) }}
-                changeEnterprise={(what) => this.changeEnterprise(city, what)}
-                fire={(beanKey) => this.fireBean(city, beanKey)}
-                ></HexPanel>
-            }
-            else if (this.state.activeBeanID != null) {
-              const bean = city.beans.get.find((y) => y.key == this.state.activeBeanID);
-              if (bean)
-                return <BeanPanel bean={bean} city={city} alien={this.state.world.alien}
-                  economy={this.state.world.economy} party={this.state.world.party} bus={this.state.world.bus} law={this.state.world.law}
-                  scan={this.scan} vaporize={this.vaporize}
-                  brainwash={() => this.setState({ activeModal: 'brainwash' })}
-                  abduct={this.abduct}
-                  gift={() => this.setState({ activeModal: 'brainwash' })}
-                  clearCity={() => this.setState({ activeCityID: null, activeBeanID: null })}></BeanPanel>
-            }
-
-            return <OverviewPanel beans={city?.beans} utopia={this.state.world.party} city={city} clearCity={() => this.setState({ activeCityID: null })} alien={this.state.world.alien}></OverviewPanel>
-          }
-          else
-            return <div>
-            </div>
-        }
+        return <DetailPanel openBrainwash={() => this.setState({ activeModal: 'brainwash' })}></DetailPanel>
       case 'goals':
         return <GoalsPanel player={this.state.world.alien} progress={this.state.world.alien}></GoalsPanel>
       case 'events':
         return <EventsPanel events={this.state.world.bus.buffer} selectBean={(beankey?: number) => {
+          const cityKey = store.getState()?.world?.cities.byID[0]?.key;
           if (beankey)
-            this.setState({ activeCityID: this.state.world.cities[0].key, activeBeanID: beankey, activeHex: null, activeRightPanel: 'overview' })
+            store.dispatch(doSelectBean({cityKey: cityKey, beanKey: beankey}));
         }}></EventsPanel>
       case 'market': 
         return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons} buyTrait={this.buyTrait}
          player={this.state.world.alien} market={this.state.world.marketTraitsForSale}></MarketPanel>
     }
-  }
-  renderGeo() {
-    const COL = this.state.world.economy.getCostOfLiving();
-    return this.state.world.cities.map((t) => {
-      return (
-        <WorldTile tile={t} city={t} costOfLiving={COL} key={t.key} spotlightEvent={this.state.spotlightEvent} activeBeanID={this.state.activeBeanID}
-          onClick={() => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null })}
-          onBeanClick={(b) => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key })}
-          onHexClick={(hex) => { this.setState({ activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview' }) }}
-        ></WorldTile>
-      )
-    });
   }
   render() {
     const season = Season[this.state.world.date.season];
@@ -462,9 +414,9 @@ class App extends React.Component<AppPs, AppState>{
             this.state.activeMain === 'network' ? <div className="canvas">
               <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
                 beans={this.state.world.beans} city={this.state.world.cities[0]}
-                onClickBuilding={(b) => this.setState({ activeCityID: this.state.world.cities[0].key, activeHex: b.address, activeBeanID: null, activeRightPanel: 'overview' })}
-                onClick={(b) => this.setState({ activeCityID: b.cityKey, activeRightPanel: 'overview', activeBeanID: b.key, activeHex: null })} ></SocialGraph>
-            </div> : this.state.activeMain === 'draft' ? <TransformWrapper
+                onClickBuilding={(b) => store.dispatch(doSelectBuilding({cityKey: store.getState().world.cities.allIDs[0], buildingKey: b.key }))}
+                onClick={(b) => store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }))} ></SocialGraph>
+            </div> : <TransformWrapper
               defaultScale={1}
               wheel={{ step: 48 }}>
               <TransformComponent>
@@ -472,21 +424,13 @@ class App extends React.Component<AppPs, AppState>{
                   {
                   this.state.world.cities.map((t) => {
                     return (
-                      <WorldTile2 cityKey={t.key} key={t.key} activeBeanID={this.state.activeBeanID}
-                        onClick={() => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: null })}
-                        onBeanClick={(b: Bean) => this.setState({ activeCityID: t.key, activeRightPanel: 'overview', activeHex: null, activeBeanID: b.key })}
-                        onHexClick={(hex: HexPoint) => { this.setState({ activeCityID: t.key, activeHex: hex, activeBeanID: null, activeRightPanel: 'overview' }) }}
+                      <WorldTile2 cityKey={t.key} key={t.key}
+                        onClick={() => {
+                          
+                        }}
                       ></WorldTile2>
                     )
                   })}
-                </div>
-              </TransformComponent>
-            </TransformWrapper> : <TransformWrapper
-              defaultScale={1}
-              wheel={{ step: 48 }}>
-              <TransformComponent>
-                <div className="world">
-                  {this.renderGeo()}
                 </div>
               </TransformComponent>
             </TransformWrapper>
@@ -517,7 +461,7 @@ class App extends React.Component<AppPs, AppState>{
             </Modal>
             <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
               {(this.state.activeModal == 'brainwash' ? <BrainwashingContent
-                world={this.state.world} beanID={this.state.activeBeanID}
+                world={this.state.world} beanID={store.getState().selected.selectedBeanKey}
                 washCommunity={this.washCommunity}
                 washMotive={this.washMotive}
                 washNarrative={this.washNarrative}

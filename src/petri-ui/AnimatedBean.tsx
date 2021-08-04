@@ -1,4 +1,4 @@
-import { Bean } from "../simulation/Bean";
+import { Bean, BeanGetFace } from "../simulation/Bean";
 import React from "react";
 import { origin_point, Point, transformPoint } from "../simulation/Geography";
 import { GoodIcon } from "../World";
@@ -30,14 +30,14 @@ export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> 
       this.state = {
         paused: false,
         spin: false,
-        face: props.bean.getFace(),
+        face: BeanGetFace(props.bean),
       };
       props.bean.onAct.subscribe(this.animate);
     }
     animate = (deltaMS: number) => {
       this.setState({
         spin: this.props.bean.state.data.act == 'work',
-        face: this.props.bean.getFace(),
+        face: BeanGetFace(this.props.bean),
         good: BeanIsBuying(this.props.bean) ? GoodIcon[this.props.bean.state.data.good || 'food'] : undefined,
         speech: this.props.bean.getSpeech()
       })
