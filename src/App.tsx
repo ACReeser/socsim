@@ -47,6 +47,8 @@ import { WorldTile2 } from './petri-ui/WorldTile2';
 import { newGame, selectBuilding, sim_ufos, worldTick } from './state/features/world.reducer';
 import { DetailPanel } from './right-panel/DetailPanel';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
+import { MoverBus } from './simulation/MoverBus';
+import { MoverBusInstance } from './MoverBusSingleton';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -61,6 +63,7 @@ interface AppState {
   cursor?: Point;
 }
 export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
+export const MoverContext = React.createContext<MoverBus>(MoverBusInstance);
 
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
@@ -195,7 +198,7 @@ class App extends React.Component<AppPs, AppState>{
       const newUFO = new UFO(city.ufos.length, where, 'beam-in');
       city.ufos.push(newUFO);
       window.setTimeout(() => {
-        city.beans.push(GenerateBean(city, where));
+        // city.beans.push(GenerateBean(city, where));
         this.setState({ world: this.state.world });
       }, 3000);
 
@@ -411,11 +414,13 @@ class App extends React.Component<AppPs, AppState>{
     const season = Season[this.state.world.date.season];
     return (
       <Provider store={store}>
-        <div className="canvas"><SfxContext.Provider value={this.state.world.sfx}>
+        <div className="canvas">
+          <SfxContext.Provider value={this.state.world.sfx}>
+          <MoverContext.Provider value={MoverBusInstance}>
           {
             this.state.activeMain === 'network' ? <div className="canvas">
               <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
-                beans={this.state.world.beans} city={this.state.world.cities[0]}
+                city={store.getState().world.cities.byID[0]}
                 onClickBuilding={(b) => store.dispatch(doSelectBuilding({cityKey: store.getState().world.cities.allIDs[0], buildingKey: b.key }))}
                 onClick={(b) => store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }))} ></SocialGraph>
             </div> : <TransformWrapper
@@ -424,9 +429,9 @@ class App extends React.Component<AppPs, AppState>{
               <TransformComponent>
                 <div className="world">
                   {
-                  this.state.world.cities.map((t) => {
+                  store.getState().world.cities.allIDs.map((t) => {
                     return (
-                      <WorldTile2 cityKey={t.key} key={t.key}
+                      <WorldTile2 cityKey={t} key={t}
                         onClick={() => {
                           
                         }}
@@ -525,7 +530,9 @@ class App extends React.Component<AppPs, AppState>{
               </div>
             </div>
           </div>
-          </SfxContext.Provider></div>
+          </MoverContext.Provider>
+          </SfxContext.Provider>
+          </div>
       </Provider>
     )
   }

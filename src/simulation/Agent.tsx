@@ -509,7 +509,9 @@ export interface IBean extends ISeller, IMover, IAgent{
     hedonFiveDayRecord: HedonExtremes,
     fairGoodPrice: number,
     employerEnterpriseKey?: number,
-    activity_duration: {[act in Act]: number}
+    activity_duration: {[act in Act]: number},
+    bornInPetri: boolean,
+    ticksSinceLastRelax: number
 }
 
 export interface IMover extends IAccelerater{

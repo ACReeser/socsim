@@ -1,51 +1,42 @@
 import React from "react";
-import { Bean } from "../simulation/Bean";
 import { AnimatedBean } from "../petri-ui/AnimatedBean";
-import "./SocialGraph.css";
-import { IBuilding, origin_point } from "../simulation/Geography";
-import { LiveList } from "../events/Events";
 import { SocialBuildings } from "../petri-ui/Buildings";
-import { City } from "../simulation/City";
-import { Building } from "../simulation/RealEstate";
+import { Bean } from "../simulation/Bean";
+import { ICity } from "../simulation/City";
+import { IBuilding } from "../simulation/Geography";
+import { doSelectBean } from "../state/features/selected.reducer";
+import { selectCityBeanIDs } from "../state/features/world.reducer";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
+import "./SocialGraph.css";
 
 interface SocialGraphP{
-    city: City,
-    beans: LiveList<Bean>;
+    city: ICity,
     scanned_beans: {[beanKey: number]: boolean},
     costOfLiving: number;
     onClick: (b: Bean) => void;
     onClickBuilding: (b: IBuilding) => void;
 }
-interface SocialGraphS{
-    
-}
-export class SocialGraph extends React.Component<SocialGraphP, SocialGraphS>{
-    constructor(props: SocialGraphP){
-        super(props);
-        this.state = {
 
-        };
-    }
-    render(){
-        return <div className="social-graph">
-            <div className="social-graph-row">
-            {
-                this.props.beans.get.map((b) => 
-                <div key={b.key} className="bean-node" onClick={() => this.props.onClick(b)}>
-                    <AnimatedBean bean={b} static={true} sitStill={true} 
-                        onClick={() => {this.props.onClick(b);}}>
-                    </AnimatedBean>
-                    {
-                        this.props.scanned_beans[b.key] ? null : <span className="social-graph-unscanned prohibited-emoji">🛰️</span>
-                    }
-                </div>)
-            }
-            </div>
-            <div className="social-graph-row">
-            {
-                <SocialBuildings city={this.props.city} onClickBuilding={this.props.onClickBuilding}></SocialBuildings>
-            }
-            </div>
+export const SocialGraph: React.FC<SocialGraphP> = (props) => {
+    const beanKeys = useAppSelector(state => selectCityBeanIDs(state.world, props.city.key));
+    const dispatch = useAppDispatch();
+    return <div className="social-graph">
+        <div className="social-graph-row">
+        {
+            beanKeys.map((b) => 
+            <div key={b} className="bean-node" onClick={() => dispatch(doSelectBean({cityKey:props.city.key, beanKey: b}))}>
+                <AnimatedBean beanKey={b} static={true} sitStill={true} cityKey={props.city.key}>
+                </AnimatedBean>
+                {
+                    props.scanned_beans[b] ? null : <span className="social-graph-unscanned prohibited-emoji">🛰️</span>
+                }
+            </div>)
+        }
         </div>
-    }
+        <div className="social-graph-row">
+        {
+            <SocialBuildings city={props.city} onClickBuilding={props.onClickBuilding}></SocialBuildings>
+        }
+        </div>
+    </div>
 }

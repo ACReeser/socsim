@@ -9,7 +9,7 @@ import { City, Pickup, UFO } from "../simulation/City";
 import { AnimatedUFO } from "./AnimatedUFO";
 import { IEvent } from "../events/Events";
 import { AnimatedSpotlight } from "./AnimatedSpotlight";
-import { BeanList, PickupList } from "./Mover";
+import { PetriBeanList, PickupList } from "./Mover";
 import { HexPetriBuilding, PetriHexes } from "./Buildings";
 import { Magnet } from "./Magnet";
 
@@ -88,7 +88,7 @@ export class WorldTile extends React.Component<WorldTilePs> {
         {mtns}
         {/* {deaths} */}
         <PickupList pickups={this.props.city.pickups}></PickupList>
-        <BeanList beans={this.props.city.beans} activeBeanID={this.props.activeBeanID} onBeanClick={(b: Bean) => this.props.onBeanClick(b)}></BeanList>
+        <PetriBeanList cityKey={this.props.city.key}></PetriBeanList>
         {ufos}
         <Magnet pickupMagnetPoint={this.props.city.lpickupMagnetPoint}></Magnet>
         <svg style={{ width: '100%', height: '100%' }} className="petri-lid">

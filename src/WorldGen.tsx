@@ -8,6 +8,9 @@ import { WorldSound } from './WorldSound';
 import { Building } from './simulation/RealEstate';
 import { Economy, EconomyEmployAndPrice, GetFairGoodPrice, IEconomy } from './simulation/Economy';
 import { BuildingJobSlot } from './simulation/Occupation';
+import { IBean, IdleState } from './simulation/Agent';
+import { IWorldState } from './state/features/world';
+import { PriorityQueue } from './simulation/Priorities';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
@@ -133,18 +136,18 @@ export function GenerateWorld(): World{
     world.law.laws = [];
     world.party = new BaseParty();
     world.institutions.push(world.party);
-    for (let i = 0; i < Number_Starting_Cities; i++) {
-        world.cities.push(GenerateCity(world.cities.length, world.sfx, world.economy));
-        world.cities[i].eventBus = world.bus;
-        world.cities[i].environment = world.date;
-        world.cities[i].law = world.law;
-        for (let j = 0; j < world.cities[i].beans.get.length; j++) {
-            const bean = world.cities[i].beans.get[j];
-            bean.work(world.law, world.economy);
-            if (bean.job == 'farmer')
-                bean.work(world.law, world.economy);
-        }
-    }
+    // for (let i = 0; i < Number_Starting_Cities; i++) {
+    //     world.cities.push(GenerateCity(world.cities.length, world.sfx, world.economy));
+    //     world.cities[i].eventBus = world.bus;
+    //     world.cities[i].environment = world.date;
+    //     world.cities[i].law = world.law;
+    //     for (let j = 0; j < world.cities[i].beans.get.length; j++) {
+    //         const bean = world.cities[i].beans.get[j];
+    //         bean.work(world.law, world.economy);
+    //         if (bean.job == 'farmer')
+    //             bean.work(world.law, world.economy);
+    //     }
+    // }
     world.economy.monthlyDemand.food = world.beans.get.length;
     world.economy.monthlyDemand.shelter = world.beans.get.length;
     world.economy.monthlyDemand.medicine = world.beans.get.length;
@@ -176,12 +179,12 @@ export function GenerateCity(previousCityCount: number, sfx: WorldSound, econ: E
     
     // GenerateBuilding(newCity, 'farm', newCity.hexes[7]);
 
-    const cityPopulation = Number_Starting_City_Pop;
-    while(newCity.beans.get.length < cityPopulation){
-        newCity.beans.push(
-            GenerateBean(newCity)
-        );
-    }
+    // const cityPopulation = Number_Starting_City_Pop;
+    // while(newCity.beans.get.length < cityPopulation){
+    //     newCity.beans.push(
+    //         GenerateBean(newCity)
+    //     );
+    // }
 
     return newCity;
 }
@@ -195,12 +198,48 @@ function getStartingPoint(city: City): HexPoint{
         }
     }
 }
-export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): Bean{
-    let newBean = new Bean();
-    
-    newBean.key = ++city.beanSeed;
-    newBean.cityKey = city.key;
-    newBean.city = city;
+export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, hexPoint?: HexPoint, job?: TraitJob): IBean{
+    let newBean: IBean = {
+        key: world.beans.nextID++,
+        cityKey: city.key,
+        name: '',
+        ethnicity: RandomEthno(),
+        community: RandomCommunity(),
+        ideals: RandomIdeal(),
+        faith: RandomFaith(),
+        stamina: 'awake',
+        health: 'fresh',
+        food: 'sated',
+        alive: true,
+        discrete_food: 3,
+        discrete_health: 2,
+        discrete_sanity: 10,
+        discrete_stamina: 7,
+        discrete_fun: 0,
+        graceTicks: 0,
+        dob: {year: world.date.year, season: world.date.season, day: world.date.day, hour: world.date.hour},
+        sanity: 'sane',
+        beliefs: [],
+        lifecycle: 'alive',
+        hedonHistory: [],
+        job: 'jobless',
+        happiness: { flatAverage: 0,all: {}, maxSource: '', minSource: '', weightedAverage: 0},
+        lastHappiness: 0,
+        hedonFiveDayRecord: { max: 0, min: 0 },
+        fairGoodPrice: 0,
+        bornInPetri: parent != null,
+        cash: 3,
+        ticksSinceLastSale: 0,
+        ticksSinceLastRelax: 0,
+        point: hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || {q: 0, r: 0}
+            // getStartingPoint(city)
+        ),
+        destinationKey: 0,
+        velocity: {x: 0, y: 0},
+        state: IdleState.create(),
+        jobQueue: new PriorityQueue([]),
+        activity_duration: {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0},
+    }
     newBean.name = GetRandom(['Joe', 'Frank', 'Jill', 'Jose',
     'Johnny', 'Isabelle', 'Carmen', 'Ace', 'Carl', 'Zander', 'Jean',
     'Anne', 'Leslie', 'Ben', 'Ron', 
@@ -236,9 +275,6 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
         'Whitmore',
         'House', 'Mitchell', 'Eden', 'Lyons', 'Valentine', 'Garvey'
          ]);
-    newBean.community = RandomCommunity();
-    newBean.ideals = RandomIdeal();
-    newBean.faith = RandomFaith();
     const beanBeliefCount = Math.ceil(Math.random() * MaxNumBeanTraitsOnGenerate);
     while (newBean.beliefs.length < beanBeliefCount) {
         const newBelief = GetRandom(RandomBeliefBucket);
@@ -246,25 +282,27 @@ export function GenerateBean(city: City, hexPoint?: HexPoint, job?: TraitJob): B
         if (!hasAlready)
             newBean.beliefs.push(newBelief);
     }
-    
-    if (job == null){
-        switch (city.beanSeed){
-            case 1:
-                job = 'farmer'; break;
-            case 2:
-                job = 'builder'; break;
-            case 3:
-                job = 'doc'; break;
-            default:
-                job = GetRandom(['farmer', 'builder', 'doc', 'entertainer']); break;
-        }
+
+    if (parent){
+        newBean.ethnicity = parent.ethnicity;
+        newBean.name = newBean.name.split(' ')[0] + ' ' + parent.name.split(' ')[1];
+        newBean.cash = parent.cash / 2;
+        parent.cash /= 2;
     }
-    newBean.trySetJob(job);
-
-    newBean.cash = StartingCash(newBean.job);
-    newBean.discrete_food = 3;
-
-    newBean.point = hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || getStartingPoint(city));
+    
+    // if (job == null){
+    //     switch (city.beanSeed){
+    //         case 1:
+    //             job = 'farmer'; break;
+    //         case 2:
+    //             job = 'builder'; break;
+    //         case 3:
+    //             job = 'doc'; break;
+    //         default:
+    //             job = GetRandom(['farmer', 'builder', 'doc', 'entertainer']); break;
+    //     }
+    // }
+    // newBean.trySetJob(job);
     
     return newBean;
 }

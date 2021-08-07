@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { City } from "../simulation/City";
+import { City, ICity } from "../simulation/City";
 import { CityBook, HexPoint, hex_to_pixel, IBuilding, transformPoint } from "../simulation/Geography";
 import { doSelectHex } from "../state/features/selected.reducer";
-import { magnetChange, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
+import { magnetChange, selectBuildingsByCity, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { PetriBuilding, UIBuilding } from "./Building";
 import { hex_style } from "./WorldTile";
@@ -74,17 +74,10 @@ export const PetriHexes2: React.FC<{
     })}</>
 }
 export const SocialBuildings: React.FC<{
-    city: City,
+    city: ICity,
     onClickBuilding: (b: IBuilding) => void;
 }> = (props) => {
-    const [buildings, setBuildings] = useState<IBuilding[]>(props.city.book.getBuildings());
-    const getBuildings = () => {
-        setBuildings(props.city.book.getBuildings())
-    }
-    useEffect(() => {
-        props.city.book.db.onChange.subscribe(getBuildings);
-        return () => props.city.book.db.onChange.unsubscribe(getBuildings);
-    });
+    const buildings = useAppSelector(state => selectBuildingsByCity(state.world, props.city.key));
     return <>
         {
             buildings.map((x) => <div key={x.key} className="building-node" onClick={() => props.onClickBuilding(x)}>

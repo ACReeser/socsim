@@ -166,17 +166,17 @@ export class City extends Geography implements ITile, IBeanContainer, ICity {
         }
         this.unsetJob(deadBean);
     }
-    breedBean(parent: Bean) {
+    breedBean(parent: IBean) {
         const job: TraitJob = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
-        const bean = GenerateBean(this, undefined, job);
-        bean.ethnicity = parent.ethnicity;
-        bean.name = bean.name.split(' ')[0] + ' ' + parent.name.split(' ')[1];
-        bean.cash = parent.cash / 2;
-        parent.cash /= 2;
-        bean.bornInPetri = true;
-        if (this.environment)
-            bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day, hour: this.environment?.hour};
-        this.beans.push(bean);
+        // const bean = GenerateBean(this, undefined, job);
+        // bean.ethnicity = parent.ethnicity;
+        // bean.name = bean.name.split(' ')[0] + ' ' + parent.name.split(' ')[1];
+        // bean.cash = parent.cash / 2;
+        // parent.cash /= 2;
+        // bean.bornInPetri = true;
+        // if (this.environment)
+        //     bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day, hour: this.environment?.hour};
+        // this.beans.push(bean);
     }
     calculateCityComputed(economy: Economy, law: Government) {
         this.costOfLiving = economy.getCostOfLiving();

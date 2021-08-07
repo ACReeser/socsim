@@ -834,6 +834,14 @@ export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPi
     }
 }
 
+export function BeanGetSpeech(bean: IBean): string|undefined { 
+    if (bean.state.data.act === 'chat'){
+        if (bean.state.data.chat?.participation === 'speaker' && bean.state.data.chat.preachBelief){
+            return '💬'+SecondaryBeliefData[bean.state.data.chat.preachBelief].icon;
+        }
+    }
+}
+
 export function BeanIsInCrisis(bean: IBean): boolean{
     return bean.food === 'starving' ||
     bean.stamina === 'homeless' ||

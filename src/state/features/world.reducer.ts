@@ -1,12 +1,12 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
 import { IBean } from '../../simulation/Agent'
-import { BuildingTypes, HexPoint, Point } from '../../simulation/Geography'
+import { BuildingTypes, HexPoint, IBuilding, Point } from '../../simulation/Geography'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { IUFO } from '../../simulation/Ufo'
-import { simulate_world } from '../../simulation/WorldSim'
+import { simulate_ufos, simulate_world } from '../../simulation/WorldSim'
 import { GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { GetBlankWorldState, IWorldState } from './world'
 
@@ -68,20 +68,16 @@ export const worldSlice = createSlice({
             key: state.ufos.nextID++,
             action: 'beam-in',
             duration: 0,
-            point: {...action.payload.where} 
+            point: {...action.payload.where},
+            cityKey: action.payload.cityKey
           };
           state.ufos.allIDs.push(ufo.key);
           state.ufos.byID[ufo.key] = ufo;
           state.cities.byID[action.payload.cityKey].ufoKeys.push(ufo.key);
-
-          // window.setTimeout(() => {
-          //   city.beans.push(GenerateBean(city, where));
-          //   this.setState({ world: state });
-          // }, 3000);
         }
       },
       sim_ufos: (state, action: PayloadAction<{deltaMS: number}>) => {
-
+        simulate_ufos(state, action.payload.deltaMS);
       },
       abduct: () => {
 
@@ -123,6 +119,15 @@ export const worldSlice = createSlice({
       return selectBuilding(state, buildingKey);
     else
       return undefined;
+  }
+  export const selectBuildingKeysByCity = (state: IWorldState, cityKey: number) => {
+    return state.cities.byID[cityKey].buildingKeys;
+  }
+  export const selectBuildingsByCity = (state: IWorldState, cityKey: number) => {
+    return selectBuildingKeysByCity(state, cityKey).reduce((x: IBuilding[], id) => {
+      x.push(state.buildings.byID[id]);
+      return x;
+    }, [] as IBuilding[]);
   }
   
   export const selectMajorityEthnicity = createSelector(selectBeansByCity, (cityBeans) => {

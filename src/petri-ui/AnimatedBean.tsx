@@ -1,90 +1,50 @@
-import { Bean, BeanGetFace } from "../simulation/Bean";
 import React from "react";
-import { origin_point, Point, transformPoint } from "../simulation/Geography";
+import { IBean } from "../simulation/Agent";
+import { BeanGetFace, BeanGetSpeech } from "../simulation/Bean";
+import { doSelectBean } from "../state/features/selected.reducer";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
+import { RootState } from "../state/state";
 import { GoodIcon } from "../World";
 
 interface AnimatedBeanP {
-  bean: Bean;
-  selected?: boolean;
+  cityKey: number;
+  beanKey: number;
   sitStill?: boolean;
-  onClick: () => void;
   static?: boolean;
 }
 
-interface AnimatedBeanS{
-  paused: boolean,
-  spin: boolean;
-  face: string;
-  good?: string;
-  speech?: string;
-}
-
-function BeanIsBuying(bean: Bean){
+function BeanIsBuying(bean: IBean){
   return bean.state.data.act == 'buy' && bean.state.data.good != 'shelter';
 }
 
-export class AnimatedBean extends React.Component<AnimatedBeanP, AnimatedBeanS> {
-    constructor(props: AnimatedBeanP) {
-      super(props);
-      this.delaySeedSec = (Math.random() * 60) + this.props.bean.key;
-      this.state = {
-        paused: false,
-        spin: false,
-        face: BeanGetFace(props.bean),
-      };
-      props.bean.onAct.subscribe(this.animate);
-    }
-    animate = (deltaMS: number) => {
-      this.setState({
-        spin: this.props.bean.state.data.act == 'work',
-        face: BeanGetFace(this.props.bean),
-        good: BeanIsBuying(this.props.bean) ? GoodIcon[this.props.bean.state.data.good || 'food'] : undefined,
-        speech: this.props.bean.getSpeech()
-      })
-    }
-    delaySeedSec: number;
-    getPurchase(){
-      if (this.state.good){
-        return <span className="purchase">
-          <span className="money">💸</span>
-          <span className="purchase-good">{this.state.good}</span>
-        </span>
-      }
-    }
-    getSpeech(){
-      if (this.state.speech){
-        return <span className="speech">
-          <span className="">{this.state.speech}</span>
-        </span>
-      }
-    }
-    render() {
-      let classes = this.props.bean.job + ' ' + this.props.bean.ethnicity;
-      classes += this.state.paused || !this.props.bean.alive ? ' paused' : '';
-      if (this.props.sitStill){
-
-      } else {
-        classes += ' bean-walker';
-        if (this.state.spin)
-          classes += ' spin';
-        if (this.props.selected)
-          classes += ' selected';
-        if (this.props.bean.state.data.act != 'travel')
-          classes += ' paused';
-      }
-
-      let style = {
-        animationDelay: '-'+this.delaySeedSec+'s'
-      };
-      style.animationDelay = '';
-      let title = '';
-      return (
-        <span className={classes+" bean interactable"}
-          style={style} title={title}
-          onClick={(e) => {e.stopPropagation(); this.props.onClick(); }}
-        >
-          {this.state.face} {this.getPurchase()} {this.getSpeech()}
-        </span>
-      )
-    }
+export const selectBeanAnimation = (state: RootState, beanKey: number) => {
+  const bean = state.world.beans.byID[beanKey];
+  const working = bean.state.data.act === 'work';
+  return {
+    speech: BeanGetSpeech(bean),
+    face: BeanGetFace(bean),
+    good: BeanIsBuying(bean) ? GoodIcon[bean.state.data.good || 'food'] : undefined,
+    classes: [bean.job, bean.ethnicity, bean.state.data.act != 'travel' || !bean.alive ? 'paused' : '', ].join(' '),
+    animationClasses: ['bean-walker', working ? 'spin' : '', ].join(' ')
   }
+}
+
+export const AnimatedBean: React.FC<AnimatedBeanP> = (props) => {
+  const state = useAppSelector(st => selectBeanAnimation(st, props.beanKey));
+  const isSelected = useAppSelector(st => st.selected.selectedBeanKey === props.beanKey);
+  const classes = ['bean interactable', state.classes, props.sitStill ? '' : state.animationClasses, isSelected ? 'selected' : ''].join(' ');
+
+  const dispatch = useAppDispatch();
+  return (
+    <span className={classes}
+      onClick={(e) => {e.stopPropagation(); dispatch(doSelectBean({cityKey: props.cityKey, beanKey: props.beanKey})) }}
+    >
+      {state.face} {state.good ? <span className="purchase">
+        <span className="money">💸</span>
+        <span className="purchase-good">{state.good}</span>
+      </span>: null} {state.speech ? <span className="speech">
+        <span className="">{state.speech}</span>
+      </span>: null}
+    </span>
+  )
+}

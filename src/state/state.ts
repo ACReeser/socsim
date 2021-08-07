@@ -14,6 +14,7 @@ export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 
+export const selectBeanById = (state: RootState, beanKey: number) => state.world.beans.byID[beanKey];
 export const selectCityById = (state: RootState, cityKey: number) => state.world.cities.byID[cityKey];
 export const selectSelectedCity = (state: RootState) => {
   return state.selected.selectedCityKey != null ? state.world.cities.byID[state.selected.selectedCityKey] : undefined;

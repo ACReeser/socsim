@@ -130,11 +130,18 @@ export function WorldAddEvent(world: IWorldState, e: IEvent){
     world.events.allIDs.push(e.key);
 }
 export function simulate_ufos(world: IWorldState, deltaMS: number){
-    world.ufos.allIDs.forEach((u) => {
+    world.ufos.allIDs.slice().forEach((u) => {
         const ufo = world.ufos.byID[u];
         ufo.duration += deltaMS;
         if (ufo.duration > 3000){
-            //GenerateBean(world.cities.byID[0], ufo.point)
+            const newBean = GenerateBean(world, world.cities.byID[0], undefined, ufo.point);
+            delete world.ufos.byID[u];
+            world.ufos.allIDs = world.ufos.allIDs.filter(x => x != u);
+            world.cities.byID[ufo.cityKey].ufoKeys = world.cities.byID[ufo.cityKey].ufoKeys.filter(x => x != u);
+
+            world.beans.byID[newBean.key] = newBean;
+            world.beans.allIDs.push(newBean.key);
+            world.cities.byID[ufo.cityKey].beanKeys.push(newBean.key);
         }
     });
 }

@@ -1,26 +1,31 @@
 import React, { useEffect, useRef, useState } from "react";
+import { MoverContext } from "../App";
 import { LiveList, PubSub } from "../events/Events";
 import { Bean } from "../simulation/Bean";
 import { Pickup } from "../simulation/City";
 import { Point } from "../simulation/Geography";
+import { MoverType } from "../simulation/MoverBus";
 import { IPickup } from "../simulation/Pickup";
-import { useAppSelector } from "../state/hooks";
+import { doSelectBean } from "../state/features/selected.reducer";
+import { selectCityBeanIDs } from "../state/features/world.reducer";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { AnimatedBean } from "./AnimatedBean";
 import { AnimatedPickup } from "./AnimatedPickup";
 
 export const Mover: React.FC<{
-    onMove: PubSub<Point>,
-    startPoint: Point
+    moverType: MoverType,
+    moverKey: number
 }> = (props) => {
+    const mover = React.useContext(MoverContext);
     const el = useRef<HTMLDivElement|null>(null);
     const onMove = (p: Point) => {
         if (el.current && p)
             el.current.style.transform = `translate(${p.x}px, ${p.y}px)`;
     }
     useEffect(() => {
-        props.onMove.subscribe(onMove);
-        onMove(props.startPoint);
-        return () => props.onMove.unsubscribe(onMove)
+        mover.Get(props.moverType, props.moverKey).subscribe(onMove);
+        // onMove(props.startPoint);
+        return () => mover.Get(props.moverType, props.moverKey).unsubscribe(onMove)
     }, []);
     return <div ref={el}>
         {props.children}
@@ -41,7 +46,7 @@ export const PickupList: React.FC<{
     return <>
         {
             list.map((p: Pickup) => {
-                return <Mover onMove={p.onMove} key={p.key} startPoint={p.point}>
+                return <Mover moverType='pickup' moverKey={p.key}>
                     <AnimatedPickup pickup={p}></AnimatedPickup>
                 </Mover>
             })
@@ -49,24 +54,15 @@ export const PickupList: React.FC<{
     </>;
 }
 
-export const BeanList: React.FC<{
-    beans: LiveList<Bean>,
-    activeBeanID: number|null;
-    onBeanClick: (b: Bean) => void;
+export const PetriBeanList: React.FC<{
+    cityKey: number
 }> = (props) => {
-    const [list, setList] = useState(props.beans.get);
-    const onChange = (l: Bean[]) => {
-        setList(l);
-    }
-    useEffect(() => {
-        props.beans.onChange.subscribe(onChange)
-        return () => props.beans.onChange.unsubscribe(onChange)
-    }, []);
+    const beanKeys = useAppSelector(state => selectCityBeanIDs(state.world, props.cityKey));
     return <>
         {
-            list.map((bean: Bean) => {
-                return <Mover onMove={bean.onMove} key={bean.key} startPoint={bean.point}>
-                    <AnimatedBean bean={bean} selected={bean.key === props.activeBeanID} onClick={() => props.onBeanClick(bean)}></AnimatedBean>
+            beanKeys.map((beanKey: number) => {
+                return <Mover moverKey={beanKey} key={beanKey} moverType='bean'>
+                    <AnimatedBean cityKey={props.cityKey} beanKey={beanKey}></AnimatedBean>
                 </Mover>
             })
         }

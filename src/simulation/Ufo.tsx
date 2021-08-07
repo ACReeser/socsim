@@ -4,5 +4,6 @@ export interface IUFO{
     key: number,
     point: HexPoint,
     action: string,
-    duration: number
+    duration: number,
+    cityKey: number
 }
