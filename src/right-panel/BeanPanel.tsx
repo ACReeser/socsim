@@ -1,14 +1,11 @@
 import React, { useState } from "react";
-import { EventBus } from "../events/Events";
-import { Act, ActivityIcon, GetPriorities, IBean } from "../simulation/Agent";
-import { Bean, BeanGetFace } from "../simulation/Bean";
+import { Act, ActivityDisplay, ActivityIcon, GetPriorities, IBean } from "../simulation/Agent";
+import { BeanGetFace } from "../simulation/Bean";
 import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { ICity } from "../simulation/City";
-import { IEconomy } from "../simulation/Economy";
-import { IGovernment } from "../simulation/Government";
 import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
 import { doSelectNone } from "../state/features/selected.reducer";
-import { abduct, scan, selectCity, vaporize } from "../state/features/world.reducer";
+import { abduct, scan, vaporize } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean, selectSelectedCity } from "../state/state";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
@@ -81,7 +78,7 @@ function renderInner(scanned: boolean, innerView: string, bean: IBean, city: ICi
                 <tbody>
                     <tr>
                         <td>
-                            Currently {bean.state.display}
+                            Currently {ActivityDisplay(bean.actionData)}
                         </td>
                     </tr>
                     {

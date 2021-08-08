@@ -1,9 +1,11 @@
+import { AnyAction, bindActionCreators } from "redux";
 import { IEvent } from "../events/Events";
 import { IWorldState } from "../state/features/world";
-import { selectBeansByCity } from "../state/features/world.reducer";
+import { changeState, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
 import { WorldInflate, MaxHedonHistory, TraitJob } from "../World";
 import { GenerateBean, GetRandom } from "../WorldGen";
-import { IBean } from "./Agent";
+import { BeanActions, IBean } from "./Agent";
+import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
 import { CityBeanTrySetJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
@@ -129,53 +131,73 @@ export function WorldAddEvent(world: IWorldState, e: IEvent){
     world.events.byID[e.key] = e;
     world.events.allIDs.push(e.key);
 }
-export function simulate_ufos(world: IWorldState, deltaMS: number){
-    world.ufos.allIDs.slice().forEach((u) => {
-        const ufo = world.ufos.byID[u];
-        ufo.duration += deltaMS;
-        if (ufo.duration > 3000){
-            const newBean = GenerateBean(world, world.cities.byID[0], undefined, ufo.point);
-            delete world.ufos.byID[u];
-            world.ufos.allIDs = world.ufos.allIDs.filter(x => x != u);
-            world.cities.byID[ufo.cityKey].ufoKeys = world.cities.byID[ufo.cityKey].ufoKeys.filter(x => x != u);
+export function animate_ufos(world: IWorldState, deltaMS: number): Array<AnyAction>{
+    const actions: AnyAction[] = [];
+    world.ufos.allIDs.forEach((ufoKey) => {
+        const ufo = world.ufos.byID[ufoKey];
+        AgentDurationStoreInstance.Get('ufo', ufoKey).elapsed += deltaMS;
 
-            world.beans.byID[newBean.key] = newBean;
-            world.beans.allIDs.push(newBean.key);
-            world.cities.byID[ufo.cityKey].beanKeys.push(newBean.key);
+        if (AgentDurationStoreInstance.Get('ufo', ufoKey).elapsed > 4000)
+        {
+            actions.push(remove_ufo({ufoKey}))
         }
     });
+    return actions;
 }
-// export function simulate_beans(world: IWorldState, deltaMS: number){
-//     world.beans.allIDs.forEach((b) => {
-//         Act(b, deltaMS, world.alien.difficulty, this);
-//     });
-// }
-// export function simulate_pickups(world: IWorldState, city: ICity, deltaMS: number){
-//     const pickups = city.pickups.get;
-//     //go backwards because we'll modify the array as we go
-//     for(let i = pickups.length - 1; i >= 0; i--) {
-//         const pickup = pickups[i];
-//         let collide = false;
-//         const magnet = city.pickupMagnetPoint.get;
-//         if (magnet){
-//             collide = accelerate_towards(
-//                 pickup, 
-//                 magnet, 
-//                 PickupPhysics.AccelerateS * deltaMS/1000, 
-//                 PickupPhysics.MaxSpeed, 
-//                 PickupPhysics.CollisionDistance,
-//                 PickupPhysics.Brake);
-//         } else {
-//             accelerator_coast(pickup, PickupPhysics.Brake);
-//         }
-//         if (collide){
-//             const amt = EmotionWorth[pickup.type];
-//             world.alien.hedons.amount += amt;
-//             world.alien.hedons.change.publish({change: amt});
-//             city.pickups.remove(pickup);
-//             world.sfx.play(pickup.type);
-//         } else {
-//             pickup.onMove.publish(pickup.point);
-//         }
-//     }
-// }
+export function animate_beans(world: IWorldState, deltaMS: number): Array<AnyAction>{
+    const actions: AnyAction[] = [];
+    world.beans.allIDs.forEach((beanKey) => {
+        const b = world.beans.byID[beanKey];
+        AgentDurationStoreInstance.Get('bean', b.key).elapsed += deltaMS;
+        const actResult = BeanActions[b.action].act(b);
+        if (actResult.action){
+            actions.push(actResult.action);
+        }
+        if (actResult.newState){
+            const exitAction = BeanActions[b.action].exit(b);
+            if (exitAction)
+                actions.push(exitAction);
+            actions.push(changeState({beanKey: beanKey, newState: actResult.newState}));
+            const enterAction = BeanActions[actResult.newState].exit(b);
+            if (enterAction)
+                actions.push(enterAction);
+        }
+        //TODO: fix on chat
+        // if (result.data.act === 'chat' && result.data.chat?.participation === 'speaker'){
+        //     listener.onChat(agent as Bean, result.data.chat);
+        // }
+    });
+    return actions;
+}
+export function animate_pickups(world: IWorldState, deltaMS: number): Array<AnyAction>{
+    const pickupIDs = world.pickups.allIDs;
+    const city = world.cities.byID[0];
+    const actions: AnyAction[] = [];
+    //go backwards because we'll modify the array as we go
+    for(let i = pickupIDs.length - 1; i >= 0; i--) {
+        const pickupID = pickupIDs[i];
+        let collide = false;
+        const magnet = city.pickupMagnetPoint;
+        // if (magnet){
+        //     collide = accelerate_towards(
+        //         pickup, 
+        //         magnet, 
+        //         PickupPhysics.AccelerateS * deltaMS/1000, 
+        //         PickupPhysics.MaxSpeed, 
+        //         PickupPhysics.CollisionDistance,
+        //         PickupPhysics.Brake);
+        // } else {
+        //     accelerator_coast(pickup, PickupPhysics.Brake);
+        // }
+        // if (collide){
+        //     const amt = EmotionWorth[pickup.type];
+        //     world.alien.hedons.amount += amt;
+        //     world.alien.hedons.change.publish({change: amt});
+        //     city.pickups.remove(pickup);
+        //     world.sfx.play(pickup.type);
+        // } else {
+        //     pickup.onMove.publish(pickup.point);
+        // }
+    }
+    return actions;
+}

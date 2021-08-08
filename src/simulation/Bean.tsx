@@ -43,7 +43,8 @@ export const LibertarianTaxUnhappyChance = 0.1;
 export const ProgressivismTaxHappyChance = 0.1;
 
 const MaxGraceTicks = 6;
-export class Bean implements IBean{
+export class Bean implements IBean, IAgent{
+    actionData: IActivityData = {act: 'idle'};
     public key: number = 0;
     public cityKey: number = 0;
     public dob: IDate = {year: 0, season: 0, day: 1, hour: 0};
@@ -82,6 +83,8 @@ export class Bean implements IBean{
     public destinationKey = 0;
 
     public city: City|null = null;
+
+    public action: Act = 'idle';
 
     public ethnicity: TraitEthno = RandomEthno();
 
@@ -684,7 +687,6 @@ export class Bean implements IBean{
 
     state: AgentState = IdleState.create();
     jobQueue: PriorityQueue<AgentState> = new PriorityQueue<AgentState>([]);
-    onAct = new PubSub<number>();
 }
 
 export function CalculateBeliefs(bean: IBean, econ: IEconomy, homeCity: ICity, law: IGovernment){
@@ -835,9 +837,9 @@ export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPi
 }
 
 export function BeanGetSpeech(bean: IBean): string|undefined { 
-    if (bean.state.data.act === 'chat'){
-        if (bean.state.data.chat?.participation === 'speaker' && bean.state.data.chat.preachBelief){
-            return '💬'+SecondaryBeliefData[bean.state.data.chat.preachBelief].icon;
+    if (bean.action === 'chat'){
+        if (bean.actionData.chat?.participation === 'speaker' && bean.actionData.chat.preachBelief){
+            return '💬'+SecondaryBeliefData[bean.actionData.chat.preachBelief].icon;
         }
     }
 }
@@ -852,18 +854,18 @@ export function BeanIsInCrisis(bean: IBean): boolean{
 export function BeanGetFace(bean: IBean): string{
     // if (!this.alive)
     //     return '💀';
-    if (bean.state.data.act === 'buy' && bean.state.data.good === 'shelter'){
+    if (bean.actionData.act === 'buy' && bean.actionData.good === 'shelter'){
         return '😴';
     }
-    if (bean.state.data.act === 'crime'){
+    if (bean.actionData.act === 'crime'){
         return '😈';
     }
-    if (bean.state.data.act === 'relax'){
+    if (bean.actionData.act === 'relax'){
         return '😎';
     }
-    if (bean.state.data.act === 'chat'){
-        if (bean.state.data.chat?.participation === 'speaker'){
-            switch(bean.state.data?.chat?.type){
+    if (bean.actionData.act === 'chat'){
+        if (bean.actionData.chat?.participation === 'speaker'){
+            switch(bean.actionData?.chat?.type){
                 default: return '😃';
                 case 'gift': return '😇';
                 case 'praise': return '🥳';

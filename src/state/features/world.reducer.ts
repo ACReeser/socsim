@@ -1,13 +1,15 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
-import { IBean } from '../../simulation/Agent'
+import { MoverBusInstance } from '../../MoverBusSingleton'
+import { Act, IBean } from '../../simulation/Agent'
+import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BuildingTypes, HexPoint, IBuilding, Point } from '../../simulation/Geography'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { IUFO } from '../../simulation/Ufo'
-import { simulate_ufos, simulate_world } from '../../simulation/WorldSim'
-import { GetRandomCityName, GetRandomNumber } from '../../WorldGen'
+import { simulate_world } from '../../simulation/WorldSim'
+import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { GetBlankWorldState, IWorldState } from './world'
 
 export const worldSlice = createSlice({
@@ -76,8 +78,17 @@ export const worldSlice = createSlice({
           state.cities.byID[action.payload.cityKey].ufoKeys.push(ufo.key);
         }
       },
-      sim_ufos: (state, action: PayloadAction<{deltaMS: number}>) => {
-        simulate_ufos(state, action.payload.deltaMS);
+      remove_ufo: (state, action: PayloadAction<{ufoKey: number}>) => {
+        const ufo = state.ufos.byID[action.payload.ufoKey];
+        const newBean = GenerateBean(state, state.cities.byID[0], undefined, ufo.point);
+        delete state.ufos.byID[action.payload.ufoKey];
+        state.ufos.allIDs = state.ufos.allIDs.filter(x => x != action.payload.ufoKey);
+        state.cities.byID[ufo.cityKey].ufoKeys = state.cities.byID[ufo.cityKey].ufoKeys.filter(x => x != action.payload.ufoKey);
+        
+        state.beans.byID[newBean.key] = newBean;
+        state.beans.allIDs.push(newBean.key);
+        state.cities.byID[ufo.cityKey].beanKeys.push(newBean.key);
+        MoverBusInstance.Get('bean', newBean.key).current = newBean.point;
       },
       abduct: () => {
 
@@ -90,15 +101,28 @@ export const worldSlice = createSlice({
       },
       vaporize: () => {
 
+      },
+      changeState: (state, action: PayloadAction<{beanKey: number, newState: Act}>) => {
+        const oldAct = state.beans.byID[action.payload.beanKey].action;
+        const bean = state.beans.byID[action.payload.beanKey];
+        const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
+        bean.activity_duration[oldAct] += ADS.elapsed;
+        bean.action = action.payload.newState;
+        ADS.elapsed = 0;
+
+        // if (agent instanceof Bean){
+        //     agent.activity_duration[this.data.act] += this.Elapsed;
+        // }
       }
     }
   })
   
   export const { 
     refreshMarket, magnetChange, worldTick, 
-    sim_ufos,
+    remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
-    abduct, brainwash, scan, vaporize
+    abduct, brainwash, scan, vaporize,
+    changeState
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;

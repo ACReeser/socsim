@@ -195,12 +195,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             x.hedonHistory.unshift({});
         });
     }
-    simulate_beans(deltaMS: number){
-        this.beans.get.forEach((b) => {
-            Act(b, deltaMS, this.alien.difficulty, this);
-        });
-    }
-    simulate_pickups(deltaMS: number){
+    animate_pickups(deltaMS: number){
         const city = this.cities[0];
         const pickups = city.pickups.get;
         //go backwards because we'll modify the array as we go

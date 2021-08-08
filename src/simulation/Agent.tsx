@@ -12,6 +12,8 @@ import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Bel
 import { ISeller } from "./Economy";
 import { IterationStatement } from "typescript";
 import { ICity } from "./City";
+import { AnyAction } from "@reduxjs/toolkit";
+import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
 
@@ -34,8 +36,7 @@ export interface IActivityData {
     destinations?: Point[]; //point to travel to??
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
-    timeSpent?: number; //time spent on this action
-    travel?: Travel;
+    // travel?: Travel;
     chat?: IChatData;
 }
 
@@ -54,30 +55,135 @@ export interface IChatData{
 }
 
 export interface IAgent {
+    action: Act;
     state: AgentState;
     jobQueue: PriorityQueue<AgentState>;
 }
-export function ChangeState(agent: IAgent, newState: AgentState){
-    //if ((agent as any)['key'] === 0)
-    //console.log(`from ${agent.state.data.act} to ${newState.data.act} in ${agent.state.Elapsed}`);
-    agent.state.exit(agent);
-    agent.state = newState;
-    agent.state.enter(agent);
+export interface IBeanAgent{
+    key: number;
+    action: Act;
+    actionData: IActivityData;
 }
-export function Act(agent: IAgent, deltaMS: number, difficulty: IDifficulty, listener: IActListener): void{
-    const result = agent.state.act(agent, deltaMS, difficulty);
-    if (agent instanceof Bean)
-        agent.onAct.publish(deltaMS);
-    if (result != agent.state){
-        ChangeState(agent, result);
-        if (result.data.act === 'chat' && result.data.chat?.participation === 'speaker'){
-            listener.onChat(agent as Bean, result.data.chat);
-        }
+export interface StateFunctions {
+    enter: (agent: IBeanAgent, foo: number) => AnyAction|undefined;
+    act: (agent: IBeanAgent) => {action?: AnyAction, newState?: Act};
+    exit: (agent: IBeanAgent) => AnyAction|undefined;
+}
+export const BeanActions: {[act in Act]: StateFunctions} = {
+    'travel': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'work': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'sleep':{
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'chat': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'soapbox': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'craze': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'idle': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'buy': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'crime': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
+    }, 
+    'relax': {
+        enter: (agent: IBeanAgent) => {
+            return undefined;
+        },
+        act: (agent: IBeanAgent) => {
+            return {};
+        },
+        exit: (agent: IBeanAgent) => {
+            return undefined;
+        },
     }
 }
 
 export abstract class AgentState{
-    constructor(public data: IActivityData){}
+    constructor(public data: IActivityData){}   
     public get Elapsed(): number {return this.data.elapsed || 0;}
     enter(agent: IAgent){
         this.data.elapsed = 0;
@@ -89,12 +195,6 @@ export abstract class AgentState{
     }
     abstract _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState;
     exit(agent: IAgent){
-        if (agent instanceof Bean){
-            agent.activity_duration[this.data.act] += this.Elapsed;
-        }
-    }
-    get display(): string {
-        return ActivityDisplay(this.data);
     }
 }
 export class IdleState extends AgentState{
@@ -230,7 +330,7 @@ export class TravelState extends AgentState{
                     return this;
                 const chat: IChatData = agent.getRandomChat(targets);
                 targets.forEach((z) => {
-                    ChangeState(z, ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
+                    // ChangeState(z, ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
                 });
                 return ChatState.create(this.data, chat);
             } else if (agent.believesIn('Wanderlust') && Math.random() < WanderlustEmoteChance) {
@@ -479,7 +579,7 @@ export function ActivityDisplay(data: IActivityData): string{
 /**
  * a bean is a citizen with preferences
  */
-export interface IBean extends ISeller, IMover, IAgent{    
+export interface IBean extends ISeller, IMover, IBeanAgent{    
     key: number;
     cityKey: number;
     name: string;

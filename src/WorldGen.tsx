@@ -236,8 +236,8 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
         ),
         destinationKey: 0,
         velocity: {x: 0, y: 0},
-        state: IdleState.create(),
-        jobQueue: new PriorityQueue([]),
+        action: 'idle',
+        actionData: {act: 'idle'},
         activity_duration: {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0},
     }
     newBean.name = GetRandom(['Joe', 'Frank', 'Jill', 'Jose',

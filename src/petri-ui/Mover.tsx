@@ -14,7 +14,7 @@ import { AnimatedPickup } from "./AnimatedPickup";
 
 export const Mover: React.FC<{
     moverType: MoverType,
-    moverKey: number
+    moverKey: number,
 }> = (props) => {
     const mover = React.useContext(MoverContext);
     const el = useRef<HTMLDivElement|null>(null);
@@ -23,8 +23,10 @@ export const Mover: React.FC<{
             el.current.style.transform = `translate(${p.x}px, ${p.y}px)`;
     }
     useEffect(() => {
-        mover.Get(props.moverType, props.moverKey).subscribe(onMove);
-        // onMove(props.startPoint);
+        const pubsub = mover.Get(props.moverType, props.moverKey);
+        pubsub.subscribe(onMove);
+        if (pubsub.current)
+            onMove(pubsub.current);
         return () => mover.Get(props.moverType, props.moverKey).unsubscribe(onMove)
     }, []);
     return <div ref={el}>

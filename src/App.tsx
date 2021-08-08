@@ -44,11 +44,12 @@ import { GreetingPanel } from './modal-content/GreetingPanel';
 import { MarketTraitListing } from './simulation/MarketTraits';
 import { selectSelectedBean, store as StoreState } from './state/state';
 import { WorldTile2 } from './petri-ui/WorldTile2';
-import { newGame, selectBuilding, sim_ufos, worldTick } from './state/features/world.reducer';
+import { newGame, selectBuilding, worldTick } from './state/features/world.reducer';
 import { DetailPanel } from './right-panel/DetailPanel';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
 import { MoverBus } from './simulation/MoverBus';
 import { MoverBusInstance } from './MoverBusSingleton';
+import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -100,19 +101,23 @@ class App extends React.Component<AppPs, AppState>{
   }
   tick = (timeMS: DOMHighResTimeStamp) => {
     // Compute the delta-time against the previous time
-    const deltaTimeMS = (timeMS - this.previousTimeMS) * this.state.timeScale;
+    const deltaTimeMS = (timeMS - this.previousTimeMS);
 
     // Update the previous time
     this.previousTimeMS = timeMS;
     if (deltaTimeMS > 0) {
-      this.logicTickAccumulatorMS += deltaTimeMS;
-      this.state.world.simulate_beans(deltaTimeMS);
-      this.state.world.simulate_pickups(deltaTimeMS);
-      store.dispatch(sim_ufos({deltaMS: deltaTimeMS}))
+      const gameDeltaTimeMS = deltaTimeMS * this.state.timeScale;
 
-      if (this.logicTickAccumulatorMS > LogicTickMS) {
-        store.dispatch(worldTick())
-        this.logicTickAccumulatorMS = 0;
+      animate_ufos(store.getState().world, deltaTimeMS).map(x => store.dispatch(x));
+      if (gameDeltaTimeMS > 0){
+        this.logicTickAccumulatorMS += deltaTimeMS;
+        animate_pickups(store.getState().world, deltaTimeMS).map(x => store.dispatch(x));
+        animate_beans(store.getState().world, deltaTimeMS).map(x => store.dispatch(x));
+  
+        if (this.logicTickAccumulatorMS > LogicTickMS) {
+          store.dispatch(worldTick())
+          this.logicTickAccumulatorMS = 0;
+        }
       }
     }
     window.requestAnimationFrame(this.tick);

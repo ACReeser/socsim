@@ -14,17 +14,17 @@ interface AnimatedBeanP {
 }
 
 function BeanIsBuying(bean: IBean){
-  return bean.state.data.act == 'buy' && bean.state.data.good != 'shelter';
+  return bean.actionData.act == 'buy' && bean.actionData.good != 'shelter';
 }
 
 export const selectBeanAnimation = (state: RootState, beanKey: number) => {
   const bean = state.world.beans.byID[beanKey];
-  const working = bean.state.data.act === 'work';
+  const working = bean.actionData.act === 'work';
   return {
     speech: BeanGetSpeech(bean),
     face: BeanGetFace(bean),
-    good: BeanIsBuying(bean) ? GoodIcon[bean.state.data.good || 'food'] : undefined,
-    classes: [bean.job, bean.ethnicity, bean.state.data.act != 'travel' || !bean.alive ? 'paused' : '', ].join(' '),
+    good: BeanIsBuying(bean) ? GoodIcon[bean.actionData.good || 'food'] : undefined,
+    classes: [bean.job, bean.ethnicity, bean.actionData.act != 'travel' || !bean.alive ? 'paused' : '', ].join(' '),
     animationClasses: ['bean-walker', working ? 'spin' : '', ].join(' ')
   }
 }
