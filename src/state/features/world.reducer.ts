@@ -103,8 +103,17 @@ export const worldSlice = createSlice({
       brainwash: () => {
 
       },
-      scan: () => {
-
+      scan: (state, action: PayloadAction<{beanKey: number}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.scan)) {
+          state.alien.scanned_bean[bean.key] = true;
+          bean.beliefs.forEach((b) => {
+            if (!state.alien.seenBeliefs[b]){
+              state.alien.seenBeliefs[b] = true;
+            }
+          });
+          // state.world.sfx.play('scan');
+        }
       },
       vaporize: () => {
 
@@ -121,6 +130,13 @@ export const worldSlice = createSlice({
         // if (agent instanceof Bean){
         //     agent.activity_duration[this.data.act] += this.Elapsed;
         // }
+      },
+      beanHitDestination: (state, action: PayloadAction<{beanKey: number}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        if (bean.actionData.destinationIndex != null){
+          bean.actionData.destinationIndex++;
+          console.log('hit dest')
+        }
       },
       beanGiveCharity: (state, action: PayloadAction<{senderBeanKey: number, needyBeanKey: number}>) => {
         const bean = state.beans.byID[action.payload.senderBeanKey];
@@ -174,7 +190,7 @@ export const worldSlice = createSlice({
     remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, brainwash, scan, vaporize,
-    changeState, beanEmote, beanGiveCharity
+    changeState, beanEmote, beanGiveCharity, beanHitDestination
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;

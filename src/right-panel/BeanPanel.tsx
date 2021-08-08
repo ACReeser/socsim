@@ -183,7 +183,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
             {renderTraits(alien.scanned_bean[bean.key], bean, alien, () => {
                 dispatch(brainwash())
             }, () => {
-                dispatch(scan());
+                dispatch(scan({beanKey: bean.key}));
                 setFaceOverride('😨');
                 _resetFace();
             })}

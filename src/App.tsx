@@ -161,7 +161,7 @@ class App extends React.Component<AppPs, AppState>{
           if (this.state.world.alien.energy.amount < this.state.world.alien.difficulty.cost.bean.scan.energy)
             this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.bean.scan.energy;
         }
-        this.scan(b);
+        // this.scan(b);
       });
     }
     this.cheatMode = event.shiftKey && event.key === 'C';
@@ -296,21 +296,6 @@ class App extends React.Component<AppPs, AppState>{
   setResearch = (t: Tech) => {
     this.state.world.alien.currentlyResearchingTech = t;
     this.setState({ world: this.state.world });
-  }
-  scan = (bean: Bean) => {
-    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.scan)) {
-      this.state.world.alien.scanned_bean[bean.key] = true;
-      bean.beliefs.forEach((b) => {
-        if (!this.state.world.alien.lSeenBeliefs.get.has(b)){
-          this.state.world.alien.lSeenBeliefs.add(b, true);
-        }
-      });
-      this.state.world.sfx.play('scan');
-      this.setState({ world: this.state.world });
-      return true;
-    } else {
-      return false;
-    }
   }
   washCommunity = (bean: Bean, a: TraitCommunity) => {
     if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {

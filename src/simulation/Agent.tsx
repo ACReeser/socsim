@@ -3,7 +3,7 @@ import { IDifficulty } from "../Game";
 import { MoverBusInstance } from "../MoverBusSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
-import { beanEmote } from "../state/features/world.reducer";
+import { beanEmote, beanHitDestination } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
@@ -32,6 +32,7 @@ export interface IActivityData {
     elapsed?: number;
     // location?: Point, //FROM Point
     destinations?: Point[]; //point to travel to??
+    destinationIndex?: number; //which point are we heading towards
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
     // travel?: Travel;
@@ -69,33 +70,10 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         },
         act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {
             const city = world.cities.byID[agent.cityKey];
-            if (agent.actionData.destinations && agent.actionData.destinations.length){
-                const target = agent.actionData.destinations[0];
-    
-                if (isNaN(target.x) || isNaN(target.y)) {
-                    //this is a sanity check
-                    agent.actionData.destinations.shift();
-                    return {};
-                }
-                const newAccelerator = {
-                    ...(MoverBusInstance.Get('bean', agent.key).current || OriginAccelerator)
-                };
-    
-                const collide = accelerate_towards(
-                    newAccelerator,
-                    target,
-                    BeanPhysics.AccelerateS * deltaMS/1000, 
-                    BeanPhysics.MaxSpeed, 
-                    BeanPhysics.CollisionDistance,
-                    BeanPhysics.Brake);
-                if (collide){
-                    // agent.actionData.location = agent.point;
-                    agent.actionData.destinations.shift();
-                }
-                MoverBusInstance.Get('bean', agent.key).publish(newAccelerator);
-            }
-    
-            if (agent.actionData.destinations == null || agent.actionData.destinations.length === 0){
+            const destinationTargetIndex = agent.actionData.destinationIndex || 0;
+            if (agent.actionData.destinations == null || 
+                agent.actionData.destinations.length === 0 || 
+                destinationTargetIndex >= agent.actionData.destinations.length){
                 if (agent.actionData.intent)
                     return {
                         newData: agent.actionData.intent,
@@ -108,7 +86,42 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                             act: 'idle'
                         }
                     }
-            } else if (city) {
+            }
+            const target = agent.actionData.destinations[destinationTargetIndex];
+
+            if (isNaN(target.x) || isNaN(target.y)) {
+                //sanity check
+                console.warn('NaN destination, resetting to idle')
+                return {
+                    newState: 'idle',
+                    newData: {
+                        act: 'idle'
+                    }
+                };
+            }
+            const newAccelerator = {
+                ...(MoverBusInstance.Get('bean', agent.key).current || OriginAccelerator)
+            };
+
+            const collide = accelerate_towards(
+                newAccelerator,
+                target,
+                BeanPhysics.AccelerateS * deltaMS/1000, 
+                BeanPhysics.MaxSpeed, 
+                BeanPhysics.CollisionDistance,
+                BeanPhysics.Brake);
+
+            MoverBusInstance.Get('bean', agent.key).publish(newAccelerator);
+            
+            if (collide){
+                console.log('collide')
+                return {
+                    action: beanHitDestination({beanKey: agent.key})
+                };
+            }
+            console.log(deltaMS, newAccelerator);
+    
+            if (city) {
                 const nearbyBeanKeys = CityGetNearestNeighbors(city, agent);
                 if (nearbyBeanKeys.length && BeanMaybeChat(agent)){
                     const targets = nearbyBeanKeys.filter((bKey) => BeanMaybeChat(world.beans.byID[bKey]));
@@ -235,10 +248,10 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBean, world: IWorldState) => {
-            // if (this.Elapsed < 200){
-            //     return this;
-            // }
+        act: (agent: IBean, world: IWorldState, elapsed: number) => {
+            if (elapsed < 200)
+                return {};
+            
             const priorities = GetPriorities(agent, world.cities.byID[agent.cityKey], world.alien.difficulty);
             let top = priorities.dequeue();
             let travelState: IActivityData|undefined = undefined;
@@ -379,9 +392,9 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
         case 'work':
             return RouteRandom(city, world, agent, JobToBuilding[agent.job]);
         case 'relax': {
-            const destination = CityGetRandomEntertainmentBuilding(city, world);
-            if (destination){
-                return Route(city, agent, destination);
+            const buildingDest = CityGetRandomEntertainmentBuilding(city, world);
+            if (buildingDest){
+                return Route(city, agent, buildingDest);
             }
         }
     }
@@ -395,6 +408,7 @@ function CreateTravelFromIntent(agent: IBean, city: ICity, intent: IActivityData
         return {
             act: 'travel',
             destinations: destination,
+            destinationIndex: 0,
             intent: intent
         }
     else
@@ -558,10 +572,12 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
  * @param bean 
  * @param buildingType 
  */
-export function Route(city: ICity, bean: IBean, destination: IBuilding){
+export function Route(city: ICity, bean: IBean, destination: IBuilding): Point[]{
     const start = MoverBusInstance.Get('bean', bean.key).current || {...OriginAccelerator};
     const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
-    return hex_linedraw(nearestHex, destination.address).map((h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)).map((x, i, a) => {
+    return hex_linedraw(nearestHex, destination.address).map(
+        (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
+        ).map((x, i, a) => {
         if (i === a.length-1){
             const offset = getRandomSlotOffset();
             return {
