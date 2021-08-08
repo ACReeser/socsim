@@ -1,19 +1,17 @@
-import { Agent } from "https";
-import { Bean, DaysUntilSleepy } from "./Bean";
-import { getRandomSlotOffset } from "../petri-ui/Building";
-import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitGood, GoodToThreshold, JobToGood, TraitSanity, GoodIcon, TraitEmote, BeanPhysics, TraitJob, TraitFood } from "../World";
-import { GetRandom } from "../WorldGen";
-import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, HexPoint, hex_linedraw, hex_origin, hex_ring, hex_to_pixel, IAccelerater, IBuilding, JobToBuilding, move_towards, pixel_to_hex, Point, Vector } from "./Geography";
-import { IDate } from "./Time";
-import { PubSub } from "../events/Events";
-import { DumbPriorityQueue, IPriorityQueue, PriorityNode, PriorityQueue } from "./Priorities";
-import { IDifficulty } from "../Game";
-import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
-import { ISeller } from "./Economy";
-import { IterationStatement } from "typescript";
-import { ICity } from "./City";
 import { AnyAction } from "@reduxjs/toolkit";
-import { AgentDurationStoreInstance } from "./AgentDurationInstance";
+import { IDifficulty } from "../Game";
+import { MoverBusInstance } from "../MoverBusSingleton";
+import { getRandomSlotOffset } from "../petri-ui/Building";
+import { IWorldState } from "../state/features/world";
+import { beanEmote } from "../state/features/world.reducer";
+import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
+import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybeScarcity } from "./Bean";
+import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
+import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
+import { EconomyCanBuy, ISeller } from "./Economy";
+import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { DumbPriorityQueue, IPriorityQueue, PriorityNode } from "./Priorities";
+import { IDate } from "./Time";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
 
@@ -32,7 +30,7 @@ export interface IActListener{
 export interface IActivityData {
     act: Act;
     elapsed?: number;
-    location?: Point, //FROM Point
+    // location?: Point, //FROM Point
     destinations?: Point[]; //point to travel to??
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
@@ -54,430 +52,356 @@ export interface IChatData{
     targetBeanKey?: number;
 }
 
-export interface IAgent {
-    action: Act;
-    state: AgentState;
-    jobQueue: PriorityQueue<AgentState>;
-}
 export interface IBeanAgent{
     key: number;
     action: Act;
     actionData: IActivityData;
 }
 export interface StateFunctions {
-    enter: (agent: IBeanAgent, foo: number) => AnyAction|undefined;
-    act: (agent: IBeanAgent) => {action?: AnyAction, newState?: Act};
-    exit: (agent: IBeanAgent) => AnyAction|undefined;
+    enter: (agent: IBean) => AnyAction|undefined;
+    act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction, newState?: Act, newData?: IActivityData};
+    exit: (agent: IBean) => AnyAction|undefined;
 }
 export const BeanActions: {[act in Act]: StateFunctions} = {
     'travel': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {
+            const city = world.cities.byID[agent.cityKey];
+            if (agent.actionData.destinations && agent.actionData.destinations.length){
+                const target = agent.actionData.destinations[0];
+    
+                if (isNaN(target.x) || isNaN(target.y)) {
+                    //this is a sanity check
+                    agent.actionData.destinations.shift();
+                    return {};
+                }
+                const newAccelerator = {
+                    ...(MoverBusInstance.Get('bean', agent.key).current || OriginAccelerator)
+                };
+    
+                const collide = accelerate_towards(
+                    newAccelerator,
+                    target,
+                    BeanPhysics.AccelerateS * deltaMS/1000, 
+                    BeanPhysics.MaxSpeed, 
+                    BeanPhysics.CollisionDistance,
+                    BeanPhysics.Brake);
+                if (collide){
+                    // agent.actionData.location = agent.point;
+                    agent.actionData.destinations.shift();
+                }
+                MoverBusInstance.Get('bean', agent.key).publish(newAccelerator);
+            }
+    
+            if (agent.actionData.destinations == null || agent.actionData.destinations.length === 0){
+                if (agent.actionData.intent)
+                    return {
+                        newData: agent.actionData.intent,
+                        newState: agent.actionData.intent.act
+                    }
+                else
+                    return {
+                        newState: 'idle',
+                        newData: {
+                            act: 'idle'
+                        }
+                    }
+            } else if (city) {
+                const nearbyBeanKeys = CityGetNearestNeighbors(city, agent);
+                if (nearbyBeanKeys.length && BeanMaybeChat(agent)){
+                    const targets = nearbyBeanKeys.filter((bKey) => BeanMaybeChat(world.beans.byID[bKey]));
+                    if (targets.length < 1)
+                        return {};
+                    const chat: IChatData = BeanGetRandomChat(agent, () => {
+                        return targets.map(
+                                x => world.beans.byID[x]
+                            ).filter(
+                                x => x.cash <= agent.cash-1
+                            ).reduce(
+                                (least: IBean|undefined, bean) => {
+                                    if (least == null || (bean.cash < least.cash))
+                                        return bean;
+                                    return least;
+                        }, undefined);
+                    });
+                    targets.forEach((z) => {
+                        // ChangeState(z, ChatState.create(agent.actionData.intent, {...chat, participation: 'listener'}));
+                    });
+                    return {
+                        newState: 'chat',
+                        newData: {
+                            act: 'chat',
+                            chat: chat,
+                            intent: agent.actionData 
+                        }
+                    };
+                } else if (BeanBelievesIn(agent, 'Wanderlust') && Math.random() < WanderlustEmoteChance) {
+                    return {
+                        action: beanEmote({beanKey: agent.key, emote: 'happiness', source: 'Wanderlust'})
+                    };
+                }
+            }
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
+            // if (agent instanceof Bean){
+            //     agent.velocity = {x: 0, y: 0};
+            // }
         },
     }, 
     'work': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
+            // if (this.Elapsed > 2000 && agent instanceof Bean && agent.actionData.good && agent.city?.economy && agent.city?.law){
+            //     agent.work(agent.city.law, agent.city.economy);
+            //     return IdleState.create();
+            // }
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
         },
     }, 
     'sleep':{
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
         },
     }, 
     'chat': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
+            
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
+            // if (this.Elapsed > 1000 && agent.actionData.intent){
+            //     const tState = TravelState.createFromIntent(agent, agent.actionData.intent);
+            //     if (tState)
+            //         return tState;
+            // }
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
+            // if (agent instanceof Bean && agent.actionData.chat){
+            //     agent.lastChatMS = Date.now();
+            //     if (agent.actionData.chat.participation === 'listener'){
+            //         switch(agent.actionData.chat.type){
+            //             case 'bully':
+            //                 agent.maybeAntagonised();
+            //             case 'praise':
+            //                 agent.maybeEnthused();
+            //             case 'preach':
+            //                 if (agent.actionData.chat.preachBelief && agent.actionData.chat.persuasionStrength)
+            //                     agent.maybePersuade(agent.actionData.chat.preachBelief, agent.actionData.chat.persuasionStrength);
+            //         }
+            //     }
+            // }
             return undefined;
         },
     }, 
     'soapbox': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
         },
     }, 
     'craze': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
         },
     }, 
     'idle': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean, world: IWorldState) => {
+            // if (this.Elapsed < 200){
+            //     return this;
+            // }
+            const priorities = GetPriorities(agent, world.cities.byID[agent.cityKey], world.alien.difficulty);
+            let top = priorities.dequeue();
+            let travelState: IActivityData|undefined = undefined;
+
+            //loop through possible destinations
+            while (top && travelState == null){
+                const activity = SubstituteIntent(agent, world, top.value);
+                if (activity){
+                    travelState = CreateTravelFromIntent(agent, world.cities.byID[agent.cityKey], top.value, world);
+                    if (travelState != null)
+                        return {
+                            newState: 'travel',
+                            newData: travelState
+                        };
+                }
+                top = priorities.dequeue();
+            }
             return {};
         },
-        exit: (agent: IBeanAgent) => {
-            return undefined;
+        exit: (agent: IBean) => {
+            if (BeanMaybeParanoid(agent))
+                return beanEmote({beanKey: agent.key, emote: 'unhappiness', source:'Paranoia'});
         },
     }, 
     'buy': {
-        enter: (agent: IBeanAgent) => {
+        // static MaximumBuyDuration = 1100;
+        // private sinceLastAttemptMS: number = 0;
+        // tryBuy(agent: IAgent){
+        //     if (agent instanceof Bean && agent.actionData.good && agent.city?.economy)
+        //     {
+        //         this._bought = agent.buy[agent.actionData.good](agent.city.economy);
+        //     }
+        //     this.sinceLastAttemptMS = 0;
+        // }
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
+            // if (!this._bought){
+            //     if (this.sinceLastAttemptMS > 250)
+            //     {
+            //         this.tryBuy(agent);
+            //         // if(this.attempts >= 3 && (agent.actionData.good == 'food' || agent.actionData.good == 'medicine') &&
+            //         //     agent instanceof Bean &&
+            //         //     agent.getCrimeDecision(agent.actionData.good, 'desperation')){
+            //         //     return CrimeState.create(agent.actionData.good);
+            //         // }
+            //     }
+            // }
+            // if (this.Elapsed > BuyState.MaximumBuyDuration)
+            // {
+            //     if (agent instanceof Bean && agent.actionData.good){
+            //         agent.maybeScarcity(agent.actionData.good);
+            //     }
+            //     return IdleState.create();
+            // }
+            // else
+            //     return this;
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
         },
     }, 
     'crime': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
+            // if (this.Elapsed > 1500 && agent instanceof Bean && agent.city?.economy && 
+            //     (agent.actionData.good === 'food' ||
+            //     agent.actionData.good === 'medicine')){
+            //     agent.steal(agent.actionData.good, agent.city?.economy);
+            //     return IdleState.create();
+            // }
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
             return undefined;
         },
     }, 
     'relax': {
-        enter: (agent: IBeanAgent) => {
+        enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBeanAgent) => {
+        act: (agent: IBean) => {
+            // let durationMS = 1000;
+            // if (agent instanceof Bean && agent.believesIn('Naturalism'))
+            //     durationMS *= 3;
+            // if (this.Elapsed > durationMS){
+            //     return IdleState.create();
+            // }
             return {};
         },
-        exit: (agent: IBeanAgent) => {
+        exit: (agent: IBean) => {
+            
+            // if (agent instanceof Bean){
+            //     agent.discrete_fun += 1;
+            //     agent.emote('happiness', 'Relaxation');
+            //     if (agent.believesIn('Naturalism'))
+            //         agent.emote('happiness', 'Naturalism');
+            // }
             return undefined;
         },
     }
 }
 
-export abstract class AgentState{
-    constructor(public data: IActivityData){}   
-    public get Elapsed(): number {return this.data.elapsed || 0;}
-    enter(agent: IAgent){
-        this.data.elapsed = 0;
-    }
-    act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        const newState = this._act(agent, deltaMS, difficulty);
-        this.data.elapsed = this.Elapsed + deltaMS;
-        return newState;
-    }
-    abstract _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState;
-    exit(agent: IAgent){
-    }
-}
-export class IdleState extends AgentState{
-    static create(){ return new IdleState({act: 'idle'})}
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        if (this.Elapsed < 200){
-            return this;
-        }
-        if (agent instanceof Bean && agent.city){
-            const priorities = GetPriorities(agent, agent.city, difficulty);
-            let top = priorities.dequeue();
-            let travelState: TravelState|null = null;
-
-            //loop through possible destinations
-            while (top && travelState == null){
-                const activity = IdleState.substituteIntent(agent, top.value);
-                if (activity){
-                    travelState = TravelState.createFromIntent(agent, top.value);
-                    if (travelState != null)
-                        return travelState;
+function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData): IActivityData|null{
+    if (intent.act === 'buy' && intent.good != null){
+        const desiredGoodState = EconomyCanBuy(world.economy, world.law, bean, intent.good);
+        if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
+            intent.act = 'relax'; //relaxing is free!
+        else if (desiredGoodState === 'pricedout') {
+            if (BeanMaybeCrime(bean, intent.good)){
+                intent.act = 'crime';
+            } else {
+                const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
+                if (isPhysical){
+                    BeanEmote(bean, 'unhappiness', 'Poverty');
                 }
-                top = priorities.dequeue();
+                return null; //don't travel to buy something that you can't afford
             }
-        }
-        return this;
-    }
-    static substituteIntent(agent: IAgent, intent: IActivityData): IActivityData|null{
-        if (intent.act === 'buy' && intent.good != null && agent instanceof Bean){
-            const desiredGoodState = agent.canBuy(intent.good);
-            if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
-                intent.act = 'relax'; //relaxing is free!
-            else if (desiredGoodState === 'pricedout') {
-                if (agent.maybeCrime(intent.good)){
-                    intent.act = 'crime';
-                } else {
-                    const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
-                    if (isPhysical){
-                        agent.emote('unhappiness', 'Poverty');
-                    }
-                    return null; //don't travel to buy something that you can't afford
-                }
-            } else if (desiredGoodState === 'nosupply'){
-                if (intent.good){
-                    agent.maybeScarcity(intent.good);
-                }
-                return null; //don't travel to buy something that doesn't exist
+        } else if (desiredGoodState === 'nosupply'){
+            if (intent.good){
+                BeanMaybeScarcity(bean, intent.good);
             }
-        }
-        return intent;
-    }
-    exit(agent: IAgent){
-        super.exit(agent);
-
-        if (agent instanceof Bean){
-            agent.maybeParanoid()
+            return null; //don't travel to buy something that doesn't exist
         }
     }
+    return intent;
 }
 
-export function IntentToDestination(agent: IAgent, intent: IActivityData): Point[]|null{
-    if (!(agent instanceof Bean))
-        return [];
-    else if (agent.city){
-        const city = agent.city;
-        switch(intent.act){
-            case 'buy':
-                if (intent.good)
-                    return RouteRandom(city, agent, GoodToBuilding[intent.good]);
-            case 'work':
-                return RouteRandom(city, agent, JobToBuilding[agent.job]);
-            case 'relax': {
-                const destination = city.book.getRandomEntertainmentBuilding();
-                if (destination){
-                    agent.destinationKey = destination.key;
-                    return Route(city, agent, destination);
-                } else {
-                    return [];
-                }
+export function IntentToDestination(agent: IBean, city: ICity, intent: IActivityData, world: IWorldState): Point[]|null{
+    switch(intent.act){
+        case 'buy':
+            if (intent.good)
+                return RouteRandom(city, world, agent, GoodToBuilding[intent.good]);
+        case 'work':
+            return RouteRandom(city, world, agent, JobToBuilding[agent.job]);
+        case 'relax': {
+            const destination = CityGetRandomEntertainmentBuilding(city, world);
+            if (destination){
+                return Route(city, agent, destination);
             }
         }
     }
     return [];
 }
 
+function CreateTravelFromIntent(agent: IBean, city: ICity, intent: IActivityData, world: IWorldState): IActivityData|undefined{
+    const destination = IntentToDestination(agent, city, intent, world);
+    
+    if (destination)
+        return {
+            act: 'travel',
+            destinations: destination,
+            intent: intent
+        }
+    else
+        return undefined;
+}
+
 const WanderlustEmoteChance = 0.002;
-export class TravelState extends AgentState{
-    static createFromIntent(agent: IAgent, intent: IActivityData): TravelState|null{
-        const destination = IntentToDestination(agent, intent);
-
-        if (destination)
-            return this.createFromDestination(destination, intent);
-        return null;
-    }
-    static createFromDestination(destinations: Point[], intent: IActivityData): TravelState{ 
-        return new TravelState({act: 'travel', destinations: destinations, intent: intent});
-    }
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        
-        if (agent instanceof Bean && agent.city && this.data.destinations && this.data.destinations.length){
-            const target = this.data.destinations[0];
-
-            if (isNaN(target.x) || isNaN(target.y)) {
-                //this is a sanity check
-                this.data.destinations.shift();
-                return this;
-            }
-
-            let collide = accelerate_towards(
-                agent,
-                target,
-                BeanPhysics.AccelerateS * deltaMS/1000, 
-                BeanPhysics.MaxSpeed, 
-                BeanPhysics.CollisionDistance,
-                BeanPhysics.Brake);
-            if (collide){
-                this.data.location = agent.point;
-                this.data.destinations.shift();
-            } else {
-            }
-            agent.onMove.publish(agent.point);
-        }
-
-        if (this.data.destinations == null || this.data.destinations.length === 0){
-            if (this.data.intent)
-                return ActToState[this.data.intent.act](this.data.intent);
-            else
-                return IdleState.create();
-        } else if (agent instanceof Bean && agent.city) {
-            const nearby = agent.city.getNearestNeighbors(agent);
-            if (nearby.length && agent.maybeChat()){
-                const targets = nearby.filter((nn) => nn.maybeChat());
-                if (targets.length < 1)
-                    return this;
-                const chat: IChatData = agent.getRandomChat(targets);
-                targets.forEach((z) => {
-                    // ChangeState(z, ChatState.create(this.data.intent, {...chat, participation: 'listener'}));
-                });
-                return ChatState.create(this.data, chat);
-            } else if (agent.believesIn('Wanderlust') && Math.random() < WanderlustEmoteChance) {
-                agent.emote('happiness', 'Wanderlust');
-                return this;
-            } else {
-                return this;
-            }
-        } else {
-            return this;
-        }
-    }
-    exit(agent: IAgent){
-        super.exit(agent);
-        if (agent instanceof Bean){
-            agent.velocity = {x: 0, y: 0};
-        }
-    }
-}
-export class WorkState extends AgentState{
-    static create(good: TraitGood){ return new WorkState({act: 'work', good: good})}
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        if (this.Elapsed > 2000 && agent instanceof Bean && this.data.good && agent.city?.economy && agent.city?.law){
-            agent.work(agent.city.law, agent.city.economy);
-            return IdleState.create();
-        }
-        
-        return this;
-    }
-}
-export class BuyState extends AgentState{
-    static create(good: TraitGood){ return new BuyState({act: 'buy', good: good})}
-    static MaximumBuyDuration = 1100;
-    private sinceLastAttemptMS: number = 0;
-    tryBuy(agent: IAgent){
-        if (agent instanceof Bean && this.data.good && agent.city?.economy)
-        {
-            this._bought = agent.buy[this.data.good](agent.city.economy);
-        }
-        this.sinceLastAttemptMS = 0;
-    }
-    enter(agent: IAgent){
-        this.tryBuy(agent);
-    }
-    private _bought: boolean = false;
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        if (!this._bought){
-            if (this.sinceLastAttemptMS > 250)
-            {
-                this.tryBuy(agent);
-                // if(this.attempts >= 3 && (this.data.good == 'food' || this.data.good == 'medicine') &&
-                //     agent instanceof Bean &&
-                //     agent.getCrimeDecision(this.data.good, 'desperation')){
-                //     return CrimeState.create(this.data.good);
-                // }
-            }
-        }
-        if (this.Elapsed > BuyState.MaximumBuyDuration)
-        {
-            if (agent instanceof Bean && this.data.good){
-                agent.maybeScarcity(this.data.good);
-            }
-            return IdleState.create();
-        }
-        else
-            return this;
-    }
-}
-export class ChatState extends AgentState{
-    static create(intent: IActivityData|undefined, chat: IChatData){ 
-        return new ChatState({act: 'chat', intent: intent, chat: chat})
-    }
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        
-        if (this.Elapsed > 1000 && this.data.intent){
-            const tState = TravelState.createFromIntent(agent, this.data.intent);
-            if (tState)
-                return tState;
-        }
-        return this;
-    }
-    exit(agent: IAgent){
-        super.exit(agent);
-        if (agent instanceof Bean && this.data.chat){
-            agent.lastChatMS = Date.now();
-            if (this.data.chat.participation === 'listener'){
-                switch(this.data.chat.type){
-                    case 'bully':
-                        agent.maybeAntagonised();
-                    case 'praise':
-                        agent.maybeEnthused();
-                    case 'preach':
-                        if (this.data.chat.preachBelief && this.data.chat.persuasionStrength)
-                            agent.maybePersuade(this.data.chat.preachBelief, this.data.chat.persuasionStrength);
-                }
-            }
-        }
-    }
-}
-export class RelaxState extends AgentState{
-    static create(intent: IActivityData|undefined, chat: IChatData){ 
-        return new RelaxState({act: 'relax', intent: intent, chat: chat})
-    }
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        let durationMS = 1000;
-        if (agent instanceof Bean && agent.believesIn('Naturalism'))
-            durationMS *= 3;
-        if (this.Elapsed > durationMS){
-            return IdleState.create();
-        }
-        return this;
-    }
-    exit(agent: IAgent){
-        super.exit(agent);
-        if (agent instanceof Bean){
-            agent.discrete_fun += 1;
-            agent.emote('happiness', 'Relaxation');
-            if (agent.believesIn('Naturalism'))
-                agent.emote('happiness', 'Naturalism');
-        }
-    }
-}
-export class CrimeState extends AgentState{
-    static create(good: 'food'|'medicine'){ return new CrimeState({act: 'crime', good: good})}
-    _act(agent: IAgent, deltaMS: number, difficulty: IDifficulty): AgentState{
-        if (this.Elapsed > 1500 && agent instanceof Bean && agent.city?.economy && 
-            (this.data.good === 'food' ||
-            this.data.good === 'medicine')){
-            agent.steal(this.data.good, agent.city?.economy);
-            return IdleState.create();
-        }
-        return this;
-    }
-}
-
-const ActToState: {[key in Act]: (data: IActivityData) => AgentState} = {
-    'idle': (data) => new IdleState(data),
-    'work': (data) => new WorkState(data),
-    'chat': (data) => new ChatState(data),
-    'travel': (data) => new TravelState(data),
-    'craze': (data) => new BuyState(data),
-    'buy': (data) => new BuyState(data),
-    'sleep': (data) => new BuyState(data),
-    'soapbox': (data) => new BuyState(data),
-    'crime': (data) => new CrimeState(data),
-    'relax': (data) => new RelaxState(data)
-}
 
 export const GetPriority = {
     work: function(bean: IBean, city: ICity): number{
@@ -579,7 +503,7 @@ export function ActivityDisplay(data: IActivityData): string{
 /**
  * a bean is a citizen with preferences
  */
-export interface IBean extends ISeller, IMover, IBeanAgent{    
+export interface IBean extends ISeller, IBeanAgent{    
     key: number;
     cityKey: number;
     name: string;
@@ -611,37 +535,33 @@ export interface IBean extends ISeller, IMover, IBeanAgent{
     employerEnterpriseKey?: number,
     activity_duration: {[act in Act]: number},
     bornInPetri: boolean,
-    ticksSinceLastRelax: number
-}
-
-export interface IMover extends IAccelerater{
-    key: number;
-    destinationKey: number;
+    ticksSinceLastRelax: number,
+    lastChatMS: number
 }
 
 /**
  * fills out "markers" and "destinationKey" with random building of type
- * @param geo 
- * @param mover 
+ * @param city 
+ * @param bean 
  * @param buildingType 
  */
-export function RouteRandom(geo: Geography, mover: IMover, buildingType: BuildingTypes): Point[]|null{
-    const destination: IBuilding|undefined = geo.book.getRandomBuildingOfType(buildingType);
-    if (destination === undefined) return null;
-    mover.destinationKey = destination.key;
-    return Route(geo, mover, destination);
+export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildingType: BuildingTypes): Point[]|null{
+    const destination: IBuilding|undefined = CityGetRandomBuildingOfType(city, world, buildingType);
+    if (destination === undefined) 
+        return null;
+    return Route(city, bean, destination);
 }
 
 /**
  * fills out "markers" property with points to walk to destination
- * @param geo 
- * @param mover 
+ * @param city 
+ * @param bean 
  * @param buildingType 
  */
-export function Route(geo: Geography, mover: IMover, destination: IBuilding){
-    const start = mover.point;
-    const nearestHex = pixel_to_hex(geo.hex_size, geo.petriOrigin, start);
-    return hex_linedraw(nearestHex, destination.address).map((h) => hex_to_pixel(geo.hex_size, geo.petriOrigin, h)).map((x, i, a) => {
+export function Route(city: ICity, bean: IBean, destination: IBuilding){
+    const start = MoverBusInstance.Get('bean', bean.key).current || {...OriginAccelerator};
+    const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
+    return hex_linedraw(nearestHex, destination.address).map((h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)).map((x, i, a) => {
         if (i === a.length-1){
             const offset = getRandomSlotOffset();
             return {
@@ -653,6 +573,6 @@ export function Route(geo: Geography, mover: IMover, destination: IBuilding){
         }
     });
 }
-export function Approach(geo: Geography, mover: IMover){
+export function Approach(geo: Geography, bean: IBean){
 
 }

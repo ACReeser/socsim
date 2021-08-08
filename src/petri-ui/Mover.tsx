@@ -1,14 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MoverContext } from "../App";
-import { LiveList, PubSub } from "../events/Events";
-import { Bean } from "../simulation/Bean";
+import { LiveList } from "../events/Events";
 import { Pickup } from "../simulation/City";
-import { Point } from "../simulation/Geography";
+import { IAccelerator } from "../simulation/Geography";
 import { MoverType } from "../simulation/MoverBus";
-import { IPickup } from "../simulation/Pickup";
-import { doSelectBean } from "../state/features/selected.reducer";
 import { selectCityBeanIDs } from "../state/features/world.reducer";
-import { useAppDispatch, useAppSelector } from "../state/hooks";
+import { useAppSelector } from "../state/hooks";
 import { AnimatedBean } from "./AnimatedBean";
 import { AnimatedPickup } from "./AnimatedPickup";
 
@@ -18,9 +15,9 @@ export const Mover: React.FC<{
 }> = (props) => {
     const mover = React.useContext(MoverContext);
     const el = useRef<HTMLDivElement|null>(null);
-    const onMove = (p: Point) => {
+    const onMove = (p: IAccelerator) => {
         if (el.current && p)
-            el.current.style.transform = `translate(${p.x}px, ${p.y}px)`;
+            el.current.style.transform = `translate(${p.point.x}px, ${p.point.y}px)`;
     }
     useEffect(() => {
         const pubsub = mover.Get(props.moverType, props.moverKey);

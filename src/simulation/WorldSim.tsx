@@ -147,18 +147,19 @@ export function animate_ufos(world: IWorldState, deltaMS: number): Array<AnyActi
 export function animate_beans(world: IWorldState, deltaMS: number): Array<AnyAction>{
     const actions: AnyAction[] = [];
     world.beans.allIDs.forEach((beanKey) => {
-        const b = world.beans.byID[beanKey];
-        AgentDurationStoreInstance.Get('bean', b.key).elapsed += deltaMS;
-        const actResult = BeanActions[b.action].act(b);
+        const bean = world.beans.byID[beanKey];
+        const ADS = AgentDurationStoreInstance.Get('bean', bean.key); 
+        ADS.elapsed += deltaMS;
+        const actResult = BeanActions[bean.action].act(bean, world, ADS.elapsed, deltaMS);
         if (actResult.action){
             actions.push(actResult.action);
         }
-        if (actResult.newState){
-            const exitAction = BeanActions[b.action].exit(b);
+        if (actResult.newState && actResult.newData){
+            const exitAction = BeanActions[bean.action].exit(bean);
             if (exitAction)
                 actions.push(exitAction);
-            actions.push(changeState({beanKey: beanKey, newState: actResult.newState}));
-            const enterAction = BeanActions[actResult.newState].exit(b);
+            actions.push(changeState({beanKey: beanKey, newState: actResult.newState, newData: actResult.newData}));
+            const enterAction = BeanActions[actResult.newState].enter(bean);
             if (enterAction)
                 actions.push(enterAction);
         }

@@ -4,7 +4,7 @@ import { IOrganization, Charity, IEnterprise } from "./Institutions";
 import { City } from "./City";
 import { GetRandom } from "../WorldGen";
 import { IEvent, IEventBus, Live } from "../events/Events";
-import { Government } from "./Government";
+import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw } from "./Government";
 
 export interface IEconomicAgent{
     cash: number;
@@ -292,4 +292,41 @@ export function GetFairGoodPrice(econ: IEconomy, good: TraitGood){
 }
 export function GetCostOfLiving(econ: IEconomy){
     return GetFairGoodPrice(econ, 'food')+GetFairGoodPrice(econ, 'shelter')+GetFairGoodPrice(econ,'medicine');
+}
+export function EconomyCanBuy(econ: IEconomy, gov: IGovernment, buyer: IEconomicAgent, good: TraitGood,
+    minDemand: number = 1,
+    maxDemand: number = 1): 'yes'|'nosupply'|'pricedout'{
+    const listing = MarketLowestPriceListing(econ.market, good, minDemand);
+    if (listing == null){
+        return 'nosupply';
+    }
+    const actualDemand = Math.min(listing.quantity, maxDemand);
+    if (listing.price <= buyer.cash * actualDemand)
+        return 'yes';
+    if (buyer instanceof Bean && GovPurchaseQualifiesForWelfare(gov, buyer, good) && GovCanPayWelfare(gov, listing.price)){
+        return 'yes';
+    }
+    return 'pricedout';
+
+}
+
+function MarketLowestPriceListing(market: IMarket, good: TraitGood, demand: number): Listing|null{
+    const fullListings =  market.listings[good].filter((l) => {
+        return l.quantity >= demand;
+    });
+    if (fullListings.length > 0){
+        let numberOfSamePriceListings = 1;
+        const lowPrice = fullListings[0].price;
+        for (let i = 1; i < fullListings.length; i++) {
+            const list = fullListings[i];
+            if (list.price > lowPrice)
+                break;
+            numberOfSamePriceListings++;
+        }
+        const i = Math.floor(Math.random() * numberOfSamePriceListings);
+        if (i >= fullListings.length)
+            throw "invalid index";
+        return fullListings[i];
+    }
+    return null;
 }

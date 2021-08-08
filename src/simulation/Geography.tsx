@@ -70,9 +70,10 @@ export function move_towards(current: Point, target: Point, maxDistanceDelta: nu
         y: current.y + a.y / magnitude * maxDistanceDelta,
     };
 }
-export interface IAccelerater {point:Point, velocity:Vector};
+export interface IAccelerator {point: Point, velocity: Vector};
+export const OriginAccelerator = { point: {x: 0, y: 0}, velocity: {x: 0, y: 0}}
 export function accelerate_towards(
-    mover: IAccelerater, 
+    mover: IAccelerator, 
     target: Point, 
     acceleration: number,
     maxSpeed: number, 
@@ -98,7 +99,7 @@ export function accelerate_towards(
     return false;
 }
 export function accelerator_coast(
-    current: IAccelerater, 
+    current: IAccelerator, 
     brake: Point): void
 {
     current.velocity.x *= brake.x;

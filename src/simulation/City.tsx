@@ -4,7 +4,7 @@ import { Economy, GetCostOfLiving, IEconomy } from "./Economy";
 import { Government } from "./Government";
 import { GenerateBean, GetRandom, GetRandomNumber } from "../WorldGen";
 import { ICityPartyHQ, Party } from "./Politics";
-import { Geography, HexPoint, IBuilding, JobToBuilding, Point, Vector } from "./Geography";
+import { BuildingTypes, Geography, HexPoint, IBuilding, JobToBuilding, Point, Vector } from "./Geography";
 import { IDate } from "./Time";
 import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
@@ -15,6 +15,8 @@ import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPickup } from "./Pickup";
 import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";
 import { IBean } from "./Agent";
+import { IWorldState } from "../state/features/world";
+import { MoverBusInstance } from "../MoverBusSingleton";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -243,5 +245,34 @@ export function CityGetPopulationTraitsList(scannedBeans: {[beanKey: number]: bo
             noun: SecondaryBeliefData[t].noun,
             count: c
         }
+    });
+}
+export function CityGetRandomBuildingOfType(city: ICity, world: IWorldState, buildingType: BuildingTypes): IBuilding|undefined{
+    const keysOfType: number[] = city.buildingKeys.filter(x => world.buildings.byID[x].type === buildingType);
+    if (keysOfType.length < 1)
+        return undefined;
+    const r = GetRandom(keysOfType);
+    return world.buildings.byID[r]
+}
+export function CityGetRandomEntertainmentBuilding(city: ICity, world: IWorldState): IBuilding|undefined{
+    const keysOfType: number[] = city.buildingKeys.filter(x => world.buildings.byID[x].type === 'nature' || world.buildings.byID[x].type === 'park' || world.buildings.byID[x].type === 'theater');
+    if (keysOfType.length < 1)
+        return undefined;
+    const r = GetRandom(keysOfType);
+    return world.buildings.byID[r]
+}
+export function CityGetNearestNeighbors(city: ICity, source: IBean): number[]{
+    const q = MoverBusInstance.Get('bean', source.key).current;
+    if (!q)
+        return [];
+    return city.beanKeys.filter((bKey) => {
+        if (bKey == source.key) return false;
+
+        const p = MoverBusInstance.Get('bean', bKey).current;
+        if (!p)
+            return false;
+        const squared = Math.pow(p.point.x - q.point.x, 2)+Math.pow(p.point.y - q.point.y, 2);
+
+        return squared < 1600 && squared > 600;
     });
 }

@@ -265,3 +265,16 @@ export function MaybeRebate(gov: IGovernment, beans: IBean[]){
         beans.forEach((b) => b.cash += perBean);
     }
 }
+export function GovPurchaseQualifiesForWelfare(law: IGovernment, bean: Bean, good: TraitGood){
+
+    switch(good){
+        case 'food':
+            return (bean.food === 'starving' || bean.food === 'hungry') && IsLaw(law, 'food_aid');
+        case 'medicine':
+            return (bean.health === 'sick' || bean.health === 'sickly') && IsLaw(law, 'medical_aid');
+    }
+    return false;
+}
+export function GovCanPayWelfare(law: IGovernment, price: number): boolean{
+    return law.treasury >= price;
+}

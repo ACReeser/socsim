@@ -5,8 +5,8 @@ import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
 import { IDate, withinLastYear } from "./Time";
 import { Government, IGovernment } from "./Government";
-import { Act, AgentState, IActivityData, IAgent, IBean, IChatData, IdleState, IMover } from "./Agent";
-import { JobToBuilding, Point, Vector } from "./Geography";
+import { Act, IActivityData, IBean, IChatData } from "./Agent";
+import { JobToBuilding, OriginAccelerator, Point, Vector } from "./Geography";
 import { City, ICity } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { GetHedonReport, HedonExtremes, HedonReport, HedonSourceToVal, SecondaryBeliefData, TraitBelief } from "./Beliefs";
@@ -14,6 +14,7 @@ import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
 import { IPickup } from "./Pickup";
+import { MoverBusInstance } from "../MoverBusSingleton";
 
 const BabyChance = 0.008;
 export const DaysUntilSleepy = 7;
@@ -24,7 +25,7 @@ const ChatCooldownMS = 4000;
  */
 const PersuasionBeliefTarget = 2; 
 
-const HedonismExtraChance = 0.1;
+export const HedonismExtraChance = 0.1;
 const ParanoidUnhappyChance = 0.05;
 const HedonismHateWorkChance = 0.15;
 const DiligenceHappyChance = 0.25;
@@ -43,7 +44,7 @@ export const LibertarianTaxUnhappyChance = 0.1;
 export const ProgressivismTaxHappyChance = 0.1;
 
 const MaxGraceTicks = 6;
-export class Bean implements IBean, IAgent{
+export class Bean implements IBean{
     actionData: IActivityData = {act: 'idle'};
     public key: number = 0;
     public cityKey: number = 0;
@@ -255,9 +256,9 @@ export class Bean implements IBean, IAgent{
         return null;        
     }
     getSpeech(): string | undefined {
-        if (this.state.data.act === 'chat'){
-            if (this.state.data.chat?.participation === 'speaker' && this.state.data.chat.preachBelief){
-                return '💬'+SecondaryBeliefData[this.state.data.chat.preachBelief].icon;
+        if (this.action === 'chat'){
+            if (this.actionData.chat?.participation === 'speaker' && this.actionData.chat.preachBelief){
+                return '💬'+SecondaryBeliefData[this.actionData.chat.preachBelief].icon;
             }
         }
         return undefined;
@@ -331,7 +332,7 @@ export class Bean implements IBean, IAgent{
     public maybeChat(): boolean {
         if (this.lastChatMS + ChatCooldownMS > Date.now()) 
             return false;
-        if (this.state.data.act === 'chat')
+        if (this.action === 'chat')
             return false;
         const roll = Math.random();
         let chance = (this.community === 'state') ? 0.2 : 0.1;
@@ -684,9 +685,6 @@ export class Bean implements IBean, IAgent{
         this.city?.unsetJob(this);
         player.abductedBeans.push(this);
     }
-
-    state: AgentState = IdleState.create();
-    jobQueue: PriorityQueue<AgentState> = new PriorityQueue<AgentState>([]);
 }
 
 export function CalculateBeliefs(bean: IBean, econ: IEconomy, homeCity: ICity, law: IGovernment){
@@ -708,7 +706,64 @@ export function CalculateBeliefs(bean: IBean, econ: IEconomy, homeCity: ICity, l
         bean.fairGoodPrice = GetFairGoodPrice(econ, JobToGood(bean.job))
     }
 }
-
+export function BeanMaybeChat(bean: IBean): boolean {
+        if (bean.lastChatMS + ChatCooldownMS > Date.now()) 
+            return false;
+        if (bean.action === 'chat')
+            return false;
+        const roll = Math.random();
+        let chance = (bean.community === 'state') ? 0.2 : 0.1;
+        if (BeanBelievesIn(bean, 'Extroversion')) 
+            chance += ExtrovertChatExtraChance;
+        if (BeanBelievesIn(bean, 'Introversion')) 
+            chance += IntrovertChatExtraChance;
+        return roll < chance;
+}
+export function BeanGetRandomChat(bean: IBean, findNeedy: () => IBean|undefined): IChatData{
+    const canPreach = bean.beliefs.length;
+    if (canPreach){
+        if (BeanBelievesIn(bean, 'Charity') && bean.cash >= 2){
+            //find a bean with less money than self, poorest in sight
+            const needy = findNeedy();
+            if (needy) {
+                return {
+                    participation: 'speaker',
+                    type: 'gift',
+                    targetBeanKey: needy.key
+                }
+            }
+        } else if(BeanBelievesIn(bean, 'Enthusiasm') && Math.random() < EnthusiasmPraiseChance){
+            return {
+                participation: 'speaker',
+                type: 'praise',
+                preachBelief: 'Enthusiasm'
+            }
+        } else if(BeanBelievesIn(bean, 'Antagonism') && Math.random() < AntagonismBullyChance){
+            return {
+                participation: 'speaker',
+                type: 'bully',
+                preachBelief: 'Antagonism'
+            }
+        } else if(BeanBelievesIn(bean, 'Gossip') && Math.random() < GossipBullyChance){
+            return {
+                participation: 'speaker',
+                type: 'bully',
+                preachBelief: 'Gossip'
+            }
+        }
+        return {
+            participation: 'speaker',
+            type: 'preach',
+            preachBelief: GetRandom(bean.beliefs),
+            persuasionStrength: 1 + (BeanBelievesIn(bean, 'Charisma') ? CharismaExtraPersuasionStrength : 0)
+        }
+    } else {
+        return {
+            participation: 'speaker',
+            type: 'praise'
+        }
+    }
+}
 
 export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes?: IPickup[]}|undefined {
     if (!bean.alive) return undefined;
@@ -770,7 +825,9 @@ export function BeanEmote(bean: IBean, emote: TraitEmote, source: string): IPick
     const out = [
         {
             key: 0, 
-            point: {...bean.point}, 
+            point: {
+                ...(MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point
+            }, 
             type: emote,
             velocity: {x: 0, y: 0}
         }
@@ -778,7 +835,7 @@ export function BeanEmote(bean: IBean, emote: TraitEmote, source: string): IPick
     if (BeanBelievesIn(bean, 'Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
         out.push(...BeanEmote(bean, 'happiness', 'Hedonism'));
     }
-    return out; 
+    return out;
 }
 export function BeanBelievesIn(bean: IBean, trait: TraitBelief): boolean{
     return bean.beliefs.indexOf(trait) !== -1;
@@ -793,11 +850,58 @@ export function BeanMaybeBaby(bean: IBean, costOfLiving: number): IEvent|undefin
         } else {
             BeanEmote(bean, 'happiness', 'Proud Parent');
         }
-        return {icon: '🎉', trigger: 'birth', message: `${bean.name} has a baby!`,
-        key: 0,}
+        return {
+            icon: '🎉', trigger: 'birth', message: `${bean.name} has a baby!`,
+            key: 0,
+        }
     } else {
         return undefined;
     }
+}
+export function BeanMaybeCrime(bean: IBean, good: TraitGood): boolean {
+    if (good === 'shelter') return false;
+    if (good === 'fun') return false;
+    const roll = Math.random();
+    let chance = 0.05;
+    if (bean.community === 'ego'){
+        chance += .1;
+    }
+    if (BeanIsInCrisis(bean)){
+        chance += .1;
+    }
+    if (BeanBelievesIn(bean, 'Greed')){
+        chance += .25;
+    }
+    if (BeanBelievesIn(bean, 'Anarchism')){
+        chance += .33;
+    }
+    if (BeanBelievesIn(bean, 'Authority')){
+        chance += -.25;
+    }
+    if (good === 'food' && bean.food === 'starving'){
+        chance += .25;
+    }
+    else if (good === 'medicine' && bean.health === 'sick'){
+        chance += .25;
+    }
+    return chance <= roll;
+}
+export function BeanMaybeParanoid(bean: IBean) {
+    if (BeanBelievesIn(bean, 'Paranoia') && Math.random() < ParanoidUnhappyChance){
+        return true;
+    }
+}
+
+export function BeanMaybeScarcity(bean: IBean, good: TraitGood){
+    let scarce = false;
+    if (good === 'food' && (bean.food === 'starving' || bean.food === 'hungry'))
+        scarce = true;
+    else if (good === 'shelter' && (bean.stamina === 'homeless' || bean.stamina === 'sleepy'))
+        scarce = true;
+    else if (good === 'medicine' && (bean.health === 'sick' || bean.health === 'sickly'))
+        scarce = true;
+    if (scarce)
+        BeanEmote(bean, 'unhappiness', 'Scarcity');
 }
 export function BeanCanBaby(bean: IBean, costOfLiving: number): boolean{
     return bean.alive && 
@@ -829,7 +933,7 @@ export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPi
         death: {
             icon: '☠️', trigger: 'death', message: `${bean.name} died of ${cause}!`, 
             beanKey: bean.key, cityKey: bean.cityKey,
-            point: bean.point,
+            point: (MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point,
             key: 0,
         },
         emotes: emotes

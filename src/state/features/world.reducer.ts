@@ -1,14 +1,18 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
 import { MoverBusInstance } from '../../MoverBusSingleton'
-import { Act, IBean } from '../../simulation/Agent'
+import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BuildingTypes, HexPoint, IBuilding, Point } from '../../simulation/Geography'
+import { BeanBelievesIn, HedonismExtraChance } from '../../simulation/Bean'
+import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { EnterpriseType } from '../../simulation/Institutions'
+import { IPickup } from '../../simulation/Pickup'
 import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { IUFO } from '../../simulation/Ufo'
+import { MathClamp } from '../../simulation/Utils'
 import { simulate_world } from '../../simulation/WorldSim'
+import { EmotionSanity, EmotionWorth, TraitEmote } from '../../World'
 import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { GetBlankWorldState, IWorldState } from './world'
 
@@ -88,7 +92,10 @@ export const worldSlice = createSlice({
         state.beans.byID[newBean.key] = newBean;
         state.beans.allIDs.push(newBean.key);
         state.cities.byID[ufo.cityKey].beanKeys.push(newBean.key);
-        MoverBusInstance.Get('bean', newBean.key).current = newBean.point;
+        MoverBusInstance.Get('bean', newBean.key).current = {
+          point: hex_to_pixel(state.cities.byID[ufo.cityKey].hex_size, state.cities.byID[ufo.cityKey].petriOrigin, ufo.point), 
+          velocity: {x: 0, y: 0}
+        };
       },
       abduct: () => {
 
@@ -102,17 +109,62 @@ export const worldSlice = createSlice({
       vaporize: () => {
 
       },
-      changeState: (state, action: PayloadAction<{beanKey: number, newState: Act}>) => {
+      changeState: (state, action: PayloadAction<{beanKey: number, newState: Act, newData: IActivityData}>) => {
         const oldAct = state.beans.byID[action.payload.beanKey].action;
         const bean = state.beans.byID[action.payload.beanKey];
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
         bean.activity_duration[oldAct] += ADS.elapsed;
         bean.action = action.payload.newState;
+        bean.actionData = action.payload.newData;
         ADS.elapsed = 0;
 
         // if (agent instanceof Bean){
         //     agent.activity_duration[this.data.act] += this.Elapsed;
         // }
+      },
+      beanGiveCharity: (state, action: PayloadAction<{senderBeanKey: number, needyBeanKey: number}>) => {
+        const bean = state.beans.byID[action.payload.senderBeanKey];
+        bean.cash -= 0.5;
+        // this.emote('happiness', 'Charity');
+        const needy = state.beans.byID[action.payload.needyBeanKey];
+        needy.cash += 0.5;
+        // needy.emote('happiness', 'Charity');
+      },
+      beanEmote: (state, action: PayloadAction<{beanKey: number, emote: TraitEmote, source: string}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        
+        bean.discrete_sanity = MathClamp(bean.discrete_sanity + EmotionSanity[action.payload.emote], 0, 10);
+        bean.hedonHistory[0][action.payload.source] = (bean.hedonHistory[0][action.payload.source] || 0) + EmotionWorth[action.payload.emote];
+        const all: IPickup[] = [
+            {
+                key: state.pickups.nextID++, 
+                point: {
+                  ...(MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point
+                }, 
+                type: action.payload.emote,
+                velocity: {x: 0, y: 0}
+            }
+        ];
+        if (BeanBelievesIn(bean, 'Hedonism') && (
+          action.payload.emote === 'happiness' || action.payload.emote === 'love'
+          ) && Math.random() < HedonismExtraChance){
+            //same as this method, but just for hedonism
+            bean.discrete_sanity = MathClamp(bean.discrete_sanity + EmotionSanity['happiness'], 0, 10);
+            bean.hedonHistory[0]['Hedonism'] = (bean.hedonHistory[0]['Hedonism'] || 0) + EmotionWorth['happiness'];
+            all.push(
+              {
+                  key: state.pickups.nextID++, 
+                  point: {
+                    ...(MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point
+                  }, 
+                  type: 'happiness',
+                  velocity: {x: 0, y: 0}
+              });
+        }
+        all.map(x => {
+          state.pickups.byID[x.key] = x; 
+          state.pickups.allIDs.push(x.key)
+        })
       }
     }
   })
@@ -122,7 +174,7 @@ export const worldSlice = createSlice({
     remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, brainwash, scan, vaporize,
-    changeState
+    changeState, beanEmote, beanGiveCharity
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;
