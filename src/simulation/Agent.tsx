@@ -60,7 +60,7 @@ export interface IBeanAgent{
 }
 export interface StateFunctions {
     enter: (agent: IBean) => AnyAction|undefined;
-    act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction, newState?: Act, newData?: IActivityData};
+    act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction, newActivity?: IActivityData};
     exit: (agent: IBean) => AnyAction|undefined;
 }
 export const BeanActions: {[act in Act]: StateFunctions} = {
@@ -76,13 +76,11 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 destinationTargetIndex >= agent.actionData.destinations.length){
                 if (agent.actionData.intent)
                     return {
-                        newData: agent.actionData.intent,
-                        newState: agent.actionData.intent.act
+                        newActivity: agent.actionData.intent
                     }
                 else
                     return {
-                        newState: 'idle',
-                        newData: {
+                        newActivity: {
                             act: 'idle'
                         }
                     }
@@ -93,8 +91,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 //sanity check
                 console.warn('NaN destination, resetting to idle')
                 return {
-                    newState: 'idle',
-                    newData: {
+                    newActivity: {
                         act: 'idle'
                     }
                 };
@@ -141,8 +138,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                         // ChangeState(z, ChatState.create(agent.actionData.intent, {...chat, participation: 'listener'}));
                     });
                     return {
-                        newState: 'chat',
-                        newData: {
+                        newActivity: {
                             act: 'chat',
                             chat: chat,
                             intent: agent.actionData 
@@ -171,8 +167,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             if (elapsed > 2000 && agent.actionData.good){
                 return {
                     action: beanWork({beanKey: agent.key}),
-                    newState: 'idle',
-                    newData: {
+                    newActivity: {
                         act: 'idle'
                     }
                 }
@@ -196,15 +191,17 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
     }, 
     'chat': {
         enter: (agent: IBean) => {
-            
             return undefined;
         },
-        act: (agent: IBean) => {
-            // if (this.Elapsed > 1000 && agent.actionData.intent){
-            //     const tState = TravelState.createFromIntent(agent, agent.actionData.intent);
-            //     if (tState)
-            //         return tState;
-            // }
+        act: (agent: IBean, state, elapsed: number) => {
+            if (elapsed > 1000 && agent.actionData.intent){
+                return {
+                    newActivity: {
+                        act: 'travel',
+                        intent: agent.actionData.intent
+                    }
+                }
+            }
             return {};
         },
         exit: (agent: IBean) => {
@@ -266,8 +263,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                     travelState = CreateTravelFromIntent(agent, world.cities.byID[agent.cityKey], top.value, world);
                     if (travelState != null)
                         return {
-                            newState: 'travel',
-                            newData: travelState
+                            newActivity: travelState
                         };
                 }
                 top = priorities.dequeue();
@@ -346,8 +342,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 durationMS *= 3;
             if (elapsed > durationMS){
                 return {
-                    newState: 'idle',
-                    newData: {
+                    newActivity: {
                         act: 'idle'
                     }
                 }

@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { AnimatedUFO2 } from "./AnimatedUFO2";
 import { PetriHexes2 } from "./Buildings";
 import { Magnet2 } from "./Magnet";
-import { PetriBeanList } from "./Mover";
+import { PetriBeanList, PickupList2 } from "./Mover";
 
 
 
@@ -55,7 +55,7 @@ export const WorldTile2: React.FC<WorldTilePs> = (props) => {
       {mtn_transforms.map((x, i) => {
         return <span key={i} style={x} className="mtn">⛰️</span>
       })}
-      {/* <PickupList2 cityKey={props.cityKey}></PickupList2>*/}
+      <PickupList2 cityKey={props.cityKey}></PickupList2>
       <PetriBeanList cityKey={props.cityKey}></PetriBeanList>
       {ufos.map((uK: number, i: number) => {
         return <AnimatedUFO2 ufoKey={uK} key={uK} cityKey={city.key}></AnimatedUFO2>

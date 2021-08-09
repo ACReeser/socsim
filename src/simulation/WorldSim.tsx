@@ -1,8 +1,9 @@
 import { AnyAction, bindActionCreators } from "redux";
 import { IEvent } from "../events/Events";
+import { MoverBusInstance } from "../MoverBusSingleton";
 import { IWorldState } from "../state/features/world";
-import { changeState, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
-import { WorldInflate, MaxHedonHistory, TraitJob } from "../World";
+import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
+import { WorldInflate, MaxHedonHistory, TraitJob, PickupPhysics, EmotionWorth } from "../World";
 import { GenerateBean, GetRandom } from "../WorldGen";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
@@ -11,6 +12,7 @@ import { BeanTryFindJob, BeanTrySetJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
 import { CalculateCityComputed, ICity } from "./City";
 import { GetCostOfLiving } from "./Economy";
+import { accelerate_towards, accelerator_coast, OriginAccelerator } from "./Geography";
 import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
 import { GetMarketTraits } from "./MarketTraits";
 import { CheckGoals, CheckReportCard, HasResearched, TechData } from "./Player";
@@ -153,12 +155,12 @@ export function animate_beans(world: IWorldState, deltaMS: number): Array<AnyAct
         if (actResult.action){
             actions.push(actResult.action);
         }
-        if (actResult.newState && actResult.newData){
+        if (actResult.newActivity){
             const exitAction = BeanActions[bean.action].exit(bean);
             if (exitAction)
                 actions.push(exitAction);
-            actions.push(changeState({beanKey: beanKey, newState: actResult.newState, newData: actResult.newData}));
-            const enterAction = BeanActions[actResult.newState].enter(bean);
+            actions.push(changeState({beanKey: beanKey, newState: actResult.newActivity}));
+            const enterAction = BeanActions[actResult.newActivity.act].enter(bean);
             if (enterAction)
                 actions.push(enterAction);
         }
@@ -178,26 +180,25 @@ export function animate_pickups(world: IWorldState, deltaMS: number): Array<AnyA
         const pickupID = pickupIDs[i];
         let collide = false;
         const magnet = city.pickupMagnetPoint;
-        // if (magnet){
-        //     collide = accelerate_towards(
-        //         pickup, 
-        //         magnet, 
-        //         PickupPhysics.AccelerateS * deltaMS/1000, 
-        //         PickupPhysics.MaxSpeed, 
-        //         PickupPhysics.CollisionDistance,
-        //         PickupPhysics.Brake);
-        // } else {
-        //     accelerator_coast(pickup, PickupPhysics.Brake);
-        // }
-        // if (collide){
-        //     const amt = EmotionWorth[pickup.type];
-        //     world.alien.hedons.amount += amt;
-        //     world.alien.hedons.change.publish({change: amt});
-        //     city.pickups.remove(pickup);
-        //     world.sfx.play(pickup.type);
-        // } else {
-        //     pickup.onMove.publish(pickup.point);
-        // }
+        const newAccelerator = {
+            ...(MoverBusInstance.Get('pickup', pickupID).current || OriginAccelerator)
+        };
+        if (magnet){
+            const collide = accelerate_towards(
+                newAccelerator,
+                magnet,
+                PickupPhysics.AccelerateS * deltaMS/1000, 
+                PickupPhysics.MaxSpeed, 
+                PickupPhysics.CollisionDistance,
+                PickupPhysics.Brake);
+            if (collide){
+                actions.push(pickUpPickup({cityKey: city.key, pickupKey: pickupID}));
+            }
+        } else {
+            accelerator_coast(newAccelerator, PickupPhysics.Brake);
+        }
+        if (!collide)
+            MoverBusInstance.Get('pickup', pickupID).publish(newAccelerator);
     }
     return actions;
 }

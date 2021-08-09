@@ -121,13 +121,24 @@ export const worldSlice = createSlice({
       vaporize: () => {
 
       },
-      changeState: (state, action: PayloadAction<{beanKey: number, newState: Act, newData: IActivityData}>) => {
+      pickUpPickup: (state, action: PayloadAction<{cityKey: number, pickupKey: number}>) => {
+        const pickup = state.pickups.byID[action.payload.pickupKey];
+
+        const amt = EmotionWorth[pickup.type];
+        state.alien.hedons.amount += amt;
+        state.cities.byID[action.payload.cityKey].pickupKeys = state.cities.byID[action.payload.cityKey].pickupKeys.filter(x => x != action.payload.pickupKey);
+        state.pickups.allIDs = state.pickups.allIDs.filter(x => x != action.payload.pickupKey);
+        delete state.pickups.byID[action.payload.pickupKey];
+        // TODO
+        //world.sfx.play(pickup.type);
+      },
+      changeState: (state, action: PayloadAction<{beanKey: number, newState: IActivityData}>) => {
         const oldAct = state.beans.byID[action.payload.beanKey].action;
         const bean = state.beans.byID[action.payload.beanKey];
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
         bean.activity_duration[oldAct] += ADS.elapsed;
-        bean.action = action.payload.newState;
-        bean.actionData = action.payload.newData;
+        bean.action = action.payload.newState.act;
+        bean.actionData = action.payload.newState;
         ADS.elapsed = 0;
       },
       beanHitDestination: (state, action: PayloadAction<{beanKey: number}>) => {
@@ -235,23 +246,30 @@ export const worldSlice = createSlice({
     bean.discrete_sanity = MathClamp(bean.discrete_sanity + EmotionSanity[payload.emote], 0, 10);
     bean.hedonHistory[0][payload.source] = (bean.hedonHistory[0][payload.source] || 0) + EmotionWorth[payload.emote];
     
+    const beanPosition = MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator;
+
     const pickup: IPickup = {
-        key: state.pickups.nextID++, 
+        key: state.pickups.nextID++,
         point: {
-          ...(MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point
-        }, 
+          ...beanPosition.point
+        },
         type: payload.emote,
         velocity: {x: 0, y: 0}
     };
+    state.cities.byID[bean.cityKey].pickupKeys.push(pickup.key);
     state.pickups.byID[pickup.key] = pickup; 
-    state.pickups.allIDs.push(pickup.key)
+    state.pickups.allIDs.push(pickup.key);
+    MoverBusInstance.Get('pickup', pickup.key).publish({
+      ...beanPosition,
+      velocity: {x: 0, y: 0}
+    });
   }
   
   export const { 
     refreshMarket, magnetChange, worldTick, 
     remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
-    abduct, brainwash, scan, vaporize,
+    abduct, brainwash, scan, vaporize, pickUpPickup,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax
   } = worldSlice.actions
   

@@ -31,28 +31,6 @@ export const Mover: React.FC<{
     </div>
 }
 
-export const PickupList: React.FC<{
-    pickups: LiveList<Pickup>
-}> = (props) => {
-    const [list, setList] = useState(props.pickups.get);
-    const onChange = (l: Pickup[]) => {
-        setList(l);
-    }
-    useEffect(() => {
-        props.pickups.onChange.subscribe(onChange)
-        return () => props.pickups.onChange.unsubscribe(onChange)
-    }, []);
-    return <>
-        {
-            list.map((p: Pickup) => {
-                return <Mover moverType='pickup' moverKey={p.key}>
-                    <AnimatedPickup pickup={p}></AnimatedPickup>
-                </Mover>
-            })
-        }
-    </>;
-}
-
 export const PetriBeanList: React.FC<{
     cityKey: number
 }> = (props) => {
@@ -76,10 +54,9 @@ export const PickupList2: React.FC<{
     return <>
         {
             list.map((pKey: number) => {
-                return ;
-                // <Mover onMove={p.onMove} key={p.key} startPoint={p.point}>
-                //     <AnimatedPickup pickup={p}></AnimatedPickup>
-                // </Mover>
+                return <Mover moverKey={pKey} key={pKey} moverType='pickup'>
+                    <AnimatedPickup pickupKey={pKey}></AnimatedPickup>
+                </Mover>
             })
         }
     </>;

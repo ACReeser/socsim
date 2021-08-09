@@ -3,12 +3,14 @@ import { SfxContext } from "../App";
 import { UFO, City, Pickup } from "../simulation/City";
 import { transformPoint, hex_to_pixel } from "../simulation/Geography";
 import { IPickup } from "../simulation/Pickup";
+import { useAppSelector } from "../state/hooks";
 import { EmoteIcon } from "../World";
 
 export const AnimatedPickup: React.FC<{
-    pickup: IPickup
+    pickupKey: number
 }> = (props) => {
     const [played, setPlayed] = useState(false);
+    const pickup = useAppSelector(state => state.world.pickups.byID[props.pickupKey]);
     const sfx = React.useContext(SfxContext);
     useEffect(() => {
         if (!played && sfx){
@@ -17,6 +19,6 @@ export const AnimatedPickup: React.FC<{
         }
     })
     return <span className="pickup bob">
-        {EmoteIcon[props.pickup.type]}
+        {EmoteIcon[pickup.type]}
     </span>
 }

@@ -39,7 +39,7 @@ export interface IWorld{
     date: IDate;
     alien: Player;
 }
-const PickupPhysics = {
+export const PickupPhysics = {
     Brake: { x: .94, y: .94},
     AccelerateS: 60,
     MaxSpeed: 9,
