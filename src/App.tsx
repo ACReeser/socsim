@@ -50,6 +50,7 @@ import { doSelectBean, doSelectBuilding } from './state/features/selected.reduce
 import { MoverBus } from './simulation/MoverBus';
 import { MoverBusInstance } from './MoverBusSingleton';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
+import { SeasonWidget } from './widgets/Season';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -136,7 +137,7 @@ class App extends React.Component<AppPs, AppState>{
       this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'B') {
       this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0);
-      this.beam(this.state.world.cities[0], { q: 0, r: 0 });
+      // this.beam(this.state.world.cities[0], { q: 0, r: 0 });
     } else if (this.cheatMode && event.key === 'Q') {
       if (this.state.world.cities[0].book.getBuildings().filter(x => x.type === 'farm').length < 1){
         this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.energy || 0;
@@ -150,10 +151,10 @@ class App extends React.Component<AppPs, AppState>{
         this.build(this.state.world.cities[0], { q: 0, r: 1 }, 'hospital');
       }
       this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0) * 4;
-      this.beam(this.state.world.cities[0], { q: 0, r: 0 });
-      this.beam(this.state.world.cities[0], { q: 1, r: 0 });
-      this.beam(this.state.world.cities[0], { q: 0, r: 1 });
-      this.beam(this.state.world.cities[0], { q: 1, r: 1 });
+      // this.beam(this.state.world.cities[0], { q: 0, r: 0 });
+      // this.beam(this.state.world.cities[0], { q: 1, r: 0 });
+      // this.beam(this.state.world.cities[0], { q: 0, r: 1 });
+      // this.beam(this.state.world.cities[0], { q: 1, r: 1 });
       this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'S') {
       this.state.world.beans.get.forEach((b) => {
@@ -196,22 +197,6 @@ class App extends React.Component<AppPs, AppState>{
 
     this.setState({ world: this.state.world });
   }
-  beam = (city: City, where: HexPoint) => {
-    const cost = this.difficulty.cost.hex.beam;
-    if (this.state.world.alien.canAfford(cost)) {
-      this.state.world.alien.purchase(cost);
-      const newUFO = new UFO(city.ufos.length, where, 'beam-in');
-      city.ufos.push(newUFO);
-      window.setTimeout(() => {
-        // city.beans.push(GenerateBean(city, where));
-        this.setState({ world: this.state.world });
-      }, 3000);
-
-      this.setState({ world: this.state.world }, () => {
-        this.removeUFO(city, newUFO.key);
-      });
-    }
-  }
   buyBots = (amount: number) => {
     const cost = this.difficulty.cost.market.resource.bots;
     if (this.state.world.alien.tryPurchase(cost, amount)) {
@@ -251,13 +236,6 @@ class App extends React.Component<AppPs, AppState>{
         this.state.world.alien.lBeliefInventory.push({trait: l.trait, charges: ChargePerMarket});
     }
     this.setState({ world: this.state.world });
-  }
-  removeUFO(city: City, key: number) {
-    window.setTimeout(() => {
-      const myUFOI = city.ufos.findIndex((x) => x.key === key);
-      if (myUFOI > -1)
-        city.ufos.splice(myUFOI, 1);
-    }, 7000);
   }
   vaporize = (bean: Bean) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)) {
@@ -401,7 +379,6 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   render() {
-    const season = Season[this.state.world.date.season];
     return (
       <Provider store={store}>
         <div className="canvas">
@@ -469,7 +446,7 @@ class App extends React.Component<AppPs, AppState>{
             <div className="left">
               <div className="top">
                 <span>👽 Alien 🌍 Utopia 🔬 Lab</span>
-                <span>&nbsp;Year {this.state.world.date.year},&nbsp;{season} {this.state.world.date.day} {this.renderHour()}</span>
+                <SeasonWidget></SeasonWidget>
                 <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
                 <GeoNetworkButtons setActiveMain={(v) => this.setState({ activeMain: v })} activeMain={this.state.activeMain} ></GeoNetworkButtons>
                 <span></span>
@@ -525,14 +502,6 @@ class App extends React.Component<AppPs, AppState>{
           </div>
       </Provider>
     )
-  }
-  renderHour(): string {
-    switch (this.state.world.date.hour) {
-      default: return '☀️';
-      case Hour.Evening: return '🌇';
-      case Hour.Morning: return '🌄';
-      case Hour.Midnight: return '🌙';
-    }
   }
 }
 

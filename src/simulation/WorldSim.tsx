@@ -7,7 +7,7 @@ import { GenerateBean, GetRandom } from "../WorldGen";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
-import { CityBeanTrySetJob } from "./BeanAndCity";
+import { BeanTryFindJob, BeanTrySetJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
 import { CalculateCityComputed, ICity } from "./City";
 import { GetCostOfLiving } from "./Economy";
@@ -73,8 +73,7 @@ export function simulate_world(world: IWorldState){
             //world.sfx.play('squeak');
         }
         if (b.job === 'jobless'){
-            const job: TraitJob = GetRandom(['builder', 'doc', 'farmer', 'entertainer']);
-            const gotJob = CityBeanTrySetJob(world.cities.byID[b.cityKey], b, job)
+            const gotJob = BeanTryFindJob(world, b);
             if (!gotJob){
                 WorldAddEvent(world, {icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`, key: 0});
             }

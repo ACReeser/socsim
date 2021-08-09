@@ -105,13 +105,13 @@ export class Building implements IBuilding, IEnterprise{
 }
 
 export function BuildingOpenSlots(b: IBuilding): BuildingJobSlot[]{
-    return Object.keys(b.job_slots).filter((s, i) => {
-        return b.job_slots[+s as BuildingJobSlot] === null && (i < 3 || b.upgraded);
+    return [0,1,2,3,4,5].filter((s, i) => {
+        return b.job_slots[+s as BuildingJobSlot] == null && (i < 3 || b.upgraded);
     }).map((x) => +x);
 }
 
 export function BuildingUsedSlots(b: IBuilding): BuildingJobSlot[]{
-    return Object.keys(b.job_slots).filter((s) => {
+    return [0,1,2,3,4,5].filter((s) => {
         return b.job_slots[+s as BuildingJobSlot] != null;
     }).map((x) => +x);
 }
@@ -136,8 +136,9 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
         job_slots: {} as {[key in BuildingJobSlot]: number|undefined},
         upgraded: false
     }
-    city.buildingKeys.push(newBuilding.key);
+    world.buildings.allIDs.push(newBuilding.key);
     world.buildings.byID[newBuilding.key] = newBuilding;
+    city.buildingKeys.push(newBuilding.key);
     city.buildingMap[`${hex.q},${hex.r}`] = newBuilding.key;
     const good = BuildingToGood[type];
     // todo redux todo

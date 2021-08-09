@@ -5,6 +5,7 @@ import { City } from "./City";
 import { GetRandom } from "../WorldGen";
 import { IEvent, IEventBus, Live } from "../events/Events";
 import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw } from "./Government";
+import { IBean } from "./Agent";
 
 export interface IEconomicAgent{
     cash: number;
@@ -268,6 +269,35 @@ export class OrderBook{
     public sort(good: TraitGood){        
         this.listings[good].sort((a, b) => a.price - b.price);
     }
+}
+export function EconomyMostInDemandJob(economy: IEconomy){
+    const goods: TraitGood[] = AllGoods;
+    const max = goods.reduce((last, good) => {
+        if (economy.unfulfilledMonthlyDemand[good] > last.max){
+            last.max = economy.unfulfilledMonthlyDemand[good];
+            last.job = GoodToJob(good);
+        }
+        return last;
+    }, {max: 0, job: null as TraitJob|null})
+
+    return max.job;
+}
+export function EconomyProduceAndPrice(economy: IEconomy, seller: IBean, good: TraitGood, quantity: number, price: number) {
+    economy.monthlySupply[good] += quantity;
+    const existing = economy.market.listings[good].find((x) => x.sellerBeanKey == seller.key);
+    if (existing){
+        existing.quantity += quantity;
+        existing.price = price;
+        existing.quantity = Math.min(existing.quantity, 6);
+    } else {
+        economy.market.listings[good].push({
+            sellerBeanKey: seller.key,
+            sellerCityKey: seller.cityKey,
+            price: price,
+            quantity: quantity
+        });
+    }
+    economy.market.listings[good].sort((a, b) => a.price - b.price);
 }
 export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, good: TraitGood, quantity: number, price: number) {
     econ.monthlySupply[good] += quantity;

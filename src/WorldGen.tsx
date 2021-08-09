@@ -222,7 +222,7 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
         sanity: 'sane',
         beliefs: [],
         lifecycle: 'alive',
-        hedonHistory: [],
+        hedonHistory: [{}, {}, {}, {}, {}],
         job: 'jobless',
         happiness: { flatAverage: 0,all: {}, maxSource: '', minSource: '', weightedAverage: 0},
         lastHappiness: 0,

@@ -416,6 +416,16 @@ export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
     'jobless': 'house', 
     'polit': 'house'
 };
+export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
+    'farm': 'farmer',
+    'house': 'builder', 
+    'hospital':'doc', 
+    'theater': 'entertainer',
+    'church': 'cleric',
+    'park': 'entertainer',
+    'nature': 'entertainer',
+    'courthouse': 'polit'
+};
 
 export const HexSizePX = 70;
 export const HexSizeR = 120; // rounded sqrt(3) * HexSizePX

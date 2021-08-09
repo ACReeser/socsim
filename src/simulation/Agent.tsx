@@ -3,7 +3,7 @@ import { IDifficulty } from "../Game";
 import { MoverBusInstance } from "../MoverBusSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
-import { beanEmote, beanHitDestination } from "../state/features/world.reducer";
+import { beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
@@ -114,13 +114,11 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             MoverBusInstance.Get('bean', agent.key).publish(newAccelerator);
             
             if (collide){
-                console.log('collide')
                 return {
                     action: beanHitDestination({beanKey: agent.key})
                 };
             }
-            console.log(deltaMS, newAccelerator);
-    
+            
             if (city) {
                 const nearbyBeanKeys = CityGetNearestNeighbors(city, agent);
                 if (nearbyBeanKeys.length && BeanMaybeChat(agent)){
@@ -169,11 +167,16 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBean) => {
-            // if (this.Elapsed > 2000 && agent instanceof Bean && agent.actionData.good && agent.city?.economy && agent.city?.law){
-            //     agent.work(agent.city.law, agent.city.economy);
-            //     return IdleState.create();
-            // }
+        act: (agent: IBean, world: IWorldState, elapsed: number) => {
+            if (elapsed > 2000 && agent.actionData.good){
+                return {
+                    action: beanWork({beanKey: agent.key}),
+                    newState: 'idle',
+                    newData: {
+                        act: 'idle'
+                    }
+                }
+            }
             return {};
         },
         exit: (agent: IBean) => {
@@ -289,7 +292,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBean) => {
+        act: (agent: IBean, world: IWorldState, elapsed: number) => {
             // if (!this._bought){
             //     if (this.sinceLastAttemptMS > 250)
             //     {
@@ -337,24 +340,22 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBean) => {
-            // let durationMS = 1000;
-            // if (agent instanceof Bean && agent.believesIn('Naturalism'))
-            //     durationMS *= 3;
-            // if (this.Elapsed > durationMS){
-            //     return IdleState.create();
-            // }
+        act: (agent: IBean, world: IWorldState, elapsed: number) => {
+            let durationMS = 1000;
+            if (BeanBelievesIn(agent, 'Naturalism'))
+                durationMS *= 3;
+            if (elapsed > durationMS){
+                return {
+                    newState: 'idle',
+                    newData: {
+                        act: 'idle'
+                    }
+                }
+            }
             return {};
         },
         exit: (agent: IBean) => {
-            
-            // if (agent instanceof Bean){
-            //     agent.discrete_fun += 1;
-            //     agent.emote('happiness', 'Relaxation');
-            //     if (agent.believesIn('Naturalism'))
-            //         agent.emote('happiness', 'Naturalism');
-            // }
-            return undefined;
+            return beanRelax({beanKey: agent.key});
         },
     }
 }
