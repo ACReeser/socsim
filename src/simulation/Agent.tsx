@@ -3,7 +3,7 @@ import { IDifficulty } from "../Game";
 import { MoverBusInstance } from "../MoverBusSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
-import { beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
+import { beanBuy, beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
@@ -289,6 +289,16 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, world: IWorldState, elapsed: number) => {
+            if (elapsed > 1100){
+                return {
+                    newActivity: {act:'idle'}
+                }
+            }
+            if (elapsed > 250 && agent.actionData.good){
+                return {
+                    action: beanBuy({beanKey: agent.key, good: agent.actionData.good})
+                };
+            }
             // if (!this._bought){
             //     if (this.sinceLastAttemptMS > 250)
             //     {

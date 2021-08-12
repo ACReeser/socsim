@@ -3,10 +3,10 @@ import { PlayerResources } from '../../Game'
 import { MoverBusInstance } from '../../MoverBusSingleton'
 import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, ParochialHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { TraitBelief } from '../../simulation/Beliefs'
-import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice } from '../../simulation/Economy'
+import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { IPickup } from '../../simulation/Pickup'
@@ -15,7 +15,7 @@ import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEst
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world } from '../../simulation/WorldSim'
-import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote } from '../../World'
+import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitGood } from '../../World'
 import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { GetBlankWorldState, IWorldState } from './world'
 
@@ -233,6 +233,53 @@ export const worldSlice = createSlice({
         _emote(bean, state, {emote: 'happiness', source: 'Relaxation'});
         if (BeanBelievesIn(bean, 'Naturalism'))
           _emote(bean, state, {emote: 'happiness', source: 'Naturalism'});
+      },
+      beanBuy: (state, action: PayloadAction<{beanKey: number, good: TraitGood}>) =>{
+        const bean = state.beans.byID[action.payload.beanKey];
+        let receipt: {tax:number,bought:number,price:number}|undefined;
+        switch(action.payload.good){
+          case 'food':
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'food', 0.5, 3);
+            if (receipt) {
+                bean.discrete_food += receipt.bought;
+                if (bean.food === 'stuffed'){
+                    _emote(bean, state, {emote:'happiness', source: 'Stuffed'});
+                    _ifBelievesInMaybeEmote(state, bean, 'Gluttony', 'happiness', 1);
+                }
+            }
+            break;
+          case 'shelter':
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'shelter');
+            if (receipt) {
+                bean.discrete_stamina = 10;
+                bean.stamina = 'awake';
+            } else if (bean.discrete_stamina <= 0){
+                bean.stamina = 'homeless';
+            }
+            break;
+          case 'medicine':
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'medicine', 0.5, 3);
+            if (receipt){
+                bean.discrete_health += receipt.bought;
+                if (bean.health === 'fresh')
+                    _emote(bean, state, {emote:'happiness', source: 'Robust'});
+            }
+            break;
+          case 'fun':
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'fun');
+            if (receipt) {
+                bean.discrete_fun = 1;
+                _emote(bean, state, {emote:'happiness', source:'Entertainment'});
+                _emote(bean, state, {emote:'happiness', source:'Entertainment'});
+            }
+            break;
+        }
+        if (receipt){
+          if (receipt.tax){
+            _ifBelievesInMaybeEmote(state, bean, 'Libertarianism', 'unhappiness', LibertarianTaxUnhappyChance);
+            _ifBelievesInMaybeEmote(state, bean, 'Progressivism', 'happiness', ProgressivismTaxHappyChance);
+          }
+        }
       }
     }
   });
@@ -251,7 +298,8 @@ export const worldSlice = createSlice({
     const pickup: IPickup = {
         key: state.pickups.nextID++,
         point: {
-          ...beanPosition.point
+          x: beanPosition.point.x,
+          y: beanPosition.point.y
         },
         type: payload.emote,
         velocity: {x: 0, y: 0}
@@ -260,7 +308,10 @@ export const worldSlice = createSlice({
     state.pickups.byID[pickup.key] = pickup; 
     state.pickups.allIDs.push(pickup.key);
     MoverBusInstance.Get('pickup', pickup.key).publish({
-      ...beanPosition,
+      point: {
+        x: beanPosition.point.x,
+        y: beanPosition.point.y
+      },
       velocity: {x: 0, y: 0}
     });
   }
@@ -270,7 +321,7 @@ export const worldSlice = createSlice({
     remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, brainwash, scan, vaporize, pickUpPickup,
-    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax
+    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;

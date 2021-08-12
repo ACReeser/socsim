@@ -4,7 +4,7 @@ import { IOrganization, Charity, IEnterprise } from "./Institutions";
 import { City } from "./City";
 import { GetRandom } from "../WorldGen";
 import { IEvent, IEventBus, Live } from "../events/Events";
-import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw } from "./Government";
+import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw, IsLaw, SalesTaxPercentage } from "./Government";
 import { IBean } from "./Agent";
 
 export interface IEconomicAgent{
@@ -13,7 +13,7 @@ export interface IEconomicAgent{
 export interface ISeller extends IEconomicAgent{
     ticksSinceLastSale: number;
 }
-export interface Listing{
+export interface IListing{
     sellerCityKey?: number;
     sellerBeanKey?: number;
     sellerEnterpriseKey?: number;
@@ -30,8 +30,46 @@ export interface IEconomy{
     market: IMarket;
 }
 export interface IMarket{
-    listings: {[key in TraitGood]: Listing[]};
+    listings: {[key in TraitGood]: IListing[]};
 }
+export function MarketTransact(market: IMarket, listing: IListing, good: TraitGood, demand: number, buyer: IEconomicAgent, salesTaxPercentage: number){    
+    MarketListingSubtract(market, listing, good, demand);
+    const listPrice = listing.price * demand;
+    const tax = listPrice * salesTaxPercentage;
+    const grossPrice = listPrice + tax;
+    buyer.cash -= grossPrice;
+    if (listing.seller){
+        listing.seller.cash += listPrice;
+        listing.seller.ticksSinceLastSale = 0;
+    }
+    return {
+        bought: demand,
+        price: listPrice,
+        tax: tax
+    }
+}
+export function MarketGovernmentTransact(market: IMarket, gov: IGovernment, listing: IListing, good: TraitGood, demand: number){
+    MarketListingSubtract(market, listing, good, demand);
+    const listPrice = listing.price * demand;
+    const grossPrice = listPrice;
+    gov.treasury -= grossPrice;
+    if (listing.seller){
+        listing.seller.cash += listPrice;
+        listing.seller.ticksSinceLastSale = 0;
+    }
+    return {
+        bought: demand,
+        price: listPrice,
+        tax: 0
+    }
+}
+export function MarketListingSubtract(market: IMarket, listing: IListing, good: TraitGood, demand: number){     
+    listing.quantity -= demand;
+    if (listing.quantity <= 0){
+        market.listings[good].splice(0, 1);
+    }
+}
+
 export class Economy {
     market = new OrderBook();
     charity = new OrderBook();
@@ -177,13 +215,13 @@ export class Economy {
 }
 
 export class OrderBook{
-    public readonly listings: {[key in TraitGood]: Listing[]} = {
-        food: [] as Listing[],
-        shelter: [] as Listing[],
-        medicine: [] as Listing[],
-        fun: [] as Listing[],
+    public readonly listings: {[key in TraitGood]: IListing[]} = {
+        food: [] as IListing[],
+        shelter: [] as IListing[],
+        medicine: [] as IListing[],
+        fun: [] as IListing[],
     };
-    public getLowestPriceListing(good: TraitGood, demand: number): Listing|null{
+    public getLowestPriceListing(good: TraitGood, demand: number): IListing|null{
         const fullListings =  this.listings[good].filter((l) => {
             return l.quantity >= demand;
         });
@@ -203,16 +241,16 @@ export class OrderBook{
         }
         return null;
     }
-    public getStakeListings(bKey: number, enterpriseKey: number|undefined, g: TraitGood): Listing|undefined{
+    public getStakeListings(bKey: number, enterpriseKey: number|undefined, g: TraitGood): IListing|undefined{
         return this.listings[g].find((x) => x.sellerBeanKey == bKey || x.sellerEnterpriseKey == enterpriseKey);
     }
-    public getBeansListings(cKey: number, bKey: number, g: TraitGood): Listing|undefined{
+    public getBeansListings(cKey: number, bKey: number, g: TraitGood): IListing|undefined{
         return this.listings[g].find((x) => x.sellerBeanKey == bKey && x.sellerCityKey == cKey);
     }
-    public getEnterpriseListings(b: IEnterprise, g: TraitGood): Listing|undefined{
+    public getEnterpriseListings(b: IEnterprise, g: TraitGood): IListing|undefined{
         return this.listings[g].find((x) => x.sellerEnterpriseKey == b.key);
     }
-    public transact(listing: Listing, good: TraitGood, demand: number, buyer: IEconomicAgent, salesTaxPercentage: number){    
+    public transact(listing: IListing, good: TraitGood, demand: number, buyer: IEconomicAgent, salesTaxPercentage: number){    
         this.subtractFromListing(listing, good, demand);
         const listPrice = listing.price * demand;
         const tax = listPrice * salesTaxPercentage;
@@ -228,7 +266,7 @@ export class OrderBook{
             tax: tax
         }
     }
-    public governmentTransact(listing: Listing, good: TraitGood, demand: number, treasury: Live<number>){    
+    public governmentTransact(listing: IListing, good: TraitGood, demand: number, treasury: Live<number>){    
         this.subtractFromListing(listing, good, demand);
         const listPrice = listing.price * demand;
         const grossPrice = listPrice;
@@ -243,7 +281,7 @@ export class OrderBook{
             tax: 0
         }
     }
-    public subtractFromListing(listing: Listing, good: TraitGood, demand: number){     
+    public subtractFromListing(listing: IListing, good: TraitGood, demand: number){     
         listing.quantity -= demand;
         if (listing.quantity <= 0){
             this.listings[good].splice(0, 1);
@@ -269,6 +307,37 @@ export class OrderBook{
     public sort(good: TraitGood){        
         this.listings[good].sort((a, b) => a.price - b.price);
     }
+}
+export function EconomyTryTransact(
+    economy: IEconomy,
+    gov: IGovernment,
+    buyer: IEconomicAgent, 
+    good: TraitGood,
+    minDemand: number = 1,
+    maxDemand: number = 1
+    ): {bought: number, price: number, tax: number}|undefined {
+    economy.monthlyDemand[good] += maxDemand;
+    const listing = MarketLowestPriceListing(economy.market, good, minDemand);
+    if (listing == null){
+        //console.log('agent could not find '+good);
+        economy.unfulfilledMonthlyDemand[good] += maxDemand;
+        return undefined;
+    }
+    const actualDemand = Math.min(listing.quantity, maxDemand);
+    const salesTaxPercent = IsLaw(gov, 'sales_tax') ? SalesTaxPercentage : 0;
+    if ((listing.price * (1 + salesTaxPercent)) <= buyer.cash * actualDemand){ 
+        const receipt = MarketTransact(economy.market, listing, good, actualDemand, buyer, salesTaxPercent);
+        if (receipt.tax){
+            gov.treasury += receipt.tax;
+        }
+        return receipt;
+    } else {
+        if (GovPurchaseQualifiesForWelfare(gov, buyer, good) && GovCanPayWelfare(gov, listing.price)){
+            return MarketGovernmentTransact(economy.market, gov, listing, good, actualDemand);
+        }
+    }
+    economy.unfulfilledMonthlyDemand[good] += actualDemand;
+    return undefined;
 }
 export function EconomyMostInDemandJob(economy: IEconomy){
     const goods: TraitGood[] = AllGoods;
@@ -340,7 +409,7 @@ export function EconomyCanBuy(econ: IEconomy, gov: IGovernment, buyer: IEconomic
 
 }
 
-function MarketLowestPriceListing(market: IMarket, good: TraitGood, demand: number): Listing|null{
+function MarketLowestPriceListing(market: IMarket, good: TraitGood, demand: number): IListing|null{
     const fullListings =  market.listings[good].filter((l) => {
         return l.quantity >= demand;
     });

@@ -2,7 +2,7 @@ import { Bean } from "../simulation/Bean";
 import React from "react";
 import { World, TraitJob } from "../World";
 import { NeedReadout } from "../widgets/NeedReadout";
-import { Listing } from "../simulation/Economy";
+import { IListing } from "../simulation/Economy";
 
 function median(values: Array<number>){
   if(values.length ===0) return 0;
@@ -44,7 +44,7 @@ export class EconomyReport extends React.Component<{world: World}, {paused: bool
         return obj;
       }, {} as {[key in TraitJob]: number});
       const unemployed = (((jobs.jobless || 0) / beans.length)*100).toFixed(1);
-      function reducer(obj:  {supply: number, price: number, avg: number, count: number}, l: Listing){
+      function reducer(obj:  {supply: number, price: number, avg: number, count: number}, l: IListing){
         obj.supply += l.quantity;
         obj.price += l.price;
         obj.count++;

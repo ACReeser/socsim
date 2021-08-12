@@ -58,7 +58,7 @@ interface AppPs {
 interface AppState {
   world: World,
   activeModal: ModalView | null;
-  activeMain: 'geo' | 'network' | 'draft';
+  activeMain: 'geo' | 'network';
   activeRightPanel: 'events' | 'overview' | 'goals' | 'market';
   timeScale: number;
   spotlightEvent: IEvent | undefined;

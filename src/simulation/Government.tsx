@@ -1,8 +1,9 @@
 import { Live } from "../events/Events";
-import { TraitCommunity, TraitGood, TraitIdeals } from "../World";
+import { TraitCommunity, TraitFood, TraitGood, TraitHealth, TraitIdeals } from "../World";
 import { IBean } from "./Agent";
 import { Bean } from "./Bean";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
+import { IEconomicAgent } from "./Economy";
 import { IPolicy } from "./Politics";
 
 export type LawGroup = 'Taxation'|'Welfare'|'Economics'|'Crime'|'Culture';
@@ -187,7 +188,7 @@ export interface IGovernment{
 export type LawGroupToLaws = {
     [key in LawGroup]: ILaw[]
 };
-const SalesTaxPercentage = 0.05;
+export const SalesTaxPercentage = 0.05;
 export class Government{
     public get laws(): ILaw[] {
         return Object.values(this.lawTree).flatMap(law => law ? [law] : []);
@@ -265,13 +266,17 @@ export function MaybeRebate(gov: IGovernment, beans: IBean[]){
         beans.forEach((b) => b.cash += perBean);
     }
 }
-export function GovPurchaseQualifiesForWelfare(law: IGovernment, bean: Bean, good: TraitGood){
-
-    switch(good){
-        case 'food':
-            return (bean.food === 'starving' || bean.food === 'hungry') && IsLaw(law, 'food_aid');
-        case 'medicine':
-            return (bean.health === 'sick' || bean.health === 'sickly') && IsLaw(law, 'medical_aid');
+function AgentIsPhysical(bean: any): bean is {food: TraitFood, health: TraitHealth} {
+    return bean['food'] != undefined && bean['sick'] != undefined;
+}
+export function GovPurchaseQualifiesForWelfare(law: IGovernment, buyer: IEconomicAgent, good: TraitGood){
+    if (AgentIsPhysical(buyer)){
+        switch(good){
+            case 'food':
+                return (buyer.food === 'starving' || buyer.food === 'hungry') && IsLaw(law, 'food_aid');
+            case 'medicine':
+                return (buyer.health === 'sick' || buyer.health === 'sickly') && IsLaw(law, 'medical_aid');
+        }
     }
     return false;
 }
