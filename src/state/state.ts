@@ -33,3 +33,6 @@ export const selectSelectedBuilding = (state: RootState) => {
     return undefined;
   }
 }
+export const selectEventIDs = (state: RootState) => {
+  return state.world.events.allIDs.map(y => state.world.events.byID[y]);
+};

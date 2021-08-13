@@ -16,7 +16,7 @@ import { IPickup } from "./Pickup";
 import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";
 import { IBean } from "./Agent";
 import { IWorldState } from "../state/features/world";
-import { MoverBusInstance } from "../MoverBusSingleton";
+import { MoverBusInstance } from "../MoverStoreSingleton";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{

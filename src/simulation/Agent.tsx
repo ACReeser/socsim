@@ -1,6 +1,6 @@
 import { AnyAction } from "@reduxjs/toolkit";
 import { IDifficulty } from "../Game";
-import { MoverBusInstance } from "../MoverBusSingleton";
+import { MoverBusInstance as MoverStoreInstance } from "../MoverStoreSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBuy, beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
@@ -97,7 +97,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 };
             }
             const newAccelerator = {
-                ...(MoverBusInstance.Get('bean', agent.key).current || OriginAccelerator)
+                ...(MoverStoreInstance.Get('bean', agent.key).current || OriginAccelerator)
             };
 
             const collide = accelerate_towards(
@@ -108,7 +108,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 BeanPhysics.CollisionDistance,
                 BeanPhysics.Brake);
 
-            MoverBusInstance.Get('bean', agent.key).publish(newAccelerator);
+            MoverStoreInstance.Get('bean', agent.key).publish(newAccelerator);
             
             if (collide){
                 return {
@@ -255,20 +255,26 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             const priorities = GetPriorities(agent, world.cities.byID[agent.cityKey], world.alien.difficulty);
             let top = priorities.dequeue();
             let travelState: IActivityData|undefined = undefined;
+            let sideEffect: AnyAction|undefined = undefined;
 
             //loop through possible destinations
             while (top && travelState == null){
-                const activity = SubstituteIntent(agent, world, top.value);
-                if (activity){
-                    travelState = CreateTravelFromIntent(agent, world.cities.byID[agent.cityKey], top.value, world);
+                const substitute = SubstituteIntent(agent, world, top.value);
+                if (substitute?.intent){
+                    travelState = CreateTravelFromIntent(agent, world.cities.byID[agent.cityKey], substitute.intent, world);
                     if (travelState != null)
                         return {
-                            newActivity: travelState
+                            newActivity: travelState,
+                            action: sideEffect
                         };
+                } else if (substitute?.sideEffect){
+                    sideEffect = substitute.sideEffect;
                 }
                 top = priorities.dequeue();
             }
-            return {};
+            return {
+                action: sideEffect
+            };
         },
         exit: (agent: IBean) => {
             if (BeanMaybeParanoid(agent))
@@ -365,7 +371,10 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
     }
 }
 
-function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData): IActivityData|null{
+function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData): {
+    intent?: IActivityData,
+    sideEffect?: AnyAction
+}|undefined{
     if (intent.act === 'buy' && intent.good != null){
         const desiredGoodState = EconomyCanBuy(world.economy, world.law, bean, intent.good);
         if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
@@ -376,18 +385,24 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
             } else {
                 const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
                 if (isPhysical){
-                    BeanEmote(bean, 'unhappiness', 'Poverty');
+                    return {
+                        sideEffect: beanEmote({beanKey: bean.key, emote: 'unhappiness', source: 'Poverty'})
+                    }
                 }
-                return null; //don't travel to buy something that you can't afford
+                return undefined; //don't travel to buy something that you can't afford
             }
         } else if (desiredGoodState === 'nosupply'){
-            if (intent.good){
-                BeanMaybeScarcity(bean, intent.good);
+            if (intent.good && BeanMaybeScarcity(bean, intent.good)){
+                return {
+                    sideEffect: beanEmote({beanKey: bean.key, emote: 'unhappiness', source:'Scarcity'}) 
+                }
             }
-            return null; //don't travel to buy something that doesn't exist
+            return undefined; //don't travel to buy something that doesn't exist
         }
     }
-    return intent;
+    return {
+        intent: intent
+    };
 }
 
 export function IntentToDestination(agent: IBean, city: ICity, intent: IActivityData, world: IWorldState): Point[]|null{
@@ -579,7 +594,7 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
  * @param buildingType 
  */
 export function Route(city: ICity, bean: IBean, destination: IBuilding): Point[]{
-    const start = MoverBusInstance.Get('bean', bean.key).current || {...OriginAccelerator};
+    const start = MoverStoreInstance.Get('bean', bean.key).current || {...OriginAccelerator};
     const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
     return hex_linedraw(nearestHex, destination.address).map(
         (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)

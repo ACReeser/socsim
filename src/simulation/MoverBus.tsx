@@ -8,7 +8,7 @@ type MoverCache = {
     };
 };
 
-export class MoverBus{
+export class MoverStore{
     private cache: MoverCache = {
         'ufo': {},
         'bean': {},

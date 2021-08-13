@@ -1,6 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
-import { MoverBusInstance } from '../../MoverBusSingleton'
+import { MoverBusInstance } from '../../MoverStoreSingleton'
 import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BeanBelievesIn, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
@@ -17,6 +17,7 @@ import { MathClamp } from '../../simulation/Utils'
 import { simulate_world } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitGood } from '../../World'
 import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
+import { WorldSfxInstance } from '../../WorldSound'
 import { GetBlankWorldState, IWorldState } from './world'
 
 export const worldSlice = createSlice({
@@ -115,7 +116,7 @@ export const worldSlice = createSlice({
               state.alien.seenBeliefs[b] = true;
             }
           });
-          // state.world.sfx.play('scan');
+          WorldSfxInstance.play('scan');
         }
       },
       vaporize: () => {
@@ -129,8 +130,8 @@ export const worldSlice = createSlice({
         state.cities.byID[action.payload.cityKey].pickupKeys = state.cities.byID[action.payload.cityKey].pickupKeys.filter(x => x != action.payload.pickupKey);
         state.pickups.allIDs = state.pickups.allIDs.filter(x => x != action.payload.pickupKey);
         delete state.pickups.byID[action.payload.pickupKey];
-        // TODO
-        //world.sfx.play(pickup.type);
+        
+        WorldSfxInstance.play(pickup.type);
       },
       changeState: (state, action: PayloadAction<{beanKey: number, newState: IActivityData}>) => {
         const oldAct = state.beans.byID[action.payload.beanKey].action;

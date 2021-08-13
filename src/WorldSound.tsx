@@ -54,3 +54,5 @@ export class WorldSound{
         this.lib[sfx].play();
     }
 }
+
+export const WorldSfxInstance = new WorldSound();

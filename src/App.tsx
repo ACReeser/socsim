@@ -37,7 +37,7 @@ import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { LawAxis, LawKey } from './simulation/Government';
 import { Tech } from './simulation/Player';
 import { IEvent } from './events/Events';
-import { WorldSound } from './WorldSound';
+import { WorldSfxInstance, WorldSound } from './WorldSound';
 import { MarketPanel } from './right-panel/MarketPanel';
 import { TraitsReport } from './modal-content/TraitsReport';
 import { GreetingPanel } from './modal-content/GreetingPanel';
@@ -47,8 +47,8 @@ import { WorldTile2 } from './petri-ui/WorldTile2';
 import { newGame, selectBuilding, worldTick } from './state/features/world.reducer';
 import { DetailPanel } from './right-panel/DetailPanel';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
-import { MoverBus } from './simulation/MoverBus';
-import { MoverBusInstance } from './MoverBusSingleton';
+import { MoverStore } from './simulation/MoverBus';
+import { MoverBusInstance } from './MoverStoreSingleton';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
 import { SeasonWidget } from './widgets/Season';
 
@@ -65,7 +65,7 @@ interface AppState {
   cursor?: Point;
 }
 export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
-export const MoverContext = React.createContext<MoverBus>(MoverBusInstance);
+export const MoverContext = React.createContext<MoverStore>(MoverBusInstance);
 
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
@@ -86,7 +86,7 @@ class App extends React.Component<AppPs, AppState>{
     };
     this.state.world.calculateComputedState();
     this.state.world.bus.death.subscribe(this.onDeath);
-    this.state.world.bus.persuasion.subscribe(() => this.state.world.sfx.play('mhmm'));
+    this.state.world.bus.persuasion.subscribe(() => WorldSfxInstance.play('mhmm'));
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
@@ -319,7 +319,7 @@ class App extends React.Component<AppPs, AppState>{
         this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
       } else
         this.state.world.alien.lBeliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
-      this.state.world.sfx.play('wash_out');
+      WorldSfxInstance.play('wash_out');
       this.setState({ world: this.state.world });
       return true;
     }
@@ -330,7 +330,7 @@ class App extends React.Component<AppPs, AppState>{
       this.state.world.alien.lBeliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
       bean.beliefs.push(a);
       this.state.world.alien.useCharge(a);
-      this.state.world.sfx.play('wash_in');
+      WorldSfxInstance.play('wash_in');
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
       this.setState({ world: this.state.world });
       return true;
@@ -342,7 +342,7 @@ class App extends React.Component<AppPs, AppState>{
     this.setState({ world: this.state.world });
   }
   onDeath = (event: IEvent) => {
-    this.state.world.sfx.play('death');
+    WorldSfxInstance.play('death');
     this.startSpotlight(event);
   }
   private timescaleBeforeSpotlight: number = 1;
@@ -368,11 +368,7 @@ class App extends React.Component<AppPs, AppState>{
       case 'goals':
         return <GoalsPanel player={this.state.world.alien} progress={this.state.world.alien}></GoalsPanel>
       case 'events':
-        return <EventsPanel events={this.state.world.bus.buffer} selectBean={(beankey?: number) => {
-          const cityKey = store.getState()?.world?.cities.byID[0]?.key;
-          if (beankey)
-            store.dispatch(doSelectBean({cityKey: cityKey, beanKey: beankey}));
-        }}></EventsPanel>
+        return <EventsPanel></EventsPanel>
       case 'market': 
         return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons} buyTrait={this.buyTrait}
          player={this.state.world.alien} market={this.state.world.marketTraitsForSale}></MarketPanel>
@@ -382,7 +378,7 @@ class App extends React.Component<AppPs, AppState>{
     return (
       <Provider store={store}>
         <div className="canvas">
-          <SfxContext.Provider value={this.state.world.sfx}>
+          <SfxContext.Provider value={WorldSfxInstance}>
           <MoverContext.Provider value={MoverBusInstance}>
           {
             this.state.activeMain === 'network' ? <div className="canvas">

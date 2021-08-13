@@ -1,5 +1,5 @@
 import { TraitCommunity, TraitIdeals, TraitEthno, TraitFaith, TraitStamina, TraitHealth, TraitFood, TraitJob, JobToGood, IHappinessModifier, TraitToModifier, MaslowHappinessScore, GetHappiness, GoodToThreshold, TraitGood, TraitSanity, TraitEmote, EmotionSanity, EmotionWorth } from "../World";
-import { RandomEthno, GetRandom, GetRandomNumber, GetRandomRoll } from "../WorldGen";
+import { RandomEthno, GetRandom, GetRandomNumber, GetRandomRoll, GenerateBean } from "../WorldGen";
 import { Economy, GetFairGoodPrice, IEconomy, ISeller } from "./Economy";
 import { Policy, Party } from "./Politics";
 import { IEvent, PubSub } from "../events/Events";
@@ -14,7 +14,7 @@ import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
 import { IPickup } from "./Pickup";
-import { MoverBusInstance } from "../MoverBusSingleton";
+import { MoverBusInstance } from "../MoverStoreSingleton";
 
 const BabyChance = 0.008;
 export const DaysUntilSleepy = 7;
@@ -900,8 +900,7 @@ export function BeanMaybeScarcity(bean: IBean, good: TraitGood){
         scarce = true;
     else if (good === 'medicine' && (bean.health === 'sick' || bean.health === 'sickly'))
         scarce = true;
-    if (scarce)
-        BeanEmote(bean, 'unhappiness', 'Scarcity');
+    return scarce;
 }
 export function BeanCanBaby(bean: IBean, costOfLiving: number): boolean{
     return bean.alive && 

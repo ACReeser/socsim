@@ -1,10 +1,11 @@
 import { AnyAction, bindActionCreators } from "redux";
 import { IEvent } from "../events/Events";
-import { MoverBusInstance } from "../MoverBusSingleton";
+import { MoverBusInstance } from "../MoverStoreSingleton";
 import { IWorldState } from "../state/features/world";
 import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
 import { WorldInflate, MaxHedonHistory, TraitJob, PickupPhysics, EmotionWorth } from "../World";
 import { GenerateBean, GetRandom } from "../WorldGen";
+import { WorldSfxInstance } from "../WorldSound";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
@@ -70,9 +71,12 @@ export function simulate_world(world: IWorldState){
         BeanAge(b, world.alien.difficulty);
         const e = BeanMaybeBaby(b, CoL);
         if (e) {
+            const newBean = GenerateBean(world, world.cities.byID[b.cityKey], b);
+            world.beans.byID[newBean.key] = newBean;
+            world.beans.allIDs.push(newBean.key);
+            world.cities.byID[b.cityKey].beanKeys.push(newBean.key);
             WorldAddEvent(world, e);
-            // TODO REDUX
-            //world.sfx.play('squeak');
+            WorldSfxInstance.play('squeak');
         }
         if (b.job === 'jobless'){
             const gotJob = BeanTryFindJob(world, b);

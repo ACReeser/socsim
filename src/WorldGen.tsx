@@ -11,7 +11,7 @@ import { BuildingJobSlot } from './simulation/Occupation';
 import { IBean } from './simulation/Agent';
 import { IWorldState } from './state/features/world';
 import { PriorityQueue } from './simulation/Priorities';
-import { MoverBusInstance } from './MoverBusSingleton';
+import { MoverBusInstance } from './MoverStoreSingleton';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
@@ -237,10 +237,10 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
         actionData: {act: 'idle'},
         activity_duration: {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0},
     };
-    MoverBusInstance.Get('bean', newBean.key).publish({
-        velocity: {x: 0, y: 0},
-        point: hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || {q: 0, r: 0})
-    });
+    // MoverBusInstance.Get('bean', newBean.key).publish({
+    //     velocity: {x: 0, y: 0},
+    //     point: hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || {q: 0, r: 0})
+    // });
     newBean.name = GetRandom(['Joe', 'Frank', 'Jill', 'Jose',
     'Johnny', 'Isabelle', 'Carmen', 'Ace', 'Carl', 'Zander', 'Jean',
     'Anne', 'Leslie', 'Ben', 'Ron', 

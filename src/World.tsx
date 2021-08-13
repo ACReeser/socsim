@@ -14,7 +14,7 @@ import { Act, IActListener, IBean, IChatData } from './simulation/Agent';
 import { IDifficulty, PlayerResources } from './Game';
 import { type } from 'os';
 import { GetHedonReport, IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
-import { WorldSound } from './WorldSound';
+import { WorldSfxInstance, WorldSound } from './WorldSound';
 import { GetMarketTraits, MarketTraitListing } from './simulation/MarketTraits';
 import { IWorldState } from './state/features/world';
 
@@ -153,7 +153,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             const e = b.maybeBaby(this.economy);
             if (e) {
                 this.publishEvent(e);
-                this.sfx.play('squeak');
+                WorldSfxInstance.play('squeak');
             }
             if (b.job === 'jobless')
                 b.tryFindRandomJob(this.law);
@@ -219,7 +219,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
                 this.alien.hedons.amount += amt;
                 this.alien.hedons.change.publish({change: amt});
                 city.pickups.remove(pickup);
-                this.sfx.play(pickup.type);
+                WorldSfxInstance.play(pickup.type);
             } else {
                 pickup.onMove.publish(pickup.point);
             }
