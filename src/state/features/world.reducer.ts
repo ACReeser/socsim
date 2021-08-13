@@ -8,14 +8,15 @@ import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { TraitBelief } from '../../simulation/Beliefs'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
+import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { IPickup } from '../../simulation/Pickup'
-import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase } from '../../simulation/Player'
+import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world } from '../../simulation/WorldSim'
-import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitGood } from '../../World'
+import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
 import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { GetBlankWorldState, IWorldState } from './world'
@@ -102,9 +103,35 @@ export const worldSlice = createSlice({
         };
       },
       abduct: () => {
+        // if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.abduct)) {
+        //   bean.abduct(this.state.world.alien);
+        //   bean.city?.beans.remove(bean);
+        //   this.setState({ world: this.state.world });
+        // }
+
+      },
+      release: () => {
+        // if (this.state.world.alien.abductedBeans.length > 0) {
+        //   const lucky_bean = this.state.world.alien.abductedBeans.shift();
+        //   if (lucky_bean instanceof Bean) {
+        //     lucky_bean.lifecycle = 'alive';
+        //     lucky_bean.city?.beans.push(lucky_bean);
+        //   } else {
+        //     window.alert("releasing data beans is unimplemented");
+        //   }
+        // }
 
       },
       brainwash: () => {
+
+      },
+      washNarrative: (state, action: PayloadAction<{beanKey: number, faith: TraitFaith}>) => {
+
+      },
+      washBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
+
+      },
+      implant: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
 
       },
       scan: (state, action: PayloadAction<{beanKey: number}>) => {
@@ -235,6 +262,17 @@ export const worldSlice = createSlice({
         if (BeanBelievesIn(bean, 'Naturalism'))
           _emote(bean, state, {emote: 'happiness', source: 'Naturalism'});
       },
+      setResearch: (state, action: PayloadAction<{t: Tech}>) => {
+        state.alien.currentlyResearchingTech = action.payload.t;
+      },
+      enactLaw: (state, action: PayloadAction<{lawKey: LawKey}>) => {
+        const data = LawData[action.payload.lawKey];
+        state.law.lawTree[data.axis] = data;
+      },
+      repealLaw: (state, action: PayloadAction<{lawKey: LawKey}>) => {
+        const data = LawData[action.payload.lawKey];
+        delete state.law.lawTree[data.axis];
+      },
       beanBuy: (state, action: PayloadAction<{beanKey: number, good: TraitGood}>) =>{
         const bean = state.beans.byID[action.payload.beanKey];
         let receipt: {tax:number,bought:number,price:number}|undefined;
@@ -321,8 +359,10 @@ export const worldSlice = createSlice({
     refreshMarket, magnetChange, worldTick, 
     remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
-    abduct, brainwash, scan, vaporize, pickUpPickup,
-    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy
+    abduct, release, brainwash, scan, vaporize, pickUpPickup,
+    implant, washBelief, washNarrative,
+    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy,
+    enactLaw, repealLaw, setResearch
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;

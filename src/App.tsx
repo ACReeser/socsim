@@ -252,14 +252,6 @@ class App extends React.Component<AppPs, AppState>{
       this.setState({ world: this.state.world });
     }
   }
-  enactLaw = (law: LawKey) => {
-    this.state.world.law.enact(law);
-    this.setState({ world: this.state.world });
-  }
-  revokeLaw = (law: LawKey) => {
-    this.state.world.law.enact(law);
-    this.setState({ world: this.state.world });
-  }
   releaseBean = () => {
     if (this.state.world.alien.abductedBeans.length > 0) {
       const lucky_bean = this.state.world.alien.abductedBeans.shift();
@@ -336,11 +328,6 @@ class App extends React.Component<AppPs, AppState>{
       return true;
     }
   }
-  setPolicy = (axis: LawAxis, policy: IPolicy) => {
-    this.state.world.party.platform[axis] = policy;
-    this.state.world.calculateComputedState();
-    this.setState({ world: this.state.world });
-  }
   onDeath = (event: IEvent) => {
     WorldSfxInstance.play('death');
     this.startSpotlight(event);
@@ -414,7 +401,7 @@ class App extends React.Component<AppPs, AppState>{
               <GreetingPanel></GreetingPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'gov'} onClick={() => this.setState({ activeModal: null })}>
-              <GovernmentPanel world={this.state.world} enactLaw={this.enactLaw} revokeLaw={this.revokeLaw}></GovernmentPanel>
+              <GovernmentPanel></GovernmentPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({ activeModal: null })}>
               <ResearchPanel release={this.releaseBean} setResearch={this.setResearch} player={this.state.world.alien}></ResearchPanel>
@@ -426,18 +413,10 @@ class App extends React.Component<AppPs, AppState>{
               {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
             </Modal>
             <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
-              <TraitsReport seenBeliefs={this.state.world.alien.lSeenBeliefs} beliefInventory={this.state.world.alien.lBeliefInventory}
-              ></TraitsReport>
+              <TraitsReport></TraitsReport>
             </Modal>
             <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
-              {(this.state.activeModal == 'brainwash' ? <BrainwashingContent
-                world={this.state.world} beanID={store.getState().selected.selectedBeanKey}
-                washCommunity={this.washCommunity}
-                washMotive={this.washMotive}
-                washNarrative={this.washNarrative}
-                washBelief={this.washBelief}
-                implantBelief={this.implantBelief}>
-              </BrainwashingContent> : '')}
+              <BrainwashingContent></BrainwashingContent>
             </Modal>
             <div className="left">
               <div className="top">

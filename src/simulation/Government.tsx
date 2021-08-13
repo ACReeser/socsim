@@ -37,17 +37,17 @@ export type LawPrereq = TraitBelief|TraitBelief[];
 export const DollarPerBeanRebateThreshold = 1;
 export const PollTaxWeeklyAmount = 0.1;
 
-export function PlayerCanSeePrereqs(prereqs: LawPrereq[], seen: Map<string, boolean>){
+export function PlayerCanSeePrereqs(prereqs: LawPrereq[], seen: {[belief: string]: boolean}){
     return prereqs.length === 0 || prereqs.some((x) => PlayerKnowsPrereq(x, seen));
 }
-export function PlayerMeetsPrereqs(prereqs: LawPrereq[], seen: Map<string, boolean>){
+export function PlayerMeetsPrereqs(prereqs: LawPrereq[], seen: {[belief: string]: boolean}){
     return prereqs.length === 0 || prereqs.every((x) => PlayerKnowsPrereq(x, seen));
 }
-export function PlayerKnowsPrereq(prereq: LawPrereq, seen: Map<string, boolean>){
+export function PlayerKnowsPrereq(prereq: LawPrereq, seen: {[belief: string]: boolean}){
     return Array.isArray(prereq) ? prereq.some((x) => PlayerKnowsBelief(x, seen)) : PlayerKnowsBelief(prereq, seen);
 }
-export function PlayerKnowsBelief(prereq: TraitBelief, seen: Map<string, boolean>){
-    return seen.has(prereq);
+export function PlayerKnowsBelief(prereq: TraitBelief, seen: {[belief: string]: boolean}){
+    return seen[prereq];
 }
 export function PrereqKey(prereq: LawPrereq){
     return Array.isArray(prereq) ? prereq.join('/') : prereq;

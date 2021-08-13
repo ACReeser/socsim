@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { SecondaryBeliefData } from "../simulation/Beliefs";
-import { LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
+import { IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
 import { BeliefInventory } from "../simulation/Player";
+import { enactLaw, repealLaw } from "../state/features/world.reducer";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { TreasuryReport } from "../widgets/TreasuryReport";
 import { World } from "../World";
 
 export const GovernmentPanel: React.FC<{
-    world: World,
-    enactLaw: (l: LawKey) => void
-    revokeLaw: (l: LawKey) => void
 }> = (props) => {
     const [view, setView] = useState<LawGroup|'funds'>('Welfare');
     return <div>
@@ -34,15 +33,12 @@ export const GovernmentPanel: React.FC<{
         {
             view === 'funds' ? <div className="col-2">
                 <div>
-                    <TreasuryReport treasury={props.world.law.treasury}></TreasuryReport>
+                    <TreasuryReport></TreasuryReport>
                 </div>
                 <div>
                 </div>
             </div> : <LawDetailList 
-                group={view} seenBeliefs={props.world.alien.lSeenBeliefs.get} beliefs={props.world.alien.lBeliefInventory.get}
-                isLaw={(l) => props.world.law.isLaw(l)}
-                enactLaw={(l: LawKey) => props.enactLaw(l)}
-                revokeLaw={(l: LawKey) => props.revokeLaw(l)}
+                group={view}
             ></LawDetailList>
         }
     </div>
@@ -50,20 +46,19 @@ export const GovernmentPanel: React.FC<{
 
 
 export const LawDetailList: React.FC<{
-    group: LawGroup,
-    seenBeliefs: Map<string, boolean>,
-    beliefs: BeliefInventory[],
-    isLaw(l: LawKey): boolean,
-    enactLaw: (l: LawKey) => void
-    revokeLaw: (l: LawKey) => void
+    group: LawGroup
 }> = (props) => {
     const laws = Object.values(LawData).filter(x => x.group === props.group);
+    const seenBeliefs = useAppSelector(s => s.world.alien.seenBeliefs);
+    const beliefs = useAppSelector(s => s.world.alien.beliefInventory);
+    const law = useAppSelector(s => s.world.law);
+    const dispatch = useAppDispatch();
     return <div className="pad-4p">
         <strong>{props.group} Laws</strong>
         <div className="horizontal scroll">
         {
-            laws.map((x) => <LawFormula seenBeliefs={props.seenBeliefs} id={x.key} beliefs={props.beliefs} key={x.key} enacted={props.isLaw(x.key)}
-                enactLaw={(l) => props.enactLaw(l)} revokeLaw={(l) => props.revokeLaw(l)}>
+            laws.map((x) => <LawFormula seenBeliefs={seenBeliefs} id={x.key} beliefs={beliefs} key={x.key} enacted={IsLaw(law, x.key)}
+                enactLaw={(lKey) => dispatch(enactLaw({lawKey: lKey}))} revokeLaw={(l) => dispatch(repealLaw({lawKey: l}))}>
             </LawFormula>)
         }
         </div>
@@ -73,7 +68,7 @@ export const LawDetailList: React.FC<{
 
 export const LawFormula: React.FC<{
     id: LawKey,
-    seenBeliefs: Map<string, boolean>,
+    seenBeliefs: {[belief: string]: boolean},
     beliefs: BeliefInventory[],
     enacted: boolean,
     enactLaw: (l: LawKey) => void

@@ -42,7 +42,7 @@ export function simulate_world(world: IWorldState){
 
     world.alien.bots.amount += world.alien.bots.income;
     world.alien.energy.amount += world.alien.energy.income;
-    if (HasResearched(world.alien, 'fast_resources')){
+    if (HasResearched(world.alien.techProgress, 'fast_resources')){
         world.alien.bots.amount += world.alien.bots.income*0.5;
         world.alien.energy.amount += world.alien.energy.income*0.5;
     }

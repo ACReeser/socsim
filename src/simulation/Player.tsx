@@ -228,7 +228,7 @@ export class Player implements IPlayerData, IProgressable{
     }
 
     public hasResearched(tech: Tech){
-        return HasResearched(this, tech);
+        return HasResearched(this.techProgress, tech);
     }
 
     public useCharge(t: TraitBelief){
@@ -340,8 +340,8 @@ export function CheckReportCard(world: IWorldState, player: IPlayerData) {
     //REDUX TODO
     //player.workingReportCard = Curriculums.Default.GradeWorld(world);
 }
-export function HasResearched(player: IPlayerData, tech: Tech){
-    return player.techProgress[tech] != null && player.techProgress[tech].researchPoints >= TechData[tech].techPoints
+export function HasResearched(techProgress: TechProgress, tech: Tech){
+    return techProgress[tech] != null && techProgress[tech].researchPoints >= TechData[tech].techPoints
 }
 export function PlayerCanAfford(player: IPlayerData, cost: PlayerResources, qty: number = 1): boolean{
     return (cost.bots === undefined || player.bots.amount >= cost.bots * qty) &&

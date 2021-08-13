@@ -8,7 +8,6 @@ import { groupBy } from "../simulation/Utils";
 
 export interface PartyOverviewPS{
     world: World;
-    setPolicy(axis: LawAxis, policy: IPolicy): void;
 }
 interface PartyOverviewS{
     overView: 'laws'|'finances',
