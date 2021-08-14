@@ -11,14 +11,13 @@ import "./SocialGraph.css";
 
 interface SocialGraphP{
     city: ICity,
-    scanned_beans: {[beanKey: number]: boolean},
-    costOfLiving: number;
     onClick: (b: Bean) => void;
     onClickBuilding: (b: IBuilding) => void;
 }
 
 export const SocialGraph: React.FC<SocialGraphP> = (props) => {
     const beanKeys = useAppSelector(state => selectCityBeanIDs(state.world, props.city.key));
+    const scannedBeans = useAppSelector(s => s.world.alien.scanned_bean)
     const dispatch = useAppDispatch();
     return <div className="social-graph">
         <div className="social-graph-row">
@@ -28,7 +27,7 @@ export const SocialGraph: React.FC<SocialGraphP> = (props) => {
                 <AnimatedBean beanKey={b} static={true} sitStill={true} cityKey={props.city.key}>
                 </AnimatedBean>
                 {
-                    props.scanned_beans[b] ? null : <span className="social-graph-unscanned prohibited-emoji">🛰️</span>
+                    scannedBeans[b] ? null : <span className="social-graph-unscanned prohibited-emoji">🛰️</span>
                 }
             </div>)
         }

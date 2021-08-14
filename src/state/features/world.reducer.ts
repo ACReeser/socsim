@@ -6,7 +6,7 @@ import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BeanBelievesIn, BeanCanPurchase, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
-import { TraitBelief } from '../../simulation/Beliefs'
+import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
@@ -161,6 +161,7 @@ export const worldSlice = createSlice({
           bean.beliefs.forEach((b) => {
             if (!state.alien.seenBeliefs[b]){
               state.alien.seenBeliefs[b] = true;
+              SignalStoreInstance.newTraitSeen.publish({k: SecondaryBeliefData[b].noun, v: true});
             }
           });
           WorldSfxInstance.play('scan');
@@ -168,6 +169,12 @@ export const worldSlice = createSlice({
       },
       vaporize: () => {
 
+        // if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)) {
+        //   if (bean.city) {
+        //     bean.die('vaporization');
+        //   }
+        //   this.setState({ world: this.state.world });
+        // }
       },
       pickUpPickup: (state, action: PayloadAction<{cityKey: number, pickupKey: number}>) => {
         const pickup = state.pickups.byID[action.payload.pickupKey];

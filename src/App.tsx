@@ -57,7 +57,6 @@ export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' 
 interface AppPs {
 }
 interface AppState {
-  world: World,
   activeModal: ModalView | null;
   activeMain: 'geo' | 'network';
   activeRightPanel: 'events' | 'overview' | 'goals' | 'market';
@@ -77,16 +76,13 @@ class App extends React.Component<AppPs, AppState>{
   constructor(props: AppPs) {
     super(props);
     this.state = {
-      world: GenerateWorld(),
       activeMain: 'geo',
       activeModal: 'greeting',
       activeRightPanel: 'overview',
       timeScale: 0,
       spotlightEvent: undefined
     };
-    this.state.world.calculateComputedState();
-    this.state.world.bus.death.subscribe(this.onDeath);
-    this.state.world.bus.persuasion.subscribe(() => WorldSfxInstance.play('mhmm'));
+    // this.state.world.bus.death.subscribe(this.onDeath);
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
@@ -136,154 +132,95 @@ class App extends React.Component<AppPs, AppState>{
         store.dispatch(newGame())
       this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'B') {
-      this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0);
+      // this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0);
       // this.beam(this.state.world.cities[0], { q: 0, r: 0 });
     } else if (this.cheatMode && event.key === 'Q') {
-      if (this.state.world.cities[0].book.getBuildings().filter(x => x.type === 'farm').length < 1){
-        this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.energy || 0;
-        this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.bots || 0;
-        this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
-        this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.energy || 0;
-        this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.bots || 0;
-        this.build(this.state.world.cities[0], { q: 1, r: 0 }, 'house');
-        this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.hospital.energy || 0;
-        this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.hospital.bots || 0;
-        this.build(this.state.world.cities[0], { q: 0, r: 1 }, 'hospital');
-      }
-      this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0) * 4;
+      // if (this.state.world.cities[0].book.getBuildings().filter(x => x.type === 'farm').length < 1){
+      //   this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.energy || 0;
+      //   this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.bots || 0;
+      //   // this.build(this.state.world.cities[0], { q: 1, r: 1 }, 'farm');
+      //   this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.energy || 0;
+      //   this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.house.bots || 0;
+      //   // this.build(this.state.world.cities[0], { q: 1, r: 0 }, 'house');
+      //   this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.hospital.energy || 0;
+      //   this.state.world.alien.bots.amount += this.state.world.alien.difficulty.cost.emptyHex.build.hospital.bots || 0;
+        // this.build(this.state.world.cities[0], { q: 0, r: 1 }, 'hospital');
+      // }
+      // this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0) * 4;
       // this.beam(this.state.world.cities[0], { q: 0, r: 0 });
       // this.beam(this.state.world.cities[0], { q: 1, r: 0 });
       // this.beam(this.state.world.cities[0], { q: 0, r: 1 });
       // this.beam(this.state.world.cities[0], { q: 1, r: 1 });
-      this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'S') {
-      this.state.world.beans.get.forEach((b) => {
-        if (this.state.world.alien.difficulty.cost.bean.scan.energy){
-          if (this.state.world.alien.energy.amount < this.state.world.alien.difficulty.cost.bean.scan.energy)
-            this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.bean.scan.energy;
-        }
-        // this.scan(b);
-      });
+      // this.state.world.beans.get.forEach((b) => {
+      //   if (this.state.world.alien.difficulty.cost.bean.scan.energy){
+      //     if (this.state.world.alien.energy.amount < this.state.world.alien.difficulty.cost.bean.scan.energy)
+      //       this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.bean.scan.energy;
+      //   }
+      //   // this.scan(b);
+      // });
     }
     this.cheatMode = event.shiftKey && event.key === 'C';
-  }
-  get difficulty() {
-    return this.state.world.alien.difficulty;
-  }
-  build = (city: City, where: HexPoint, what: BuildingTypes) => {
-    const cost = this.difficulty.cost.emptyHex.build[what];
-    if (this.state.world.alien.canAfford(cost)) {
-      this.state.world.alien.purchase(cost);
-      GenerateBuilding(city, what, where, city.economy);
-    }
-
-    this.setState({ world: this.state.world });
-  }
-  changeEnterprise = (city: City, what: IBuilding) => {
-    this.setState({ world: this.state.world });
   }
   fireBean = (city: City, beanKey: number) => {
     const b = city.beans.get.find(x => x.key === beanKey);
     if (b){
       city.unsetJob(b);
-      this.setState({ world: this.state.world });
     }
   }
-  upgrade = (city: City, what: IBuilding) => {
-    const cost = this.difficulty.cost.hex.upgrade;
-    if (this.state.world.alien.tryPurchase(cost)) {
-      what.upgraded = true;
-    }
-
-    this.setState({ world: this.state.world });
-  }
-  buyBots = (amount: number) => {
-    const cost = this.difficulty.cost.market.resource.bots;
-    if (this.state.world.alien.tryPurchase(cost, amount)) {
-      this.state.world.alien.bots.amount += amount;
-      // this.state.world.alien.bots.change.publish({change:amount});
-    }
-
-    this.setState({ world: this.state.world });
-  }
-  buyEnergy = (amount: number) => {
-    const cost = this.difficulty.cost.market.resource.bots;
-    if (this.state.world.alien.tryPurchase(cost, amount)) {
-      this.state.world.alien.energy.amount += amount;
-      // this.state.world.alien.energy.change.publish({change:amount});
-    }
-
-    this.setState({ world: this.state.world });
-  }
-  scrubHedons = () => {
-    const cost = this.difficulty.cost.market.scrubHedons;
-    if (this.state.world.alien.tryPurchase(cost)) {
-      const old = this.state.world.alien.hedons.amount;
-      this.state.world.alien.hedons.amount = 0;
-      // this.state.world.alien.hedons.change.publish({change: -old});
-    }
-
-    this.setState({ world: this.state.world });
-  }
-  vaporize = (bean: Bean) => {
-    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)) {
-      if (bean.city) {
-        bean.die('vaporization');
-      }
-      this.setState({ world: this.state.world });
-    }
-  }
+  // upgrade = (city: City, what: IBuilding) => {
+  //   const cost = this.difficulty.cost.hex.upgrade;
+  //   if (this.state.world.alien.tryPurchase(cost)) {
+  //     what.upgraded = true;
+  //   }
+  // }
   washCommunity = (bean: Bean, a: TraitCommunity) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
-      if (bean.community === 'ego')
-        bean.community = 'state';
-      else bean.community = 'ego';
-      this.setState({ world: this.state.world });
-      return true;
-    }
+    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
+    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
+    //   if (bean.community === 'ego')
+    //     bean.community = 'state';
+    //   else bean.community = 'ego';
+    //   return true;
+    // }
   }
   washMotive = (bean: Bean, a: TraitIdeals) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
-      if (bean.ideals === 'prog')
-        bean.ideals = 'trad';
-      else bean.ideals = 'prog';
-      this.setState({ world: this.state.world });
-      return true;
-    }
+    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
+    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
+    //   if (bean.ideals === 'prog')
+    //     bean.ideals = 'trad';
+    //   else bean.ideals = 'prog';
+    //   this.setState({ world: this.state.world });
+    //   return true;
+    // }
   }
   washNarrative = (bean: Bean, a: TraitFaith) => {
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
-      const oldFaith = bean.faith;
-      while (bean.faith === oldFaith)
-        bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
-      this.setState({ world: this.state.world });
-      return true;
-    }
+    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
+    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
+    //   const oldFaith = bean.faith;
+    //   while (bean.faith === oldFaith)
+    //     bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
+    //   this.setState({ world: this.state.world });
+    //   return true;
+    // }
   }
   washBelief = (bean: Bean, a: TraitBelief) => {
-    const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
-      bean.beliefs.splice(
-        bean.beliefs.indexOf(a), 1
-      );
-      const existing = this.state.world.alien.lBeliefInventory.get.find((x) => x.trait === a);
-      const chargeBonus = this.state.world.alien.hasResearched('neural_duplicator') ? 1 : 0;
-      if (existing) {
-        existing.charges += ChargePerWash + chargeBonus;
-        this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
-      } else
-        this.state.world.alien.lBeliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
-      WorldSfxInstance.play('wash_out');
-      this.setState({ world: this.state.world });
-      return true;
-    }
-  }
-  implantBelief = (bean: Bean, a: TraitBelief) => {
-    
+    // const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
+    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+    //   bean.beliefs.splice(
+    //     bean.beliefs.indexOf(a), 1
+    //   );
+    //   const existing = this.state.world.alien.lBeliefInventory.get.find((x) => x.trait === a);
+    //   const chargeBonus = this.state.world.alien.hasResearched('neural_duplicator') ? 1 : 0;
+    //   if (existing) {
+    //     existing.charges += ChargePerWash + chargeBonus;
+    //     this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
+    //   } else
+    //     this.state.world.alien.lBeliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
+    //   WorldSfxInstance.play('wash_out');
+    //   this.setState({ world: this.state.world });
+    //   return true;
+    // }
   }
   onDeath = (event: IEvent) => {
     WorldSfxInstance.play('death');
@@ -325,7 +262,7 @@ class App extends React.Component<AppPs, AppState>{
           <MoverContext.Provider value={MoverStoreInstance}>
           {
             this.state.activeMain === 'network' ? <div className="canvas">
-              <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
+              <SocialGraph
                 city={store.getState().world.cities.byID[0]}
                 onClickBuilding={(b) => store.dispatch(doSelectBuilding({cityKey: store.getState().world.cities.allIDs[0], buildingKey: b.key }))}
                 onClick={(b) => store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }))} ></SocialGraph>
@@ -408,7 +345,7 @@ class App extends React.Component<AppPs, AppState>{
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'gov' })}>🗳️ Gov</button>
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
                   
-                  <BubbleSeenTraitsText changeEvent={this.state.world.alien.lSeenBeliefs.onAdd} icon="🧠">
+                  <BubbleSeenTraitsText changeEvent={SignalStoreInstance.newTraitSeen} icon="🧠">
                     <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
                   </BubbleSeenTraitsText>
                 </span>

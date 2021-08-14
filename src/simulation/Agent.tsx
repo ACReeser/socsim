@@ -219,6 +219,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             //         }
             //     }
             // }
+            // if persuasion successful WorldSfxInstance.play('mhmm')
             return undefined;
         },
     }, 
