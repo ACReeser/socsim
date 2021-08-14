@@ -71,7 +71,6 @@ export const MoverContext = React.createContext<MoverStore>(MoverStoreInstance);
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
 const ChargePerWash = 3;
-const ChargePerMarket = 3;
 const store = StoreState;
 
 class App extends React.Component<AppPs, AppState>{
@@ -226,18 +225,6 @@ class App extends React.Component<AppPs, AppState>{
 
     this.setState({ world: this.state.world });
   }
-  buyTrait = (l: MarketTraitListing) => {
-    if (this.state.world.alien.tryPurchase(l.cost)) {
-      
-      const existing = this.state.world.alien.lBeliefInventory.get.find((x) => x.trait === l.trait);
-      if (existing) {
-        existing.charges += ChargePerMarket;
-        this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
-      } else
-        this.state.world.alien.lBeliefInventory.push({trait: l.trait, charges: ChargePerMarket});
-    }
-    this.setState({ world: this.state.world });
-  }
   vaporize = (bean: Bean) => {
     if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)) {
       if (bean.city) {
@@ -358,8 +345,7 @@ class App extends React.Component<AppPs, AppState>{
       case 'events':
         return <EventsPanel></EventsPanel>
       case 'market': 
-        return <MarketPanel buyEnergy={this.buyEnergy} buyBots={this.buyBots} scrubHedons={this.scrubHedons} buyTrait={this.buyTrait}
-         player={this.state.world.alien} market={this.state.world.marketTraitsForSale}></MarketPanel>
+        return <MarketPanel></MarketPanel>
     }
   }
   render() {
@@ -411,7 +397,7 @@ class App extends React.Component<AppPs, AppState>{
               <CampaignsPanel></CampaignsPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({ activeModal: null })}>
-              {(this.state.activeModal == 'economy' ? <EconomyReport world={this.state.world}></EconomyReport> : '')}
+              {(this.state.activeModal == 'economy' ? <EconomyReport></EconomyReport> : '')}
             </Modal>
             <Modal show={this.state.activeModal == 'traits'} onClick={() => this.setState({ activeModal: null })}>
               <TraitsReport></TraitsReport>

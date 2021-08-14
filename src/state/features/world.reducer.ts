@@ -11,6 +11,7 @@ import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, 
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
+import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
@@ -21,6 +22,8 @@ import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitE
 import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { GetBlankWorldState, IWorldState } from './world'
+
+const ChargePerMarket = 3;
 
 export const worldSlice = createSlice({
     name: 'world',
@@ -275,6 +278,35 @@ export const worldSlice = createSlice({
         const data = LawData[action.payload.lawKey];
         delete state.law.lawTree[data.axis];
       },
+      
+    buyBots: (state, action: PayloadAction<{amount: number}>) => {
+      const cost = state.alien.difficulty.cost.market.resource.bots;
+      if (PlayerTryPurchase(state.alien, cost, action.payload.amount)) {
+        state.alien.bots.amount += action.payload.amount;
+      }
+    },
+    buyEnergy: (state, action: PayloadAction<{amount: number}>) => {
+      const cost = state.alien.difficulty.cost.market.resource.bots;
+      if (PlayerTryPurchase(state.alien, cost, action.payload.amount)) {
+        state.alien.energy.amount += action.payload.amount;
+      }
+    },
+    scrubHedons: (state) => {
+      const cost = state.alien.difficulty.cost.market.scrubHedons;
+      if (PlayerTryPurchase(state.alien, cost)) {
+        const old = state.alien.hedons.amount;
+        state.alien.hedons.amount = 0;
+      }
+    },
+    buyTrait: (state, action: PayloadAction<{l: MarketTraitListing}>) => {
+      if (PlayerTryPurchase(state.alien, action.payload.l.cost)) {
+        const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.l.trait);
+        if (existing) {
+          existing.charges += ChargePerMarket;
+        } else
+          state.alien.beliefInventory.push({trait: action.payload.l.trait, charges: ChargePerMarket});
+      }
+    },
       beanBuy: (state, action: PayloadAction<{beanKey: number, good: TraitGood}>) =>{
         const bean = state.beans.byID[action.payload.beanKey];
         let receipt: {tax:number,bought:number,price:number}|undefined;
@@ -364,7 +396,7 @@ export const worldSlice = createSlice({
     abduct, release, brainwash, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy,
-    enactLaw, repealLaw, setResearch
+    enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   
   export const selectCityBeanIDs = (state: IWorldState, cityKey: number) => state.cities.byID[cityKey].beanKeys;
