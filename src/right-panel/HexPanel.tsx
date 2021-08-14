@@ -4,12 +4,12 @@ import { Subtabs } from "../chrome/Subtab";
 import { IDifficulty } from "../Game";
 import { City, ICity } from "../simulation/City";
 import { BuildingIcon, BuildingJobIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
-import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, isEnterprise } from "../simulation/Institutions";
+import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, IEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";
 import { BuildingOpenSlots, BuildingUsedSlots } from "../simulation/RealEstate";
 import { useSelector } from "react-redux";
 import { RootState, selectSelectedBuilding, selectSelectedCity } from "../state/state";
-import { useAppDispatch } from "../state/hooks";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { beam, build, changeEnterprise, fireBean, selectCity, upgrade } from "../state/features/world.reducer";
 import { doSelectCity, doSelectHex, doSelectNone } from "../state/features/selected.reducer";
 
@@ -34,8 +34,8 @@ export const HexPanel: React.FC<{
     const building = useSelector(selectSelectedBuilding);
     const city = useSelector(selectSelectedCity);
     const dispatch = useAppDispatch();
-    if (city && hex && building){
-        return <HexBuildingPanel building={building} city={city} hex={hex} difficulty={props.difficulty}></HexBuildingPanel>
+    if (city && building){
+        return <HexBuildingPanel building={building} city={city} difficulty={props.difficulty}></HexBuildingPanel>
     } else if (city && hex){
         const eHex = props.difficulty.cost.emptyHex;
         return <div>
@@ -90,27 +90,33 @@ export const HexPanel: React.FC<{
 export const HexBuildingPanel: React.FC<{
     building: IBuilding,
     difficulty: IDifficulty,
-    city: ICity,
-    hex: string
+    city: ICity
 }> = (props) => {
     const b = props.building;
+    const e = useAppSelector(s => b.enterpriseKey != null ? s.world.enterprises.byID[b.enterpriseKey]: undefined);
     const dispatch = useAppDispatch();
     const slots = BuildingUsedSlots(b);
     const free = BuildingOpenSlots(b);
     const hasJobs = b.type != 'park' && b.type != 'nature';
+    const hex = `${b.address.q},${b.address.r}`;
     return <div>
-        <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong> 
-        in 
-        <strong>{props.city.name}</strong>
-        <button type="button" className="pull-r" onClick={() => dispatch(doSelectNone())}>❌</button>
+        <div>
+            <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong>
+            <button type="button" className="pull-r" onClick={() => dispatch(doSelectNone())}>❌</button>
+        </div>
+        <div className="text-right">
+            <small>
+            in&nbsp;<strong>{props.city.name}</strong>
+            </small>
+        </div>
     {
         b.upgraded && hasJobs ? <div>
             {renderDensityWarning(b.type)}
         </div> : null
     }
     {
-        isEnterprise(b) ?  <EnterpriseTypePicker 
-            building={b} 
+        e != null ?  <EnterpriseTypePicker 
+            enter={e} 
             changeEnterprise={(t) => dispatch(changeEnterprise({enterpriseKey: b.key, newType: t}))}>
             </EnterpriseTypePicker> : null
     }
@@ -135,7 +141,7 @@ export const HexBuildingPanel: React.FC<{
             {renderDensityWarning(b.type)}
         </div>
     }
-    <BeamButton city={props.city.key} difficulty={props.difficulty} hex={props.hex}></BeamButton>
+    <BeamButton city={props.city.key} difficulty={props.difficulty} hex={hex}></BeamButton>
     </div>
 }
 
@@ -178,25 +184,20 @@ export const WorkerList: React.FC<{
 </div>
 }
 export const EnterpriseTypePicker: React.FC<{
-    building: IBuilding,
+    enter: IEnterprise,
     changeEnterprise: (newType: EnterpriseType) => void,
 }> = (props) => {
-    const b = props.building;
-    if (isEnterprise(b)){
-        const options = EnterpriseTypes.map((x) => {
-            return {
-                icon: EnterpriseTypeIcon[x],
-                text: x[0].toUpperCase()+x.substring(1),
-                value: x,
-                onClick: () => {
-                    props.changeEnterprise(x);
-                }
+    const options = EnterpriseTypes.map((x) => {
+        return {
+            icon: EnterpriseTypeIcon[x],
+            text: x[0].toUpperCase()+x.substring(1),
+            value: x,
+            onClick: () => {
+                props.changeEnterprise(x);
             }
-        })
-        return <Subtabs active={b.enterpriseType} options={options}></Subtabs>
-    } else {
-        return null
-    }
+        }
+    }); 
+    return <Subtabs active={props.enter.enterpriseType} options={options}></Subtabs>
 }
 
 function HexStringToHex(hex: string): HexPoint {

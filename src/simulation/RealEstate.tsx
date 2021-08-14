@@ -6,6 +6,8 @@ import { BuildingToGood, BuildingTypes, HexPoint, IBuilding, Point } from "./Geo
 import { EnterpriseType, IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 
+const EnterpriseBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater'];
+
 export class Building implements IBuilding, IEnterprise{
     public city?: City;
     public key: number = 0;
@@ -140,6 +142,19 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     world.buildings.byID[newBuilding.key] = newBuilding;
     city.buildingKeys.push(newBuilding.key);
     city.buildingMap[`${hex.q},${hex.r}`] = newBuilding.key;
+
+    if (EnterpriseBuildings.some(x => type)){
+        newBuilding.enterpriseKey = newBuilding.key;
+        world.enterprises.allIDs.push(newBuilding.key);
+        world.enterprises.byID[newBuilding.key] = {
+            cash: 0,
+            cityKey: city.key,
+            enterpriseType: "company",
+            key: newBuilding.key,
+            ticksSinceLastSale: 0
+        }
+    }
+
     const good = BuildingToGood[type];
     // todo redux todo
     // if (good != 'fun')

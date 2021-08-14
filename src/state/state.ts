@@ -23,7 +23,7 @@ export const selectSelectedBean = (state: RootState) => {
   return state.selected.selectedBeanKey != null ? state.world.beans.byID[state.selected.selectedBeanKey] : undefined;
 }
 export const selectSelectedBuilding = (state: RootState) => {
-  const city = state.selected.selectedCityKey != null && state.selected.selectedCityKey > 0 && state.world.cities.byID[state.selected.selectedCityKey];
+  const city = state.selected.selectedCityKey != null && state.world.cities.byID[state.selected.selectedCityKey];
   if (city && state.selected.selectedHexKey != null)
   {
     const buildingID = city.buildingMap[state.selected.selectedHexKey];

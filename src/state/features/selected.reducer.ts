@@ -31,9 +31,9 @@ export const selectedSlice = createSlice({
             selectedBuildingKey: undefined
         }
       },
-      doSelectBuilding: (state, action: PayloadAction<{cityKey: number, buildingKey: number}>) => {
+      doSelectBuilding: (state, action: PayloadAction<{cityKey: number, hex: HexPoint, buildingKey: number}>) => {
         return {
-            selectedHexKey: undefined,
+            selectedHexKey: `${action.payload.hex.q},${action.payload.hex.r}`,
             selectedCityKey: action.payload.cityKey,
             selectedBeanKey: undefined,
             selectedBuildingKey: action.payload.buildingKey

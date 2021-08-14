@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { City, ICity } from "../simulation/City";
 import { CityBook, HexPoint, hex_to_pixel, IBuilding, transformPoint } from "../simulation/Geography";
-import { doSelectHex } from "../state/features/selected.reducer";
+import { doSelectBuilding, doSelectHex } from "../state/features/selected.reducer";
 import { magnetChange, selectBuildingsByCity, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { PetriBuilding, UIBuilding } from "./Building";
@@ -64,11 +64,18 @@ export const PetriHexes2: React.FC<{
     const dispatch = useAppDispatch();
     return <>{hexes.map((hex, i) => {
         const xy = hex_to_pixel(city.hex_size, city.petriOrigin, hex);
+        const buildingKey: number|undefined = city.buildingMap[hex.q+','+hex.r];
         return <div className="hex"
             key={i}
             style={{ ...hex_style, ...transformPoint(xy) }}
             onMouseEnter={(e) => { dispatch(magnetChange({cityKey: props.cityKey, px: xy})) }}
-            onClick={(e) => { dispatch(doSelectHex({cityKey: props.cityKey, hex: hex})); e.stopPropagation(); return false; }}>
+            onClick={(e) => {
+                if (buildingKey != null)
+                    dispatch(doSelectBuilding({cityKey: props.cityKey, buildingKey: buildingKey, hex: hex}));
+                else 
+                    dispatch(doSelectHex({cityKey: props.cityKey, hex: hex})); 
+                e.stopPropagation(); 
+                return false; }}>
             <HexPetriBuilding2 cityKey={props.cityKey} hex={hex}></HexPetriBuilding2>
         </div>
     })}</>

@@ -183,7 +183,11 @@ class App extends React.Component<AppPs, AppState>{
             this.state.activeMain === 'network' ? <div className="canvas">
               <SocialGraph
                 city={store.getState().world.cities.byID[0]}
-                onClickBuilding={(b) => store.dispatch(doSelectBuilding({cityKey: store.getState().world.cities.allIDs[0], buildingKey: b.key }))}
+                onClickBuilding={(b) => store.dispatch(doSelectBuilding({
+                  cityKey: store.getState().world.cities.allIDs[0], 
+                  buildingKey: b.key,
+                  hex: b.address
+                 }))}
                 onClick={(b) => store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }))} ></SocialGraph>
             </div> : <TransformWrapper
               defaultScale={1}
