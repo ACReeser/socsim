@@ -12,6 +12,7 @@ import { RootState, selectSelectedBuilding, selectSelectedCity } from "../state/
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { beam, build, changeEnterprise, fireBean, selectCity, upgrade } from "../state/features/world.reducer";
 import { doSelectCity, doSelectHex, doSelectNone } from "../state/features/selected.reducer";
+import { BuildingJobSlot } from "../simulation/Occupation";
 
 export const BeamButton: React.FC<{
     city: number,
@@ -95,7 +96,6 @@ export const HexBuildingPanel: React.FC<{
     const b = props.building;
     const e = useAppSelector(s => b.enterpriseKey != null ? s.world.enterprises.byID[b.enterpriseKey]: undefined);
     const dispatch = useAppDispatch();
-    const slots = BuildingUsedSlots(b);
     const free = BuildingOpenSlots(b);
     const hasJobs = b.type != 'park' && b.type != 'nature';
     const hex = `${b.address.q},${b.address.r}`;
@@ -121,7 +121,7 @@ export const HexBuildingPanel: React.FC<{
             </EnterpriseTypePicker> : null
     }
     {
-        (slots.length === 0) ? null : <WorkerList></WorkerList>
+        <WorkerList cityKey={props.city.key} building={b}></WorkerList>
     }
     {
         !hasJobs ? null : <div>
@@ -165,22 +165,26 @@ const renderDensityWarning = (typ: BuildingTypes) => {
 }
 
 export const WorkerList: React.FC<{
+    cityKey: number,
+    building: IBuilding
 }> = (props) => {
+    const slots = BuildingUsedSlots(props.building);
+    const dispatch = useAppDispatch();
+    const beans = useAppSelector(x => props.building.jobs.map((k) => x.world.beans.byID[k]));
+    const enterprise = useAppSelector(s => s.world.enterprises.byID[props.building.key]);
+    if (slots.length < 0) {
+        return <div>No Workers</div>
+    }
     return <div>
     <strong>Workers:</strong>
-    {/* {
-        slots.map((x) => {
-            return {
-                key: x,
-                bean: props.city.beans.get.find((y) => y.key === b.job_slots[x])
-            }
-        }).map((x) => <div key={x.key}>
-            {BuildingJobIcon[b.type]} {x.bean?.name} {isEnterprise(b) && b.enterpriseType === 'company' && x.bean?.key === b.ownerBeanKey ? '🎩' : ''}
-            <button title="Fire" className="callout marg-0" onClick={() => x.bean ? dispatch(fireBean({cityKey: props.city.key, beanKey: b.key})) : null}>
+    {
+        beans.map((x) => <div key={x.key}>
+            {BuildingJobIcon[props.building.type]} {x.name} {enterprise && enterprise.enterpriseType === 'company' && x.key === enterprise.ownerBeanKey ? '🎩' : ''}
+            <button title="Fire" className="callout marg-0" onClick={() => x ? dispatch(fireBean({cityKey: props.cityKey, beanKey: x.key})) : null}>
                 🔥
             </button>
         </div>)
-    } */}
+    }
 </div>
 }
 export const EnterpriseTypePicker: React.FC<{

@@ -104,26 +104,6 @@ export class City extends Geography implements ITile, IBeanContainer, ICity {
     public lpickupMagnetPoint = new Live<Point|undefined>(undefined);
     public pickupMagnetPoint: Point|undefined;
 
-    tryGetJob(bean: Bean, job: TraitJob): boolean{
-        if(job === 'jobless') return false;
-        const allOfType = this.book.getBuildings().filter((x) => x.type === JobToBuilding[job]);
-        
-        for (let i = 0; i < allOfType.length; i++) {
-            const building = allOfType[i];
-            const slots = BuildingOpenSlots(building);
-            if (slots.length > 0){
-                const slot = slots.shift() as BuildingJobSlot;
-                building.job_slots[slot] = bean.key;
-                bean.employerEnterpriseKey = building.key;
-                if (isEnterprise(building) && building.ownerBeanKey == null){
-                    building.ownerBeanKey = bean.key;
-                }
-                return true;
-            }
-        }
-
-        return false;
-    }
     unsetJob(bean: Bean){
         if (bean.job === 'jobless') return;
         const all = this.book.getBuildings();

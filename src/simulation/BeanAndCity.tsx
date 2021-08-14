@@ -2,7 +2,7 @@ import { IWorldState } from "../state/features/world";
 import { TraitJob } from "../World";
 import { IBean } from "./Agent";
 import { BuildingToJob, IBuilding, JobToBuilding } from "./Geography";
-import { isEnterprise } from "./Institutions";
+import { IEnterprise, isEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 import { BuildingOpenSlots } from "./RealEstate";
 import { shuffle } from "./Utils";
@@ -19,12 +19,12 @@ export function BeanTryFindJob(world: IWorldState, bean: IBean): boolean{
             return canHire && isHiring;
         }));
     
+    
     for (let i = 0; i < openSlotBuildings.length; i++) {
         const building = openSlotBuildings[i];
         const slots = BuildingOpenSlots(building);
         if (slots.length > 0){
-            const slot = slots.shift() as BuildingJobSlot;
-            BeanSetJob(bean, building, slot);
+            BeanSetJob(bean, building, world.enterprises.byID[building.key]);
             return true;
         }
     }
@@ -41,18 +41,17 @@ export function BeanTrySetJob(world: IWorldState, bean: IBean, job: TraitJob): b
         const building = allOfType[i];
         const slots = BuildingOpenSlots(building);
         if (slots.length > 0){
-            const slot = slots.shift() as BuildingJobSlot;
-            BeanSetJob(bean, building, slot);
+            BeanSetJob(bean, building, world.enterprises.byID[building.key]);
             return true;
         }
     }
     return false;
 }
-export function BeanSetJob(bean: IBean, building: IBuilding, slot: BuildingJobSlot){
-    building.job_slots[slot] = bean.key;
+export function BeanSetJob(bean: IBean, building: IBuilding, enterprise: IEnterprise){
+    building.jobs.push(bean.key);
     bean.employerEnterpriseKey = building.key;
-    if (isEnterprise(building) && building.ownerBeanKey == null){
-        building.ownerBeanKey = bean.key;
+    if (enterprise && enterprise.ownerBeanKey == null){
+        enterprise.ownerBeanKey = bean.key;
     }
     bean.job = BuildingToJob[building.type];
 }

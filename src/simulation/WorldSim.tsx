@@ -1,18 +1,18 @@
-import { AnyAction, bindActionCreators } from "redux";
+import { AnyAction } from "redux";
 import { IEvent } from "../events/Events";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { SignalStoreInstance } from "../SignalStore";
 import { IWorldState } from "../state/features/world";
 import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
-import { WorldInflate, MaxHedonHistory, TraitJob, PickupPhysics, EmotionWorth } from "../World";
-import { GenerateBean, GetRandom } from "../WorldGen";
+import { MaxHedonHistory, PickupPhysics, WorldInflate } from "../World";
+import { GenerateBean } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
-import { BeanTryFindJob, BeanTrySetJob } from "./BeanAndCity";
+import { BeanTryFindJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
-import { CalculateCityComputed, ICity } from "./City";
+import { CalculateCityComputed } from "./City";
 import { GetCostOfLiving } from "./Economy";
 import { accelerate_towards, accelerator_coast, OriginAccelerator } from "./Geography";
 import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
@@ -98,7 +98,7 @@ export function simulate_world(world: IWorldState){
     world.cities.allIDs.forEach(cityID => {
         const c = world.cities.byID[cityID];
         CalculateCityComputed(c, world.economy);
-        selectBeansByCity(world, cityID).forEach((b: IBean) => CalculateBeanBeliefs(b, world.economy, c, world.law));
+        selectBeansByCity(world, cityID).forEach((b: IBean) => CalculateBeanBeliefs(b, world.economy, world.alien.difficulty, c, world.law));
     });
     CheckGoals(world, world.alien);
     CheckReportCard(world, world.alien);
@@ -138,6 +138,58 @@ export function simulate_every_day(world: IWorldState){
         }
         x.hedonHistory.unshift({});
     });
+    //pay beans
+    world.enterprises.allIDs.forEach((eKey) => {
+        const enterprise = world.enterprises.byID[eKey];
+        const building = world.buildings.byID[eKey];
+        const workers = building.jobs.map(x => world.beans.byID[x]);
+        //distribute cash
+        switch(enterprise.enterpriseType){
+            case 'company':
+                if (workers.length < 1) {
+                    //noop;
+                } else if (workers.length === 1){
+                    workers[0].cash += enterprise.cash;
+                    if (enterprise.cash > 0)
+                        workers[0].ticksSinceLastSale = 0;
+                    enterprise.cash = 0;
+                }
+                else {
+                    const share = enterprise.cash / (workers.length + 0.5);
+                    enterprise.cash = 0;
+                    let owner = workers.find(x => x.key === enterprise.ownerBeanKey);
+                    if (owner == null){
+                        owner = workers[0];
+                        enterprise.ownerBeanKey = owner.key;
+                    }
+                    workers.forEach(bean => {
+                        const pay = (bean === owner) ? share * 1.5 : share;
+                        bean.cash += pay;
+                        if (pay > 0)
+                            bean.ticksSinceLastSale = 0;
+                    });
+                }
+                break;
+            case 'co-op':
+                const share = enterprise.cash / workers.length;
+                enterprise.cash = 0;
+                workers.forEach(bean => {
+                    bean.cash += share;
+                    if (share > 0)
+                        bean.ticksSinceLastSale = 0;
+                });
+                break;
+            case 'commune':
+                const commShare = enterprise.cash / workers.length;
+                enterprise.cash = 0;
+                workers.forEach(bean => {
+                    bean.cash += commShare;
+                    if (commShare > 0)
+                        bean.ticksSinceLastSale = 0;
+                });
+                break;
+        }
+    })
 }
 export function WorldAddEvent(world: IWorldState, e: IEvent){
     e.key = world.events.nextID++;

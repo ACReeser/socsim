@@ -255,7 +255,7 @@ export interface IBuilding{
     key: number;
     address: HexPoint;
     type: BuildingTypes;
-    job_slots: {[key in BuildingJobSlot]: number|undefined};
+    jobs: number[];
     upgraded: boolean,
     enterpriseKey?: number
 }

@@ -1,5 +1,5 @@
 
-export function shuffle(array: Array<any>) {
+export function shuffle<T>(array: Array<T>) {
     let counter = array.length;
 
     // While there are elements in the array

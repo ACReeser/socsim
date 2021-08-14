@@ -1,17 +1,11 @@
-import { TraitIdeals, TraitCommunity, TraitEthno, TraitFaith, World, TraitJob } from './World';
-import { Bean } from './simulation/Bean';
-import { Policy, BaseParty, CityPartyHQ, Party } from './simulation/Politics';
-import { IBuilding, BuildingTypes, Geography, PolarPoint, polarToPoint, hex_to_pixel, HexPoint, BuildingToGood } from './simulation/Geography';
-import { City, ICity } from './simulation/City';
-import { BeliefsAll, RandomBeliefBucket } from './simulation/Beliefs';
-import { WorldSound } from './WorldSound';
-import { Building } from './simulation/RealEstate';
-import { Economy, EconomyEmployAndPrice, GetFairGoodPrice, IEconomy } from './simulation/Economy';
-import { BuildingJobSlot } from './simulation/Occupation';
 import { IBean } from './simulation/Agent';
+import { RandomBeliefBucket } from './simulation/Beliefs';
+import { City, ICity } from './simulation/City';
+import { Economy } from './simulation/Economy';
+import { BuildingTypes, HexPoint, PolarPoint } from './simulation/Geography';
 import { IWorldState } from './state/features/world';
-import { PriorityQueue } from './simulation/Priorities';
-import { MoverStoreInstance } from './MoverStoreSingleton';
+import { TraitCommunity, TraitEthno, TraitFaith, TraitIdeals, TraitJob } from './World';
+import { WorldSound } from './WorldSound';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
@@ -117,48 +111,7 @@ export function GetBuildingR(type: BuildingTypes): number{
             return GetRandomNumber(80, 200);
     }
 }
-export function GenerateBuilding(geo: Geography, type: BuildingTypes, hex: HexPoint, econ: Economy){
-    const newBuilding = new Building();
-    newBuilding.type = type;
-    newBuilding.key = geo.book.getBuildings().length;
-    newBuilding.address = hex;
-    if (geo instanceof City)
-        newBuilding.city = geo;
-    geo.addBuilding(newBuilding);
-    const good = BuildingToGood[type];
-    if (good != 'fun')
-        econ.employAndPrice(newBuilding, good, EnterpriseStartingListing, econ.getFairGoodPrice(good))
-}
 
-const Number_Starting_Cities = 1;
-export function GenerateWorld(): World{
-    const world = new World();
- 
-    world.law.laws = [];
-    world.party = new BaseParty();
-    world.institutions.push(world.party);
-    // for (let i = 0; i < Number_Starting_Cities; i++) {
-    //     world.cities.push(GenerateCity(world.cities.length, world.sfx, world.economy));
-    //     world.cities[i].eventBus = world.bus;
-    //     world.cities[i].environment = world.date;
-    //     world.cities[i].law = world.law;
-    //     for (let j = 0; j < world.cities[i].beans.get.length; j++) {
-    //         const bean = world.cities[i].beans.get[j];
-    //         bean.work(world.law, world.economy);
-    //         if (bean.job == 'farmer')
-    //             bean.work(world.law, world.economy);
-    //     }
-    // }
-    world.economy.monthlyDemand.food = world.beans.get.length;
-    world.economy.monthlyDemand.shelter = world.beans.get.length;
-    world.economy.monthlyDemand.medicine = world.beans.get.length;
-
-    return world;
-}
-
-export function GeneratePartyHQ(city: City, party: Party) {
-    
-}
 const CityPrefixes = ['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', ''];
 const CityFirstsnames = ['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash'];
 const CityLastnames = ['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest'];
@@ -171,10 +124,10 @@ export function GenerateCity(previousCityCount: number, sfx: WorldSound, econ: E
     newCity.key = previousCityCount;
     newCity.name = GetRandomCityName();
     
-    GenerateBuilding(newCity, 'courthouse', newCity.hexes[0], newCity.economy); 
-    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)], newCity.economy); 
-    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(21, 25)], newCity.economy); 
-    GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(26, 60)], newCity.economy);
+    // GenerateBuilding(newCity, 'courthouse', newCity.hexes[0], newCity.economy); 
+    // GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)], newCity.economy); 
+    // GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(21, 25)], newCity.economy); 
+    // GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(26, 60)], newCity.economy);
     // GenerateBuilding(newCity, 'house', newCity.hexes[1]); 
     // GenerateBuilding(newCity, 'hospital', newCity.hexes[5]);
     
@@ -189,16 +142,7 @@ export function GenerateCity(previousCityCount: number, sfx: WorldSound, econ: E
 
     return newCity;
 }
-function getStartingPoint(city: City): HexPoint{
-    const house = city.book.getRandomBuildingOfType('house');
-    if (house){
-        return house.address;
-    } else {
-        return {
-            q: 0, r: 0
-        }
-    }
-}
+
 export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, hexPoint?: HexPoint, job?: TraitJob): IBean{
     let newBean: IBean = {
         key: world.beans.nextID++,

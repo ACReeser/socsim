@@ -19,13 +19,13 @@ export function getRandomSlotOffset(){
 function hexToTransform(direction: HexPoint){
     return transformPoint(getSlotOffset(direction))
 }
-const hexDirectionToJobSlot: {[key: number]: BuildingJobSlot} = {
-    2: BuildingJobSlot.first,
-    0: BuildingJobSlot.second,
-    4: BuildingJobSlot.third,
-    1: BuildingJobSlot.fourth,
-    5: BuildingJobSlot.fifth,
-    3: BuildingJobSlot.sixth,
+const hexDirectionToJobSlot: {[key: number]: number} = {
+    2: 0,
+    0: 1,
+    4: 2,
+    1: 3,
+    5: 4,
+    3: 5,
 }
 
 export const PetriBuilding: React.FC<{
@@ -58,7 +58,7 @@ export const UIBuildingSlots: React.FC<{
 }> = (props) => {
     return <>{hex_directions.map((d, i: number) => {
         const jobSlot: BuildingJobSlot = hexDirectionToJobSlot[i];
-        const hasJob = props.building.job_slots[jobSlot] != null;
+        const hasJob = props.building.jobs[jobSlot] != null;
         return <span key={i} className="slot" style={props.getStyle(d)}>
             {hasJob ? BuildingJobIcon[props.building.type] : null}
         </span>

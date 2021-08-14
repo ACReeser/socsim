@@ -27,6 +27,7 @@ import { GetBlankWorldState, IWorldState } from './world'
 const ChargePerMarket = 3;
 const ChargePerWash = 2;
 
+const UnderemploymentThresholdTicks = 8
 export const worldSlice = createSlice({
     name: 'world',
     initialState: GetBlankWorldState(),
@@ -59,16 +60,14 @@ export const worldSlice = createSlice({
       },
       fireBean: (state, action: PayloadAction<{cityKey: number, beanKey: number}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
-        state.enterprises.allIDs.forEach((eKey) => {
-          const enterprise = state.enterprises.byID[eKey];
-          if (enterprise.ownerBeanKey === bean.key){
-            enterprise.ownerBeanKey = undefined;
+        if (bean.employerEnterpriseKey){
+          const building = state.buildings.byID[bean.employerEnterpriseKey];
+          const enterprise = state.enterprises.byID[bean.employerEnterpriseKey];
+          if (enterprise.ownerBeanKey == bean.key){
+            enterprise.ownerBeanKey = building.jobs.find(x => x != bean.key);
           }
-        });
-        state.buildings.allIDs.forEach((bKey) => {
-          const building = state.buildings.byID[bKey];
-          BuildingTryFreeBean(building, bean.key);
-        });
+          BuildingUnsetJob(building, bean);
+        }
       },
       upgrade: (state, action: PayloadAction<{buildingKey: number}>) => {
         const cost = state.alien.difficulty.cost.hex.upgrade;
@@ -275,15 +274,17 @@ export const worldSlice = createSlice({
             _ifBelievesInMaybeEmote(state, bean, 'Diligence', 'happiness', DiligenceHappyChance);
             _ifBelievesInMaybeEmote(state, bean, 'Hedonism', 'unhappiness', HedonismHateWorkChance);
             bean.ticksSinceLastSale++;
-            if (bean.ticksSinceLastSale > 7){
+            if (bean.ticksSinceLastSale > UnderemploymentThresholdTicks && bean.employerEnterpriseKey != null){
                 // const cityHasOtherWorkers = state.cities.byID[bean.cityKey].beans.get.filter(x => x.job === bean.job).length > 1 : false;
                 // cityHasOtherWorkers &&
-
-                //underemployment
-                if (Math.random() > 0.5) {
+                const employer = state.enterprises.byID[bean.employerEnterpriseKey];
+                // underemployment
+                if (employer.ownerBeanKey != bean.key && Math.random() > 0.5) {
                     const newJob = EconomyMostInDemandJob(state.economy);
-                    if (newJob)
+                    if (newJob){
+                      BuildingUnsetJob(state.buildings.byID[bean.employerEnterpriseKey], bean);
                       BeanTrySetJob(state, bean, newJob);
+                    }
                 }
             }
             let workedForEmployer = false;
@@ -373,7 +374,7 @@ export const worldSlice = createSlice({
         switch(action.payload.good){
           case 'food':
             receipt = EconomyTryTransact(state.economy, state.law, bean, 'food', 0.5, 3);
-            if (receipt) {
+            if (receipt?.bought) {
                 bean.discrete_food += receipt.bought;
                 if (bean.food === 'stuffed'){
                     _emote(bean, state, {emote:'happiness', source: 'Stuffed'});
@@ -383,7 +384,7 @@ export const worldSlice = createSlice({
             break;
           case 'shelter':
             receipt = EconomyTryTransact(state.economy, state.law, bean, 'shelter');
-            if (receipt) {
+            if (receipt?.bought) {
                 bean.discrete_stamina = 10;
                 bean.stamina = 'awake';
             } else if (bean.discrete_stamina <= 0){
@@ -392,7 +393,7 @@ export const worldSlice = createSlice({
             break;
           case 'medicine':
             receipt = EconomyTryTransact(state.economy, state.law, bean, 'medicine', 0.5, 3);
-            if (receipt){
+            if (receipt?.bought){
                 bean.discrete_health += receipt.bought;
                 if (bean.health === 'fresh')
                     _emote(bean, state, {emote:'happiness', source: 'Robust'});
@@ -400,7 +401,7 @@ export const worldSlice = createSlice({
             break;
           case 'fun':
             receipt = EconomyTryTransact(state.economy, state.law, bean, 'fun');
-            if (receipt) {
+            if (receipt?.bought) {
                 bean.discrete_fun = 1;
                 _emote(bean, state, {emote:'happiness', source:'Entertainment'});
                 _emote(bean, state, {emote:'happiness', source:'Entertainment'});

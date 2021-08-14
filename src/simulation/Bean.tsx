@@ -45,10 +45,10 @@ export const ProgressivismTaxHappyChance = 0.1;
 
 const MaxGraceTicks = 6;
 export class Bean implements IBean{
-    actionData: IActivityData = {act: 'idle'};
+    actionData: IActivityData = { act: 'idle' };
     public key: number = 0;
     public cityKey: number = 0;
-    public dob: IDate = {year: 0, season: 0, day: 1, hour: 0};
+    public dob: IDate = { year: 0, season: 0, day: 1, hour: 0 };
     public bornInPetri: boolean = false;
     public name: string = 'Human Bean';
     public get sanity(): TraitSanity {
@@ -155,10 +155,6 @@ export class Bean implements IBean{
     }
     believesIn(belief: TraitBelief): boolean{
         return BeanBelievesIn(this, belief);
-    }
-    loseSanity(amount: number){
-        const multiplier = this.believesIn('Neuroticism') ? 2 : 1;
-        this.discrete_sanity -= multiplier * amount;
     }
     getHappinessModifiers(econ: Economy, homeCity: City, law: Government): IHappinessModifier[]{
         const mods: IHappinessModifier[] = [
@@ -279,18 +275,7 @@ export class Bean implements IBean{
     }
     tryFindRandomJob(law: Government) {
         const job: TraitJob = GetRandom(['builder', 'doc', 'farmer', 'entertainer']);
-        if (!this.trySetJob(job)){
-            
-            this.city?.eventBus?.nojobslots.publish({icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`, key:1});
-        }
-    }
-    trySetJob(job: TraitJob): boolean{
-        if (this.city?.tryGetJob(this, job)){
-            this.city.unsetJob(this);
-            this.job = job;
-            return true;
-        }
-        return false;
+        
     }
     canPurchase(cost: BeanResources, sanityBonus: number) {
         return (cost.sanity === undefined || this.discrete_sanity >= cost.sanity + sanityBonus);
@@ -423,8 +408,8 @@ export class Bean implements IBean{
                 //underemployment
                 if (cityHasOtherWorkers && Math.random() > 0.5) {
                     const newJob = econ.mostInDemandJob();
-                    if (newJob)
-                        this.trySetJob(newJob);
+                    // if (newJob)
+                        // this.trySetJob(newJob);
                 }
             }
             let workedForEmployer = false;
@@ -685,7 +670,53 @@ export class Bean implements IBean{
     }
 }
 
-export function CalculateBeliefs(bean: IBean, econ: IEconomy, homeCity: ICity, law: IGovernment){
+export function BeanCalculateHealth(bean: IBean, difficulty: IDifficulty): TraitHealth{
+    if (bean.discrete_health >= GoodToThreshold['medicine'].abundant)
+        bean.health = 'fresh';
+    else if (bean.discrete_health >= GoodToThreshold['medicine'].sufficient)
+        bean.health =  'bruised'
+    else if (bean.discrete_health >= GoodToThreshold['medicine'].warning)
+        bean.health =  'sickly'
+    else
+        bean.health =  'sick';
+
+    return bean.health;
+}
+
+export function BeanCalculateShelter(bean: IBean, difficulty: IDifficulty): TraitStamina{
+    if (bean.discrete_stamina < 0)
+        bean.stamina = 'homeless';
+    else
+        bean.stamina = 'rested';
+    
+    return bean.stamina;
+}
+
+export function BeanCalculateSanity(bean: IBean, difficulty: IDifficulty): TraitSanity{
+    if (bean.discrete_sanity >= 8)
+        bean.sanity = 'sane';
+    else if (bean.discrete_sanity >= 5)
+        bean.sanity =  'stressed'
+    else if (bean.discrete_sanity >= 3)
+        bean.sanity =  'disturbed'
+    else
+        bean.sanity =  'psychotic';
+    return bean.sanity;
+}
+export function BeanCalculateFood(bean: IBean, difficulty: IDifficulty): TraitFood{
+    if (bean.discrete_food >= GoodToThreshold['food'].abundant)
+    bean.food = 'stuffed';
+    else if (bean.discrete_food >= GoodToThreshold['food'].sufficient)
+    bean.food = 'sated'
+    else if (bean.discrete_food >= GoodToThreshold['food'].warning)
+    bean.food = 'hungry'
+    else
+    bean.food = 'starving';
+
+    return bean.food;
+}
+
+export function CalculateBeliefs(bean: IBean, econ: IEconomy, difficulty: IDifficulty, homeCity: ICity, law: IGovernment){
     bean.hedonFiveDayRecord = {
         min: Math.min(bean.hedonFiveDayRecord.min, bean.happiness.flatAverage),
         max: Math.max(bean.hedonFiveDayRecord.max, bean.happiness.flatAverage)  
@@ -697,6 +728,11 @@ export function CalculateBeliefs(bean: IBean, econ: IEconomy, homeCity: ICity, l
             bean.happiness.flatAverage / bean.hedonFiveDayRecord.max) * 100 : (
             bean.happiness.flatAverage / bean.hedonFiveDayRecord.min) * 100;
     }
+    
+    BeanCalculateFood(bean, difficulty);
+    BeanCalculateHealth(bean, difficulty);
+    BeanCalculateSanity(bean, difficulty);
+    BeanCalculateShelter(bean, difficulty);
 
     if (bean.job === 'jobless'){
         bean.fairGoodPrice = 1;
@@ -774,6 +810,7 @@ export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes
     if (bean.discrete_food < 0)
         bean.discrete_health -= 0.2;
 
+    BeanCalculateFood(bean, diff);
     const starve = BeanMaybeDie(bean, 'starvation', bean.food === 'starving', 0.6);
     if (starve)
         return starve;
@@ -787,12 +824,15 @@ export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes
         
     bean.discrete_stamina -= diff.bean_life.degrade_per_tick.stamina;
 
+    BeanCalculateShelter(bean, diff);
     const exposure = BeanMaybeDie(bean, 'exposure', bean.stamina === 'homeless', 0.2);
     if (exposure)
         return exposure;
 
     bean.discrete_health -= diff.bean_life.degrade_per_tick.health;
     bean.discrete_health = Math.min(bean.discrete_health, 3);
+    
+    BeanCalculateHealth(bean, diff);
     const sick = BeanMaybeDie(bean, 'sickness', bean.health === 'sick', 0.4);
     if (sick)
         return sick;
