@@ -4,7 +4,7 @@ import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, BeanCanPurchase, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BuildingUnsetJob } from '../../simulation/City'
@@ -20,11 +20,12 @@ import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
-import { GenerateBean, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
+import { GenerateBean, GetRandom, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { GetBlankWorldState, IWorldState } from './world'
 
 const ChargePerMarket = 3;
+const ChargePerWash = 2;
 
 export const worldSlice = createSlice({
     name: 'world',
@@ -131,14 +132,51 @@ export const worldSlice = createSlice({
         }
 
       },
-      brainwash: () => {
+      washCommunity: (state, action: PayloadAction<{beanKey: number, faith: TraitFaith}>) => {
+        // if (bean.canPurchase(state.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
+        //   bean.loseSanity(state.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
+        //   if (bean.community === 'ego')
+        //     bean.community = 'state';
+        //   else bean.community = 'ego';
+        //   return true;
+        // }
+      },
+      washMotive: () => {
 
+        // if (bean.canPurchase(state.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
+        //   bean.loseSanity(state.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
+        //   if (bean.ideals === 'prog')
+        //     bean.ideals = 'trad';
+        //   else bean.ideals = 'prog';
+        //   this.setState({ world: state });
+        //   return true;
+        // }
       },
       washNarrative: (state, action: PayloadAction<{beanKey: number, faith: TraitFaith}>) => {
-
+        const bean = state.beans.byID[action.payload.beanKey];
+        if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
+          BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
+          const oldFaith = bean.faith;
+          while (bean.faith === oldFaith)
+            bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
+        }
       },
       washBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
-
+        const bean = state.beans.byID[action.payload.beanKey];
+        const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
+      if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+        BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+        bean.beliefs.splice(
+          bean.beliefs.indexOf(action.payload.trait), 1
+        );
+        const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
+        const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
+        if (existing) {
+          existing.charges += ChargePerWash + chargeBonus;
+        } else
+          state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
+        WorldSfxInstance.play('wash_out');
+      }
       },
       setResearch: (state, action: PayloadAction<{t: Tech}>) => {
         state.alien.currentlyResearchingTech = action.payload.t;
@@ -167,14 +205,10 @@ export const worldSlice = createSlice({
           WorldSfxInstance.play('scan');
         }
       },
-      vaporize: () => {
-
-        // if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.vaporize)) {
-        //   if (bean.city) {
-        //     bean.die('vaporization');
-        //   }
-        //   this.setState({ world: this.state.world });
-        // }
+      vaporize: (state, action: PayloadAction<{beanKey: number}>) => {
+        if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.vaporize)) {
+          BeanDie(state.beans.byID[action.payload.beanKey], 'vaporization');
+        }
       },
       pickUpPickup: (state, action: PayloadAction<{cityKey: number, pickupKey: number}>) => {
         const pickup = state.pickups.byID[action.payload.pickupKey];
@@ -195,6 +229,12 @@ export const worldSlice = createSlice({
         bean.activity_duration[oldAct] += ADS.elapsed;
         bean.action = action.payload.newState.act;
         bean.actionData = action.payload.newState;
+        const p = MoverStoreInstance.Get('bean', bean.key).current?.point;
+        if (p) {
+          bean.lastPoint = {
+            ...p
+          };
+        }
         ADS.elapsed = 0;
       },
       beanHitDestination: (state, action: PayloadAction<{beanKey: number}>) => {
@@ -413,8 +453,8 @@ export const worldSlice = createSlice({
     refreshMarket, magnetChange, worldTick, 
     remove_ufo,
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
-    abduct, release, brainwash, scan, vaporize, pickUpPickup,
-    implant, washBelief, washNarrative,
+    abduct, release, scan, vaporize, pickUpPickup,
+    implant, washBelief, washNarrative, washCommunity, washMotive,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions

@@ -226,7 +226,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                     <small>-Energy -Sanity</small>
                 </button> */}
                 <button type="button" className="button card" onClick={() => {
-                    dispatch(vaporize());
+                    dispatch(vaporize({beanKey: bean.key}));
                     setFaceOverride('😨');
                     _resetFace();
                 }}

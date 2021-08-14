@@ -1,15 +1,14 @@
-import React, { useEffect, useState } from "react";
-import { BeliefSubject, BeliefVerb, TraitBelief, SecondaryBeliefData, Belief, PrimaryBeliefData, NarrativeBeliefData, IsBeliefDivergent } from "../simulation/Beliefs";
-import './modals.css';
-import { EmoteIcon, TraitCommunity, TraitFaith, TraitIdeals, World } from "../World";
-import { AddBeliefInput, BeliefWidget, EditBeliefInput } from "./BeliefRow";
-import { Bean, BeanBelievesIn } from "../simulation/Bean";
-import { LiveList } from "../events/Events";
-import { BeliefInventory, HasResearched } from "../simulation/Player";
-import { ConfirmButton } from "../widgets/ConfirmButton";
+import React from "react";
+import { BeanBelievesIn } from "../simulation/Bean";
+import { NarrativeBeliefData, SecondaryBeliefData } from "../simulation/Beliefs";
+import { HasResearched } from "../simulation/Player";
+import { implant, washBelief, washNarrative } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean } from "../state/state";
-import { implant, washBelief, washNarrative } from "../state/features/world.reducer";
+import { ConfirmButton } from "../widgets/ConfirmButton";
+import { EmoteIcon } from "../World";
+import { BeliefWidget, EditBeliefInput } from "./BeliefRow";
+import './modals.css';
 
 export const TraitInventoryList: React.FC<{
     dogmatic: boolean,

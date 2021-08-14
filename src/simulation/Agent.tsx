@@ -572,7 +572,8 @@ export interface IBean extends ISeller, IBeanAgent{
     activity_duration: {[act in Act]: number},
     bornInPetri: boolean,
     ticksSinceLastRelax: number,
-    lastChatMS: number
+    lastChatMS: number,
+    lastPoint?: Point
 }
 
 /**

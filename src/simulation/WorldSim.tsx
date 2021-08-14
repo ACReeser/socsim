@@ -76,6 +76,10 @@ export function simulate_world(world: IWorldState){
         const e = BeanMaybeBaby(b, CoL);
         if (e) {
             const newBean = GenerateBean(world, world.cities.byID[b.cityKey], b);
+            if (b.lastPoint){
+                newBean.lastPoint = b.lastPoint;
+                MoverStoreInstance.Get('bean', newBean.key).publish({point: {x: b.lastPoint.x, y: b.lastPoint.y}, velocity: {x: 0, y: 0}});
+            }
             world.beans.byID[newBean.key] = newBean;
             world.beans.allIDs.push(newBean.key);
             world.cities.byID[b.cityKey].beanKeys.push(newBean.key);

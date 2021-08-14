@@ -1,57 +1,37 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-
+import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import './App.css';
 import './chrome/chrome.css';
-import { World, TraitGood, Trait, TraitCommunity, TraitIdeals, TraitFaith } from './World';
-import { GenerateWorld, GeneratePartyHQ, GenerateBuilding, GenerateBean, GetRandom } from './WorldGen';
-import { Modal } from './widgets/Modal';
-import { OverviewPanel } from './right-panel/OverviewPanel';
-import { Bean } from './simulation/Bean';
-import { WorldTile } from './petri-ui/WorldTile';
-import { EconomyReport } from './modal-content/EconomyReport';
-import { CharityPanel } from './modal-content/CharityPanel';
-import { PoliticalEffect, Policy, CityPartyHQ, IPolicy } from './simulation/Politics';
-import { EventsPanel } from './right-panel/Events';
-import { BeanPanel } from './right-panel/BeanPanel';
-import { FoundParty, FoundPartyS } from './modal-content/FoundParty';
-import { PartyOverview } from './modal-content/PartyOverview';
-import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
-import { Season, Now, Hour } from './simulation/Time';
-import { SocialGraph } from './widgets/SocialGraph';
-import { BotsAmount, CapsuleLabel, EnergyAmount, HedonAmount } from './widgets/CapsuleLabel';
-
-
-import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { GoalsPanel } from './right-panel/Goals';
-import { CampaignsPanel } from './modal-content/Campaigns';
-import { GovernmentPanel } from './modal-content/Gov';
-import { ResearchPanel } from './modal-content/Research';
-import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
-import { BuildingTypes, HexPoint, IBuilding, Point, transformPoint } from './simulation/Geography';
-import { HexPanel } from './right-panel/HexPanel';
-import { City, UFO } from './simulation/City';
-import { BrainwashingContent } from './modal-content/Brainwashing';
-import { SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
-import { TimelyEventToggle } from './widgets/TimelyEventToggle';
-import { LawAxis, LawKey } from './simulation/Government';
-import { Tech } from './simulation/Player';
 import { IEvent } from './events/Events';
-import { WorldSfxInstance, WorldSound } from './WorldSound';
-import { MarketPanel } from './right-panel/MarketPanel';
-import { TraitsReport } from './modal-content/TraitsReport';
+import { BrainwashingContent } from './modal-content/Brainwashing';
+import { CampaignsPanel } from './modal-content/Campaigns';
+import { EconomyReport } from './modal-content/EconomyReport';
+import { GovernmentPanel } from './modal-content/Gov';
 import { GreetingPanel } from './modal-content/GreetingPanel';
-import { MarketTraitListing } from './simulation/MarketTraits';
-import { selectSelectedBean, store as StoreState } from './state/state';
-import { WorldTile2 } from './petri-ui/WorldTile2';
-import { newGame, selectBuilding, worldTick } from './state/features/world.reducer';
-import { DetailPanel } from './right-panel/DetailPanel';
-import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
-import { MoverStore } from './simulation/MoverBus';
+import { ResearchPanel } from './modal-content/Research';
+import { TraitsReport } from './modal-content/TraitsReport';
 import { MoverStoreInstance } from './MoverStoreSingleton';
-import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
-import { SeasonWidget } from './widgets/Season';
+import { WorldTile2 } from './petri-ui/WorldTile2';
+import { DetailPanel } from './right-panel/DetailPanel';
+import { EventsPanel } from './right-panel/Events';
+import { GoalsPanel } from './right-panel/Goals';
+import { MarketPanel } from './right-panel/MarketPanel';
 import { SignalStoreInstance } from './SignalStore';
+import { Point } from './simulation/Geography';
+import { MoverStore } from './simulation/MoverBus';
+import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
+import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
+import { newGame, worldTick } from './state/features/world.reducer';
+import { store as StoreState } from './state/state';
+import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
+import { BotsAmount, CapsuleLabel, EnergyAmount, HedonAmount } from './widgets/CapsuleLabel';
+import { Modal } from './widgets/Modal';
+import { SeasonWidget } from './widgets/Season';
+import { SocialGraph } from './widgets/SocialGraph';
+import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
+import { TimelyEventToggle } from './widgets/TimelyEventToggle';
+import { WorldSfxInstance, WorldSound } from './WorldSound';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -69,7 +49,6 @@ export const MoverContext = React.createContext<MoverStore>(MoverStoreInstance);
 
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
-const ChargePerWash = 3;
 const store = StoreState;
 
 class App extends React.Component<AppPs, AppState>{
@@ -161,66 +140,6 @@ class App extends React.Component<AppPs, AppState>{
       // });
     }
     this.cheatMode = event.shiftKey && event.key === 'C';
-  }
-  fireBean = (city: City, beanKey: number) => {
-    const b = city.beans.get.find(x => x.key === beanKey);
-    if (b){
-      city.unsetJob(b);
-    }
-  }
-  // upgrade = (city: City, what: IBuilding) => {
-  //   const cost = this.difficulty.cost.hex.upgrade;
-  //   if (this.state.world.alien.tryPurchase(cost)) {
-  //     what.upgraded = true;
-  //   }
-  // }
-  washCommunity = (bean: Bean, a: TraitCommunity) => {
-    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
-    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
-    //   if (bean.community === 'ego')
-    //     bean.community = 'state';
-    //   else bean.community = 'ego';
-    //   return true;
-    // }
-  }
-  washMotive = (bean: Bean, a: TraitIdeals) => {
-    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
-    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
-    //   if (bean.ideals === 'prog')
-    //     bean.ideals = 'trad';
-    //   else bean.ideals = 'prog';
-    //   this.setState({ world: this.state.world });
-    //   return true;
-    // }
-  }
-  washNarrative = (bean: Bean, a: TraitFaith) => {
-    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
-    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
-    //   const oldFaith = bean.faith;
-    //   while (bean.faith === oldFaith)
-    //     bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
-    //   this.setState({ world: this.state.world });
-    //   return true;
-    // }
-  }
-  washBelief = (bean: Bean, a: TraitBelief) => {
-    // const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
-    // if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
-    //   bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
-    //   bean.beliefs.splice(
-    //     bean.beliefs.indexOf(a), 1
-    //   );
-    //   const existing = this.state.world.alien.lBeliefInventory.get.find((x) => x.trait === a);
-    //   const chargeBonus = this.state.world.alien.hasResearched('neural_duplicator') ? 1 : 0;
-    //   if (existing) {
-    //     existing.charges += ChargePerWash + chargeBonus;
-    //     this.state.world.alien.lBeliefInventory.set([...this.state.world.alien.lBeliefInventory.get]);
-    //   } else
-    //     this.state.world.alien.lBeliefInventory.push({trait: a, charges: ChargePerWash + chargeBonus});
-    //   WorldSfxInstance.play('wash_out');
-    //   this.setState({ world: this.state.world });
-    //   return true;
-    // }
   }
   onDeath = (event: IEvent) => {
     WorldSfxInstance.play('death');
