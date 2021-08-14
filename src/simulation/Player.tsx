@@ -1,5 +1,6 @@
-import { ChangePubSub, LiveList, LiveMap } from "../events/Events";
+import { LiveList, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
+import { SignalStoreInstance } from "../SignalStore";
 import { IWorldState } from "../state/features/world";
 import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
@@ -203,10 +204,10 @@ export class Player implements IPlayerData, IProgressable{
     public lBeliefInventory = new LiveList<BeliefInventory>([]);
     public speechcrimes: {[year: number]: number} = {};
     public abductedBeans: IBean[] = [];
-    public energy = { amount: 16, income: 2/30, change: new ChangePubSub()};
-    public bots = { amount: 10, income: 2/30, change: new ChangePubSub()};
-    public hedons = { amount: 0, income: 0, change: new ChangePubSub()};
-    public tortrons = { amount: 0, income: 0, change: new ChangePubSub()};
+    public energy = { amount: 16, income: 2/30};
+    public bots = { amount: 10, income: 2/30};
+    public hedons = { amount: 0, income: 0};
+    public tortrons = { amount: 0, income: 0};
     public next_grade: IDate = { year: 1, season: 3, day: 1, hour: 0 };
     public difficulty: IDifficulty = DefaultDifficulty;
     public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm',  'beam_3', 'scan', 'brainwash', 'set_policy', 'c+_grade'];
@@ -243,15 +244,15 @@ export class Player implements IPlayerData, IProgressable{
     public purchase(cost: PlayerResources, qty: number = 1){
         if (cost.bots){
             this.bots.amount -= cost.bots * qty;
-            this.bots.change.publish({change: -cost.bots * qty});
+            // this.bots.change.publish({change: -cost.bots * qty});
         }
         if (cost.energy){
             this.energy.amount -= cost.energy * qty;
-            this.energy.change.publish({change: -cost.energy * qty});
+            // this.energy.change.publish({change: -cost.energy * qty});
         }
         if (cost.hedons){
             this.hedons.amount -= cost.hedons * qty;
-            this.hedons.change.publish({change: -cost.hedons * qty});
+            // this.hedons.change.publish({change: -cost.hedons * qty});
         }
     }
 
@@ -266,15 +267,15 @@ export class Player implements IPlayerData, IProgressable{
     public reward(reward: PlayerResources){
         if (reward.bots){
             this.bots.amount += reward.bots;
-            this.bots.change.publish({change: reward.bots});
+            // this.bots.change.publish({change: reward.bots});
         }
         if (reward.energy){
             this.energy.amount += reward.energy;
-            this.energy.change.publish({change: reward.energy});
+            // this.energy.change.publish({change: reward.energy});
         }
         if (reward.hedons){
             this.hedons.amount += reward.hedons;
-            this.hedons.change.publish({change: reward.hedons});
+            // this.hedons.change.publish({change: reward.hedons});
         }
 
     }
@@ -305,17 +306,17 @@ export function Reward(player: IPlayerData, reward: PlayerResources){
     if (reward.bots){
         player.bots.amount += reward.bots;
         if (player instanceof Player)
-            player.bots.change.publish({change: reward.bots});
+            SignalStoreInstance.alienBots.publish({change: reward.bots});
     }
     if (reward.energy){
         player.energy.amount += reward.energy;
         if (player instanceof Player)
-            player.energy.change.publish({change: reward.energy});
+            SignalStoreInstance.alienEnergy.publish({change: reward.energy});
     }
     if (reward.hedons){
         player.hedons.amount += reward.hedons;
         if (player instanceof Player)
-            player.hedons.change.publish({change: reward.hedons});
+            SignalStoreInstance.alienHedons.publish({change: reward.hedons});
     }
 }
 
@@ -358,11 +359,14 @@ export function PlayerTryPurchase(player: IPlayerData, cost: PlayerResources, qt
 export function PlayerPurchase(player: IPlayerData, cost: PlayerResources, qty: number = 1): void{
     if (cost.bots){
         player.bots.amount -= cost.bots * qty;
+        SignalStoreInstance.alienBots.publish({change: -cost.bots * qty});
     }
     if (cost.energy){
         player.energy.amount -= cost.energy * qty;
+        SignalStoreInstance.alienEnergy.publish({change: -cost.energy * qty});
     }
     if (cost.hedons){
         player.hedons.amount -= cost.hedons * qty;
+        SignalStoreInstance.alienHedons.publish({change: -cost.hedons * qty});
     }
 }

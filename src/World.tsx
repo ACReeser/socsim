@@ -195,36 +195,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
             x.hedonHistory.unshift({});
         });
     }
-    animate_pickups(deltaMS: number){
-        const city = this.cities[0];
-        const pickups = city.pickups.get;
-        //go backwards because we'll modify the array as we go
-        for(let i = pickups.length - 1; i >= 0; i--) {
-            const pickup = pickups[i];
-            let collide = false;
-            const magnet = city.lpickupMagnetPoint.get;
-            if (magnet){
-                collide = accelerate_towards(
-                    pickup, 
-                    magnet, 
-                    PickupPhysics.AccelerateS * deltaMS/1000, 
-                    PickupPhysics.MaxSpeed, 
-                    PickupPhysics.CollisionDistance,
-                    PickupPhysics.Brake);
-            } else {
-                accelerator_coast(pickup, PickupPhysics.Brake);
-            }
-            if (collide){
-                const amt = EmotionWorth[pickup.type];
-                this.alien.hedons.amount += amt;
-                this.alien.hedons.change.publish({change: amt});
-                city.pickups.remove(pickup);
-                WorldSfxInstance.play(pickup.type);
-            } else {
-                pickup.onMove.publish(pickup.point);
-            }
-        }
-    }
     onChat = (b: Bean, chat: IChatData) => {
         if (this.party && chat.preachBelief){
             if (IsBeliefDivergent(chat.preachBelief, this.party.ideals, this.party.community)){

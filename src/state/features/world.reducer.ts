@@ -1,6 +1,7 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
-import { MoverBusInstance } from '../../MoverStoreSingleton'
+import { MoverStoreInstance } from '../../MoverStoreSingleton'
+import { SignalStoreInstance } from '../../SignalStore'
 import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BeanBelievesIn, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
@@ -97,7 +98,7 @@ export const worldSlice = createSlice({
         state.beans.byID[newBean.key] = newBean;
         state.beans.allIDs.push(newBean.key);
         state.cities.byID[ufo.cityKey].beanKeys.push(newBean.key);
-        MoverBusInstance.Get('bean', newBean.key).current = {
+        MoverStoreInstance.Get('bean', newBean.key).current = {
           point: hex_to_pixel(state.cities.byID[ufo.cityKey].hex_size, state.cities.byID[ufo.cityKey].petriOrigin, ufo.point), 
           velocity: {x: 0, y: 0}
         };
@@ -158,6 +159,7 @@ export const worldSlice = createSlice({
         state.pickups.allIDs = state.pickups.allIDs.filter(x => x != action.payload.pickupKey);
         delete state.pickups.byID[action.payload.pickupKey];
         
+        SignalStoreInstance.alienHedons.publish({change: amt});
         WorldSfxInstance.play(pickup.type);
       },
       changeState: (state, action: PayloadAction<{beanKey: number, newState: IActivityData}>) => {
@@ -332,7 +334,7 @@ export const worldSlice = createSlice({
     bean.discrete_sanity = MathClamp(bean.discrete_sanity + EmotionSanity[payload.emote], 0, 10);
     bean.hedonHistory[0][payload.source] = (bean.hedonHistory[0][payload.source] || 0) + EmotionWorth[payload.emote];
     
-    const beanPosition = MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator;
+    const beanPosition = MoverStoreInstance.Get('bean', bean.key).current || OriginAccelerator;
 
     const pickup: IPickup = {
         key: state.pickups.nextID++,
@@ -346,7 +348,7 @@ export const worldSlice = createSlice({
     state.cities.byID[bean.cityKey].pickupKeys.push(pickup.key);
     state.pickups.byID[pickup.key] = pickup; 
     state.pickups.allIDs.push(pickup.key);
-    MoverBusInstance.Get('pickup', pickup.key).publish({
+    MoverStoreInstance.Get('pickup', pickup.key).publish({
       point: {
         x: beanPosition.point.x,
         y: beanPosition.point.y

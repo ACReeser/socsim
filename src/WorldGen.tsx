@@ -11,7 +11,7 @@ import { BuildingJobSlot } from './simulation/Occupation';
 import { IBean } from './simulation/Agent';
 import { IWorldState } from './state/features/world';
 import { PriorityQueue } from './simulation/Priorities';
-import { MoverBusInstance } from './MoverStoreSingleton';
+import { MoverStoreInstance } from './MoverStoreSingleton';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;

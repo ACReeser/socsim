@@ -1,6 +1,7 @@
 import { AnyAction, bindActionCreators } from "redux";
 import { IEvent } from "../events/Events";
-import { MoverBusInstance } from "../MoverStoreSingleton";
+import { MoverStoreInstance } from "../MoverStoreSingleton";
+import { SignalStoreInstance } from "../SignalStore";
 import { IWorldState } from "../state/features/world";
 import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
 import { WorldInflate, MaxHedonHistory, TraitJob, PickupPhysics, EmotionWorth } from "../World";
@@ -135,6 +136,7 @@ export function WorldAddEvent(world: IWorldState, e: IEvent){
     e.key = world.events.nextID++;
     world.events.byID[e.key] = e;
     world.events.allIDs.push(e.key);
+    SignalStoreInstance.events.publish(e);
 }
 export function animate_ufos(world: IWorldState, deltaMS: number): Array<AnyAction>{
     const actions: AnyAction[] = [];
@@ -185,7 +187,7 @@ export function animate_pickups(world: IWorldState, deltaMS: number): Array<AnyA
         let collide = false;
         const magnet = city.pickupMagnetPoint;
         const newAccelerator = {
-            ...(MoverBusInstance.Get('pickup', pickupID).current || OriginAccelerator)
+            ...(MoverStoreInstance.Get('pickup', pickupID).current || OriginAccelerator)
         };
         if (magnet){
             const collide = accelerate_towards(
@@ -202,7 +204,7 @@ export function animate_pickups(world: IWorldState, deltaMS: number): Array<AnyA
             accelerator_coast(newAccelerator, PickupPhysics.Brake);
         }
         if (!collide)
-            MoverBusInstance.Get('pickup', pickupID).publish(newAccelerator);
+            MoverStoreInstance.Get('pickup', pickupID).publish(newAccelerator);
     }
     return actions;
 }

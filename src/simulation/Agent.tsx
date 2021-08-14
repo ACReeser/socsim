@@ -1,6 +1,6 @@
 import { AnyAction } from "@reduxjs/toolkit";
 import { IDifficulty } from "../Game";
-import { MoverBusInstance as MoverStoreInstance } from "../MoverStoreSingleton";
+import { MoverStoreInstance as MoverStoreInstance } from "../MoverStoreSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBuy, beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";

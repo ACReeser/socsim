@@ -48,9 +48,10 @@ import { newGame, selectBuilding, worldTick } from './state/features/world.reduc
 import { DetailPanel } from './right-panel/DetailPanel';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
 import { MoverStore } from './simulation/MoverBus';
-import { MoverBusInstance } from './MoverStoreSingleton';
+import { MoverStoreInstance } from './MoverStoreSingleton';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
 import { SeasonWidget } from './widgets/Season';
+import { SignalStoreInstance } from './SignalStore';
 
 export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
@@ -65,7 +66,7 @@ interface AppState {
   cursor?: Point;
 }
 export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
-export const MoverContext = React.createContext<MoverStore>(MoverBusInstance);
+export const MoverContext = React.createContext<MoverStore>(MoverStoreInstance);
 
 const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
@@ -201,7 +202,7 @@ class App extends React.Component<AppPs, AppState>{
     const cost = this.difficulty.cost.market.resource.bots;
     if (this.state.world.alien.tryPurchase(cost, amount)) {
       this.state.world.alien.bots.amount += amount;
-      this.state.world.alien.bots.change.publish({change:amount});
+      // this.state.world.alien.bots.change.publish({change:amount});
     }
 
     this.setState({ world: this.state.world });
@@ -210,7 +211,7 @@ class App extends React.Component<AppPs, AppState>{
     const cost = this.difficulty.cost.market.resource.bots;
     if (this.state.world.alien.tryPurchase(cost, amount)) {
       this.state.world.alien.energy.amount += amount;
-      this.state.world.alien.energy.change.publish({change:amount});
+      // this.state.world.alien.energy.change.publish({change:amount});
     }
 
     this.setState({ world: this.state.world });
@@ -220,7 +221,7 @@ class App extends React.Component<AppPs, AppState>{
     if (this.state.world.alien.tryPurchase(cost)) {
       const old = this.state.world.alien.hedons.amount;
       this.state.world.alien.hedons.amount = 0;
-      this.state.world.alien.hedons.change.publish({change: -old});
+      // this.state.world.alien.hedons.change.publish({change: -old});
     }
 
     this.setState({ world: this.state.world });
@@ -366,7 +367,7 @@ class App extends React.Component<AppPs, AppState>{
       <Provider store={store}>
         <div className="canvas">
           <SfxContext.Provider value={WorldSfxInstance}>
-          <MoverContext.Provider value={MoverBusInstance}>
+          <MoverContext.Provider value={MoverStoreInstance}>
           {
             this.state.activeMain === 'network' ? <div className="canvas">
               <SocialGraph costOfLiving={this.state.world.economy.getCostOfLiving()} scanned_beans={this.state.world.alien.scanned_bean}
@@ -427,17 +428,17 @@ class App extends React.Component<AppPs, AppState>{
                 <span></span>
               </div>
               <div className="bottom">
-                <BubbleNumberText changeEvent={this.state.world.alien.energy.change} icon="⚡️">
+                <BubbleNumberText changeEvent={SignalStoreInstance.alienEnergy} icon="⚡️">
                   <CapsuleLabel icon="⚡️" label="Energy">
                     <EnergyAmount></EnergyAmount>
                   </CapsuleLabel>
                 </BubbleNumberText>
-                <BubbleNumberText changeEvent={this.state.world.alien.bots.change} icon="🤖">
+                <BubbleNumberText changeEvent={SignalStoreInstance.alienBots} icon="🤖">
                   <CapsuleLabel icon="🤖" label="Bots">
                     <BotsAmount></BotsAmount>
                   </CapsuleLabel>
                 </BubbleNumberText>
-                <BubbleNumberText changeEvent={this.state.world.alien.hedons.change} icon="👍">
+                <BubbleNumberText changeEvent={SignalStoreInstance.alienHedons} icon="👍">
                   <CapsuleLabel icon="👍" label="Hedons">
                     <HedonAmount></HedonAmount>
                   </CapsuleLabel>
@@ -463,7 +464,7 @@ class App extends React.Component<AppPs, AppState>{
                 <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Info</button>
                 <button onClick={() => this.setState({ activeRightPanel: 'market' })}>🛍️ Market</button>
                 <button onClick={() => this.setState({ activeRightPanel: 'events' })}>
-                  <TimelyEventToggle event={this.state.world.bus.speechcrime} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
+                  <TimelyEventToggle event={SignalStoreInstance.events} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
                 </button>
                 <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🏆 Goals</button>
               </div>

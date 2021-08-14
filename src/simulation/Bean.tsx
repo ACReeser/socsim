@@ -14,7 +14,7 @@ import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
 import { IPickup } from "./Pickup";
-import { MoverBusInstance } from "../MoverStoreSingleton";
+import { MoverStoreInstance } from "../MoverStoreSingleton";
 
 const BabyChance = 0.008;
 export const DaysUntilSleepy = 7;
@@ -826,7 +826,7 @@ export function BeanEmote(bean: IBean, emote: TraitEmote, source: string): IPick
         {
             key: 0, 
             point: {
-                ...(MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point
+                ...(MoverStoreInstance.Get('bean', bean.key).current || OriginAccelerator).point
             }, 
             type: emote,
             velocity: {x: 0, y: 0}
@@ -932,7 +932,7 @@ export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPi
         death: {
             icon: '☠️', trigger: 'death', message: `${bean.name} died of ${cause}!`, 
             beanKey: bean.key, cityKey: bean.cityKey,
-            point: (MoverBusInstance.Get('bean', bean.key).current || OriginAccelerator).point,
+            point: (MoverStoreInstance.Get('bean', bean.key).current || OriginAccelerator).point,
             key: 0,
         },
         emotes: emotes

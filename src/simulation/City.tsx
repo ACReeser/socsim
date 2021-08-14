@@ -16,7 +16,7 @@ import { IPickup } from "./Pickup";
 import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";
 import { IBean } from "./Agent";
 import { IWorldState } from "../state/features/world";
-import { MoverBusInstance } from "../MoverStoreSingleton";
+import { MoverStoreInstance } from "../MoverStoreSingleton";
 
 
 export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
@@ -262,13 +262,13 @@ export function CityGetRandomEntertainmentBuilding(city: ICity, world: IWorldSta
     return world.buildings.byID[r]
 }
 export function CityGetNearestNeighbors(city: ICity, source: IBean): number[]{
-    const q = MoverBusInstance.Get('bean', source.key).current;
+    const q = MoverStoreInstance.Get('bean', source.key).current;
     if (!q)
         return [];
     return city.beanKeys.filter((bKey) => {
         if (bKey == source.key) return false;
 
-        const p = MoverBusInstance.Get('bean', bKey).current;
+        const p = MoverStoreInstance.Get('bean', bKey).current;
         if (!p)
             return false;
         const squared = Math.pow(p.point.x - q.point.x, 2)+Math.pow(p.point.y - q.point.y, 2);
