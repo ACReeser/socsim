@@ -7,7 +7,7 @@ import { IDate, withinLastYear } from "./Time";
 import { Government, IGovernment } from "./Government";
 import { Act, IActivityData, IBean, IChatData } from "./Agent";
 import { JobToBuilding, OriginAccelerator, Point, Vector } from "./Geography";
-import { City, ICity } from "./City";
+import { BuildingUnsetJob, City, ICity } from "./City";
 import { PriorityQueue } from "./Priorities";
 import { GetHedonReport, HedonExtremes, HedonReport, HedonSourceToVal, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPlayerData } from "./Player";
@@ -682,8 +682,6 @@ export class Bean implements IBean{
     }
     abduct(player: IPlayerData){
         this.lifecycle = 'abducted';
-        this.city?.unsetJob(this);
-        player.abductedBeans.push(this);
     }
 }
 
@@ -939,6 +937,11 @@ export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPi
     }
 }
 
+export function BeanLoseSanity(bean: IBean, amount: number){
+    const multiplier = BeanBelievesIn(bean, 'Neuroticism') ? 2 : 1;
+    bean.discrete_sanity -= multiplier * amount;
+}
+
 export function BeanGetSpeech(bean: IBean): string|undefined { 
     if (bean.action === 'chat'){
         if (bean.actionData.chat?.participation === 'speaker' && bean.actionData.chat.preachBelief){
@@ -953,6 +956,9 @@ export function BeanIsInCrisis(bean: IBean): boolean{
     bean.health === 'sick';
 }
 
+export function BeanCanPurchase(bean: IBean, cost: BeanResources, sanityBonus: number){
+    return (cost.sanity === undefined || bean.discrete_sanity >= cost.sanity + sanityBonus);
+}
 
 export function BeanGetFace(bean: IBean): string{
     // if (!this.alive)

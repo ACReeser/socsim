@@ -72,7 +72,7 @@ export function GetBlankWorldState(): IWorldState{
       seenBeliefs: {},
       beliefInventory: [],
       speechcrimes: {},
-      abductedBeans: [],
+      abductedBeanKeys: [],
       energy: { amount: 16, income: 2/30},
       bots: { amount: 10, income: 2/30},
       hedons: { amount: 0, income: 0},

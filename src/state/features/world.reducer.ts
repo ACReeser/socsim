@@ -4,16 +4,17 @@ import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCanPurchase, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { TraitBelief } from '../../simulation/Beliefs'
+import { BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
-import { PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, Tech } from '../../simulation/Player'
+import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseCharge, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
@@ -106,24 +107,28 @@ export const worldSlice = createSlice({
           velocity: {x: 0, y: 0}
         };
       },
-      abduct: () => {
-        // if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.abduct)) {
-        //   bean.abduct(this.state.world.alien);
-        //   bean.city?.beans.remove(bean);
-        //   this.setState({ world: this.state.world });
-        // }
+      abduct: (state, action: PayloadAction<{beanKey: number}>) => {
+        if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.abduct)) {
+          const bean = state.beans.byID[action.payload.beanKey];
+          bean.lifecycle = 'abducted';
+          if (bean.employerEnterpriseKey){
+            const building = state.buildings.byID[bean.employerEnterpriseKey];
+            BuildingUnsetJob(building, bean);
+          }
+          state.cities.byID[bean.cityKey].beanKeys = state.cities.byID[bean.cityKey].beanKeys.filter(x => x != bean.key);
+          state.alien.abductedBeanKeys.push(bean.key);
+        }
 
       },
-      release: () => {
-        // if (this.state.world.alien.abductedBeans.length > 0) {
-        //   const lucky_bean = this.state.world.alien.abductedBeans.shift();
-        //   if (lucky_bean instanceof Bean) {
-        //     lucky_bean.lifecycle = 'alive';
-        //     lucky_bean.city?.beans.push(lucky_bean);
-        //   } else {
-        //     window.alert("releasing data beans is unimplemented");
-        //   }
-        // }
+      release: (state) => {
+        if (state.alien.abductedBeanKeys.length > 0) {
+          const lucky_bean_key = state.alien.abductedBeanKeys.shift();
+          if (lucky_bean_key != null){
+            const luckyBean = state.beans.byID[lucky_bean_key];
+            luckyBean.lifecycle = 'alive';
+            state.cities.byID[luckyBean.cityKey].beanKeys.push(lucky_bean_key);
+          }
+        }
 
       },
       brainwash: () => {
@@ -135,8 +140,19 @@ export const worldSlice = createSlice({
       washBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
 
       },
+      setResearch: (state, action: PayloadAction<{t: Tech}>) => {
+        state.alien.currentlyResearchingTech = action.payload.t;
+      },
       implant: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
-
+        const bean = state.beans.byID[action.payload.beanKey];
+        const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
+        if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
+          state.alien.beliefInventory.filter(x => x.trait == action.payload.trait && x.charges > 0)) {
+          bean.beliefs.push(action.payload.trait);
+          PlayerUseCharge(state.alien, action.payload.trait);
+          WorldSfxInstance.play('wash_in');
+          BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0); 
+        }
       },
       scan: (state, action: PayloadAction<{beanKey: number}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
@@ -266,9 +282,6 @@ export const worldSlice = createSlice({
         _emote(bean, state, {emote: 'happiness', source: 'Relaxation'});
         if (BeanBelievesIn(bean, 'Naturalism'))
           _emote(bean, state, {emote: 'happiness', source: 'Naturalism'});
-      },
-      setResearch: (state, action: PayloadAction<{t: Tech}>) => {
-        state.alien.currentlyResearchingTech = action.payload.t;
       },
       enactLaw: (state, action: PayloadAction<{lawKey: LawKey}>) => {
         const data = LawData[action.payload.lawKey];

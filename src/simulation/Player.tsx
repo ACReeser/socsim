@@ -11,7 +11,7 @@ import { IDate } from "./Time";
 
 export interface IPlayerData{
     scanned_bean: {[beanKey: number]: boolean};
-    abductedBeans: IBean[];
+    abductedBeanKeys: number[];
     seenBeliefs: {[key: string]: boolean};
     speechcrimes: {[year: number]: number};
     next_grade: IDate;
@@ -203,7 +203,7 @@ export class Player implements IPlayerData, IProgressable{
     public beliefInventory = [];
     public lBeliefInventory = new LiveList<BeliefInventory>([]);
     public speechcrimes: {[year: number]: number} = {};
-    public abductedBeans: IBean[] = [];
+    public abductedBeanKeys: number[] = [];
     public energy = { amount: 16, income: 2/30};
     public bots = { amount: 10, income: 2/30};
     public hedons = { amount: 0, income: 0};
@@ -348,6 +348,14 @@ export function PlayerCanAfford(player: IPlayerData, cost: PlayerResources, qty:
     return (cost.bots === undefined || player.bots.amount >= cost.bots * qty) &&
     (cost.energy === undefined || player.energy.amount >= cost.energy * qty) && 
     (cost.hedons === undefined || player.hedons.amount >= cost.hedons * qty);
+}
+export function PlayerUseCharge(alien: IPlayerData, t: TraitBelief){
+    const all = alien.beliefInventory;
+    const existing = all.find(x => x.trait === t);
+    if (existing){
+        existing.charges -= 1;
+        alien.beliefInventory = [...all.filter(x => x.charges > 0)];
+    }
 }
 export function PlayerTryPurchase(player: IPlayerData, cost: PlayerResources, qty: number = 1): boolean{
     if (PlayerCanAfford(player, cost, qty)){

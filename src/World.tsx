@@ -137,7 +137,7 @@ export class World implements IWorld, IBeanContainer, IActListener{
             const max = TechData[tech].techPoints;
             const current = this.alien.techProgress[tech].researchPoints;
             if (current < max)
-                this.alien.techProgress[tech].researchPoints += this.alien.abductedBeans.length;
+                this.alien.techProgress[tech].researchPoints += this.alien.abductedBeanKeys.length;
             if (current >= max){
                 if (this.alien.currentlyResearchingTech === 'neural_duplicator')
                     this.alien.lBeliefInventory.get.forEach((x) => x.charges += 1);

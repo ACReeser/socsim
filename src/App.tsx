@@ -233,28 +233,6 @@ class App extends React.Component<AppPs, AppState>{
       this.setState({ world: this.state.world });
     }
   }
-  abduct = (bean: Bean) => {
-    if (this.state.world.alien.tryPurchase(this.state.world.alien.difficulty.cost.bean.abduct)) {
-      bean.abduct(this.state.world.alien);
-      bean.city?.beans.remove(bean);
-      this.setState({ world: this.state.world });
-    }
-  }
-  releaseBean = () => {
-    if (this.state.world.alien.abductedBeans.length > 0) {
-      const lucky_bean = this.state.world.alien.abductedBeans.shift();
-      if (lucky_bean instanceof Bean) {
-        lucky_bean.lifecycle = 'alive';
-        lucky_bean.city?.beans.push(lucky_bean);
-      } else {
-        window.alert("releasing data beans is unimplemented");
-      }
-    }
-  }
-  setResearch = (t: Tech) => {
-    this.state.world.alien.currentlyResearchingTech = t;
-    this.setState({ world: this.state.world });
-  }
   washCommunity = (bean: Bean, a: TraitCommunity) => {
     if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
       bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
@@ -305,16 +283,7 @@ class App extends React.Component<AppPs, AppState>{
     }
   }
   implantBelief = (bean: Bean, a: TraitBelief) => {
-    const sanityCostBonus = this.state.world.alien.hasResearched('sanity_bonus') ? -1 : 0;
-    if (bean.canPurchase(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
-      this.state.world.alien.lBeliefInventory.get.filter(x => x.trait == a && x.charges > 0)) {
-      bean.beliefs.push(a);
-      this.state.world.alien.useCharge(a);
-      WorldSfxInstance.play('wash_in');
-      bean.loseSanity(this.state.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0);
-      this.setState({ world: this.state.world });
-      return true;
-    }
+    
   }
   onDeath = (event: IEvent) => {
     WorldSfxInstance.play('death');
@@ -341,7 +310,7 @@ class App extends React.Component<AppPs, AppState>{
       case 'overview':
         return <DetailPanel openBrainwash={() => this.setState({ activeModal: 'brainwash' })}></DetailPanel>
       case 'goals':
-        return <GoalsPanel player={this.state.world.alien} progress={this.state.world.alien}></GoalsPanel>
+        return <GoalsPanel></GoalsPanel>
       case 'events':
         return <EventsPanel></EventsPanel>
       case 'market': 
@@ -391,7 +360,7 @@ class App extends React.Component<AppPs, AppState>{
               <GovernmentPanel></GovernmentPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({ activeModal: null })}>
-              <ResearchPanel release={this.releaseBean} setResearch={this.setResearch} player={this.state.world.alien}></ResearchPanel>
+              <ResearchPanel></ResearchPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({ activeModal: null })}>
               <CampaignsPanel></CampaignsPanel>

@@ -57,7 +57,7 @@ export function simulate_world(world: IWorldState){
         const max = TechData[tech].techPoints;
         const current = world.alien.techProgress[tech].researchPoints;
         if (current < max)
-            world.alien.techProgress[tech].researchPoints += world.alien.abductedBeans.length;
+            world.alien.techProgress[tech].researchPoints += world.alien.abductedBeanKeys.length;
         if (current >= max){
             if (world.alien.currentlyResearchingTech === 'neural_duplicator')
                 world.alien.beliefInventory.forEach((x) => x.charges += 1);
@@ -69,6 +69,9 @@ export function simulate_world(world: IWorldState){
     const CoL = GetCostOfLiving(world.economy);
     world.beans.allIDs.forEach((bKey: number, i: number) => {
         const b = world.beans.byID[bKey];
+        if (b.lifecycle != 'alive')
+            return;
+        
         BeanAge(b, world.alien.difficulty);
         const e = BeanMaybeBaby(b, CoL);
         if (e) {
@@ -155,6 +158,10 @@ export function animate_beans(world: IWorldState, deltaMS: number): Array<AnyAct
     const actions: AnyAction[] = [];
     world.beans.allIDs.forEach((beanKey) => {
         const bean = world.beans.byID[beanKey];
+
+        if (bean.lifecycle != 'alive')
+            return;
+        
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key); 
         ADS.elapsed += deltaMS;
         const actResult = BeanActions[bean.action].act(bean, world, ADS.elapsed, deltaMS);
