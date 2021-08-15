@@ -12,7 +12,7 @@ import { GreetingPanel } from './modal-content/GreetingPanel';
 import { ResearchPanel } from './modal-content/Research';
 import { TraitsReport } from './modal-content/TraitsReport';
 import { MoverStoreInstance } from './MoverStoreSingleton';
-import { WorldTile2 } from './petri-ui/WorldTile2';
+import { WorldTile2 } from './petri-ui/WorldTile';
 import { DetailPanel } from './right-panel/DetailPanel';
 import { EventsPanel } from './right-panel/Events';
 import { GoalsPanel } from './right-panel/Goals';
@@ -176,9 +176,9 @@ class App extends React.Component<AppPs, AppState>{
   render() {
     return (
       <Provider store={store}>
+      <SfxContext.Provider value={WorldSfxInstance}>
+      <MoverContext.Provider value={MoverStoreInstance}>
         <div className="canvas">
-          <SfxContext.Provider value={WorldSfxInstance}>
-          <MoverContext.Provider value={MoverStoreInstance}>
           {
             this.state.activeMain === 'network' ? <div className="canvas">
               <SocialGraph
@@ -288,9 +288,9 @@ class App extends React.Component<AppPs, AppState>{
               </div>
             </div>
           </div>
-          </MoverContext.Provider>
-          </SfxContext.Provider>
           </div>
+      </MoverContext.Provider>
+      </SfxContext.Provider>
       </Provider>
     )
   }

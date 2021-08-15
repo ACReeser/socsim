@@ -303,11 +303,16 @@ button.pull-r{
   border-radius: 100px;
   position: absolute;
 }
+.tile .hex.hex-selected{
+  background: hsla(16, 100%, 50%, 5%);
+  border-color: hsla(16, 100%, 50%, 50%);
+}
 .tile .hex:hover{
-  border-color: hsl(16, 100%, 50%);
+  border-color: red;
   cursor: pointer;
 }
-.tile .hex:hover .building{
+.tile .hex:hover .building,
+.tile .hex.hex-selected .building{
   opacity: 1;
 }
 .tile .mtn{

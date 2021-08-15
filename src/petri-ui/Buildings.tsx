@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { City, ICity } from "../simulation/City";
-import { CityBook, HexPoint, hex_to_pixel, IBuilding, transformPoint } from "../simulation/Geography";
+import { CityBook, HexPoint, hex_to_pixel, IBuilding, Point, transformPoint } from "../simulation/Geography";
 import { doSelectBuilding, doSelectHex } from "../state/features/selected.reducer";
 import { magnetChange, selectBuildingsByCity, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
@@ -22,62 +22,46 @@ export const HexPetriBuilding2: React.FC<{
         return <PetriBuilding city={city} building={building}></PetriBuilding>
     else return null;
 }
-export const HexPetriBuilding: React.FC<{
-    city: City,
-    hex: HexPoint
+
+export const PetriHex: React.FC<{
+    cityKey: number,
+    buildingKey: number|undefined,
+    hex: HexPoint,
+    hexString: string,
+    xy: Point,
+    i: number
 }> = (props) => {
-    const [building, setBuilding] = useState<IBuilding|undefined>(props.city.book.findBuildingByCoordinate(props.hex));
-    const getBuildings= () => {
-        setBuilding(props.city.book.findBuildingByCoordinate(props.hex))
-    }
-    useEffect(() => {
-        props.city.book.db.onChange.subscribe(getBuildings);
-        return () => props.city.book.db.onChange.unsubscribe(getBuildings);
-    });
-    if (building)
-        return <PetriBuilding city={props.city} key={building.key} building={building}></PetriBuilding>
-    else 
-        return null;
+    const dispatch = useAppDispatch();
+    const selected = useAppSelector(state => state.selected.selectedHexKey === props.hexString);
+    const extraClasses = selected ? 'hex-selected' : ''; 
+    return <div className={"hex "+extraClasses}
+        key={props.i}
+        style={{ ...hex_style, ...transformPoint(props.xy) }}
+        onMouseEnter={(e) => { dispatch(magnetChange({cityKey: props.cityKey, px: props.xy})) }}
+        onClick={(e) => {
+            if (props.buildingKey != null)
+                dispatch(doSelectBuilding({cityKey: props.cityKey, buildingKey: props.buildingKey, hex: props.hex}));
+            else 
+                dispatch(doSelectHex({cityKey: props.cityKey, hex: props.hex})); 
+            e.stopPropagation(); 
+            return false; }}>
+            {props.children}
+    </div>
+
 }
 
-export const PetriHexes: React.FC<{
-    city: City,
-    hexes: HexPoint[],
-    onHexClick: (hex: HexPoint) => void
-}> = (props) => {
-    return <>{props.hexes.map((hex, i) => {
-      const xy = hex_to_pixel(props.city.hex_size, props.city.petriOrigin, hex);
-      return <div className="hex" 
-        key={i} 
-        style={{...hex_style, ...transformPoint(xy)}} 
-        onMouseEnter={(e) => { props.city.lpickupMagnetPoint.set(xy); }}
-        onClick={(e) => { props.onHexClick(hex); e.stopPropagation(); return false; }}>
-          <HexPetriBuilding city={props.city} hex={hex}></HexPetriBuilding>
-      </div>
-    })}</>
-  }
 export const PetriHexes2: React.FC<{
     cityKey: number
 }> = (props) => {
     const city = useAppSelector(state => state.world.cities.byID[props.cityKey]);
     const hexes = useAppSelector(state => state.world.cities.byID[props.cityKey]?.hexes);
-    const dispatch = useAppDispatch();
     return <>{hexes.map((hex, i) => {
         const xy = hex_to_pixel(city.hex_size, city.petriOrigin, hex);
-        const buildingKey: number|undefined = city.buildingMap[hex.q+','+hex.r];
-        return <div className="hex"
-            key={i}
-            style={{ ...hex_style, ...transformPoint(xy) }}
-            onMouseEnter={(e) => { dispatch(magnetChange({cityKey: props.cityKey, px: xy})) }}
-            onClick={(e) => {
-                if (buildingKey != null)
-                    dispatch(doSelectBuilding({cityKey: props.cityKey, buildingKey: buildingKey, hex: hex}));
-                else 
-                    dispatch(doSelectHex({cityKey: props.cityKey, hex: hex})); 
-                e.stopPropagation(); 
-                return false; }}>
+        const hexStr = hex.q+','+hex.r;
+        const buildingKey: number|undefined = city.buildingMap[hexStr];
+        return <PetriHex i={i} hex={hex} xy={xy} hexString={hexStr} cityKey={props.cityKey} buildingKey={buildingKey}>
             <HexPetriBuilding2 cityKey={props.cityKey} hex={hex}></HexPetriBuilding2>
-        </div>
+        </PetriHex>
     })}</>
 }
 export const SocialBuildings: React.FC<{
