@@ -221,7 +221,9 @@ export function animate_beans(world: IWorldState, deltaMS: number): Array<AnyAct
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key); 
         ADS.elapsed += deltaMS;
         const actResult = BeanActions[bean.action].act(bean, world, ADS.elapsed, deltaMS);
-        if (actResult.action){
+        if (Array.isArray(actResult.action)){
+            actions.push(...actResult.action);
+        } else if (actResult.action){
             actions.push(actResult.action);
         }
         if (actResult.newActivity){

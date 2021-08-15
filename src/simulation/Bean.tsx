@@ -670,6 +670,20 @@ export class Bean implements IBean{
     }
 }
 
+export function BeanMaybePersuaded(bean: IBean, belief: TraitBelief, strength: number): boolean{
+    if (BeanBelievesIn(bean, 'Dogmatism'))
+        return false;
+
+    if (!bean.beliefs.includes(belief)){
+        let defense = 10 + GetRandomNumber(1, 6);
+        defense += bean.beliefs.length - PersuasionBeliefTarget;
+        let offense = GetRandomNumber(1, 20) + strength;
+
+        return (offense > defense);
+    }
+    return false;
+}
+
 export function BeanCalculateHealth(bean: IBean, difficulty: IDifficulty): TraitHealth{
     if (bean.discrete_health >= GoodToThreshold['medicine'].abundant)
         bean.health = 'fresh';
@@ -831,7 +845,7 @@ export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes
 
     bean.discrete_health -= diff.bean_life.degrade_per_tick.health;
     bean.discrete_health = Math.min(bean.discrete_health, 3);
-    
+
     BeanCalculateHealth(bean, diff);
     const sick = BeanMaybeDie(bean, 'sickness', bean.health === 'sick', 0.4);
     if (sick)

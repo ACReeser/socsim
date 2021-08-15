@@ -18,7 +18,7 @@ import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, Play
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
-import { simulate_world } from '../../simulation/WorldSim'
+import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
 import { GenerateBean, GetRandom, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
@@ -225,6 +225,8 @@ export const worldSlice = createSlice({
         const oldAct = state.beans.byID[action.payload.beanKey].action;
         const bean = state.beans.byID[action.payload.beanKey];
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
+        if (oldAct === 'chat')
+          bean.lastChatMS = Date.now();
         bean.activity_duration[oldAct] += ADS.elapsed;
         bean.action = action.payload.newState.act;
         bean.actionData = action.payload.newState;
@@ -241,6 +243,20 @@ export const worldSlice = createSlice({
         if (bean.actionData.destinationIndex != null){
           bean.actionData.destinationIndex++;
         }
+      },
+      beanBePersuaded: (state, action: PayloadAction<{beanKey: number, belief: TraitBelief}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        
+        bean.beliefs.push(action.payload.belief);
+        WorldAddEvent(state, {
+            key: 0,
+            icon: '🗣️', 
+            trigger: 'persuasion', 
+            message: `${bean.name} now believes in ${SecondaryBeliefData[action.payload.belief].icon} ${SecondaryBeliefData[action.payload.belief].noun}!`, 
+            beanKey: bean.key, cityKey: bean.cityKey,
+            point: bean.lastPoint
+        });
+        WorldSfxInstance.play('mhmm')
       },
       beanGiveCharity: (state, action: PayloadAction<{senderBeanKey: number, needyBeanKey: number}>) => {
         const bean = state.beans.byID[action.payload.senderBeanKey];
@@ -477,6 +493,7 @@ export const worldSlice = createSlice({
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
+    beanBePersuaded,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   

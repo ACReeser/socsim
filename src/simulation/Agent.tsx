@@ -3,9 +3,9 @@ import { IDifficulty } from "../Game";
 import { MoverStoreInstance as MoverStoreInstance } from "../MoverStoreSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
-import { beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
+import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
-import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybeScarcity } from "./Bean";
+import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
 import { EconomyCanBuy, ISeller } from "./Economy";
@@ -61,7 +61,7 @@ export interface IBeanAgent{
 }
 export interface StateFunctions {
     enter: (agent: IBean) => AnyAction|undefined;
-    act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction, newActivity?: IActivityData};
+    act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction|AnyAction[], newActivity?: IActivityData};
     exit: (agent: IBean) => AnyAction|undefined;
 }
 export const BeanActions: {[act in Act]: StateFunctions} = {
@@ -135,15 +135,20 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                                     return least;
                         }, undefined);
                     });
-                    targets.forEach((z) => {
-                        // ChangeState(z, ChatState.create(agent.actionData.intent, {...chat, participation: 'listener'}));
-                    });
                     return {
                         newActivity: {
                             act: 'chat',
                             chat: chat,
                             intent: agent.actionData 
-                        }
+                        },
+                        action: targets.map(t => changeState({beanKey: t, newState: {
+                            act: 'chat',
+                            chat: {
+                                ...chat,
+                                participation: 'listener'
+                            },
+                            intent: world.beans.byID[t].actionData
+                        }}))
                     };
                 } else if (BeanBelievesIn(agent, 'Wanderlust') && Math.random() < WanderlustEmoteChance) {
                     return {
@@ -206,21 +211,22 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return {};
         },
         exit: (agent: IBean) => {
-            // if (agent instanceof Bean && agent.actionData.chat){
-            //     agent.lastChatMS = Date.now();
-            //     if (agent.actionData.chat.participation === 'listener'){
-            //         switch(agent.actionData.chat.type){
-            //             case 'bully':
-            //                 agent.maybeAntagonised();
-            //             case 'praise':
-            //                 agent.maybeEnthused();
-            //             case 'preach':
-            //                 if (agent.actionData.chat.preachBelief && agent.actionData.chat.persuasionStrength)
-            //                     agent.maybePersuade(agent.actionData.chat.preachBelief, agent.actionData.chat.persuasionStrength);
-            //         }
-            //     }
-            // }
-            // if persuasion successful WorldSfxInstance.play('mhmm')
+            if (agent.actionData.chat){
+                if (agent.actionData.chat.participation === 'listener'){
+                    switch(agent.actionData.chat.type){
+                        case 'bully':
+                            return beanEmote({beanKey: agent.key, emote: 'unhappiness', source: 'Antagonism'});
+                        case 'praise':
+                            return beanEmote({beanKey: agent.key, emote: 'happiness', source: 'Enthusiasm'});
+                        case 'preach':
+                            if (agent.actionData.chat.preachBelief && 
+                                agent.actionData.chat.persuasionStrength && 
+                                BeanMaybePersuaded(agent, agent.actionData.chat.preachBelief, agent.actionData.chat.persuasionStrength)){
+                                return beanBePersuaded({beanKey: agent.key, belief: agent.actionData.chat.preachBelief})
+                            }
+                    }
+                }
+            }
             return undefined;
         },
     }, 
