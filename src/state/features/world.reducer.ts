@@ -8,7 +8,7 @@ import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanH
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BuildingUnsetJob } from '../../simulation/City'
-import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact } from '../../simulation/Economy'
+import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
@@ -324,6 +324,26 @@ export const worldSlice = createSlice({
             _emote(bean, state, {emote: 'happiness', source: 'Hedonism'});
         }
       },
+      beanCrime: (state, action: PayloadAction<{beanKey: number, good: 'food'|'medicine'}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        
+        const listing = GetRandom(state.economy.market.listings[action.payload.good]);
+        if (listing == null){
+        } else {
+          const stolen = Math.min(listing.quantity, 3);
+          MarketListingSubtract(state.economy.market, listing, action.payload.good, stolen);
+          if (stolen != null){
+              switch(action.payload.good){
+                  case 'food':
+                      bean.discrete_food += stolen;
+                      break;
+                  case 'medicine':
+                      bean.discrete_health += stolen;
+                      break;
+              }
+          }
+        }
+      },
       beanRelax: (state, action: PayloadAction<{beanKey: number}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
         bean.discrete_fun += 1;
@@ -456,7 +476,7 @@ export const worldSlice = createSlice({
     newGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,
-    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy,
+    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   

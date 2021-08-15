@@ -39,7 +39,7 @@ export interface IGoal{
     text: string;
     tooltip?: string;
     reward?: PlayerResources,
-    check: (world: World) => boolean
+    check: (world: IWorldState) => boolean
 }
 export interface IGoalProgress {
     done: boolean,
@@ -52,13 +52,13 @@ export interface IProgressable{
 export const Goals: {[key in GoalKey]: IGoal} = {
     found_utopia: {
         key: 'found_utopia', text: 'Found your Utopia',
-       check: (world) => world.party.name != 'Goodplace'
+       check: (world) => world.buildings.allIDs.length > 0
     },
     build_house_n_farm: {
         key: 'build_house_n_farm', text: 'Build a house and farm',
         check: (world) => {
-            return world.cities[0].book.getCountOfType('house') > 0 &&
-            world.cities[0].book.getCountOfType('house') > 0;
+            return world.buildings.allIDs.find(k => world.buildings.byID[k].type == 'farm') != null &&
+            world.buildings.allIDs.find(k => world.buildings.byID[k].type == 'house') != null;
         },
         reward: {
             energy: 3, bots: 3
@@ -67,7 +67,7 @@ export const Goals: {[key in GoalKey]: IGoal} = {
     beam_3: {
         key: 'beam_3', text: 'Beam in 3 new beings', 
         check: (world) => {
-            return world.beans.get.filter(b => !b.bornInPetri).length >= (3 + Number_Starting_City_Pop)
+            return world.beans.allIDs.filter(k => !world.beans.byID[k].bornInPetri).length >= (3 + Number_Starting_City_Pop)
         }
     }, 
     scan: {
@@ -91,17 +91,17 @@ export const Goals: {[key in GoalKey]: IGoal} = {
 export type Grade = 'F'|'D'|'C'|'B'|'A';
 export type RubricKeys = 'Happiness'|'Prosperity'|'Stability'|'Dogma';
 export type IReportCard = {[key in RubricKeys]: Grade}
-export type GradingFunc = (world: World) => IReportCard;
+export type GradingFunc = (world: IWorldState) => IReportCard;
 export interface ICurriculum {
     GradeWorld: GradingFunc,
     RubricDescription: {[key in RubricKeys]: string} 
 }
 export const Curriculums: {[difficulty: string]: ICurriculum} = {
     Default: {
-        GradeWorld: (world: World) => {return{
-            Happiness: BooleanAverageGrader(world.beans.get, (o) => o.lastHappiness >- .2),
-            Prosperity: BooleanAverageGrader(world.beans.get, (o) => o.food !== 'hungry'),
-            Stability: BooleanAverageGrader(world.beans.get, (o) => o.sanity === 'sane'),
+        GradeWorld: (world: IWorldState) => {return{
+            Happiness: BooleanAverageGrader(world.beans.allIDs.map(x => world.beans.byID[x]), (o) => o.lastHappiness >- .2),
+            Prosperity: BooleanAverageGrader(world.beans.allIDs.map(x => world.beans.byID[x]), (o) => o.food !== 'hungry'),
+            Stability: BooleanAverageGrader(world.beans.allIDs.map(x => world.beans.byID[x]), (o) => o.sanity === 'sane'),
             Dogma: GradeUpToNumber((world.alien.speechcrimes[world.date.year] || 0), 10, 10),
         }},
         RubricDescription: {
@@ -287,7 +287,7 @@ export class Player implements IPlayerData, IProgressable{
                 this.goalProgress[goal] = {done: false, step: 0};
             }
             if (!this.goalProgress[goal].done) {
-                const done = Goals[goal].check(world);
+                const done = false;
                 const reward = Goals[goal].reward;
                 this.goalProgress[goal].done = done;
                 if (done && reward != null){
@@ -295,9 +295,6 @@ export class Player implements IPlayerData, IProgressable{
                 }
             }
         }
-    }
-    public checkReportCard(world: World) {
-        this.workingReportCard = Curriculums.Default.GradeWorld(world);
     }
 }
 
@@ -327,8 +324,7 @@ export function CheckGoals(world: IWorldState, player: IPlayerData){
             player.goalProgress[goal] = {done: false, step: 0};
         }
         if (!player.goalProgress[goal].done) {
-            //REDUX TODO
-            const done = false; //REDUX TODO Goals[goal].check(world);
+            const done = Goals[goal].check(world);
             const reward = Goals[goal].reward;
             player.goalProgress[goal].done = done;
             if (done && reward != null){
@@ -339,7 +335,7 @@ export function CheckGoals(world: IWorldState, player: IPlayerData){
 }
 export function CheckReportCard(world: IWorldState, player: IPlayerData) {
     //REDUX TODO
-    //player.workingReportCard = Curriculums.Default.GradeWorld(world);
+    player.workingReportCard = Curriculums.Default.GradeWorld(world);
 }
 export function HasResearched(techProgress: TechProgress, tech: Tech){
     return techProgress[tech] != null && techProgress[tech].researchPoints >= TechData[tech].techPoints

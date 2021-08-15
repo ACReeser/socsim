@@ -3,7 +3,7 @@ import { IDifficulty } from "../Game";
 import { MoverStoreInstance as MoverStoreInstance } from "../MoverStoreSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
-import { beanBuy, beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
+import { beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
@@ -35,6 +35,7 @@ export interface IActivityData {
     destinationIndex?: number; //which point are we heading towards
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
+    crimeGood?: 'food'|'medicine';
     // travel?: Travel;
     chat?: IChatData;
 }
@@ -336,13 +337,13 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBean) => {
-            // if (this.Elapsed > 1500 && agent instanceof Bean && agent.city?.economy && 
-            //     (agent.actionData.good === 'food' ||
-            //     agent.actionData.good === 'medicine')){
-            //     agent.steal(agent.actionData.good, agent.city?.economy);
-            //     return IdleState.create();
-            // }
+        act: (agent: IBean, world: IWorldState, elapsed) => {
+            if (elapsed > 1500){
+                return {
+                    newActivity: {act: 'idle'},
+                    action: beanCrime({beanKey: agent.key, good: agent.actionData.crimeGood || 'food'})
+                }
+            }
             return {};
         },
         exit: (agent: IBean) => {
@@ -381,8 +382,9 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
         if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
             intent.act = 'relax'; //relaxing is free!
         else if (desiredGoodState === 'pricedout') {
-            if (BeanMaybeCrime(bean, intent.good)){
+            if ((intent.good == 'food' || intent.good == 'medicine') && BeanMaybeCrime(bean, intent.good)){
                 intent.act = 'crime';
+                intent.crimeGood = intent.good;
             } else {
                 const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
                 if (isPhysical){
@@ -453,9 +455,9 @@ export const GetPriority = {
             // }
             //beans with lots of cash prioritize work higher
             const wealth_priority = bean.cash / city.costOfLiving / 2;
-            return Math.min(inventory_priority, wealth_priority);
+            return 0.5 + Math.min(inventory_priority, wealth_priority);
         } else {
-            return 0;
+            return 0.5;
         }
     },
     food: function(bean: IBean, difficulty: IDifficulty): number{

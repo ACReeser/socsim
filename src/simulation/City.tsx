@@ -10,7 +10,6 @@ import { shuffle } from "./Utils";
 import { BuildingJobSlot } from "./Occupation";
 import { IEventBus, Live, LiveList, PubSub } from "../events/Events";
 import { WorldSound } from "../WorldSound";
-import { isEnterprise } from "./Institutions";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IPickup } from "./Pickup";
 import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";

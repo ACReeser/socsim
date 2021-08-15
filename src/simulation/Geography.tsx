@@ -1,7 +1,7 @@
 import { LiveMap } from "../events/Events";
 import { TraitGood, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
-import { IEnterprise, isEnterprise } from "./Institutions";
+import { IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 import { MathClamp } from "./Utils";
 
@@ -442,9 +442,6 @@ export class Geography{
         return null;
     }
     getEnterprise(buildingKey: number): IEnterprise|undefined{
-        const ent = this.book.db.get.get(buildingKey);
-        if (isEnterprise(ent))
-            return ent;
         return undefined;
     }
     constructor(){

@@ -2,7 +2,7 @@ import { IWorldState } from "../state/features/world";
 import { TraitJob } from "../World";
 import { IBean } from "./Agent";
 import { BuildingToJob, IBuilding, JobToBuilding } from "./Geography";
-import { IEnterprise, isEnterprise } from "./Institutions";
+import { IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 import { BuildingOpenSlots } from "./RealEstate";
 import { shuffle } from "./Utils";

@@ -162,7 +162,6 @@ export class World implements IWorld, IBeanContainer, IActListener{
         });
         this.calculateComputedState();
         this.alien.checkGoals(this);
-        this.alien.checkReportCard(this);
     }
     simulate_every_year(){
         this.inflate();

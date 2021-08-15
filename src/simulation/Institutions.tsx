@@ -18,10 +18,6 @@ export interface IEnterprise extends ISeller{
     ownerBeanKey?: number;
 }
 
-export function isEnterprise(b: any): b is IEnterprise{
-    return b.key != undefined && b.enterpriseType != undefined;
-}
-
 export interface IInstitution{
     key: number;
     playerKey: number;
