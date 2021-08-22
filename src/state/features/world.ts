@@ -26,7 +26,11 @@ export interface IWorldState {
   marketTraitsForSale: MarketTraitListing[],
   date: IDate,
   alien: IPlayerData,
-  spotlightEvent: IEvent | undefined
+  spotlightEvent: IEvent | undefined,
+  /**
+   * 1-based ID of save slot (1-3)
+   */
+  saveSlot: number
 }
 
 export function GetBlankWorldState(): IWorldState{
@@ -92,6 +96,7 @@ export function GetBlankWorldState(): IWorldState{
       techProgress: {},
       currentlyResearchingTech: undefined
     },
-    spotlightEvent: undefined
+    spotlightEvent: undefined,
+    saveSlot: 1
   }
 }

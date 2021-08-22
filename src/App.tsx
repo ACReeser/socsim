@@ -4,11 +4,15 @@ import { TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import './App.css';
 import './chrome/chrome.css';
 import { IEvent } from './events/Events';
+import { GameStorageInstance, isGame } from './GameStorage';
 import { BrainwashingContent } from './modal-content/Brainwashing';
 import { CampaignsPanel } from './modal-content/Campaigns';
 import { EconomyReport } from './modal-content/EconomyReport';
+import { EscapeMenu } from './modal-content/EscapeMenu';
 import { GovernmentPanel } from './modal-content/Gov';
 import { GreetingPanel } from './modal-content/GreetingPanel';
+import { LoadGameMenu } from './modal-content/LoadGameMenu';
+import { MainMenu } from './modal-content/MainMenu';
 import { ResearchPanel } from './modal-content/Research';
 import { TraitsReport } from './modal-content/TraitsReport';
 import { MoverStoreInstance } from './MoverStoreSingleton';
@@ -22,7 +26,7 @@ import { Point } from './simulation/Geography';
 import { MoverStore } from './simulation/MoverBus';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
-import { newGame, worldTick } from './state/features/world.reducer';
+import { loadGame, newGame, worldTick } from './state/features/world.reducer';
 import { store as StoreState } from './state/state';
 import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
 import { BotsAmount, CapsuleLabel, EnergyAmount, HedonAmount } from './widgets/CapsuleLabel';
@@ -33,7 +37,7 @@ import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { WorldSfxInstance, WorldSound } from './WorldSound';
 
-export type ModalView = 'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
+export type ModalView = 'mainmenu'|'loadgame'|'escapemenu'|'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
 }
 interface AppState {
@@ -52,11 +56,12 @@ const SpotlightDurationTimeMS = 5000;
 const store = StoreState;
 
 class App extends React.Component<AppPs, AppState>{
+  dirty: boolean = false;
   constructor(props: AppPs) {
     super(props);
     this.state = {
       activeMain: 'geo',
-      activeModal: 'greeting',
+      activeModal: 'mainmenu',
       activeRightPanel: 'overview',
       timeScale: 0,
       spotlightEvent: undefined
@@ -65,12 +70,15 @@ class App extends React.Component<AppPs, AppState>{
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
+  private millisecondsSinceLastSave: DOMHighResTimeStamp = 0;
+  private saveAccumulatorMS: number = 0;
   componentDidMount() {
     document.addEventListener("keyup", this.keyupHandler, false);
     window.requestAnimationFrame((time: DOMHighResTimeStamp) => {
       this.previousTimeMS = time;
       window.requestAnimationFrame(this.tick);
     });
+    store.subscribe(() => this.dirty = true);
   }
   componentWillUnmount() {
     document.removeEventListener("keyup", this.keyupHandler);
@@ -78,9 +86,9 @@ class App extends React.Component<AppPs, AppState>{
   tick = (timeMS: DOMHighResTimeStamp) => {
     // Compute the delta-time against the previous time
     const deltaTimeMS = (timeMS - this.previousTimeMS);
-
     // Update the previous time
     this.previousTimeMS = timeMS;
+
     if (deltaTimeMS > 0) {
       const gameDeltaTimeMS = deltaTimeMS * this.state.timeScale;
 
@@ -94,6 +102,13 @@ class App extends React.Component<AppPs, AppState>{
           store.dispatch(worldTick())
           this.logicTickAccumulatorMS = 0;
         }
+      }
+      this.millisecondsSinceLastSave += deltaTimeMS;
+      //save every 30 seconds
+      if(this.dirty && this.millisecondsSinceLastSave > 30000){
+        GameStorageInstance.SaveGame(store.getState().world);
+        this.millisecondsSinceLastSave = 0;
+        this.dirty = false;
       }
     }
     window.requestAnimationFrame(this.tick);
@@ -209,6 +224,29 @@ class App extends React.Component<AppPs, AppState>{
             </TransformWrapper>
           }
           <div className="overlay">
+            <Modal show={this.state.activeModal == 'mainmenu'}>
+              <MainMenu startGame={() => this.setState({activeModal: 'greeting'})} loadGame={(slot: number) => {
+                const game = GameStorageInstance.GetGame(slot);
+                if (isGame(game)){
+                  store.dispatch(loadGame({newState: game.game}));
+                  this.setState({activeModal: null});
+                }
+              }}></MainMenu>
+            </Modal>
+            <Modal show={this.state.activeModal == 'loadgame'} onClick={() => {
+              this.setState({ activeModal: null });
+              store.dispatch(newGame());
+              }
+            }>
+              <LoadGameMenu></LoadGameMenu>
+            </Modal>
+            <Modal show={this.state.activeModal == 'escapemenu'} onClick={() => {
+              this.setState({ activeModal: null });
+              store.dispatch(newGame());
+              }
+            }>
+              <EscapeMenu></EscapeMenu>
+            </Modal>
             <Modal show={this.state.activeModal == 'greeting'} onClick={() => {
               this.setState({ activeModal: null });
               store.dispatch(newGame());

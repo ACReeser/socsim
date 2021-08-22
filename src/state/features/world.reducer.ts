@@ -49,6 +49,20 @@ export const worldSlice = createSlice({
         GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(21, 25)], state.economy);
         GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(26, 60)], state.economy);
       },
+      loadGame: (state, action:PayloadAction<{newState: IWorldState}>) => {
+        action.payload.newState.beans.allIDs.map(k => {
+          const bean = action.payload.newState.beans.byID[k];
+          if (bean){
+            MoverStoreInstance.Get('bean', k).publish({
+              point: {
+                x: bean.lastPoint?.x || 0,
+                y: bean.lastPoint?.y || 0
+              }, velocity: {x: 0, y: 0}
+            })
+          }
+        })
+        return action.payload.newState
+      },
       build: (state, action: PayloadAction<{city: number, where: HexPoint, what: BuildingTypes}>) => {
         const cost: PlayerResources = state.alien.difficulty.cost.emptyHex.build[action.payload.what];
         if (PlayerTryPurchase(state.alien, cost)) {
@@ -498,7 +512,7 @@ export const worldSlice = createSlice({
   export const { 
     refreshMarket, magnetChange, worldTick, 
     remove_ufo,
-    newGame, build, changeEnterprise, fireBean, upgrade, beam,
+    newGame, loadGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,

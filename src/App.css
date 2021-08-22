@@ -450,6 +450,9 @@ ul.boxes li{
 .f-size-125em{
   font-size: 1.25em;
 }
+.f-size-15em{
+  font-size: 1.5em;
+}
 .border-b-1{
   border-bottom: 1px solid black;
 }

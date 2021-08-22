@@ -2,9 +2,8 @@ import React from "react";
 
 export interface modalPs{
     show: boolean;
-    onClick: () => void;
+    onClick?: () => void;
     closeButtonText?: string;
-    hideCloseButton?: boolean
 }
 export class Modal extends React.Component<modalPs> {
     constructor(props: modalPs) {
@@ -14,10 +13,10 @@ export class Modal extends React.Component<modalPs> {
         }
     }
     getButton(){
-        if (this.props.hideCloseButton)
+        if (!this.props.onClick)
             return null;
         else
-            return <button type="button" className="done" onClick={() => this.props.onClick()} >{this.props.closeButtonText || 'Done'}</button>
+            return <button type="button" className="done" onClick={() => this.props.onClick && this.props.onClick()} >{this.props.closeButtonText || 'Done'}</button>
     }
     render() {
         if (!this.props.show) {
