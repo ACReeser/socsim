@@ -24,7 +24,7 @@ export const selectBeanAnimation = (state: RootState, beanKey: number) => {
     speech: BeanGetSpeech(bean),
     face: BeanGetFace(bean),
     good: BeanIsBuying(bean) ? GoodIcon[bean.actionData.good || 'food'] : undefined,
-    classes: [bean.job, bean.ethnicity, bean.actionData.act != 'travel' || !bean.alive ? 'paused' : '', ].join(' '),
+    classes: [bean.job, bean.ethnicity, bean.actionData.act != 'travel' || bean.lifecycle === 'dead' ? 'paused' : '', ].join(' '),
     animationClasses: ['bean-walker', working ? 'spin' : '', ].join(' ')
   }
 }

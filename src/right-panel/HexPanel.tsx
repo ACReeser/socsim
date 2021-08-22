@@ -3,7 +3,7 @@ import { keyToName } from "../i18n/text";
 import { Subtabs } from "../chrome/Subtab";
 import { IDifficulty } from "../Game";
 import { City, ICity } from "../simulation/City";
-import { BuildingIcon, BuildingJobIcon, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
+import { BuildingIcon, BuildingJobIcon, BuildingToGood, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
 import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, IEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";
 import { BuildingOpenSlots, BuildingUsedSlots } from "../simulation/RealEstate";
@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { beam, build, changeEnterprise, fireBean, selectCity, upgrade } from "../state/features/world.reducer";
 import { doSelectCity, doSelectHex, doSelectNone } from "../state/features/selected.reducer";
 import { BuildingJobSlot } from "../simulation/Occupation";
+import { GoodIcon, TraitGood } from "../World";
 
 export const BeamButton: React.FC<{
     city: number,
@@ -110,6 +111,14 @@ export const HexBuildingPanel: React.FC<{
             </small>
         </div>
     {
+        e != null ? <div>
+            <small>
+                ${e.cash} from sales today
+            </small>
+            <EnterpriseListings enterpriseKey={e.key} good={BuildingToGood[b.type]}></EnterpriseListings>
+        </div> : null
+    }
+    {
         b.upgraded && hasJobs ? <div>
             {renderDensityWarning(b.type)}
         </div> : null
@@ -168,11 +177,10 @@ export const WorkerList: React.FC<{
     cityKey: number,
     building: IBuilding
 }> = (props) => {
-    const slots = BuildingUsedSlots(props.building);
     const dispatch = useAppDispatch();
     const beans = useAppSelector(x => props.building.jobs.map((k) => x.world.beans.byID[k]));
     const enterprise = useAppSelector(s => s.world.enterprises.byID[props.building.key]);
-    if (slots.length < 0) {
+    if (beans.length < 0) {
         return <div>No Workers</div>
     }
     return <div>
@@ -202,6 +210,20 @@ export const EnterpriseTypePicker: React.FC<{
         }
     }); 
     return <Subtabs active={props.enter.enterpriseType} options={options}></Subtabs>
+}
+
+export const EnterpriseListings: React.FC<{
+    enterpriseKey: number,
+    good: TraitGood
+}> = (props) => {
+    const listings = useAppSelector(s => s.world.economy.market.listings[props.good])
+    return <div>
+        {
+            listings.map((x,i) => <div key={i}>
+                {x.quantity} {GoodIcon[props.good]} @ ${x.price.toFixed(2)}
+            </div>)
+        }
+    </div>
 }
 
 function HexStringToHex(hex: string): HexPoint {

@@ -61,9 +61,10 @@ export function GetBlankWorldState(): IWorldState{
       }
     },
     law: {
-      treasury: 0,
+      cash: 0,
       lawTree: {} as {[key in LawAxis]: ILaw|undefined},
-      laws: [] as ILaw[]
+      laws: [] as ILaw[],
+      ticksSinceLastSale: 0
     },
     date: {year: 1, season: Season.Spring, day: 1, hour: 1},
     marketTraitsForSale: [],

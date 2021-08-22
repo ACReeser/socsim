@@ -78,7 +78,8 @@ export interface ILaw{
 export interface IGovernment{
     laws: ILaw[];
     lawTree: {[key in LawAxis]: ILaw|undefined};
-    treasury: number;
+    cash: number;
+    ticksSinceLastSale: number;
 }
 export interface ILawData extends ILaw{
     prereqs: LawPrereq[];
@@ -259,10 +260,10 @@ export function IsLaw(gov: IGovernment, l: LawKey){
 }
 export function MaybeRebate(gov: IGovernment, beans: IBean[]){
     const allowedTreasury = beans.length * DollarPerBeanRebateThreshold;
-    if (gov.treasury > allowedTreasury){
-        const overage = gov.treasury - allowedTreasury;
+    if (gov.cash > allowedTreasury){
+        const overage = gov.cash - allowedTreasury;
         const perBean = overage / beans.length;
-        gov.treasury = allowedTreasury;
+        gov.cash = allowedTreasury;
         beans.forEach((b) => b.cash += perBean);
     }
 }
@@ -281,5 +282,5 @@ export function GovPurchaseQualifiesForWelfare(law: IGovernment, buyer: IEconomi
     return false;
 }
 export function GovCanPayWelfare(law: IGovernment, price: number): boolean{
-    return law.treasury >= price;
+    return law.cash >= price;
 }

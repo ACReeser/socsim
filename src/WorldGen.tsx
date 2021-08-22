@@ -155,7 +155,6 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
         stamina: 'awake',
         health: 'fresh',
         food: 'sated',
-        alive: true,
         discrete_food: 3,
         discrete_health: 2,
         discrete_sanity: 10,

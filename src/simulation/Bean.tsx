@@ -814,7 +814,7 @@ export function BeanGetRandomChat(bean: IBean, findNeedy: () => IBean|undefined)
 }
 
 export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes?: IPickup[]}|undefined {
-    if (!bean.alive) return undefined;
+    if (bean.lifecycle != 'alive') return undefined;
     const emotes: IPickup[] = [];
 
     const wasNotHungry = bean.food !== 'starving';
@@ -955,7 +955,7 @@ export function BeanMaybeScarcity(bean: IBean, good: TraitGood){
     return scarce;
 }
 export function BeanCanBaby(bean: IBean, costOfLiving: number): boolean{
-    return bean.alive && 
+    return bean.lifecycle === 'alive' && 
         bean.cash > costOfLiving * 3 &&
         !BeanIsInCrisis(bean);
 }
@@ -977,7 +977,7 @@ export function BeanMaybeDie(bean: IBean, cause: string, isDire: boolean, chance
     return undefined;
 }
 export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPickup[]}{
-    bean.alive = false;
+    bean.lifecycle = 'dead';
     const pains = GetRandomNumber(2, 3);
     const emotes = (new Array(pains)).map((x) => BeanEmote(bean, 'hate', 'Death')).reduce((all, one) => all.concat(one), []);
     return {
@@ -1015,8 +1015,8 @@ export function BeanCanPurchase(bean: IBean, cost: BeanResources, sanityBonus: n
 }
 
 export function BeanGetFace(bean: IBean): string{
-    // if (!this.alive)
-    //     return '💀';
+    if (bean.lifecycle === 'dead')
+        return '💀';
     if (bean.actionData.act === 'buy' && bean.actionData.good === 'shelter'){
         return '😴';
     }

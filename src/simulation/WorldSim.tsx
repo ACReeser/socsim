@@ -20,6 +20,8 @@ import { GetMarketTraits } from "./MarketTraits";
 import { CheckGoals, CheckReportCard, HasResearched, TechData } from "./Player";
 import { Hour } from "./Time";
 
+const OwnerProfitPercentage = 0.25;
+
 export function simulate_world(world: IWorldState){
     world.date.hour++
     if (world.date.hour > Hour.Evening){
@@ -126,7 +128,7 @@ export function simulate_every_week(world: IWorldState){
                 }
             });
         });
-        world.law.treasury = (world.law.treasury + collected);
+        world.law.cash = (world.law.cash + collected);
     }
     MaybeRebate(world.law, Object.values(world.beans.byID));
 }
@@ -155,7 +157,7 @@ export function simulate_every_day(world: IWorldState){
                     enterprise.cash = 0;
                 }
                 else {
-                    const share = enterprise.cash / (workers.length + 0.5);
+                    const share = enterprise.cash / (workers.length + OwnerProfitPercentage);
                     enterprise.cash = 0;
                     let owner = workers.find(x => x.key === enterprise.ownerBeanKey);
                     if (owner == null){
@@ -163,7 +165,7 @@ export function simulate_every_day(world: IWorldState){
                         enterprise.ownerBeanKey = owner.key;
                     }
                     workers.forEach(bean => {
-                        const pay = (bean === owner) ? share * 1.5 : share;
+                        const pay = (bean === owner) ? share * (1+OwnerProfitPercentage) : share;
                         bean.cash += pay;
                         if (pay > 0)
                             bean.ticksSinceLastSale = 0;

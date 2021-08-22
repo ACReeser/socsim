@@ -8,7 +8,7 @@ import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanH
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BuildingUnsetJob } from '../../simulation/City'
-import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, MarketListingSubtract } from '../../simulation/Economy'
+import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
@@ -406,10 +406,18 @@ export const worldSlice = createSlice({
     },
       beanBuy: (state, action: PayloadAction<{beanKey: number, good: TraitGood}>) =>{
         const bean = state.beans.byID[action.payload.beanKey];
+        const getSeller = (l: IListing) => {
+          if (l.sellerEnterpriseKey != null)
+            return state.enterprises.byID[l.sellerEnterpriseKey];
+          else if (l.sellerBeanKey)
+            return state.beans.byID[l.sellerBeanKey];
+          else
+            return state.law;
+        }
         let receipt: {tax:number,bought:number,price:number}|undefined;
         switch(action.payload.good){
           case 'food':
-            receipt = EconomyTryTransact(state.economy, state.law, bean, 'food', 0.5, 3);
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'food', getSeller, 0.5, 3);
             if (receipt?.bought) {
                 bean.discrete_food += receipt.bought;
                 if (bean.food === 'stuffed'){
@@ -419,7 +427,7 @@ export const worldSlice = createSlice({
             }
             break;
           case 'shelter':
-            receipt = EconomyTryTransact(state.economy, state.law, bean, 'shelter');
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'shelter', getSeller);
             if (receipt?.bought) {
                 bean.discrete_stamina = 10;
                 bean.stamina = 'awake';
@@ -428,7 +436,7 @@ export const worldSlice = createSlice({
             }
             break;
           case 'medicine':
-            receipt = EconomyTryTransact(state.economy, state.law, bean, 'medicine', 0.5, 3);
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'medicine', getSeller, 0.5, 3);
             if (receipt?.bought){
                 bean.discrete_health += receipt.bought;
                 if (bean.health === 'fresh')
@@ -436,7 +444,7 @@ export const worldSlice = createSlice({
             }
             break;
           case 'fun':
-            receipt = EconomyTryTransact(state.economy, state.law, bean, 'fun');
+            receipt = EconomyTryTransact(state.economy, state.law, bean, 'fun', getSeller);
             if (receipt?.bought) {
                 bean.discrete_fun = 1;
                 _emote(bean, state, {emote:'happiness', source:'Entertainment'});
@@ -444,6 +452,7 @@ export const worldSlice = createSlice({
             }
             break;
         }
+        bean.actionData.buyAttempts = (bean.actionData.buyAttempts || 0) + 1;
         if (receipt){
           if (receipt.tax){
             _ifBelievesInMaybeEmote(state, bean, 'Libertarianism', 'unhappiness', LibertarianTaxUnhappyChance);

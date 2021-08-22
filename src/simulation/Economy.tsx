@@ -13,6 +13,9 @@ export interface IEconomicAgent{
 export interface ISeller extends IEconomicAgent{
     ticksSinceLastSale: number;
 }
+function AgentIsSeller(a: any): a is ISeller{
+    return a.ticksSinceLastSale != null;
+}
 export interface IListing{
     sellerCityKey?: number;
     sellerBeanKey?: number;
@@ -32,31 +35,34 @@ export interface IEconomy{
 export interface IMarket{
     listings: {[key in TraitGood]: IListing[]};
 }
-export function MarketTransact(market: IMarket, listing: IListing, good: TraitGood, demand: number, buyer: IEconomicAgent, salesTaxPercentage: number){    
+export function MarketTransact(
+    market: IMarket, 
+    listing: IListing, 
+    good: TraitGood, 
+    demand: number, 
+    buyer: IEconomicAgent, 
+    seller: ISeller, 
+    salesTaxPercentage: number){    
     MarketListingSubtract(market, listing, good, demand);
     const listPrice = listing.price * demand;
     const tax = listPrice * salesTaxPercentage;
     const grossPrice = listPrice + tax;
     buyer.cash -= grossPrice;
-    if (listing.seller){
-        listing.seller.cash += listPrice;
-        listing.seller.ticksSinceLastSale = 0;
-    }
+    seller.cash += listPrice;
+    seller.ticksSinceLastSale = 0;
     return {
         bought: demand,
         price: listPrice,
         tax: tax
     }
 }
-export function MarketGovernmentTransact(market: IMarket, gov: IGovernment, listing: IListing, good: TraitGood, demand: number){
+export function MarketGovernmentTransact(market: IMarket, gov: IGovernment, listing: IListing, good: TraitGood, demand: number, seller: ISeller){
     MarketListingSubtract(market, listing, good, demand);
     const listPrice = listing.price * demand;
     const grossPrice = listPrice;
-    gov.treasury -= grossPrice;
-    if (listing.seller){
-        listing.seller.cash += listPrice;
-        listing.seller.ticksSinceLastSale = 0;
-    }
+    gov.cash -= grossPrice;
+    seller.cash += listPrice;
+    seller.ticksSinceLastSale = 0;
     return {
         bought: demand,
         price: listPrice,
@@ -313,6 +319,7 @@ export function EconomyTryTransact(
     gov: IGovernment,
     buyer: IEconomicAgent, 
     good: TraitGood,
+    getSeller: (l: IListing) => ISeller,
     minDemand: number = 1,
     maxDemand: number = 1
     ): {bought: number, price: number, tax: number}|undefined {
@@ -326,14 +333,14 @@ export function EconomyTryTransact(
     const actualDemand = Math.min(listing.quantity, maxDemand);
     const salesTaxPercent = IsLaw(gov, 'sales_tax') ? SalesTaxPercentage : 0;
     if ((listing.price * (1 + salesTaxPercent)) <= buyer.cash * actualDemand){ 
-        const receipt = MarketTransact(economy.market, listing, good, actualDemand, buyer, salesTaxPercent);
+        const receipt = MarketTransact(economy.market, listing, good, actualDemand, buyer, getSeller(listing), salesTaxPercent);
         if (receipt.tax){
-            gov.treasury += receipt.tax;
+            gov.cash += receipt.tax;
         }
         return receipt;
     } else {
         if (GovPurchaseQualifiesForWelfare(gov, buyer, good) && GovCanPayWelfare(gov, listing.price)){
-            return MarketGovernmentTransact(economy.market, gov, listing, good, actualDemand);
+            return MarketGovernmentTransact(economy.market, gov, listing, good, actualDemand, getSeller(listing));
         }
     }
     economy.unfulfilledMonthlyDemand[good] += actualDemand;
@@ -351,13 +358,14 @@ export function EconomyMostInDemandJob(economy: IEconomy){
 
     return max.job;
 }
+const MaximumListingQuantity = 20;
 export function EconomyProduceAndPrice(economy: IEconomy, seller: IBean, good: TraitGood, quantity: number, price: number) {
     economy.monthlySupply[good] += quantity;
     const existing = economy.market.listings[good].find((x) => x.sellerBeanKey == seller.key);
     if (existing){
         existing.quantity += quantity;
         existing.price = price;
-        existing.quantity = Math.min(existing.quantity, 6);
+        existing.quantity = Math.min(existing.quantity, MaximumListingQuantity);
     } else {
         economy.market.listings[good].push({
             sellerBeanKey: seller.key,
@@ -374,7 +382,7 @@ export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, good:
     if (existing){
         existing.quantity += quantity;
         existing.price = price;
-        existing.quantity = Math.min(existing.quantity, 6);
+        existing.quantity = Math.min(existing.quantity, MaximumListingQuantity);
     } else {
         econ.market.listings[good].push({
             sellerEnterpriseKey: seller.key,

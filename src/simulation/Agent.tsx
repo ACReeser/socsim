@@ -38,6 +38,7 @@ export interface IActivityData {
     crimeGood?: 'food'|'medicine';
     // travel?: Travel;
     chat?: IChatData;
+    buyAttempts?: number;
 }
 
 export interface IChatData{
@@ -308,6 +309,11 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                     newActivity: {act:'idle'}
                 }
             }
+            if ((agent.actionData.buyAttempts || 0) >= 3){
+                return {
+                    newActivity: {act:'idle'}
+                }
+            }
             if (elapsed > 250 && agent.actionData.good){
                 return {
                     action: beanBuy({beanKey: agent.key, good: agent.actionData.good})
@@ -408,6 +414,7 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
             }
             return undefined; //don't travel to buy something that doesn't exist
         }
+        intent.buyAttempts = 0;
     }
     return {
         intent: intent
@@ -558,7 +565,6 @@ export interface IBean extends ISeller, IBeanAgent{
     stamina: TraitStamina;
     health: TraitHealth;
     food: TraitFood;
-    alive: boolean,
     discrete_food: number;
     discrete_health: number;
     discrete_sanity: number;
