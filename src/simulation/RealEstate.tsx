@@ -51,8 +51,15 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     }
 
     const good = BuildingToGood[type];
-    // todo redux todo
-    // if (good != 'fun')
-    //     EconomyEmployAndPrice(econ, newBuilding, good, EnterpriseStartingListing, GetFairGoodPrice(econ, good))
+    
+    if (good != 'fun')
+    {
+        world.economy.market.listings[good].push({
+            price: 1,
+            quantity: 3,
+            sellerCityKey: city.key,
+            sellerEnterpriseKey: newBuilding.key
+        });
+    }
     return newBuilding;
 }
