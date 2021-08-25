@@ -9,7 +9,7 @@ import { GenerateBean } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
-import { BeanAge, BeanMaybeBaby, CalculateBeliefs as CalculateBeanBeliefs } from "./Bean";
+import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs } from "./Bean";
 import { BeanTryFindJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
 import { CalculateCityComputed } from "./City";
@@ -100,7 +100,12 @@ export function simulate_world(world: IWorldState){
     world.cities.allIDs.forEach(cityID => {
         const c = world.cities.byID[cityID];
         CalculateCityComputed(c, world.economy);
-        selectBeansByCity(world, cityID).forEach((b: IBean) => CalculateBeanBeliefs(b, world.economy, world.alien.difficulty, c, world.law));
+    });
+    world.beans.allIDs.forEach((k: number) => {
+        const b = world.beans.byID[k];
+        if (!b || b.lifecycle != 'alive')
+            return;
+        BeanCalculateBeliefs(b, world.economy, world.alien.difficulty, world.law);
     });
     CheckGoals(world, world.alien);
     CheckReportCard(world, world.alien);

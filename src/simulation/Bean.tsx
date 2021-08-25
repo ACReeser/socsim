@@ -730,7 +730,7 @@ export function BeanCalculateFood(bean: IBean, difficulty: IDifficulty): TraitFo
     return bean.food;
 }
 
-export function CalculateBeliefs(bean: IBean, econ: IEconomy, difficulty: IDifficulty, homeCity: ICity, law: IGovernment){
+export function BeanCalculateBeliefs(bean: IBean, econ: IEconomy, difficulty: IDifficulty, law: IGovernment){
     bean.hedonFiveDayRecord = {
         min: Math.min(bean.hedonFiveDayRecord.min, bean.happiness.flatAverage),
         max: Math.max(bean.hedonFiveDayRecord.max, bean.happiness.flatAverage)  
@@ -739,8 +739,8 @@ export function CalculateBeliefs(bean: IBean, econ: IEconomy, difficulty: IDiffi
         bean.lastHappiness = 0;
     } else {
         bean.lastHappiness = bean.happiness.flatAverage >= 0 ? (
-            bean.happiness.flatAverage / bean.hedonFiveDayRecord.max) * 100 : (
-            bean.happiness.flatAverage / bean.hedonFiveDayRecord.min) * 100;
+            bean.happiness.flatAverage / Math.abs(bean.hedonFiveDayRecord.max)) * 100 : (
+            bean.happiness.flatAverage / Math.abs(bean.hedonFiveDayRecord.min)) * 100;
     }
     
     BeanCalculateFood(bean, difficulty);
