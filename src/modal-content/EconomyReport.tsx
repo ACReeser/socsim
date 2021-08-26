@@ -1,6 +1,6 @@
-import { Bean } from "../simulation/Bean";
+
 import React from "react";
-import { World, TraitJob } from "../World";
+import { TraitJob } from "../World";
 import { NeedReadout } from "../widgets/NeedReadout";
 import { GetCostOfLiving, IListing } from "../simulation/Economy";
 import { useAppSelector } from "../state/hooks";

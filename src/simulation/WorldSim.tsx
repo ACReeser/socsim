@@ -20,13 +20,13 @@ import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
 import { GetMarketTraits } from "./MarketTraits";
 import { GenerateEmoteFromBean } from "./Pickup";
 import { CheckGoals, CheckReportCard, HasResearched, TechData } from "./Player";
-import { Hour } from "./Time";
+import { TicksPerDay } from "./Time";
 
 const OwnerProfitPercentage = 0.25;
 
 export function simulate_world(world: IWorldState){
     world.date.hour++
-    if (world.date.hour > Hour.Evening){
+    if (world.date.hour >= TicksPerDay){
         world.date.hour = 0;
         world.date.day++;
         simulate_every_day(world);

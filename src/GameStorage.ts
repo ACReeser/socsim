@@ -1,7 +1,6 @@
 import { PubSub } from "./events/Events";
 import { IDate } from "./simulation/Time";
 import { IWorldState } from "./state/features/world";
-import { IWorld } from "./World";
 
 const GameSavePrefix = 'game-';
 const GameBriefPrefix = 'game-brief-';

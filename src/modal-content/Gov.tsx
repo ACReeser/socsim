@@ -5,7 +5,6 @@ import { BeliefInventory } from "../simulation/Player";
 import { enactLaw, repealLaw } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { TreasuryReport } from "../widgets/TreasuryReport";
-import { World } from "../World";
 
 export const GovernmentPanel: React.FC<{
 }> = (props) => {

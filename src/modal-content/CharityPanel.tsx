@@ -1,10 +1,8 @@
-import React, { SyntheticEvent, ChangeEvent } from "react";
-import { World, TraitGood } from "../World";
+import React, { ChangeEvent } from "react";
+import { TraitGood } from "../World";
 import './panels.css';
-import { Charity } from "../simulation/Institutions";
 
 export interface charityPS{
-    world: World,
     onFoundCharity: (good: TraitGood, name: string, budget: number) => void
 }
 export interface charityS{
@@ -68,12 +66,7 @@ export class CharityPanel extends React.Component<charityPS, charityS> {
         }
     }
     list(){
-        return this.props.world.party.organizations.filter((x) => x instanceof Charity).map((i) => {
-            const charity = i as unknown as Charity;
-            return <div key={charity.key}>
-                💗 <b>{charity.name}</b> Has given {charity.beansHelped} beans free {charity.good}. {charity.inventory} {charity.good} and ${charity.cash.toFixed(2)} cash.
-            </div>
-        })
+        return <div></div>
     }
     render() {
         return (

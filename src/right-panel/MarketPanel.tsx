@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { LiveList } from "../events/Events";
-import { IDifficulty } from "../Game";
 import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
-import { MarketTraitListing } from "../simulation/MarketTraits";
-import { Player, PlayerCanAfford } from "../simulation/Player";
+import { PlayerCanAfford } from "../simulation/Player";
 import { buyBots, buyEnergy, buyTrait, scrubHedons } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { CostSmall } from "../widgets/CostSmall";

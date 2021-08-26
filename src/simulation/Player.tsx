@@ -2,7 +2,6 @@ import { LiveList, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
 import { SignalStoreInstance } from "../SignalStore";
 import { IWorldState } from "../state/features/world";
-import { World } from "../World";
 import { Number_Starting_City_Pop } from "../WorldGen";
 import { IBean } from "./Agent";
 import { TraitBelief } from "./Beliefs";
@@ -196,124 +195,18 @@ export interface BeliefInventory{
     charges: number
 }
 
-export class Player implements IPlayerData, IProgressable{
-    public scanned_bean: {[beanKey: number]: boolean} = {};
-    public seenBeliefs = {};
-    public lSeenBeliefs = new LiveMap<string, boolean>(new Map<string, boolean>());
-    public beliefInventory = [];
-    public lBeliefInventory = new LiveList<BeliefInventory>([]);
-    public speechcrimes: {[year: number]: number} = {};
-    public abductedBeanKeys: number[] = [];
-    public energy = { amount: 16, income: 2/30};
-    public bots = { amount: 10, income: 2/30};
-    public hedons = { amount: 0, income: 0};
-    public tortrons = { amount: 0, income: 0};
-    public next_grade: IDate = { year: 1, season: 3, day: 1, hour: 0 };
-    public difficulty: IDifficulty = DefaultDifficulty;
-    public goals: GoalKey[] = ['found_utopia', 'build_house_n_farm',  'beam_3', 'scan', 'brainwash', 'set_policy', 'c+_grade'];
-    public goalProgress: {[key: string]: IGoalProgress} = {};
-    public pastReportCards: IReportCard[] = [];
-    public workingReportCard: IReportCard = {
-        Happiness: 'D',
-        Prosperity: 'D',
-        Stability: 'D',
-        Dogma: 'D',
-    };
-    public techProgress: TechProgress = {};
-    public currentlyResearchingTech: Tech|undefined;
-
-    public canAfford(cost: PlayerResources, qty: number = 1): boolean{
-        return (cost.bots === undefined || this.bots.amount >= cost.bots * qty) &&
-        (cost.energy === undefined || this.energy.amount >= cost.energy * qty) && 
-        (cost.hedons === undefined || this.hedons.amount >= cost.hedons * qty);
-    }
-
-    public hasResearched(tech: Tech){
-        return HasResearched(this.techProgress, tech);
-    }
-
-    public useCharge(t: TraitBelief){
-        const all = this.lBeliefInventory.get;
-        const existing = all.find(x => x.trait === t);
-        if (existing){
-            existing.charges -= 1;
-            this.lBeliefInventory.set([...all.filter(x => x.charges > 0)]);
-        }
-    }
-
-    public purchase(cost: PlayerResources, qty: number = 1){
-        if (cost.bots){
-            this.bots.amount -= cost.bots * qty;
-            // this.bots.change.publish({change: -cost.bots * qty});
-        }
-        if (cost.energy){
-            this.energy.amount -= cost.energy * qty;
-            // this.energy.change.publish({change: -cost.energy * qty});
-        }
-        if (cost.hedons){
-            this.hedons.amount -= cost.hedons * qty;
-            // this.hedons.change.publish({change: -cost.hedons * qty});
-        }
-    }
-
-    public tryPurchase(cost: PlayerResources, qty: number = 1): boolean{
-        if (this.canAfford(cost, qty)){
-            this.purchase(cost, qty);
-            return true;
-        }
-        return false;
-    }
-
-    public reward(reward: PlayerResources){
-        if (reward.bots){
-            this.bots.amount += reward.bots;
-            // this.bots.change.publish({change: reward.bots});
-        }
-        if (reward.energy){
-            this.energy.amount += reward.energy;
-            // this.energy.change.publish({change: reward.energy});
-        }
-        if (reward.hedons){
-            this.hedons.amount += reward.hedons;
-            // this.hedons.change.publish({change: reward.hedons});
-        }
-
-    }
-
-    public checkGoals(world: World){
-        for (let i = 0; i < this.goals.length; i++) {
-            const goal = this.goals[i];
-            if (this.goalProgress[goal] == null){
-                this.goalProgress[goal] = {done: false, step: 0};
-            }
-            if (!this.goalProgress[goal].done) {
-                const done = false;
-                const reward = Goals[goal].reward;
-                this.goalProgress[goal].done = done;
-                if (done && reward != null){
-                    this.reward(reward);
-                }
-            }
-        }
-    }
-}
-
-
-export function Reward(player: IPlayerData, reward: PlayerResources){
+export function PlayerReward(player: IPlayerData, reward: PlayerResources){
     if (reward.bots){
         player.bots.amount += reward.bots;
-        if (player instanceof Player)
-            SignalStoreInstance.alienBots.publish({change: reward.bots});
+        SignalStoreInstance.alienBots.publish({change: reward.bots});
     }
     if (reward.energy){
         player.energy.amount += reward.energy;
-        if (player instanceof Player)
-            SignalStoreInstance.alienEnergy.publish({change: reward.energy});
+        SignalStoreInstance.alienEnergy.publish({change: reward.energy});
     }
     if (reward.hedons){
         player.hedons.amount += reward.hedons;
-        if (player instanceof Player)
-            SignalStoreInstance.alienHedons.publish({change: reward.hedons});
+        SignalStoreInstance.alienHedons.publish({change: reward.hedons});
     }
 }
 
@@ -328,7 +221,7 @@ export function CheckGoals(world: IWorldState, player: IPlayerData){
             const reward = Goals[goal].reward;
             player.goalProgress[goal].done = done;
             if (done && reward != null){
-                Reward(player, reward);
+                PlayerReward(player, reward);
             }
         }
     }

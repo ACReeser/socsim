@@ -1,6 +1,5 @@
 import { Bean } from "../simulation/Bean";
 import React, { ReactElement, useState } from "react";
-import { World, TraitJob } from "../World";
 import { BeliefsAll, IBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { BeliefWidget } from "./BeliefRow";
 import { useAppSelector } from "../state/hooks";

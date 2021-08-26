@@ -1,13 +1,13 @@
 import React from "react";
-import { World, TraitIcon } from "../World";
 import { IPolicy } from "../simulation/Politics";
 import { PrimaryBeliefData } from "../simulation/Beliefs";
 import { ILaw, ILawData, LawAxis, LawAxisData, LawData, LawGroup, LawKey } from "../simulation/Government";
 import { RenderIdealBadges } from "../widgets/UniversalWidgets";
 import { groupBy } from "../simulation/Utils";
+import { IWorldState } from "../state/features/world";
 
 export interface PartyOverviewPS{
-    world: World;
+    world: IWorldState;
 }
 interface PartyOverviewS{
     overView: 'laws'|'finances',
@@ -170,24 +170,7 @@ export class PartyOverview extends React.Component<PartyOverviewPS, PartyOvervie
         }
     }
     renderLaws(){  
-        const groups = this.props.world.law.getLawsByGroup();
         return <div className="col-2-30-60">
-        <div className="max-h-365">
-            <table className="full">
-                <tbody>
-                    {this.renderHeader('Taxation')}
-                    {this.renderRows('Taxation', groups.Taxation)}
-                    {this.renderHeader('Welfare')}
-                    {this.renderRows('Welfare', groups.Welfare)}
-                    {this.renderHeader('Economics')}
-                    {this.renderRows('Economics', groups.Economics)}
-                    {this.renderHeader('Crime')}
-                    {this.renderRows('Crime', groups.Crime)}
-                    {this.renderHeader('Culture')}
-                    {this.renderRows('Culture', groups.Culture)}
-                </tbody>
-            </table>
-        </div>
         <div className="border max-h-365">
             {this.renderLawDetail()}
         </div>

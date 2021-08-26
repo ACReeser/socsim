@@ -4,9 +4,9 @@ import { Economy } from './simulation/Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';
 import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus, LiveList } from './events/Events';
-import { Season, IDate, Hour } from './simulation/Time';
+import { Season, IDate } from './simulation/Time';
 import { Government, PollTaxWeeklyAmount } from './simulation/Government';
-import { Player, TechData } from './simulation/Player';
+import { TechData } from './simulation/Player';
 import { accelerate_towards, accelerator_coast, Geography, move_towards } from './simulation/Geography';
 import { City, Pickup } from './simulation/City';
 import { shuffle } from './simulation/Utils';
@@ -28,17 +28,6 @@ export interface IBeanContainer{
      */
     beans: LiveList<Bean>;
 }
-
-export interface IWorld{
-    cities: City[];
-    law: Government;
-    party: Party;
-
-    institutions: IInstitution[];
-    bus: EventBus;
-    date: IDate;
-    alien: Player;
-}
 export const PickupPhysics = {
     Brake: { x: .94, y: .94},
     AccelerateS: 60,
@@ -52,188 +41,6 @@ export const BeanPhysics = {
     CollisionDistance: 10
 }
 export const MaxHedonHistory = 5;
-export class World implements IWorld, IBeanContainer, IActListener{
-    public readonly bus = new EventBus();
-    public readonly economy: Economy = new Economy();
-    public cities: City[] = [];
-    public law: Government = new Government();
-    public institutions: IInstitution[] = [];
-    public marketTraitsForSale: LiveList<MarketTraitListing> = new LiveList<MarketTraitListing>([]);
-    public party: Party = new BaseParty();
-    public date: IDate = {year: 1, season: Season.Spring, day: 1, hour: 1};
-
-    public alien: Player = new Player();
-    public sfx = new WorldSound();
-
-    public get beans(): LiveList<Bean>{
-        return new LiveList(this.cities.reduce((list, c) => {
-            return list.concat(c.beans.get);
-        }, [] as Bean[]));
-    }
-    public get historicalBeans(): LiveList<Bean>{
-        return new LiveList(this.cities.reduce((list, c) => {
-            return list.concat(c.historicalBeans.get);
-        }, [] as Bean[]));
-    }
-    public get organizations(): IOrganization[]{
-        return this.institutions.reduce((list, institute) => {
-            return list.concat(institute.organizations);
-        }, [] as IOrganization[]);
-    }
-
-    constructor(){
-        this.bus.death.subscribe(this.onBeanDie);
-        this.economy.law = this.law;
-        this.marketTraitsForSale.set(GetMarketTraits());
-    }
-
-    /**
-     * update 'pushed' state
-     */
-    public calculateComputedState(){
-        this.cities.forEach(c => {
-            c.calculateCityComputed(this.economy, this.law);
-            c.beans.get.forEach(b => b.calculateBeliefs(this.economy, c, this.law, this.party));
-        });
-    }
-
-    /**
-     * simulates a season passing, setting a lot of state
-     */
-    public simulate_world(){
-        this.date.hour++
-        if (this.date.hour > Hour.Evening){
-            this.date.hour = 0;
-            this.date.day++;
-            this.simulate_every_day();
-            if (this.date.day % 7 === 0){
-                this.simulate_every_week();
-            }
-        }
-        if (this.date.day > 30){
-            this.date.day = 1;
-            this.simulate_every_month()
-            this.date.season++;
-        }
-        if (this.date.season > 3){
-            this.date.year++;
-            this.simulate_every_year();
-            this.date.season = 0;
-        }
-
-        this.alien.bots.amount += this.alien.bots.income;
-        this.alien.energy.amount += this.alien.energy.income;
-        if (this.alien.hasResearched('fast_resources')){
-            this.alien.bots.amount += this.alien.bots.income*0.5;
-            this.alien.energy.amount += this.alien.energy.income*0.5;
-        }
-        if (this.alien.currentlyResearchingTech){
-            const tech = this.alien.currentlyResearchingTech;
-            if(this.alien.techProgress[tech] == null){
-                this.alien.techProgress[tech] = {
-                    researchPoints: 0
-                }
-            }
-            const max = TechData[tech].techPoints;
-            const current = this.alien.techProgress[tech].researchPoints;
-            if (current < max)
-                this.alien.techProgress[tech].researchPoints += this.alien.abductedBeanKeys.length;
-            if (current >= max){
-                if (this.alien.currentlyResearchingTech === 'neural_duplicator')
-                    this.alien.lBeliefInventory.get.forEach((x) => x.charges += 1);
-                this.alien.currentlyResearchingTech = undefined;
-
-            }
-        }
-
-        this.organizations.forEach((org) => org.work(this.law, this.economy));
-        
-        this.beans.get.forEach((b: Bean, i: number) => {
-            b.age(this.economy, this.alien.difficulty);
-            const e = b.maybeBaby(this.economy);
-            if (e) {
-                this.publishEvent(e);
-                WorldSfxInstance.play('squeak');
-            }
-            if (b.job === 'jobless')
-                b.tryFindRandomJob(this.law);
-            
-            b.happiness = GetHedonReport(b.hedonHistory);
-        });
-        this.calculateComputedState();
-        this.alien.checkGoals(this);
-    }
-    simulate_every_year(){
-        this.inflate();
-    }
-    simulate_every_month(){
-        this.economy.resetMonthlyDemand();
-    }
-    simulate_every_week(){
-        this.marketTraitsForSale.set(GetMarketTraits());
-        this.publishEvent({key: 0, message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
-        if (this.law.isLaw('poll_tax')){
-            let collected = 0;
-            this.cities.forEach((x) => {
-                x.beans.get.forEach((y) => {
-                    if (y.cash >= PollTaxWeeklyAmount){
-                        y.cash -= PollTaxWeeklyAmount;
-                        collected += PollTaxWeeklyAmount;
-                    }
-                });
-            });
-            this.law.treasury.set(this.law.treasury.get + collected);
-        }
-        this.law.MaybeRebate(this.beans.get);
-    }
-    simulate_every_day(){
-        this.beans.get.forEach((x) => {
-            if (x.hedonHistory.length >= MaxHedonHistory) {
-                x.hedonHistory.pop();
-            }
-            x.hedonHistory.unshift({});
-        });
-    }
-    onChat = (b: Bean, chat: IChatData) => {
-        if (this.party && chat.preachBelief){
-            if (IsBeliefDivergent(chat.preachBelief, this.party.ideals, this.party.community)){
-                this.publishEvent({key: 0, 
-                    icon: '🚨', trigger: 'speechcrime',
-                    message: `Speechcrime! ${b.name} is talking about ${SecondaryBeliefData[chat.preachBelief].noun}`,
-                    beanKey: b.key
-                });
-                if (this.alien.speechcrimes[this.date.year] == null)
-                    this.alien.speechcrimes[this.date.year] = 1;
-                else
-                    this.alien.speechcrimes[this.date.year]++;
-            }
-        }
-    }
-    onBeanDie = (e: IEvent) => {
-        const city = this.cities.find((x) => x.key === e.cityKey);
-        if (city){
-            const bean = city.historicalBeans.get.find((x) => x.key === e.beanKey);
-            if (bean){
-                city.onCitizenDie(bean);
-                this.economy.onBeanDie(bean);
-            }
-        }
-    }
-    onEmote = (b: Bean, emote: TraitEmote) => {
-    }
-    publishEvent(e: IEvent){
-        this.bus[e.trigger].publish(e);
-    }
-    inflate() {
-    }
-    addCharity(good: TraitGood, name: string, budget: number) {
-        const charity = new Charity();
-        charity.name = name;
-        charity.good = good;
-        charity.seasonalBudget = budget;
-        this.party.organizations.push(charity);
-    }
-}
 
 export interface IEnvironment{
     year: number;

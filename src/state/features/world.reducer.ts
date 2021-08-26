@@ -19,7 +19,7 @@ import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEst
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
-import { EmotionSanity, EmotionWorth, GoodToThreshold, IWorld, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
+import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
 import { GenerateBean, GetRandom, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { GetBlankWorldState, IWorldState } from './world'
