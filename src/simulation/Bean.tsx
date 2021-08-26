@@ -13,7 +13,7 @@ import { GetHedonReport, HedonExtremes, HedonReport, HedonSourceToVal, Secondary
 import { IPlayerData } from "./Player";
 import { BeanDeathCause, BeanResources, IDifficulty } from "../Game";
 import { MathClamp } from "./Utils";
-import { IPickup } from "./Pickup";
+import { GenerateEmoteFromBean, IPickup } from "./Pickup";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 
 const BabyChance = 0.008;
@@ -875,20 +875,14 @@ export function BeanEmote(bean: IBean, emote: TraitEmote, source: string): IPick
     bean.discrete_sanity = MathClamp(bean.discrete_sanity + EmotionSanity[emote], 0, 10);
     bean.hedonHistory[0][source] = (bean.hedonHistory[0][source] || 0) + EmotionWorth[emote];
     const out = [
-        {
-            key: 0, 
-            point: {
-                ...(MoverStoreInstance.Get('bean', bean.key).current || OriginAccelerator).point
-            }, 
-            type: emote,
-            velocity: {x: 0, y: 0}
-        }
+        GenerateEmoteFromBean(bean, emote)
     ];
     if (BeanBelievesIn(bean, 'Hedonism') && (emote === 'happiness' || emote === 'love') && Math.random() < HedonismExtraChance){
         out.push(...BeanEmote(bean, 'happiness', 'Hedonism'));
     }
     return out;
 }
+
 export function BeanBelievesIn(bean: IBean, trait: TraitBelief): boolean{
     return bean.beliefs.indexOf(trait) !== -1;
 }
@@ -979,7 +973,9 @@ export function BeanMaybeDie(bean: IBean, cause: string, isDire: boolean, chance
 export function BeanDie(bean: IBean, cause: string): {death: IEvent, emotes: IPickup[]}{
     bean.lifecycle = 'dead';
     const pains = GetRandomNumber(2, 3);
-    const emotes = (new Array(pains)).map((x) => BeanEmote(bean, 'hate', 'Death')).reduce((all, one) => all.concat(one), []);
+    const emotes = (new Array(pains)).map(
+        x => GenerateEmoteFromBean(bean, 'hate')
+    );
     return {
         death: {
             icon: '☠️', trigger: 'death', message: `${bean.name} died of ${cause}!`, 

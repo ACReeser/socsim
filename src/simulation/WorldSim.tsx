@@ -2,6 +2,7 @@ import { AnyAction } from "redux";
 import { IEvent } from "../events/Events";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { SignalStoreInstance } from "../SignalStore";
+import { EntityAddToSlice } from "../state/entity.state";
 import { IWorldState } from "../state/features/world";
 import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
 import { MaxHedonHistory, PickupPhysics, WorldInflate } from "../World";
@@ -9,7 +10,7 @@ import { GenerateBean } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
-import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs } from "./Bean";
+import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs, BeanEmote } from "./Bean";
 import { BeanTryFindJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
 import { CalculateCityComputed } from "./City";
@@ -17,6 +18,7 @@ import { GetCostOfLiving } from "./Economy";
 import { accelerate_towards, accelerator_coast, OriginAccelerator } from "./Geography";
 import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
 import { GetMarketTraits } from "./MarketTraits";
+import { GenerateEmoteFromBean } from "./Pickup";
 import { CheckGoals, CheckReportCard, HasResearched, TechData } from "./Player";
 import { Hour } from "./Time";
 
@@ -74,7 +76,14 @@ export function simulate_world(world: IWorldState){
         if (b.lifecycle != 'alive')
             return;
         
-        BeanAge(b, world.alien.difficulty);
+        const ageResult = BeanAge(b, world.alien.difficulty);
+        if (ageResult?.emotes){
+            ageResult.emotes.map(x => EntityAddToSlice(world.pickups, x));
+        }
+        if (ageResult?.death){
+            EntityAddToSlice(world.events, ageResult.death);
+        }
+        // todo: on bean death
         const e = BeanMaybeBaby(b, CoL);
         if (e) {
             const newBean = GenerateBean(world, world.cities.byID[b.cityKey], b);
