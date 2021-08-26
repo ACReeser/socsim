@@ -1005,3 +1005,7 @@ select:invalid { color: gray; }
 .grey{
   filter: saturate(0);
 }
+
+.load-menu .card.marg-b-20{
+  margin-bottom: 20px;
+}

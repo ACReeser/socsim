@@ -29,19 +29,21 @@ export const MainMenu: React.FC<{
                     🗂️ Load Game
                     </button>
                 </div>
-            </div> : <div>
+            </div> : <div className="card-parent vertical load-menu pad-4p">
                 {
-                    slots.map(x => <div key={x.id}>
-                        <button disabled={x.brief == null} onClick={() => {
+                    slots.map(x => <div key={x.id} className="card marg-b-20">
+                        <button disabled={x.brief == null} className="" onClick={() => {
                             if (x.brief)
                                 props.loadGame(x.id);
                         }}>
                         {
-                            x.brief ? <span>
+                            x.brief ? <span className="f-size-125em">
                                 <strong>{x.brief.Name}</strong>
                                 &nbsp;<span>Year {x.brief.Age.year}</span>
                                 &nbsp;<span>{x.brief.Population} 😐</span>
-                            </span> : `Slot ${x.id}`
+                            </span> : <span className="f-size-125em">
+                                Slot {x.id}
+                            </span> 
                         }
                         </button>
                     </div>)

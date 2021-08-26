@@ -334,7 +334,6 @@ export function CheckGoals(world: IWorldState, player: IPlayerData){
     }
 }
 export function CheckReportCard(world: IWorldState, player: IPlayerData) {
-    //REDUX TODO
     player.workingReportCard = Curriculums.Default.GradeWorld(world);
 }
 export function HasResearched(techProgress: TechProgress, tech: Tech){

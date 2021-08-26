@@ -28,6 +28,7 @@ import { animate_beans, animate_pickups, animate_ufos } from './simulation/World
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
 import { loadGame, newGame, worldTick } from './state/features/world.reducer';
 import { store as StoreState } from './state/state';
+import { AutosaveWidget } from './widgets/Autosave';
 import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
 import { BotsAmount, CapsuleLabel, EnergyAmount, HedonAmount } from './widgets/CapsuleLabel';
 import { Modal } from './widgets/Modal';
@@ -55,8 +56,8 @@ const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
 const store = StoreState;
 
+const AutosaveMilliseconds = 15 * 1000;
 class App extends React.Component<AppPs, AppState>{
-  dirty: boolean = false;
   constructor(props: AppPs) {
     super(props);
     this.state = {
@@ -78,7 +79,8 @@ class App extends React.Component<AppPs, AppState>{
       this.previousTimeMS = time;
       window.requestAnimationFrame(this.tick);
     });
-    store.subscribe(() => this.dirty = true);
+    
+    // observeStoreWorldSlice(() => GameStorageInstance.Dirty.publish(true));
   }
   componentWillUnmount() {
     document.removeEventListener("keyup", this.keyupHandler);
@@ -105,10 +107,9 @@ class App extends React.Component<AppPs, AppState>{
       }
       this.millisecondsSinceLastSave += deltaTimeMS;
       //save every 30 seconds
-      if(this.dirty && this.millisecondsSinceLastSave > 30000){
+      if(GameStorageInstance.Dirty.current && this.millisecondsSinceLastSave > AutosaveMilliseconds){
         GameStorageInstance.SaveGame(store.getState().world);
         this.millisecondsSinceLastSave = 0;
-        this.dirty = false;
       }
     }
     window.requestAnimationFrame(this.tick);
@@ -278,7 +279,7 @@ class App extends React.Component<AppPs, AppState>{
                 <SeasonWidget></SeasonWidget>
                 <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
                 <GeoNetworkButtons setActiveMain={(v) => this.setState({ activeMain: v })} activeMain={this.state.activeMain} ></GeoNetworkButtons>
-                <span></span>
+                <AutosaveWidget></AutosaveWidget>
               </div>
               <div className="bottom">
                 <BubbleNumberText changeEvent={SignalStoreInstance.alienEnergy} icon="⚡️">

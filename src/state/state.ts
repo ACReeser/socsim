@@ -1,16 +1,38 @@
-import { combineReducers, configureStore, createSelector } from '@reduxjs/toolkit';
-import { selectedSlice } from './features/selected.reducer';
+import { combineReducers, configureStore, createSelector, getDefaultMiddleware, Middleware } from '@reduxjs/toolkit';
+import { GameStorageInstance } from '../GameStorage';
+import { ISelectedSlice, selectedSlice } from './features/selected.reducer';
+import { IWorldState } from './features/world';
 import { selectBeans, worldSlice } from './features/world.reducer';
 
+// export type RootState = ReturnType<typeof store.getState>;
+export type RootState = {
+  world: IWorldState,
+  selected: ISelectedSlice
+};
+export const autosaveSignalMiddleware: Middleware<
+  {}, // Most middleware do not modify the dispatch return value
+  RootState
+> = storeApi => next => action => {
+  
+  switch (action.type){
+    case 'world/magnetChange':
+      break;
+    default:
+      if (!action.type.startsWith('selected')){
+        GameStorageInstance.Dirty.publish(true);
+      }
+  }
+  
+  return next(action)
+}
 export const store = configureStore({
   reducer: {
     world: worldSlice.reducer,
     selected: selectedSlice.reducer
-  }
+  },
+  middleware: getDefaultMiddleware().concat([autosaveSignalMiddleware])
 })
 
-// Infer the `RootState` and `AppDispatch` types from the store itself
-export type RootState = ReturnType<typeof store.getState>;
 // Inferred type: {posts: PostsState, comments: CommentsState, users: UsersState}
 export type AppDispatch = typeof store.dispatch;
 

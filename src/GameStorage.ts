@@ -1,3 +1,4 @@
+import { PubSub } from "./events/Events";
 import { IDate } from "./simulation/Time";
 import { IWorldState } from "./state/features/world";
 import { IWorld } from "./World";
@@ -77,6 +78,10 @@ export class GameStorage{
         localStorage.setItem(`${GameSavePrefix}${world.saveSlot}`, raw);
         localStorage.setItem(`${GameBriefPrefix}${world.saveSlot}`, JSON.stringify(brief));
         localStorage.setItem(LastGameSaveIDKey, world.saveSlot.toString());
+        this.Dirty.publish(false);
+        this.Saving.publish();
     }
+    Dirty = new PubSub<boolean>();
+    Saving = new PubSub<void>();
 }
 export const GameStorageInstance = new GameStorage();
