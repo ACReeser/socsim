@@ -1,6 +1,7 @@
 import { BeliefCommonality } from "./simulation/Beliefs";
 import { BuildingTypes } from "./simulation/Geography";
 import { RubricKeys } from "./simulation/Player";
+import { TicksPerDay } from "./simulation/Time";
 import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
@@ -167,14 +168,14 @@ export const DefaultDifficulty: IDifficulty = {
             'fun': {warning: 0.1, sufficient: 1, abundant: 3},
         },
         degrade_per_tick: {
-            food: 1/12,
-            health: 1/20,
+            food: 1/(TicksPerDay*3),
+            health: 1/(TicksPerDay*5),
             stamina: 1,
-            fun: 1/12
+            fun: 1/(TicksPerDay*5)
         },
         penalty: {
-            homeless_health: 1/20,
-            starving_health: 1/24
+            homeless_health: 1/(TicksPerDay*7),
+            starving_health: 1/(TicksPerDay*7)
         },
         death_chance: {
             starvation: 1/8,

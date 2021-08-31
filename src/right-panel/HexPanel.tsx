@@ -113,7 +113,7 @@ export const HexBuildingPanel: React.FC<{
     {
         e != null ? <div>
             <small>
-                ${e.cash} from sales today
+                ${e.cash?.toFixed(2)} from sales today
             </small>
             <EnterpriseListings enterpriseKey={e.key} good={BuildingToGood[b.type]}></EnterpriseListings>
         </div> : null
@@ -219,7 +219,7 @@ export const EnterpriseListings: React.FC<{
     const listings = useAppSelector(s => s.world.economy.market.listings[props.good])
     return <div>
         {
-            listings.map((x,i) => <div key={i}>
+            listings.filter(y => y.sellerEnterpriseKey === props.enterpriseKey).map((x,i) => <div key={i}>
                 {x.quantity} {GoodIcon[props.good]} @ ${x.price.toFixed(2)}
             </div>)
         }

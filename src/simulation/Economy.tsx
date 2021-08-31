@@ -35,6 +35,11 @@ export interface IEconomy{
 export interface IMarket{
     listings: {[key in TraitGood]: IListing[]};
 }
+export interface IMarketReceipt{
+    bought: number, 
+    price: number, 
+    tax: number
+}
 export function MarketTransact(
     market: IMarket, 
     listing: IListing, 
@@ -322,7 +327,7 @@ export function EconomyTryTransact(
     getSeller: (l: IListing) => ISeller,
     minDemand: number = 1,
     maxDemand: number = 1
-    ): {bought: number, price: number, tax: number}|undefined {
+    ): IMarketReceipt|undefined {
     economy.monthlyDemand[good] += maxDemand;
     const listing = MarketLowestPriceListing(economy.market, good, minDemand);
     if (listing == null){

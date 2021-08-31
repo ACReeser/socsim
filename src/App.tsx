@@ -26,7 +26,7 @@ import { Point } from './simulation/Geography';
 import { MoverStore } from './simulation/MoverBus';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
 import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
-import { loadGame, newGame, worldTick } from './state/features/world.reducer';
+import { cheatAdd, loadGame, newGame, worldTick } from './state/features/world.reducer';
 import { store as StoreState } from './state/state';
 import { AutosaveWidget } from './widgets/Autosave';
 import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
@@ -126,9 +126,8 @@ class App extends React.Component<AppPs, AppState>{
       if (this.state.activeModal === 'greeting')
         store.dispatch(newGame())
       this.setState({activeModal: null});
-    } else if (this.cheatMode && event.key === 'B') {
-      // this.state.world.alien.energy.amount += (this.state.world.alien.difficulty.cost.hex.beam.energy || 0);
-      // this.beam(this.state.world.cities[0], { q: 0, r: 0 });
+    } else if (this.cheatMode && event.key === 'A') {
+      store.dispatch(cheatAdd())
     } else if (this.cheatMode && event.key === 'Q') {
       // if (this.state.world.cities[0].book.getBuildings().filter(x => x.type === 'farm').length < 1){
       //   this.state.world.alien.energy.amount += this.state.world.alien.difficulty.cost.emptyHex.build.farm.energy || 0;

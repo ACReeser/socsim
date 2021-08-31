@@ -822,7 +822,7 @@ export function BeanAge(bean: IBean, diff: IDifficulty): {death?: IEvent, emotes
 
     bean.discrete_food -= diff.bean_life.degrade_per_tick.food;
     if (bean.discrete_food < 0)
-        bean.discrete_health -= 0.2;
+        bean.discrete_health -= diff.bean_life.penalty.starving_health;
 
     BeanCalculateFood(bean, diff);
     const starve = BeanMaybeDie(bean, 'starvation', bean.food === 'starving', 0.6);
@@ -1013,7 +1013,7 @@ export function BeanCanPurchase(bean: IBean, cost: BeanResources, sanityBonus: n
 export function BeanGetFace(bean: IBean): string{
     if (bean.lifecycle === 'dead')
         return '💀';
-    if (bean.actionData.act === 'buy' && bean.actionData.good === 'shelter'){
+    if (bean.actionData.act === 'sleep'){
         return '😴';
     }
     if (bean.actionData.act === 'crime'){

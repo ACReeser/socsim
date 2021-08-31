@@ -8,7 +8,7 @@ import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanH
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BuildingUnsetJob } from '../../simulation/City'
-import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, MarketListingSubtract } from '../../simulation/Economy'
+import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
@@ -22,6 +22,7 @@ import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
 import { GenerateBean, GetRandom, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
+import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
 
 const ChargePerMarket = 3;
@@ -132,7 +133,11 @@ export const worldSlice = createSlice({
           state.cities.byID[bean.cityKey].beanKeys = state.cities.byID[bean.cityKey].beanKeys.filter(x => x != bean.key);
           state.alien.abductedBeanKeys.push(bean.key);
         }
-
+      },
+      cheatAdd: (state) => {
+        state.alien.energy.amount += 10;
+        state.alien.bots.amount += 10;
+        state.alien.hedons.amount += 10;
       },
       release: (state) => {
         if (state.alien.abductedBeanKeys.length > 0) {
@@ -220,7 +225,9 @@ export const worldSlice = createSlice({
       },
       vaporize: (state, action: PayloadAction<{beanKey: number}>) => {
         if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.vaporize)) {
-          BeanDie(state.beans.byID[action.payload.beanKey], 'vaporization');
+          const d = BeanDie(state.beans.byID[action.payload.beanKey], 'vaporization');
+          EntityAddToSlice(state.events, d.death);
+          d.emotes.map(e => EntityAddToSlice(state.pickups, e));
         }
       },
       pickUpPickup: (state, action: PayloadAction<{cityKey: number, pickupKey: number}>) => {
@@ -428,7 +435,7 @@ export const worldSlice = createSlice({
           else
             return state.law;
         }
-        let receipt: {tax:number,bought:number,price:number}|undefined;
+        let receipt: IMarketReceipt|undefined;
         switch(action.payload.good){
           case 'food':
             receipt = EconomyTryTransact(state.economy, state.law, bean, 'food', getSeller, 0.5, 3);
@@ -472,6 +479,7 @@ export const worldSlice = createSlice({
             _ifBelievesInMaybeEmote(state, bean, 'Libertarianism', 'unhappiness', LibertarianTaxUnhappyChance);
             _ifBelievesInMaybeEmote(state, bean, 'Progressivism', 'happiness', ProgressivismTaxHappyChance);
           }
+          bean.actionData.buyReceipt = receipt;
         }
       }
     }
@@ -516,7 +524,7 @@ export const worldSlice = createSlice({
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
-    beanBePersuaded,
+    beanBePersuaded, cheatAdd,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   

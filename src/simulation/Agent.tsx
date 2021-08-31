@@ -8,7 +8,7 @@ import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthn
 import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
-import { EconomyCanBuy, ISeller } from "./Economy";
+import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
 import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode } from "./Priorities";
 import { IDate } from "./Time";
@@ -39,6 +39,7 @@ export interface IActivityData {
     // travel?: Travel;
     chat?: IChatData;
     buyAttempts?: number;
+    buyReceipt?: IMarketReceipt
 }
 
 export interface IChatData{
@@ -65,6 +66,13 @@ export interface StateFunctions {
     act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction|AnyAction[], newActivity?: IActivityData};
     exit: (agent: IBean) => AnyAction|undefined;
 }
+const RelaxationDurationMS = 1000;
+const CrimeDurationMS = 1500;
+const TransactMaximumDurationMS = 1100;
+const ChatDurationMS = 1000;
+const WorkDurationMS = 3000;
+const SleepDurationMS = 3000;
+
 export const BeanActions: {[act in Act]: StateFunctions} = {
     'travel': {
         enter: (agent: IBean) => {
@@ -171,7 +179,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, world: IWorldState, elapsed: number) => {
-            if (elapsed > 2000 && agent.actionData.good){
+            if (elapsed > WorkDurationMS && agent.actionData.good){
                 return {
                     action: beanWork({beanKey: agent.key}),
                     newActivity: {
@@ -189,7 +197,14 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         enter: (agent: IBean) => {
             return undefined;
         },
-        act: (agent: IBean) => {
+        act: (agent: IBean, world, elapsed) => {
+            if (elapsed > SleepDurationMS){
+                return {
+                    newActivity: {
+                        act: 'idle'
+                    }
+                }
+            }
             return {};
         },
         exit: (agent: IBean) => {
@@ -201,7 +216,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, state, elapsed: number) => {
-            if (elapsed > 1000 && agent.actionData.intent){
+            if (elapsed > ChatDurationMS && agent.actionData.intent){
                 return {
                     newActivity: {
                         act: 'travel',
@@ -304,7 +319,14 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, world: IWorldState, elapsed: number) => {
-            if (elapsed > 1100){
+            if (agent.actionData.buyReceipt){
+                return {
+                    newActivity: {
+                        act: agent.actionData.good === 'shelter' ? 'sleep' : 'idle'
+                    }
+                }
+            }
+            if (elapsed > TransactMaximumDurationMS){
                 return {
                     newActivity: {act:'idle'}
                 }
@@ -319,26 +341,6 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                     action: beanBuy({beanKey: agent.key, good: agent.actionData.good})
                 };
             }
-            // if (!this._bought){
-            //     if (this.sinceLastAttemptMS > 250)
-            //     {
-            //         this.tryBuy(agent);
-            //         // if(this.attempts >= 3 && (agent.actionData.good == 'food' || agent.actionData.good == 'medicine') &&
-            //         //     agent instanceof Bean &&
-            //         //     agent.getCrimeDecision(agent.actionData.good, 'desperation')){
-            //         //     return CrimeState.create(agent.actionData.good);
-            //         // }
-            //     }
-            // }
-            // if (this.Elapsed > BuyState.MaximumBuyDuration)
-            // {
-            //     if (agent instanceof Bean && agent.actionData.good){
-            //         agent.maybeScarcity(agent.actionData.good);
-            //     }
-            //     return IdleState.create();
-            // }
-            // else
-            //     return this;
             return {};
         },
         exit: (agent: IBean) => {
@@ -350,7 +352,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, world: IWorldState, elapsed) => {
-            if (elapsed > 1500){
+            if (elapsed > CrimeDurationMS){
                 return {
                     newActivity: {act: 'idle'},
                     action: beanCrime({beanKey: agent.key, good: agent.actionData.crimeGood || 'food'})
@@ -367,7 +369,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, world: IWorldState, elapsed: number) => {
-            let durationMS = 1000;
+            let durationMS = RelaxationDurationMS;
             if (BeanBelievesIn(agent, 'Naturalism'))
                 durationMS *= 3;
             if (elapsed > durationMS){
@@ -510,14 +512,14 @@ export function GetPriorities(bean: IBean, city: ICity, difficulty: IDifficulty)
 
 export function ActivityIcon(data: IActivityData): string{
     switch(data.act){
+        case 'sleep':
+            return '😴';
         case 'work':
             if (data.good)
                 return '💪 '+ GoodIcon[data.good];
             else
                 return '💪';
         case 'buy':
-            if (data.good == 'shelter')
-                return '😴';
             if (data.good)
                 return '💸 '+ GoodIcon[data.good];
             else
@@ -531,6 +533,8 @@ export function ActivityDisplay(data: IActivityData): string{
             return `chatting`;
         case 'crime':
             return `commiting crime`;
+        case 'sleep':
+            return `sleeping 😴`;
         case 'relax':
             return `relaxing`;
         case 'travel':
@@ -541,8 +545,6 @@ export function ActivityDisplay(data: IActivityData): string{
             else
                 return 'working';
         case 'buy':
-            if (data.good == 'shelter')
-                return 'sleeping 😴';
             if (data.good)
                 return 'buying '+ GoodIcon[data.good];
             else
