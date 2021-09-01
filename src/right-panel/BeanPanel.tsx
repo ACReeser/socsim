@@ -239,7 +239,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
             </div>
             <div className="card-parent">
                 <button type="button" className="button card"
-                    disabled={!PlayerCanAfford(alien, alien.difficulty.cost.bean.abduct)}
+                    disabled={bean.lifecycle != 'alive' || !PlayerCanAfford(alien, alien.difficulty.cost.bean.abduct)}
                     onClick={() => dispatch(abduct({beanKey: bean.key}))}
                     title="Remove this being for study"
                 >

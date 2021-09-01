@@ -25,9 +25,9 @@ import { SignalStoreInstance } from './SignalStore';
 import { Point } from './simulation/Geography';
 import { MoverStore } from './simulation/MoverBus';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
-import { doSelectBean, doSelectBuilding } from './state/features/selected.reducer';
+import { doSelectBean, doSelectBuilding, doSelectNone } from './state/features/selected.reducer';
 import { cheatAdd, loadGame, newGame, worldTick } from './state/features/world.reducer';
-import { store as StoreState } from './state/state';
+import { RootState, store as StoreState } from './state/state';
 import { AutosaveWidget } from './widgets/Autosave';
 import { BubbleNumberText, BubbleSeenTraitsText } from './widgets/BubbleText';
 import { BotsAmount, CapsuleLabel, EnergyAmount, HedonAmount } from './widgets/CapsuleLabel';
@@ -67,7 +67,6 @@ class App extends React.Component<AppPs, AppState>{
       timeScale: 0,
       spotlightEvent: undefined
     };
-    // this.state.world.bus.death.subscribe(this.onDeath);
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
@@ -79,8 +78,12 @@ class App extends React.Component<AppPs, AppState>{
       this.previousTimeMS = time;
       window.requestAnimationFrame(this.tick);
     });
-    
-    // observeStoreWorldSlice(() => GameStorageInstance.Dirty.publish(true));
+    store.subscribe(() => {
+      const s = store.getState();
+      if ((s.selected.selectedBeanKey != null || s.selected.selectedBuildingKey != null || s.selected.selectedHexKey != null) && this.state.activeRightPanel != 'overview'){
+        this.setState({activeRightPanel: 'overview'});
+      }
+    });
   }
   componentWillUnmount() {
     document.removeEventListener("keyup", this.keyupHandler);
@@ -203,7 +206,9 @@ class App extends React.Component<AppPs, AppState>{
                   buildingKey: b.key,
                   hex: b.address
                  }))}
-                onClick={(b) => store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }))} ></SocialGraph>
+                onClick={(b) => {
+                  store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }));
+                }} ></SocialGraph>
             </div> : <TransformWrapper
               defaultScale={1}
               wheel={{ step: 48 }}>
@@ -314,12 +319,12 @@ class App extends React.Component<AppPs, AppState>{
             </div>
             <div className="right">
               <div className="full-width-tabs">
-                <button onClick={() => this.setState({ activeRightPanel: 'overview' })}>📈 Info</button>
-                <button onClick={() => this.setState({ activeRightPanel: 'market' })}>🛍️ Market</button>
-                <button onClick={() => this.setState({ activeRightPanel: 'events' })}>
+                <button onClick={() => {this.setState({ activeRightPanel: 'overview' });}}>📈 Info</button>
+                <button onClick={() => {this.setState({ activeRightPanel: 'market' }); store.dispatch(doSelectNone())}}>🛍️ Market</button>
+                <button onClick={() => {this.setState({ activeRightPanel: 'events' }); store.dispatch(doSelectNone())}}>
                   <TimelyEventToggle event={SignalStoreInstance.events} eventIcon="🚨" eventClass="police-siren">📣</TimelyEventToggle> Events
                 </button>
-                <button onClick={() => this.setState({ activeRightPanel: 'goals' })}>🏆 Goals</button>
+                <button onClick={() => {this.setState({ activeRightPanel: 'goals' }); store.dispatch(doSelectNone())}}>🏆 Goals</button>
               </div>
               <div className="right-panel">
                 {this.getPanel()}

@@ -125,13 +125,15 @@ export const worldSlice = createSlice({
       abduct: (state, action: PayloadAction<{beanKey: number}>) => {
         if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.abduct)) {
           const bean = state.beans.byID[action.payload.beanKey];
-          bean.lifecycle = 'abducted';
-          if (bean.employerEnterpriseKey){
-            const building = state.buildings.byID[bean.employerEnterpriseKey];
-            BuildingUnsetJob(building, bean);
+          if (bean.lifecycle === 'alive'){
+            bean.lifecycle = 'abducted';
+            if (bean.employerEnterpriseKey){
+              const building = state.buildings.byID[bean.employerEnterpriseKey];
+              BuildingUnsetJob(building, bean);
+            }
+            state.cities.byID[bean.cityKey].beanKeys = state.cities.byID[bean.cityKey].beanKeys.filter(x => x != bean.key);
+            state.alien.abductedBeanKeys.push(bean.key);
           }
-          state.cities.byID[bean.cityKey].beanKeys = state.cities.byID[bean.cityKey].beanKeys.filter(x => x != bean.key);
-          state.alien.abductedBeanKeys.push(bean.key);
         }
       },
       cheatAdd: (state) => {
