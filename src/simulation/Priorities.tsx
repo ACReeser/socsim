@@ -1,5 +1,7 @@
 export class PriorityNode<T>{
-    constructor(public value: T, public priority: number){}
+    constructor(public value: T, public priority: number){
+        // console.log(priority);
+    }
 }
 export interface IPriorityQueue<T>{
     enqueue(value: PriorityNode<T>): void;
@@ -10,16 +12,23 @@ export class DumbPriorityQueue<T> implements IPriorityQueue<T>{
     
     public values: PriorityNode<T>[] = [];
 
-    constructor(_values: PriorityNode<T>[]){this.values = _values;}
+    constructor(_values: PriorityNode<T>[]){
+        this.values = _values;
+        this.sort();
+    }
     
     enqueue(value: PriorityNode<T>): void{
         this.values.push(value);
-        this.values = this.values.sort((a, b) => a.priority - b.priority);
+        this.sort();
     }
 
     enqueueMany(values: PriorityNode<T>[]){
         this.values = values;
-        this.values = this.values.sort((a, b) => a.priority - b.priority);
+        this.sort();
+    }
+    
+    private sort(){
+        this.values.sort((a, b) => b.priority - a.priority);
     }
     
     dequeue(): PriorityNode<T>|undefined{

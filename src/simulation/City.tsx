@@ -1,33 +1,26 @@
-import { IBeanContainer, ITile, Trait, TraitEthno, TraitJob, TraitEmote } from "../World";
-import { Bean } from "./Bean";
-import { Economy, GetCostOfLiving, IEconomy } from "./Economy";
-import { Government } from "./Government";
-import { GenerateBean, GetRandom, GetRandomNumber } from "../WorldGen";
-import { ICityPartyHQ, Party } from "./Politics";
-import { BuildingTypes, Geography, HexPoint, IBuilding, JobToBuilding, Point, Vector } from "./Geography";
-import { IDate } from "./Time";
-import { shuffle } from "./Utils";
-import { BuildingJobSlot } from "./Occupation";
-import { IEventBus, Live, LiveList, PubSub } from "../events/Events";
-import { WorldSound } from "../WorldSound";
-import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
-import { IPickup } from "./Pickup";
-import { BuildingOpenSlots, BuildingTryFreeBean } from "./RealEstate";
-import { IBean } from "./Agent";
-import { IWorldState } from "../state/features/world";
+import { PubSub } from "../events/Events";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
+import { IWorldState } from "../state/features/world";
+import { Trait, TraitEmote } from "../World";
+import { GetRandom } from "../WorldGen";
+import { IBean } from "./Agent";
+import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
+import { GetCostOfLiving, IEconomy } from "./Economy";
+import { BuildingTypes, HexPoint, IBuilding, Point, Vector } from "./Geography";
+import { IPickup } from "./Pickup";
+import { BuildingTryFreeBean } from "./RealEstate";
 
 
-export function reportIdeals(beans: Bean[]): {avg: number, winner: Trait}{
+export function reportIdeals(beans: IBean[]): {avg: number, winner: Trait}{
     return _report(beans, 'ego' as Trait, (b) => b.ideals);
 }
-export function reportCommunity(beans: Bean[]): {avg: number, winner: Trait}{
+export function reportCommunity(beans: IBean[]): {avg: number, winner: Trait}{
     return _report(beans, 'state' as Trait, (b) => b.community);
 }
-export function reportEthno(beans: Bean[]): {avg: number, winner: Trait}{
+export function reportEthno(beans: IBean[]): {avg: number, winner: Trait}{
     return _report(beans, 'circle' as Trait, (b) => b.ethnicity);
 }
-export function _report(beans: Bean[], defWin: Trait, beanPropGet: (bean: Bean) => Trait): {avg: number, winner: Trait}{
+export function _report(beans: IBean[], defWin: Trait, beanPropGet: (bean: IBean) => Trait): {avg: number, winner: Trait}{
     const result = { avg: 0, winner: defWin };
     const all = beans.reduce((stash: any, bean) => {
         const value = beanPropGet(bean);
@@ -71,126 +64,6 @@ export interface ICity{
     costOfLiving: number
 }
 
-export class City extends Geography implements ITile, IBeanContainer, ICity {
-    public name: string = '';
-    public url: string = '';
-    public type: string = '';
-    public key: number = 0;
-    public beans = new LiveList<Bean>([]);
-    public historicalBeans = new LiveList<Bean>([]);
-    public readonly pickups = new LiveList<Pickup>([]);
-    public ufos: UFO[] = [];
-    public pickupSeed = 0;
-    public beanSeed = 0;
-    public houses: any[] = [];
-    public partyHQ?: ICityPartyHQ;
-
-    deadBeanKeys = []; beanKeys = []; ufoKeys = []; buildingKeys = [];
-    buildingMap = {}; 
-    pickupKeys = []
-
-    /// computed properties
-    public majorityEthnicity: TraitEthno = 'circle';
-    public costOfLiving: number = 1;
-
-    constructor(private sfx: WorldSound, public readonly economy: Economy){
-        super();
-    }
-
-    public law?: Government;
-    public environment?: IDate;
-    public eventBus?: IEventBus;
-    public lpickupMagnetPoint = new Live<Point|undefined>(undefined);
-    public pickupMagnetPoint: Point|undefined;
-
-    unsetJob(bean: Bean){
-        if (bean.job === 'jobless') return;
-        const all = this.book.getBuildings();
-        for (let i = 0; i < all.length; i++) {
-            const building = all[i];
-            if (BuildingTryFreeBean(building, bean.key)){
-                bean.employerEnterpriseKey = undefined;
-                bean.job = 'jobless';
-                break;
-            }
-        }
-    }
-    addEmotePickup(p: Point, emote: TraitEmote){
-        const point = {...p};
-        point.x += GetRandomNumber(-10, 10);
-        point.y += GetRandomNumber(-10, 10);
-        const id = ++this.pickupSeed;
-        this.pickups.push(new Pickup(id, point, emote));
-    }
-
-    getRandomCitizen(): Bean|null{
-        const shuffled = shuffle(this.beans.get);
-        if (shuffled.length > 0) {
-            return shuffled[0];
-        } else {
-            return null;
-        }
-    }
-    onCitizenDie(deadBean: Bean){
-        if (deadBean.cash > 0){
-            if (this.law && this.law.isLaw('death_tax')){
-                this.law.treasury.set(this.law.treasury.get + deadBean.cash);
-                deadBean.cash = 0;
-            } else {
-                //inheritance
-                const lucky = this.getRandomCitizen();
-                if (lucky) {
-                    lucky.cash = lucky.cash + deadBean.cash;
-                    deadBean.cash = 0;
-                }
-            }
-        }
-        this.unsetJob(deadBean);
-    }
-    breedBean(parent: IBean) {
-        const job: TraitJob = Math.random() <= .5 ? parent.job : GetRandom(['doc', 'farmer', 'builder', 'jobless']);
-        // const bean = GenerateBean(this, undefined, job);
-        // bean.ethnicity = parent.ethnicity;
-        // bean.name = bean.name.split(' ')[0] + ' ' + parent.name.split(' ')[1];
-        // bean.cash = parent.cash / 2;
-        // parent.cash /= 2;
-        // bean.bornInPetri = true;
-        // if (this.environment)
-        //     bean.dob = {year: this.environment?.year, season: this.environment?.season, day: this.environment?.day, hour: this.environment?.hour};
-        // this.beans.push(bean);
-    }
-    calculateCityComputed(economy: Economy, law: Government) {
-        this.costOfLiving = economy.getCostOfLiving();
-        const c = this.beans.get.reduce((count: {circle: number, square: number, triangle: number}, bean) => {
-            switch(bean.ethnicity){
-                case 'circle': count.circle++;break;
-                case 'square': count.square++;break;
-                case 'triangle': count.triangle++;break;
-            }
-            return count;
-        }, {circle: 0, square: 0, triangle: 0});
-        if (c.circle > c.square && c.circle > c.triangle){
-            this.majorityEthnicity = 'circle';
-        } else if (c.square > c.circle && c.square > c.triangle){
-            this.majorityEthnicity = 'square';
-        } else {
-            this.majorityEthnicity = 'triangle';
-        }
-    }
-    getNearestNeighbors(source: Bean): Bean[] {
-        return this.beans.get.filter((b) => {
-            if (b.key == source.key) return false;
-
-            const p = b.point;
-            const q = source.point;
-            const squared = Math.pow(p.x - q.x, 2)+Math.pow(p.y - q.y, 2);
-
-            return squared < 1600 && squared > 600;
-        });
-    }
-    
-}
-
 export function CalculateCityComputed(city: ICity, economy: IEconomy){
     city.costOfLiving = GetCostOfLiving(economy);
 }
@@ -230,14 +103,14 @@ export function CityGetRandomBuildingOfType(city: ICity, world: IWorldState, bui
     const keysOfType: number[] = city.buildingKeys.filter(x => world.buildings.byID[x].type === buildingType);
     if (keysOfType.length < 1)
         return undefined;
-    const r = GetRandom(keysOfType);
+    const r = GetRandom(world.seed, keysOfType);
     return world.buildings.byID[r]
 }
 export function CityGetRandomEntertainmentBuilding(city: ICity, world: IWorldState): IBuilding|undefined{
     const keysOfType: number[] = city.buildingKeys.filter(x => world.buildings.byID[x].type === 'nature' || world.buildings.byID[x].type === 'park' || world.buildings.byID[x].type === 'theater');
     if (keysOfType.length < 1)
         return undefined;
-    const r = GetRandom(keysOfType);
+    const r = GetRandom(world.seed, keysOfType);
     return world.buildings.byID[r]
 }
 export function CityGetNearestNeighbors(city: ICity, source: IBean): number[]{

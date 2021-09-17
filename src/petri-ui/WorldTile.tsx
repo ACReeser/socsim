@@ -1,20 +1,11 @@
-import { ITile } from "../World";
-import { Bean } from "../simulation/Bean";
-import { AnimatedBean } from "./AnimatedBean";
 import React from "react";
-import { IBuilding, BuildingIcon, BuildingTypes, hex_to_pixel, MatterTypes, PolarPoint, polarToPoint, transformPoint, HexPoint, Point, HexSizeR } from "../simulation/Geography";
-import { PetriBuilding } from "./Building";
-import { PI2 } from "../WorldGen";
-import { City, Pickup, UFO } from "../simulation/City";
-import { AnimatedUFO } from "./AnimatedUFO";
-import { IEvent } from "../events/Events";
-import { AnimatedSpotlight } from "./AnimatedSpotlight";
-import { PetriBeanList, PickupList2 } from "./Mover";
-import { PetriHexes2 } from "./Buildings";
-import { Magnet, Magnet2 } from "./Magnet";
+import { HexSizeR, polarToPoint, transformPoint } from "../simulation/Geography";
 import { magnetChange } from "../state/features/world.reducer";
-import { useAppSelector, useAppDispatch } from "../state/hooks";
+import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { AnimatedUFO2 } from "./AnimatedUFO2";
+import { PetriHexes2 } from "./Buildings";
+import { Magnet2 } from "./Magnet";
+import { PetriBeanList, PickupList2 } from "./Mover";
 
 export const hex_style = {
   width: HexSizeR + 'px', 

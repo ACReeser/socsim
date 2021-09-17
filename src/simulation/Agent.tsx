@@ -5,13 +5,14 @@ import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
-import { Bean, BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
+import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
-import { accelerate_towards, BuildingTypes, Geography, GoodToBuilding, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { accelerate_towards, BuildingTypes, GoodToBuilding, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode } from "./Priorities";
 import { IDate } from "./Time";
+import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
 
@@ -21,11 +22,6 @@ export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|
  * approach == uninterruptible travel into destination slot
  */
 export type Travel = 'cruise'|'approach';
-
-export interface IActListener{
-    onChat: (b: Bean, speech: IChatData) => void;
-    onEmote: (b: Bean, emote: TraitEmote) => void;
-}
 
 export interface IActivityData {
     act: Act;
@@ -64,7 +60,7 @@ export interface IBeanAgent{
 export interface StateFunctions {
     enter: (agent: IBean) => AnyAction|undefined;
     act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction|AnyAction[], newActivity?: IActivityData};
-    exit: (agent: IBean) => AnyAction|undefined;
+    exit: (agent: IBean, seed: string) => AnyAction|undefined;
 }
 const RelaxationDurationMS = 1000;
 const CrimeDurationMS = 1500;
@@ -132,7 +128,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                     const targets = nearbyBeanKeys.filter((bKey) => BeanMaybeChat(world.beans.byID[bKey]));
                     if (targets.length < 1)
                         return {};
-                    const chat: IChatData = BeanGetRandomChat(agent, () => {
+                    const chat: IChatData = BeanGetRandomChat(agent, world.seed, () => {
                         return targets.map(
                                 x => world.beans.byID[x]
                             ).filter(
@@ -226,7 +222,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             }
             return {};
         },
-        exit: (agent: IBean) => {
+        exit: (agent: IBean, seed: string) => {
             if (agent.actionData.chat){
                 if (agent.actionData.chat.participation === 'listener'){
                     switch(agent.actionData.chat.type){
@@ -237,7 +233,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                         case 'preach':
                             if (agent.actionData.chat.preachBelief && 
                                 agent.actionData.chat.persuasionStrength && 
-                                BeanMaybePersuaded(agent, agent.actionData.chat.preachBelief, agent.actionData.chat.persuasionStrength)){
+                                BeanMaybePersuaded(agent, seed, agent.actionData.chat.preachBelief, agent.actionData.chat.persuasionStrength)){
                                 return beanBePersuaded({beanKey: agent.key, belief: agent.actionData.chat.preachBelief})
                             }
                     }
@@ -276,7 +272,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             if (elapsed < 200)
                 return {};
             
-            const priorities = GetPriorities(agent, world.cities.byID[agent.cityKey], world.alien.difficulty);
+            const priorities = GetPriorities(agent, world.seed, world.cities.byID[agent.cityKey], world.alien.difficulty);
             let top = priorities.dequeue();
             let travelState: IActivityData|undefined = undefined;
             let sideEffect: AnyAction|undefined = undefined;
@@ -433,7 +429,7 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
         case 'relax': {
             const buildingDest = CityGetRandomEntertainmentBuilding(city, world);
             if (buildingDest){
-                return Route(city, agent, buildingDest);
+                return Route(world.seed, city, agent, buildingDest);
             }
         }
     }
@@ -456,57 +452,54 @@ function CreateTravelFromIntent(agent: IBean, city: ICity, intent: IActivityData
 
 const WanderlustEmoteChance = 0.002;
 
+/**
+ * returns a priority. Higher is more important
+ */
 export const GetPriority = {
-    work: function(bean: IBean, city: ICity): number{
+    work: function(bean: IBean, seed: string, city: ICity): number{
         if (bean.job == 'jobless'){
-            return 9;
+            return 0;
+        }
+        else if (bean.cash === 0){
+            return SampleNormalDistribution(seed, StatsNormalMean + (StatsNormalDev * 2));
         }
         else if (city){
-            //beans with no inventory prioritize work higher
-            let inventory_priority = 99;
-            // if (city.economy){
-            //     const quant = bean.city.economy.market.getStakeListings(bean.key, bean.employerEnterpriseKey, JobToGood(bean.job))?.quantity || 0;
-            //     inventory_priority = quant;
-            // }
-            //beans with lots of cash prioritize work higher
-            const wealth_priority = bean.cash / city.costOfLiving / 2;
-            return 0.5 + Math.min(inventory_priority, wealth_priority);
-        } else {
-            return 0.5;
+            return SampleNormalDistribution(seed, StatsNormalMean + 
+                (StatsNormalDev * Math.min(1, city.costOfLiving / bean.cash))
+            );
         }
+        return SampleNormalDistribution(seed);
     },
-    food: function(bean: IBean, difficulty: IDifficulty): number{
-        if ((bean.discrete_food <= difficulty.bean_life.vital_thresh.food.warning ))
-            return bean.discrete_food;
-        return 0.5 + (bean.discrete_food / difficulty.bean_life.vital_thresh.food.sufficient )
+    food: function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        return SampleNormalDistribution(seed, StatsNormalMean + (
+            StatsNormalDev * 6 * Math.min(1, difficulty.bean_life.vital_thresh.food.warning / bean.discrete_food)
+        ));
     },
-    medicine:function(bean: IBean, difficulty: IDifficulty): number{
-        if ((bean.discrete_health <= difficulty.bean_life.vital_thresh.medicine.warning ))
-            return 0.25 + bean.discrete_health;
-        return 0.75 + (bean.discrete_health / difficulty.bean_life.vital_thresh.medicine.sufficient )
+    medicine:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        return SampleNormalDistribution(seed, StatsNormalMean + (
+            StatsNormalDev * 2 * Math.min(1, difficulty.bean_life.vital_thresh.medicine.warning / bean.discrete_health)
+        ));
     },
-    stamina: function(bean: IBean, difficulty: IDifficulty): number{
-        if ((bean.discrete_stamina <= difficulty.bean_life.vital_thresh.shelter.warning ))
-            return 0.50 + bean.discrete_stamina;
-        return 1 + (bean.discrete_stamina / difficulty.bean_life.vital_thresh.shelter.sufficient )
+    stamina: function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        return SampleNormalDistribution(seed, StatsNormalMean + (
+            StatsNormalDev * 4 * Math.min(1, difficulty.bean_life.vital_thresh.shelter.warning / bean.discrete_stamina)
+        ));
     },
-    fun:function(bean: IBean, difficulty: IDifficulty): number{
-        return 3
+    fun:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        return SampleNormalDistribution(seed, StatsNormalMean + (
+            StatsNormalDev * Math.min(1, -bean.lastHappiness / 100)
+        ));
     }
 }
 
-export function GetPriorities(bean: IBean, city: ICity, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
-    const queue = new DumbPriorityQueue<IActivityData>([]);
-    let node = new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean, city));
-    queue.enqueue(node);
-    node = new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, difficulty));
-    queue.enqueue(node);
-    node = new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.stamina(bean, difficulty));
-    queue.enqueue(node);
-    node = new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, difficulty));
-    queue.enqueue(node);
-    node = new PriorityNode<IActivityData>({act: 'buy', good: 'fun'} as IActivityData, GetPriority.fun(bean, difficulty));
-    queue.enqueue(node);
+export function GetPriorities(bean: IBean, seed: string, city: ICity, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
+    const queue = new DumbPriorityQueue<IActivityData>([
+        new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean, seed, city)),
+        new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.stamina(bean, seed, difficulty)),
+        new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, seed, difficulty)),
+        new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, seed, difficulty)),
+        new PriorityNode<IActivityData>({act: 'buy', good: 'fun'} as IActivityData, GetPriority.fun(bean, seed, difficulty)),
+    ]);
     return queue;
 }
 
@@ -602,7 +595,7 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
     const destination: IBuilding|undefined = CityGetRandomBuildingOfType(city, world, buildingType);
     if (destination === undefined) 
         return null;
-    return Route(city, bean, destination);
+    return Route(world.seed, city, bean, destination);
 }
 
 /**
@@ -611,14 +604,14 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
  * @param bean 
  * @param buildingType 
  */
-export function Route(city: ICity, bean: IBean, destination: IBuilding): Point[]{
+export function Route(seed: string, city: ICity, bean: IBean, destination: IBuilding): Point[]{
     const start = MoverStoreInstance.Get('bean', bean.key).current || {...OriginAccelerator};
     const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
     return hex_linedraw(nearestHex, destination.address).map(
         (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
         ).map((x, i, a) => {
         if (i === a.length-1){
-            const offset = getRandomSlotOffset();
+            const offset = getRandomSlotOffset(seed);
             return {
                 x: x.x + offset.x,
                 y: x.y + offset.y
@@ -627,7 +620,4 @@ export function Route(city: ICity, bean: IBean, destination: IBuilding): Point[]
             return x;
         }
     });
-}
-export function Approach(geo: Geography, bean: IBean){
-
 }

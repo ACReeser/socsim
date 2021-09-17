@@ -11,6 +11,7 @@ import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData } from '../../simulation/Player'
 import { IDate, Season } from '../../simulation/Time'
 import { IUFO } from '../../simulation/Ufo'
+import { GenerateCity } from '../../WorldGen'
 import { CreateEmptyEntitySlice, CreateEntitySlice, IEntitySlice } from '../entity.state'
 
 export interface IWorldState {
@@ -30,7 +31,8 @@ export interface IWorldState {
   /**
    * 1-based ID of save slot (1-3)
    */
-  saveSlot: number
+  saveSlot: number,
+  seed: string
 }
 
 export function GetBlankWorldState(): IWorldState{
@@ -38,19 +40,7 @@ export function GetBlankWorldState(): IWorldState{
     buildings: CreateEmptyEntitySlice<IBuilding>(),
     enterprises: CreateEmptyEntitySlice<IEnterprise>(),
     cities: CreateEntitySlice<ICity>([
-      {
-        ...GenerateGeography(),
-        key: 0,
-        name: 'string',
-        deadBeanKeys: [],
-        beanKeys: [],
-        ufoKeys: [],
-        pickupKeys: [],
-        buildingKeys: [],
-        pickupMagnetPoint: undefined,
-        costOfLiving: 0,
-        buildingMap: {}
-      }
+      GenerateCity()
     ]),
     beans: CreateEmptyEntitySlice<IBean>(),
     ufos: CreateEmptyEntitySlice<IUFO>(),
@@ -97,6 +87,7 @@ export function GetBlankWorldState(): IWorldState{
       currentlyResearchingTech: undefined
     },
     spotlightEvent: undefined,
-    saveSlot: 1
+    saveSlot: 1,
+    seed: 'abcdef'
   }
 }

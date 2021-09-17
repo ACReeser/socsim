@@ -76,7 +76,7 @@ export function simulate_world(world: IWorldState){
         if (b.lifecycle != 'alive')
             return;
         
-        const ageResult = BeanAge(b, world.alien.difficulty);
+        const ageResult = BeanAge(b, world.seed, world.alien.difficulty);
         if (ageResult?.emotes){
             ageResult.emotes.map(x => EntityAddToSlice(world.pickups, x));
         }
@@ -84,7 +84,7 @@ export function simulate_world(world: IWorldState){
             EntityAddToSlice(world.events, ageResult.death);
         }
         // todo: on bean death
-        const e = BeanMaybeBaby(b, CoL);
+        const e = BeanMaybeBaby(b, world.seed, CoL);
         if (e) {
             const newBean = GenerateBean(world, world.cities.byID[b.cityKey], b);
             if (b.lastPoint){
@@ -130,7 +130,7 @@ export function simulate_every_month(world: IWorldState){
     world.economy.monthlySupply = { food: 0, shelter: 0, medicine: 0, fun: 0, };
 }
 export function simulate_every_week(world: IWorldState){
-    world.marketTraitsForSale = GetMarketTraits();
+    world.marketTraitsForSale = GetMarketTraits(world.seed);
     WorldAddEvent(world, {key: 0, message: 'New traits in the Emotion Market!', icon: '🛍️', trigger: 'marketrefresh'});
     if (IsLaw(world.law, 'poll_tax')){
         let collected = 0;
@@ -243,7 +243,7 @@ export function animate_beans(world: IWorldState, deltaMS: number): Array<AnyAct
             actions.push(actResult.action);
         }
         if (actResult.newActivity){
-            const exitAction = BeanActions[bean.action].exit(bean);
+            const exitAction = BeanActions[bean.action].exit(bean, world.seed);
             if (exitAction)
                 actions.push(exitAction);
             actions.push(changeState({beanKey: beanKey, newState: actResult.newActivity}));

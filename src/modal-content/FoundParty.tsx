@@ -1,10 +1,8 @@
 import React, { ChangeEvent } from "react";
 import { TraitCommunity, TraitIdeals } from "../World";
-import { City } from "../simulation/City";
 
 export interface FoundPartyPS
 {
-    cities: City[],
     onFound: (state: FoundPartyS) => void
 }
 export interface FoundPartyS

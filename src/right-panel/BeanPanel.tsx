@@ -82,10 +82,10 @@ function renderInner(scanned: boolean, innerView: string, bean: IBean, city: ICi
                         </td>
                     </tr>
                     {
-                        GetPriorities(bean, city, alien.difficulty).values.map((x) => {
+                        GetPriorities(bean, 'abc', city, alien.difficulty).values.map((x) => {
                             return <tr key={`p-${x.value.act}-${x.value.good}`}>
                                 <td>
-                                {x.priority.toFixed(1)} {ActivityIcon(x.value)}
+                                {x.priority.toFixed(2)} {ActivityIcon(x.value)}
                                 </td>
                             </tr>
                         })

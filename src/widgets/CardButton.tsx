@@ -2,7 +2,6 @@ import { ReactComponent } from "*.svg";
 import React from "react";
 import { keyToName } from "../i18n/text";
 import { IBean } from "../simulation/Agent";
-import { Bean } from "../simulation/Bean";
 import { NarrativeBeliefData, PrimaryBeliefData } from "../simulation/Beliefs";
 import { Trait, TraitIcon } from "../World";
 

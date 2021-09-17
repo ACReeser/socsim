@@ -17,21 +17,21 @@ export const CommonalityRandomMaxCost: {[b in BeliefCommonality]: number} = {
     'rare': 7
 };
 
-export function GetMarketTraits(): MarketTraitListing[]{
+export function GetMarketTraits(seed: string): MarketTraitListing[]{
     const newTraits: MarketTraitListing[] = [];
     for (let i = 0; i < 3; i++) {
-        const b = GetRandom(RandomBeliefBucket);
-        newTraits.push(getMarketTraitListing(b));
+        const b = GetRandom(seed, RandomBeliefBucket);
+        newTraits.push(getMarketTraitListing(seed, b));
     }
     return newTraits;
 }
 
-function getMarketTraitListing(b: TraitBelief): MarketTraitListing{
+function getMarketTraitListing(seed: string, b: TraitBelief): MarketTraitListing{
     const rare = SecondaryBeliefData[b].rarity;
     return {
         trait: b,
         cost: {
-            hedons: CommonalityBaseCost[rare] + GetRandomNumber(0, CommonalityRandomMaxCost[rare])
+            hedons: CommonalityBaseCost[rare] + GetRandomNumber(seed, 0, CommonalityRandomMaxCost[rare])
         }
     }
 }

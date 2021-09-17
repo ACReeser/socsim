@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { City, UFO } from "../simulation/City";
+import { UFO } from "../simulation/City";
 import { hex_to_pixel, origin_point, transformPoint } from "../simulation/Geography";
 import { useAppSelector } from "../state/hooks";
 

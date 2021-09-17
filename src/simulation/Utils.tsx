@@ -1,3 +1,4 @@
+import { GetRandomFloat } from "../WorldGen";
 
 export function shuffle<T>(array: Array<T>) {
     let counter = array.length;
@@ -35,4 +36,24 @@ export function groupBy<T>(list: T[], keyGetter: (val: T) => string|number): Map
          }
     });
     return map;
+}
+
+export const StatsNormalMean = 0.5;
+export const StatsNormalDev = 0.125;
+
+/**
+ * Marsaglia polar method
+ * @param mean 
+ * @param standardDeviation 
+ * @returns 
+ */
+export function SampleNormalDistribution(seed: string, mean: number = StatsNormalMean, standardDeviation: number = StatsNormalDev) {
+    let q, u, v, p;
+    do {
+        u = 2.0 * GetRandomFloat(seed) - 1.0;
+        v = 2.0 * GetRandomFloat(seed) - 1.0;
+        q = u * u + v * v;
+    } while (q >= 1.0 || q === 0);
+    p = Math.sqrt(-2.0 * Math.log(q) / q);
+    return mean + standardDeviation * u * p;
 }

@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { SfxContext } from "../App";
-import { UFO, City, Pickup } from "../simulation/City";
+import { UFO, Pickup } from "../simulation/City";
 import { transformPoint, hex_to_pixel } from "../simulation/Geography";
 import { IPickup } from "../simulation/Pickup";
 import { useAppSelector } from "../state/hooks";

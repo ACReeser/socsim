@@ -1,6 +1,5 @@
 import { IWorldState } from "../state/features/world";
-import { Bean } from "./Bean";
-import { City, ICity } from "./City";
+import { ICity } from "./City";
 import { IEconomy } from "./Economy";
 import { BuildingToGood, BuildingTypes, HexPoint, IBuilding, Point } from "./Geography";
 import { EnterpriseType, IEnterprise } from "./Institutions";

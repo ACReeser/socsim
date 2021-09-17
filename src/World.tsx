@@ -1,16 +1,13 @@
 import * as React from 'react';
-import { Bean } from './simulation/Bean';
-import { Economy } from './simulation/Economy';
 import { Policy, Party, BaseParty, ICityPartyHQ } from './simulation/Politics';
-import { IInstitution, IOrganization, Charity } from './simulation/Institutions';
 import { IEvent, EventBus, LiveList } from './events/Events';
 import { Season, IDate } from './simulation/Time';
 import { Government, PollTaxWeeklyAmount } from './simulation/Government';
 import { TechData } from './simulation/Player';
-import { accelerate_towards, accelerator_coast, Geography, move_towards } from './simulation/Geography';
-import { City, Pickup } from './simulation/City';
+import { accelerate_towards, accelerator_coast, move_towards } from './simulation/Geography';
+import { Pickup } from './simulation/City';
 import { shuffle } from './simulation/Utils';
-import { Act, IActListener, IBean, IChatData } from './simulation/Agent';
+import { Act, IBean, IChatData } from './simulation/Agent';
 import { IDifficulty, PlayerResources } from './Game';
 import { type } from 'os';
 import { GetHedonReport, IsBeliefDivergent, SecondaryBeliefData, TraitBelief } from './simulation/Beliefs';
@@ -18,16 +15,6 @@ import { WorldSfxInstance, WorldSound } from './WorldSound';
 import { GetMarketTraits, MarketTraitListing } from './simulation/MarketTraits';
 import { IWorldState } from './state/features/world';
 
-export interface IBeanContainer{
-    /**
-     * all beans ever, including dead ones
-     */
-    historicalBeans: LiveList<Bean>;
-    /**
-     * current non-dead beans
-     */
-    beans: LiveList<Bean>;
-}
 export const PickupPhysics = {
     Brake: { x: .94, y: .94},
     AccelerateS: 60,
@@ -120,7 +107,7 @@ export const TraitToModifier: {[key in TraitFood|TraitStamina|TraitHealth]: IHap
 export interface IThreshold {warning: number, sufficient: number, abundant: number}
 export const GoodToThreshold: {[key in TraitGood]: IThreshold} = {
     'food': {warning: 0.5, sufficient: 1, abundant: 3},
-    'shelter': {warning: 0.5, sufficient: 1, abundant: 7},
+    'shelter': {warning: 3, sufficient: 4, abundant: 7},
     'medicine': {warning: 0.5, sufficient: 1, abundant: 3},
     'fun': {warning: 0.1, sufficient: 1, abundant: 3},
 }

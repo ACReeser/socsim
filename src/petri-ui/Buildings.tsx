@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { City, ICity } from "../simulation/City";
+import { ICity } from "../simulation/City";
 import { CityBook, HexPoint, hex_to_pixel, IBuilding, Point, transformPoint } from "../simulation/Geography";
 import { doSelectBuilding, doSelectHex } from "../state/features/selected.reducer";
 import { magnetChange, selectBuildingsByCity, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
@@ -59,7 +59,7 @@ export const PetriHexes2: React.FC<{
         const xy = hex_to_pixel(city.hex_size, city.petriOrigin, hex);
         const hexStr = hex.q+','+hex.r;
         const buildingKey: number|undefined = city.buildingMap[hexStr];
-        return <PetriHex i={i} hex={hex} xy={xy} hexString={hexStr} cityKey={props.cityKey} buildingKey={buildingKey}>
+        return <PetriHex i={i} hex={hex} xy={xy} hexString={hexStr} cityKey={props.cityKey} buildingKey={buildingKey} key={hexStr}>
             <HexPetriBuilding2 cityKey={props.cityKey} hex={hex}></HexPetriBuilding2>
         </PetriHex>
     })}</>

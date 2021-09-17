@@ -1,14 +1,21 @@
 import { IBean } from './simulation/Agent';
 import { RandomBeliefBucket } from './simulation/Beliefs';
-import { City, ICity } from './simulation/City';
-import { Economy } from './simulation/Economy';
-import { BuildingTypes, HexPoint, PolarPoint } from './simulation/Geography';
+import { ICity } from './simulation/City';
+import { BuildingTypes, GenerateGeography, HexPoint, PolarPoint } from './simulation/Geography';
+import { IDate } from './simulation/Time';
 import { IWorldState } from './state/features/world';
 import { TraitCommunity, TraitEthno, TraitFaith, TraitIdeals, TraitJob } from './World';
-import { WorldSound } from './WorldSound';
+import Rand, {PRNG} from 'rand-seed';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
+const RandomSeeds: {[seed: string]: Rand} = {};
+
+export function GetRandomGenerator(seed: string){
+    if (RandomSeeds[seed] == null)
+        RandomSeeds[seed] = new Rand(seed, PRNG.sfc32);
+    return RandomSeeds[seed];
+}
 
 /**
  * return better random values
@@ -16,10 +23,9 @@ const MaxNumBeanTraitsOnGenerate = 3;
  * @param max 
  * @returns 
  */
-export function GetRandomNumber(min: number, max: number): number{
-    const randomBuffer = new Uint32Array(1);
-    window.crypto.getRandomValues(randomBuffer);
-    const randomNumber = randomBuffer[0] / (0xffffffff + 1);
+export function GetRandomNumber(seed: string, min: number = 0, max: number = 1): number{
+    const randomNumber = GetRandomGenerator(seed).next();
+    // const randomNumber = window.crypto.getRandomValues()[0] / (0xffffffff + 1);
     min = Math.ceil(min);
     max = Math.floor(max);
     return Math.floor(randomNumber * (max - min + 1)) + min;
@@ -29,23 +35,8 @@ export function GetRandomNumber(min: number, max: number): number{
  * 
  * @returns float between 0 and 1
  */
-export function GetRandomFloat(): number{
-    //https://stackoverflow.com/questions/34575635/cryptographically-secure-float
-    // A buffer with just the right size to convert to Float64
-    let buffer = new ArrayBuffer(8);
-
-    // View it as an Int8Array and fill it with 8 random ints
-    let ints = new Int8Array(buffer);
-    window.crypto.getRandomValues(ints);
-
-    // Set the sign (ints[7][7]) to 0 and the
-    // exponent (ints[7][6]-[6][5]) to just the right size 
-    // (all ones except for the highest bit)
-    ints[7] = 63;
-    ints[6] |= 0xf0;
-
-    // Now view it as a Float64Array, and read the one float from it
-    return new DataView(buffer).getFloat64(0, true) - 1; 
+export function GetRandomFloat(seed: string): number{
+    return GetRandomGenerator(seed).next();
 }
 
 /**
@@ -53,8 +44,8 @@ export function GetRandomFloat(): number{
  * @param chance 
  * @returns 
  */
-export function GetRandomRoll(chance: number): boolean{
-    const randomNumber = GetRandomFloat();
+export function GetRandomRoll(seed: string, chance: number): boolean{
+    const randomNumber = GetRandomFloat(seed);
     //console.log(`DC ${(chance*100).toFixed(3)} rolled ${(randomNumber*100).toFixed(4)}`);
     return randomNumber <= chance;
 }
@@ -64,29 +55,29 @@ export function GetRandomRoll(chance: number): boolean{
  * @param length 
  * @returns 
  */
-export function GetRandomIndex(length: number): number{
-    return GetRandomNumber(0, length-1)
+export function GetRandomIndex(seed: string, length: number): number{
+    return GetRandomNumber(seed, 0, length-1)
 }
 
-export function GetRandom<S>(choices: S[]):S {
+export function GetRandom<S>(seed: string, choices: S[]):S {
     const max = choices.length;
     if (max == 1)
         return choices[0];
 
-    const i = GetRandomIndex(choices.length);
+    const i = GetRandomIndex(seed, choices.length);
     return choices[i];
 }
-export function RandomIdeal(): TraitIdeals{
-    return GetRandom(['prog', 'trad']);
+export function RandomIdeal(seed: string): TraitIdeals{
+    return GetRandom(seed, ['prog', 'trad']);
 }
-export function RandomCommunity(): TraitCommunity{
-    return GetRandom(['state', 'ego']);
+export function RandomCommunity(seed: string): TraitCommunity{
+    return GetRandom(seed, ['state', 'ego']);
 }
-export function RandomEthno(): TraitEthno{
-    return GetRandom(['circle','square','triangle']);
+export function RandomEthno(seed: string): TraitEthno{
+    return GetRandom(seed, ['circle','square','triangle']);
 }
-export function RandomFaith(): TraitFaith{
-    return GetRandom(['rocket','music','dragon', 'noFaith']);
+export function RandomFaith(seed: string): TraitFaith{
+    return GetRandom(seed, ['rocket','music','dragon', 'noFaith']);
 }
 export function StartingCash(job: TraitJob): number{
     let base = 4 + Math.floor(Math.random() * 3);
@@ -97,61 +88,54 @@ export function StartingCash(job: TraitJob): number{
 }
 export const MAX_PETRI_RADIUS = 200;
 export const PI2 = Math.PI*2;
-export function RandomPolar(r?: number): PolarPoint{
+export function RandomPolar(seed: string, r?: number): PolarPoint{
     return {
-        r: r || GetRandomNumber(0, MAX_PETRI_RADIUS),
-        az: GetRandomNumber(0, PI2)
+        r: r || GetRandomNumber(seed, 0, MAX_PETRI_RADIUS),
+        az: GetRandomNumber(seed, 0, PI2)
     };
 }
-export function GetBuildingR(type: BuildingTypes): number{
+export function GetBuildingR(seed: string, type: BuildingTypes): number{
     switch(type){
         case 'farm':
-            return GetRandomNumber(200, 300);
+            return GetRandomNumber(seed, 200, 300);
         default: 
-            return GetRandomNumber(80, 200);
+            return GetRandomNumber(seed, 80, 200);
     }
 }
 
 const CityPrefixes = ['New ', 'Old ', 'Fort ', 'St. ', 'Mount ', 'Grand ', '', '', '', '', '', '', '', '', '', ''];
 const CityFirstsnames = ['Spring', 'Timber', 'Over', 'West', 'East', 'North', 'South', 'Rock', 'Sand', 'Clay', 'Iron', 'Ore', 'Coal', 'Liver', 'Hawk', 'Red', 'Yellow', 'Gold', 'Blue', 'Black', 'White', 'Sunny', 'Reed', 'Ox', 'Mill', 'Fern', 'Down', 'Bel', 'Bald', 'Ash'];
 const CityLastnames = ['water ', ' Springs', 'ville', 'dale', 'lane', 'peak', 'coast', 'beach', 'port', 'market', 'ton', 'brook', ' Creek', 'land', 'burgh', 'bridge', 'ford', 'bury', 'chester', 'son', 'vale', ' Valley', 'hill', 'more', 'wood', ' Oaks', ' Cove', 'mouth', 'way', 'crest'];
-export function GetRandomCityName(){
-    return `${GetRandom(CityPrefixes)}${GetRandom(CityFirstsnames)}${GetRandom(CityLastnames)}`;
+export function GetRandomCityName(seed: string){
+    return `${GetRandom(seed, CityPrefixes)}${GetRandom(seed, CityFirstsnames)}${GetRandom(seed, CityLastnames)}`;
 }
 export const Number_Starting_City_Pop = 0;
-export function GenerateCity(previousCityCount: number, sfx: WorldSound, econ: Economy): City{
-    let newCity = new City(sfx, econ);
-    newCity.key = previousCityCount;
-    newCity.name = GetRandomCityName();
-    
-    // GenerateBuilding(newCity, 'courthouse', newCity.hexes[0], newCity.economy); 
-    // GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(15, 20)], newCity.economy); 
-    // GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(21, 25)], newCity.economy); 
-    // GenerateBuilding(newCity, 'nature', newCity.hexes[GetRandomNumber(26, 60)], newCity.economy);
-    // GenerateBuilding(newCity, 'house', newCity.hexes[1]); 
-    // GenerateBuilding(newCity, 'hospital', newCity.hexes[5]);
-    
-    // GenerateBuilding(newCity, 'farm', newCity.hexes[7]);
 
-    // const cityPopulation = Number_Starting_City_Pop;
-    // while(newCity.beans.get.length < cityPopulation){
-    //     newCity.beans.push(
-    //         GenerateBean(newCity)
-    //     );
-    // }
-
-    return newCity;
+export function GenerateCity(): ICity{
+    return {
+        ...GenerateGeography(),
+        key: 0,
+        name: 'string',
+        deadBeanKeys: [],
+        beanKeys: [],
+        ufoKeys: [],
+        pickupKeys: [],
+        buildingKeys: [],
+        pickupMagnetPoint: undefined,
+        costOfLiving: 0,
+        buildingMap: {}
+      }
 }
 
-export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, hexPoint?: HexPoint, job?: TraitJob): IBean{
+export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: string}, city: ICity, parent?: IBean, hexPoint?: HexPoint, job?: TraitJob): IBean{
     let newBean: IBean = {
         key: world.beans.nextID++,
         cityKey: city.key,
         name: '',
-        ethnicity: RandomEthno(),
-        community: RandomCommunity(),
-        ideals: RandomIdeal(),
-        faith: RandomFaith(),
+        ethnicity: RandomEthno(world.seed),
+        community: RandomCommunity(world.seed),
+        ideals: RandomIdeal(world.seed),
+        faith: RandomFaith(world.seed),
         stamina: 'awake',
         health: 'fresh',
         food: 'sated',
@@ -184,7 +168,7 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
     //     velocity: {x: 0, y: 0},
     //     point: hex_to_pixel(city.hex_size, city.petriOrigin, hexPoint || {q: 0, r: 0})
     // });
-    newBean.name = GetRandom(['Joe', 'Frank', 'Jill', 'Jose',
+    newBean.name = GetRandom(world.seed, ['Joe', 'Frank', 'Jill', 'Jose',
     'Johnny', 'Isabelle', 'Carmen', 'Ace', 'Carl', 'Zander', 'Jean',
     'Anne', 'Leslie', 'Ben', 'Ron', 
     'Ellen', 'Dallas', 'Kane', 'Ash', 
@@ -202,7 +186,7 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
     'Thomas',
     'Benny', 'James', 'John Henry', 'Sarah', 'Piper', 'Nick', 'Shaun', 'Preston'
     ]) + ' ';
-    newBean.name += GetRandom([
+    newBean.name += GetRandom(world.seed, [
         'Ripley', 'Bishop', 'Hicks', 'Vasquez', 'Hudson', 
         'Rico', 'Flores', 'Ibanez', 'Levy', 'Jenkins', 'Barlow', 'Zim', 'Rasczak',
         'Kirk', 'McCoy', 'Sulu', 'Uhura', 'Chekov', 'Chapel', 'Rand','Riker', 'Crusher', 'Barret', "O'Brien",
@@ -221,7 +205,7 @@ export function GenerateBean(world: IWorldState, city: ICity, parent?: IBean, he
          ]);
     const beanBeliefCount = Math.ceil(Math.random() * MaxNumBeanTraitsOnGenerate);
     while (newBean.beliefs.length < beanBeliefCount) {
-        const newBelief = GetRandom(RandomBeliefBucket);
+        const newBelief = GetRandom(world.seed, RandomBeliefBucket);
         const hasAlready = newBean.beliefs.includes(newBelief);
         if (!hasAlready)
             newBean.beliefs.push(newBelief);

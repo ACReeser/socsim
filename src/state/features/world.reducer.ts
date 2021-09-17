@@ -20,7 +20,7 @@ import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
-import { GenerateBean, GetRandom, GetRandomCityName, GetRandomNumber } from '../../WorldGen'
+import { GenerateBean, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
@@ -44,11 +44,11 @@ export const worldSlice = createSlice({
       },
       newGame: state => {
         const city = state.cities.byID[0];
-        city.name = GetRandomCityName();
+        city.name = GetRandomCityName(state.seed);
         GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(15, 20)], state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(21, 25)], state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(26, 60)], state.economy);
+        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
+        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);
+        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
       },
       loadGame: (state, action:PayloadAction<{newState: IWorldState}>) => {
         action.payload.newState.beans.allIDs.map(k => {
@@ -178,7 +178,7 @@ export const worldSlice = createSlice({
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
           const oldFaith = bean.faith;
           while (bean.faith === oldFaith)
-            bean.faith = GetRandom(['rocket', 'dragon', 'music', 'noFaith']);
+            bean.faith = GetRandom(state.seed, ['rocket', 'dragon', 'music', 'noFaith']);
         }
       },
       washBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
@@ -227,7 +227,7 @@ export const worldSlice = createSlice({
       },
       vaporize: (state, action: PayloadAction<{beanKey: number}>) => {
         if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.vaporize)) {
-          const d = BeanDie(state.beans.byID[action.payload.beanKey], 'vaporization');
+          const d = BeanDie(state.beans.byID[action.payload.beanKey], state.seed, 'vaporization');
           EntityAddToSlice(state.events, d.death);
           d.emotes.map(e => EntityAddToSlice(state.pickups, e));
         }
@@ -366,7 +366,7 @@ export const worldSlice = createSlice({
       beanCrime: (state, action: PayloadAction<{beanKey: number, good: 'food'|'medicine'}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
         
-        const listing = GetRandom(state.economy.market.listings[action.payload.good]);
+        const listing = GetRandom(state.seed, state.economy.market.listings[action.payload.good]);
         if (listing == null){
         } else {
           const stolen = Math.min(listing.quantity, 3);

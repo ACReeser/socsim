@@ -2,7 +2,7 @@ import React from "react";
 import { keyToName } from "../i18n/text";
 import { Subtabs } from "../chrome/Subtab";
 import { IDifficulty } from "../Game";
-import { City, ICity } from "../simulation/City";
+import { ICity } from "../simulation/City";
 import { BuildingIcon, BuildingJobIcon, BuildingToGood, BuildingTypes, HexPoint, IBuilding } from "../simulation/Geography";
 import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, IEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";

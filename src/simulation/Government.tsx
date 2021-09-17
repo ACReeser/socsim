@@ -1,7 +1,6 @@
 import { Live } from "../events/Events";
 import { TraitCommunity, TraitFood, TraitGood, TraitHealth, TraitIdeals } from "../World";
 import { IBean } from "./Agent";
-import { Bean } from "./Bean";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IEconomicAgent } from "./Economy";
 import { IPolicy } from "./Politics";
@@ -232,7 +231,7 @@ export class Government{
         return this.isLaw('sales_tax') ? SalesTaxPercentage : 0;
     }
     
-    PurchaseQualifiesForWelfare(bean: Bean, good: TraitGood): boolean{
+    PurchaseQualifiesForWelfare(bean: IBean, good: TraitGood): boolean{
         switch(good){
             case 'food':
                 return (bean.food === 'starving' || bean.food === 'hungry') && this.isLaw('food_aid');
@@ -244,7 +243,7 @@ export class Government{
     CanPayWelfare(price: number): boolean{
         return this.treasury.get >= price;
     }
-    MaybeRebate(beans: Bean[]){
+    MaybeRebate(beans: IBean[]){
         const allowedTreasury = beans.length * DollarPerBeanRebateThreshold;
         if (this.treasury.get > allowedTreasury){
             const overage = this.treasury.get - allowedTreasury;

@@ -1,4 +1,3 @@
-import { Bean } from "../simulation/Bean";
 import React, { ReactElement, useState } from "react";
 import { BeliefsAll, IBeliefData, SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { BeliefWidget } from "./BeliefRow";

@@ -351,15 +351,15 @@ export class CityBook {
             return this.db.get.get(key);
         return undefined;
     }
-    public getRandomBuildingOfType(buildingType: BuildingTypes): IBuilding|undefined{
+    public getRandomBuildingOfType(seed: string, buildingType: BuildingTypes): IBuilding|undefined{
         const keysOfType: number[] = this.yellow.get.get(buildingType) || [];
-        const r = GetRandom(keysOfType);
+        const r = GetRandom(seed, keysOfType);
         return this.db.at(r);
     }
 
-    public getRandomEntertainmentBuilding(): IBuilding|undefined{
+    public getRandomEntertainmentBuilding(seed: string): IBuilding|undefined{
         const keysOfType: number[] = (this.yellow.get.get('park') || []).concat(this.yellow.get.get('nature') || []);
-        const r = GetRandom(keysOfType);
+        const r = GetRandom(seed, keysOfType);
         return this.db.at(r);
     }
 
@@ -430,34 +430,6 @@ export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
 
 export const HexSizePX = 70;
 export const HexSizeR = 120; // rounded sqrt(3) * HexSizePX
-export class Geography{
-    public book: CityBook = new CityBook(new Map());
-
-    addBuilding(building: IBuilding) {
-        this.book.addBuilding(building);
-        return null;
-    }
-    removeBuilding(where: HexPoint, building: IBuilding) {
-        this.book.removeBuilding(building);
-        return null;
-    }
-    getEnterprise(buildingKey: number): IEnterprise|undefined{
-        return undefined;
-    }
-    constructor(){
-        const geo = GenerateGeography();
-        this.numberOfRings = geo.numberOfRings;
-        this.hexes = geo.hexes;
-        this.hex_size = geo.hex_size;
-        this.petriRadius = geo.petriRadius;
-        this.petriOrigin = geo.petriOrigin;
-    }
-    public readonly numberOfRings: number;
-    public readonly hexes: HexPoint[];
-    public readonly hex_size: Point;
-    public readonly petriRadius: number;
-    public readonly petriOrigin: Point;
-}
 
 export function GenerateGeography(){
     const numberOfRings = 5;

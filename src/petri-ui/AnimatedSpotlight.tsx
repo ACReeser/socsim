@@ -1,7 +1,8 @@
 import React from "react";
 import { EventTrigger, IEvent } from "../events/Events";
 import { BeanDeathCause } from "../Game";
-import { Bean, BeanGetFace } from "../simulation/Bean";
+import { IBean } from "../simulation/Agent";
+import { BeanGetFace } from "../simulation/Bean";
 import { transformPoint } from "../simulation/Geography";
 import { Particles } from "../widgets/particles";
 import './spotlight.css';
@@ -124,7 +125,7 @@ const spotlightAnimations: {[key:string]:SpotlightAnimationState[]} = {
 }
 export class AnimatedSpotlight extends React.Component<{
     event: IEvent,
-    bean: Bean,
+    bean: IBean,
 }, SpotlightState>{
     constructor(props: any){
         super(props);

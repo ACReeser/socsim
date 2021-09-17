@@ -1,6 +1,6 @@
 
 import React from "react";
-import { City, ICity } from "../simulation/City";
+import { ICity } from "../simulation/City";
 import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GetRandom } from "../WorldGen";
@@ -13,8 +13,8 @@ const slot_size = {
 export function getSlotOffset(direction: HexPoint){
     return hex_to_pixel(slot_size, origin_point, direction);
 }
-export function getRandomSlotOffset(){
-    return getSlotOffset(GetRandom(hex_directions));
+export function getRandomSlotOffset(seed: string){
+    return getSlotOffset(GetRandom(seed, hex_directions));
 }
 function hexToTransform(direction: HexPoint){
     return transformPoint(getSlotOffset(direction))

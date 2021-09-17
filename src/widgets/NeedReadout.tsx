@@ -1,5 +1,4 @@
 import React from "react";
-import { Bean } from "../simulation/Bean";
 import { Trait } from "../World";
 import { keyToName } from "../i18n/text";
 import { IBean } from "../simulation/Agent";

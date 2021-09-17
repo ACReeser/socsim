@@ -1,5 +1,4 @@
 import React, { ChangeEvent } from "react";
-import { City } from "../simulation/City";
 
 export interface DropdownPS<T>{
     options: Array<T&{key: any}>,
@@ -43,10 +42,5 @@ export abstract class Dropdown<T> extends React.Component<DropdownPS<T>, Dropdow
     }
     protected getTitleForOption(data: T): string|undefined{
         return undefined;
-    }
-}
-export class CityDropdown extends Dropdown<City>{
-    getTextForOption(data: City): string{
-        return data.name;
     }
 }

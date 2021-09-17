@@ -1,7 +1,7 @@
 import React from "react";
 import { AnimatedBean } from "../petri-ui/AnimatedBean";
 import { SocialBuildings } from "../petri-ui/Buildings";
-import { Bean } from "../simulation/Bean";
+import { IBean } from "../simulation/Agent";
 import { ICity } from "../simulation/City";
 import { IBuilding } from "../simulation/Geography";
 import { doSelectBean } from "../state/features/selected.reducer";
@@ -11,7 +11,7 @@ import "./SocialGraph.css";
 
 interface SocialGraphP{
     city: ICity,
-    onClick: (b: Bean) => void;
+    onClick: (b: IBean) => void;
     onClickBuilding: (b: IBuilding) => void;
 }
 
