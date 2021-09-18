@@ -16,6 +16,7 @@ import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseCharge, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
+import { GetSeedName } from '../../simulation/SeedGen'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
@@ -42,8 +43,9 @@ export const worldSlice = createSlice({
       worldTick: state => {
         simulate_world(state);
       },
-      newGame: state => {
+      newGame: (state, action: PayloadAction<{seed: string}>) => {
         const city = state.cities.byID[0];
+        state.seed = action.payload.seed;
         city.name = GetRandomCityName(state.seed);
         GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
         GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);

@@ -35,7 +35,7 @@ export interface IWorldState {
   seed: string
 }
 
-export function GetBlankWorldState(): IWorldState{
+export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
   return {
     buildings: CreateEmptyEntitySlice<IBuilding>(),
     enterprises: CreateEmptyEntitySlice<IEnterprise>(),
@@ -88,6 +88,6 @@ export function GetBlankWorldState(): IWorldState{
     },
     spotlightEvent: undefined,
     saveSlot: 1,
-    seed: 'abcdef'
+    seed: seed
   }
 }

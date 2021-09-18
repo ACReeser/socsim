@@ -1,14 +1,17 @@
 import React from 'react';
 import { EmoteIcon } from '../World';
 
-export const GreetingPanel: React.FC = (props) => {
+export const GreetingPanel: React.FC<{
+    seed: string,
+    changeSeed: (s: string) => void
+}> = (props) => {
     return <div>
         <div className="col-2">
             <div>
                 <h3>Welcome to the</h3>
                 <h2>👽 Alien 🌍 Utopia 🔬 Laboratory</h2>
                 <div>
-                    Thank you for joining the <select><option>Human</option></select> Cultivation Division of the <strong>🌌 Galactic Xenosensation Federation!</strong> Your interdimensional petri dish is ready for farming.
+                    Thank you for joining the <select><option>Human</option></select> Cultivation Division of the <strong>🌌 Galactic Xenosensation Federation!</strong> Interdimensional petri dish #<input type="text" value={props.seed} onChange={(e) => props.changeSeed(e.currentTarget.value)} maxLength={19} style={{width:'115px', fontFamily:'monospace', fontSize:'11px'}} /> is ready for farming.
                 </div>
                 <p>
                     As a <select><option>Human Emotion Farmer</option></select>, you are required to execute the following duties:

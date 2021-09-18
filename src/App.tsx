@@ -24,6 +24,7 @@ import { MarketPanel } from './right-panel/MarketPanel';
 import { SignalStoreInstance } from './SignalStore';
 import { Point } from './simulation/Geography';
 import { MoverStore } from './simulation/MoverBus';
+import { GetSeedName } from './simulation/SeedGen';
 import { animate_beans, animate_pickups, animate_ufos } from './simulation/WorldSim';
 import { doSelectBean, doSelectBuilding, doSelectNone } from './state/features/selected.reducer';
 import { cheatAdd, loadGame, newGame, worldTick } from './state/features/world.reducer';
@@ -48,6 +49,7 @@ interface AppState {
   timeScale: number;
   spotlightEvent: IEvent | undefined;
   cursor?: Point;
+  newGameSeed: string;
 }
 export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
 export const MoverContext = React.createContext<MoverStore>(MoverStoreInstance);
@@ -65,7 +67,8 @@ class App extends React.Component<AppPs, AppState>{
       activeModal: 'mainmenu',
       activeRightPanel: 'overview',
       timeScale: 0,
-      spotlightEvent: undefined
+      spotlightEvent: undefined,
+      newGameSeed: GetSeedName()
     };
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
@@ -127,7 +130,7 @@ class App extends React.Component<AppPs, AppState>{
       }
     } else if (event.key === 'Escape') {
       if (this.state.activeModal === 'greeting')
-        store.dispatch(newGame())
+        store.dispatch(newGame({seed: this.state.newGameSeed}))
       this.setState({activeModal: null});
     } else if (this.cheatMode && event.key === 'A') {
       store.dispatch(cheatAdd())
@@ -240,24 +243,24 @@ class App extends React.Component<AppPs, AppState>{
             </Modal>
             <Modal show={this.state.activeModal == 'loadgame'} onClick={() => {
               this.setState({ activeModal: null });
-              store.dispatch(newGame());
+              store.dispatch(newGame({seed: this.state.newGameSeed}));
               }
             }>
               <LoadGameMenu></LoadGameMenu>
             </Modal>
             <Modal show={this.state.activeModal == 'escapemenu'} onClick={() => {
               this.setState({ activeModal: null });
-              store.dispatch(newGame());
+              store.dispatch(newGame({seed: this.state.newGameSeed}));
               }
             }>
               <EscapeMenu></EscapeMenu>
             </Modal>
             <Modal show={this.state.activeModal == 'greeting'} onClick={() => {
               this.setState({ activeModal: null });
-              store.dispatch(newGame());
+              store.dispatch(newGame({seed: this.state.newGameSeed}));
               }
             }>
-              <GreetingPanel></GreetingPanel>
+              <GreetingPanel seed={this.state.newGameSeed} changeSeed={(s) => this.setState({newGameSeed: s})}></GreetingPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'gov'} onClick={() => this.setState({ activeModal: null })}>
               <GovernmentPanel></GovernmentPanel>
