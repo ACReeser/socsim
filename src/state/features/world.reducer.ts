@@ -70,6 +70,17 @@ export const worldSlice = createSlice({
         const cost: PlayerResources = state.alien.difficulty.cost.emptyHex.build[action.payload.what];
         if (PlayerTryPurchase(state.alien, cost)) {
           GenerateIBuilding(state, state.cities.byID[action.payload.city], action.payload.what, action.payload.where, state.economy);
+          switch(action.payload.what){
+            case 'farm':
+              WorldSfxInstance.play('moo');
+              break;
+            case 'hospital':
+              WorldSfxInstance.play('pills');
+              break;
+            case 'house':
+              WorldSfxInstance.play('door');
+              break;
+          }
         }
       },
       changeEnterprise: (state, action: PayloadAction<{enterpriseKey: number, newType: EnterpriseType}>) => {

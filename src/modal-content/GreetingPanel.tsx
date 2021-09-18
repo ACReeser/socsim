@@ -11,7 +11,7 @@ export const GreetingPanel: React.FC<{
                 <h3>Welcome to the</h3>
                 <h2>👽 Alien 🌍 Utopia 🔬 Laboratory</h2>
                 <div>
-                    Thank you for joining the <select><option>Human</option></select> Cultivation Division of the <strong>🌌 Galactic Xenosensation Federation!</strong> Interdimensional petri dish #<input type="text" value={props.seed} onChange={(e) => props.changeSeed(e.currentTarget.value)} maxLength={19} style={{width:'115px', fontFamily:'monospace', fontSize:'11px'}} /> is ready for farming.
+                    Thank you for joining the <select><option>Human</option></select> Cultivation Division of the <strong>🌌&nbsp;Galactic Xenosensation Federation!</strong> Interdimensional petri dish <span style={{whiteSpace:'nowrap'}}>#<input type="text" value={props.seed} onChange={(e) => props.changeSeed(e.currentTarget.value)} maxLength={19} style={{width:'115px', fontFamily:'monospace', fontSize:'11px'}} /></span> is ready for farming.
                 </div>
                 <p>
                     As a <select><option>Human Emotion Farmer</option></select>, you are required to execute the following duties:

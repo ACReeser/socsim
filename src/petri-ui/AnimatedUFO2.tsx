@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UFO } from "../simulation/City";
 import { hex_to_pixel, origin_point, transformPoint } from "../simulation/Geography";
 import { useAppSelector } from "../state/hooks";
+import { WorldSfxInstance } from "../WorldSound";
 
 
 export const AnimatedUFO2:  React.FC<{
@@ -11,12 +12,15 @@ export const AnimatedUFO2:  React.FC<{
     const [showBeam, setShowBeam] = useState(false);
     const city = useAppSelector(state => state.world.cities.byID[props.cityKey]);
     const ufo = useAppSelector(state => state.world.ufos.byID[props.ufoKey]);
-    setTimeout(() => {
-        setShowBeam(true);
+    useEffect(() => {
         setTimeout(() => {
-            setShowBeam(false)
+            setShowBeam(true);
+            WorldSfxInstance.play('teleport');
+            setTimeout(() => {
+                setShowBeam(false)
+            }, 1800);
         }, 1800);
-    }, 1800);
+    }, []);
     let style = {
         ...transformPoint(hex_to_pixel(city.hex_size, city.petriOrigin, ufo.point))
     };
