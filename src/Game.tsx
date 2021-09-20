@@ -163,14 +163,14 @@ export const DefaultDifficulty: IDifficulty = {
     bean_life: {
         vital_thresh: {
             'food': {warning: 0.6, sufficient: 1, abundant: 3},
-            'shelter': {warning: 0.6, sufficient: 1, abundant: 7},
+            'shelter': {warning: 2, sufficient: 3, abundant: 7},
             'medicine': {warning: 0.6, sufficient: 1, abundant: 3},
             'fun': {warning: 0.1, sufficient: 1, abundant: 3},
         },
         degrade_per_tick: {
             food: 1/(TicksPerDay*3),
             health: 1/(TicksPerDay*5),
-            stamina: 1,
+            stamina: 1/TicksPerDay,
             fun: 1/(TicksPerDay*5)
         },
         penalty: {

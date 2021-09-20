@@ -394,12 +394,20 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
 }|undefined{
     if (intent.act === 'buy' && intent.good != null){
         const desiredGoodState = EconomyCanBuy(world.economy, world.law, bean, intent.good);
-        if (desiredGoodState != 'yes' && intent.good === 'fun') //if you can't buy happiness, go somewhere to relax
-            intent.act = 'relax'; //relaxing is free!
-        else if (desiredGoodState === 'pricedout') {
+        if (desiredGoodState != 'yes' && intent.good === 'fun'){ //if you can't buy happiness, go somewhere to relax{
+            return {
+                intent: {
+                    act: 'relax'
+                }
+            }
+        } else if (desiredGoodState === 'pricedout') {
             if ((intent.good == 'food' || intent.good == 'medicine') && BeanMaybeCrime(bean, intent.good)){
-                intent.act = 'crime';
-                intent.crimeGood = intent.good;
+                return {
+                    intent: {
+                        act: 'crime',
+                        crimeGood: intent.good
+                    }
+                }
             } else {
                 const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
                 if (isPhysical){
@@ -417,7 +425,12 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
             }
             return undefined; //don't travel to buy something that doesn't exist
         }
-        intent.buyAttempts = 0;
+        return {
+            intent: {
+                ...intent,
+                buyAttempts: 0
+            }
+        }
     }
     return {
         intent: intent
@@ -480,14 +493,14 @@ export const GetPriority = {
             StatsNormalDev * 6 * Math.min(1, difficulty.bean_life.vital_thresh.food.warning / bean.discrete_food)
         ));
     },
-    medicine:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
-        return SampleNormalDistribution(seed, StatsNormalMean + (
-            StatsNormalDev * 2 * Math.min(1, difficulty.bean_life.vital_thresh.medicine.warning / bean.discrete_health)
-        ));
-    },
     stamina: function(bean: IBean, seed: string, difficulty: IDifficulty): number{
         return SampleNormalDistribution(seed, StatsNormalMean + (
             StatsNormalDev * 4 * Math.min(1, difficulty.bean_life.vital_thresh.shelter.warning / bean.discrete_stamina)
+        ));
+    },
+    medicine:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        return SampleNormalDistribution(seed, StatsNormalMean + (
+            StatsNormalDev * 2 * Math.min(1, difficulty.bean_life.vital_thresh.medicine.warning / bean.discrete_health)
         ));
     },
     fun:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
@@ -505,7 +518,7 @@ export function GetPriorities(bean: IBean, seed: string, city: ICity, difficulty
         {act: 'buy', good: 'medicine', priority: GetPriority.medicine(bean, seed, difficulty)} as IPrioritizedActivityData,
         {act: 'buy', good: 'fun', priority: GetPriority.fun(bean, seed, difficulty)} as IPrioritizedActivityData,
     ];
-    priors.sort((a, b) => a.priority - b.priority);
+    priors.sort((a, b) => b.priority - a.priority);
     return priors;
 }
 
