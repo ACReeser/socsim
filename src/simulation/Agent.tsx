@@ -38,6 +38,10 @@ export interface IActivityData {
     buyReceipt?: IMarketReceipt
 }
 
+export interface IPrioritizedActivityData extends IActivityData{
+    priority: number;
+}
+
 export interface IChatData{
     participation: 'speaker'|'listener';
     type: 'praise'|'bully'|'preach'|'gift';
@@ -56,6 +60,7 @@ export interface IBeanAgent{
     key: number;
     action: Act;
     actionData: IActivityData;
+    priorities: IPrioritizedActivityData[]
 }
 export interface StateFunctions {
     enter: (agent: IBean) => AnyAction|undefined;
@@ -272,14 +277,14 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             if (elapsed < 200)
                 return {};
             
-            const priorities = GetPriorities(agent, world.seed, world.cities.byID[agent.cityKey], world.alien.difficulty);
-            let top = priorities.dequeue();
+            const priorities = agent.priorities.slice(0);
+            let top: IPrioritizedActivityData|undefined = priorities[0];
             let travelState: IActivityData|undefined = undefined;
             let sideEffect: AnyAction|undefined = undefined;
 
             //loop through possible destinations
             while (top && travelState == null){
-                const substitute = SubstituteIntent(agent, world, top.value);
+                const substitute = SubstituteIntent(agent, world, top);
                 if (substitute?.intent){
                     travelState = CreateTravelFromIntent(agent, world.cities.byID[agent.cityKey], substitute.intent, world);
                     if (travelState != null)
@@ -290,7 +295,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 } else if (substitute?.sideEffect){
                     sideEffect = substitute.sideEffect;
                 }
-                top = priorities.dequeue();
+                top = priorities.shift();
             }
             return {
                 action: sideEffect
@@ -492,15 +497,16 @@ export const GetPriority = {
     }
 }
 
-export function GetPriorities(bean: IBean, seed: string, city: ICity, difficulty: IDifficulty): IPriorityQueue<IActivityData>{
-    const queue = new DumbPriorityQueue<IActivityData>([
-        new PriorityNode<IActivityData>({act: 'work', good: JobToGood(bean.job)} as IActivityData, GetPriority.work(bean, seed, city)),
-        new PriorityNode<IActivityData>({act: 'buy', good: 'shelter'} as IActivityData, GetPriority.stamina(bean, seed, difficulty)),
-        new PriorityNode<IActivityData>({act: 'buy', good: 'food'} as IActivityData, GetPriority.food(bean, seed, difficulty)),
-        new PriorityNode<IActivityData>({act: 'buy', good: 'medicine'} as IActivityData, GetPriority.medicine(bean, seed, difficulty)),
-        new PriorityNode<IActivityData>({act: 'buy', good: 'fun'} as IActivityData, GetPriority.fun(bean, seed, difficulty)),
-    ]);
-    return queue;
+export function GetPriorities(bean: IBean, seed: string, city: ICity, difficulty: IDifficulty): IPrioritizedActivityData[]{
+    const priors: IPrioritizedActivityData[] = [
+        {act: 'work', good: JobToGood(bean.job), priority: GetPriority.work(bean, seed, city)} as IPrioritizedActivityData,
+        {act: 'buy', good: 'shelter', priority: GetPriority.stamina(bean, seed, difficulty)} as IPrioritizedActivityData,
+        {act: 'buy', good: 'food', priority: GetPriority.food(bean, seed, difficulty)} as IPrioritizedActivityData,
+        {act: 'buy', good: 'medicine', priority: GetPriority.medicine(bean, seed, difficulty)} as IPrioritizedActivityData,
+        {act: 'buy', good: 'fun', priority: GetPriority.fun(bean, seed, difficulty)} as IPrioritizedActivityData,
+    ];
+    priors.sort((a, b) => a.priority - b.priority);
+    return priors;
 }
 
 export function ActivityIcon(data: IActivityData): string{

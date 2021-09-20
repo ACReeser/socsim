@@ -2,7 +2,7 @@ import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
 import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
-import { Act, IActivityData, IBean } from '../../simulation/Agent'
+import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
@@ -123,6 +123,7 @@ export const worldSlice = createSlice({
       remove_ufo: (state, action: PayloadAction<{ufoKey: number}>) => {
         const ufo = state.ufos.byID[action.payload.ufoKey];
         const newBean = GenerateBean(state, state.cities.byID[0], undefined, ufo.point);
+        newBean.priorities = GetPriorities(newBean, state.seed, state.cities.byID[newBean.cityKey], state.alien.difficulty);
         delete state.ufos.byID[action.payload.ufoKey];
         state.ufos.allIDs = state.ufos.allIDs.filter(x => x != action.payload.ufoKey);
         state.cities.byID[ufo.cityKey].ufoKeys = state.cities.byID[ufo.cityKey].ufoKeys.filter(x => x != action.payload.ufoKey);
@@ -263,6 +264,9 @@ export const worldSlice = createSlice({
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
         if (oldAct === 'chat')
           bean.lastChatMS = Date.now();
+        if (action.payload.newState.act === 'idle'){
+          bean.priorities = GetPriorities(bean, state.seed, state.cities.byID[bean.cityKey], state.alien.difficulty);
+        }
         bean.activity_duration[oldAct] += ADS.elapsed;
         bean.action = action.payload.newState.act;
         bean.actionData = action.payload.newState;

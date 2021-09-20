@@ -150,6 +150,7 @@ export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: 
         beliefs: [],
         lifecycle: 'alive',
         hedonHistory: [{}, {}, {}, {}, {}],
+        priorities: [],
         job: 'jobless',
         happiness: { flatAverage: 0,all: {}, maxSource: '', minSource: '', weightedAverage: 0},
         lastHappiness: 0,
