@@ -213,8 +213,11 @@ class App extends React.Component<AppPs, AppState>{
                   store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }));
                 }} ></SocialGraph>
             </div> : <TransformWrapper
-              defaultScale={1}
-              wheel={{ step: 48 }}>
+              minScale={.65}
+              centerZoomedOut={true}
+              centerOnInit={true}
+              limitToBounds={true}
+              wheel={{ step: 0.05 }}>
               <TransformComponent>
                 <div className="world">
                   {

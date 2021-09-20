@@ -412,7 +412,7 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
                 const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
                 if (isPhysical){
                     return {
-                        sideEffect: beanEmote({beanKey: bean.key, emote: 'unhappiness', source: 'Poverty'})
+                        sideEffect: beanEmote({beanKey: bean.key, emote: 'unhappiness', source: GoodIcon[intent.good] + ' Poverty'})
                     }
                 }
                 return undefined; //don't travel to buy something that you can't afford
