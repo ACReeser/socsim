@@ -494,6 +494,7 @@ export const worldSlice = createSlice({
         }
         bean.actionData.buyAttempts = (bean.actionData.buyAttempts || 0) + 1;
         if (receipt){
+          WorldSfxInstance.play('cash');
           if (receipt.tax){
             _ifBelievesInMaybeEmote(state, bean, 'Libertarianism', 'unhappiness', LibertarianTaxUnhappyChance);
             _ifBelievesInMaybeEmote(state, bean, 'Progressivism', 'happiness', ProgressivismTaxHappyChance);

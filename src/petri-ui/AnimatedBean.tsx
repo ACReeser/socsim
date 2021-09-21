@@ -14,7 +14,7 @@ interface AnimatedBeanP {
 }
 
 function BeanIsBuying(bean: IBean){
-  return bean.actionData.act == 'buy' && bean.actionData.good != 'shelter';
+  return bean.actionData.act == 'buy';
 }
 
 export const selectBeanAnimation = (state: RootState, beanKey: number) => {

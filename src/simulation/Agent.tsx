@@ -5,6 +5,7 @@ import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
+import { WorldSfxInstance } from "../WorldSound";
 import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
@@ -321,26 +322,28 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         },
         act: (agent: IBean, world: IWorldState, elapsed: number) => {
             if (agent.actionData.buyReceipt){
-                return {
-                    newActivity: {
-                        act: agent.actionData.good === 'shelter' ? 'sleep' : 'idle'
+                if (elapsed > 750)
+                    return {
+                        newActivity: {
+                            act: agent.actionData.good === 'shelter' ? 'sleep' : 'idle'
+                        }
+                    }
+            } else {
+                if (elapsed > TransactMaximumDurationMS){
+                    return {
+                        newActivity: {act:'idle'}
                     }
                 }
-            }
-            if (elapsed > TransactMaximumDurationMS){
-                return {
-                    newActivity: {act:'idle'}
+                if ((agent.actionData.buyAttempts || 0) >= 3){
+                    return {
+                        newActivity: {act:'idle'}
+                    }
                 }
-            }
-            if ((agent.actionData.buyAttempts || 0) >= 3){
-                return {
-                    newActivity: {act:'idle'}
+                if (elapsed > 100 && agent.actionData.good){
+                    return {
+                        action: beanBuy({beanKey: agent.key, good: agent.actionData.good})
+                    };
                 }
-            }
-            if (elapsed > 250 && agent.actionData.good){
-                return {
-                    action: beanBuy({beanKey: agent.key, good: agent.actionData.good})
-                };
             }
             return {};
         },
