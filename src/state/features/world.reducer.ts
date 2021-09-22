@@ -7,7 +7,7 @@ import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstan
 import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
-import { BuildingUnsetJob } from '../../simulation/City'
+import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
@@ -88,14 +88,7 @@ export const worldSlice = createSlice({
       },
       fireBean: (state, action: PayloadAction<{cityKey: number, beanKey: number}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
-        if (bean.employerEnterpriseKey){
-          const building = state.buildings.byID[bean.employerEnterpriseKey];
-          const enterprise = state.enterprises.byID[bean.employerEnterpriseKey];
-          if (enterprise.ownerBeanKey == bean.key){
-            enterprise.ownerBeanKey = building.jobs.find(x => x != bean.key);
-          }
-          BuildingUnsetJob(building, bean);
-        }
+        BeanLoseJob(bean, state);
       },
       upgrade: (state, action: PayloadAction<{buildingKey: number}>) => {
         const cost = state.alien.difficulty.cost.hex.upgrade;

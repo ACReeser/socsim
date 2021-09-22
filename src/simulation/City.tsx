@@ -67,6 +67,21 @@ export interface ICity{
 export function CalculateCityComputed(city: ICity, economy: IEconomy){
     city.costOfLiving = GetCostOfLiving(economy);
 }
+/**
+ * SIDE-EFFECTS
+ * @param bean 
+ * @param world 
+ */
+export function BeanLoseJob(bean: IBean, world: IWorldState){
+    if (bean.employerEnterpriseKey){
+        const building = world.buildings.byID[bean.employerEnterpriseKey];
+        const enterprise = world.enterprises.byID[bean.employerEnterpriseKey];
+        if (enterprise.ownerBeanKey == bean.key){
+            enterprise.ownerBeanKey = building.jobs.find(x => x != bean.key);
+        }
+        BuildingUnsetJob(building, bean);
+    }
+}
 export function BuildingUnsetJob(building: IBuilding, bean: IBean){
     if (bean.job === 'jobless') return;
     if (BuildingTryFreeBean(building, bean.key)){

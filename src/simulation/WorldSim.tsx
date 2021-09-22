@@ -13,7 +13,7 @@ import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs, BeanEmote } from "./Bean";
 import { BeanTryFindJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
-import { CalculateCityComputed } from "./City";
+import { BeanLoseJob, CalculateCityComputed } from "./City";
 import { GetCostOfLiving } from "./Economy";
 import { accelerate_towards, accelerator_coast, OriginAccelerator } from "./Geography";
 import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
@@ -82,6 +82,8 @@ export function simulate_world(world: IWorldState){
         }
         if (ageResult?.death){
             EntityAddToSlice(world.events, ageResult.death);
+            BeanLoseJob(b, world);
+            WorldSfxInstance.play('death');
         }
         // todo: on bean death
         const e = BeanMaybeBaby(b, world.seed, CoL);
