@@ -6,7 +6,7 @@ import './chrome/chrome.css';
 import { IEvent } from './events/Events';
 import { GameStorageInstance, isGame } from './GameStorage';
 import { BrainwashingContent } from './modal-content/Brainwashing';
-import { CampaignsPanel } from './modal-content/Campaigns';
+import { SocietyPanel } from './modal-content/Society';
 import { EconomyReport } from './modal-content/EconomyReport';
 import { EscapeMenu } from './modal-content/EscapeMenu';
 import { GovernmentPanel } from './modal-content/Gov';
@@ -39,7 +39,7 @@ import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { WorldSfxInstance, WorldSound } from './WorldSound';
 
-export type ModalView = 'mainmenu'|'loadgame'|'escapemenu'|'greeting' | 'economy' | 'campaign' | 'gov' | 'polisci' | 'brainwash' | 'traits';
+export type ModalView = 'mainmenu'|'loadgame'|'escapemenu'|'greeting' | 'economy' | 'society' | 'gov' | 'polisci' | 'brainwash' | 'traits';
 interface AppPs {
 }
 interface AppState {
@@ -216,7 +216,9 @@ class App extends React.Component<AppPs, AppState>{
               minScale={.65}
               centerZoomedOut={true}
               centerOnInit={true}
-              limitToBounds={true}
+              initialPositionX={5000}
+              limitToBounds={false}
+              alignmentAnimation={{disabled:true}}
               wheel={{ step: 0.05 }}>
               <TransformComponent>
                 <div className="world">
@@ -271,8 +273,8 @@ class App extends React.Component<AppPs, AppState>{
             <Modal show={this.state.activeModal == 'polisci'} onClick={() => this.setState({ activeModal: null })}>
               <ResearchPanel></ResearchPanel>
             </Modal>
-            <Modal show={this.state.activeModal == 'campaign'} onClick={() => this.setState({ activeModal: null })}>
-              <CampaignsPanel></CampaignsPanel>
+            <Modal show={this.state.activeModal == 'society'} onClick={() => this.setState({ activeModal: null })}>
+              <SocietyPanel></SocietyPanel>
             </Modal>
             <Modal show={this.state.activeModal == 'economy'} onClick={() => this.setState({ activeModal: null })}>
               {(this.state.activeModal == 'economy' ? <EconomyReport></EconomyReport> : '')}
@@ -316,7 +318,7 @@ class App extends React.Component<AppPs, AppState>{
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'economy' })}>📊 State of the Utopia</button>
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'gov' })}>🗳️ Gov</button>
                   <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'polisci' })}>🧪 Research</button>
-                  
+                  <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'society' })}>👑 Society</button>
                   <BubbleSeenTraitsText changeEvent={SignalStoreInstance.newTraitSeen} icon="🧠">
                     <button type="button" className="callout" onClick={() => this.setState({ activeModal: 'traits' })}>🧠 Traits</button>
                   </BubbleSeenTraitsText>
