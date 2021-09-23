@@ -48,9 +48,9 @@ export const worldSlice = createSlice({
         state.seed = action.payload.seed;
         city.name = GetRandomCityName(state.seed);
         GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
+        // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
+        // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);
+        // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
       },
       loadGame: (state, action:PayloadAction<{newState: IWorldState}>) => {
         action.payload.newState.beans.allIDs.map(k => {

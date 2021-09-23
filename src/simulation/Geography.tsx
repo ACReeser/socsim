@@ -192,16 +192,26 @@ export const layout_flat: Orientation = new Orientation(
     Math.sqrt(3.0) / 3.0,
     0.0
 );
+export const layout_pointy: Orientation = new Orientation(
+    Math.sqrt(3.0), 
+    Math.sqrt(3.0) / 2.0, 
+    0.0, 3.0 / 2.0,       
+    Math.sqrt(3.0) / 3.0, 
+    -1.0 / 3.0, 
+    0.0, 
+    2.0 / 3.0,
+    0.5
+);
 export const origin_point: Point = {x: 0, y: 0};
 export const hex_origin: HexPoint = {q: 0, r: 0};
 export function hex_to_pixel(size: Point, origin: Point, h: HexPoint): Point {
-    const M: Orientation = layout_flat;
+    const M: Orientation = layout_pointy;
     const x = (M.f0 * h.q + M.f1 * h.r) * size.x;
     const y = (M.f2 * h.q + M.f3 * h.r) * size.y;
     return {x: x + origin.x, y: y + origin.y};
 }
 export function pixel_to_hex(size: Point, origin: Point, p: Point) {
-    const M = layout_flat;
+    const M = layout_pointy;
     const pt = {x: (p.x - origin.x) / size.x,
                 y: (p.y - origin.y) / size.y
             };
@@ -428,11 +438,10 @@ export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
     'courthouse': 'polit'
 };
 
-export const HexSizePX = 70;
-export const HexSizeR = 120; // rounded sqrt(3) * HexSizePX
+export const HexSizePX = 150;
+export const HexSizeR = 260; // rounded sqrt(3) * HexSizePX
 
-export function GenerateGeography(){
-    const numberOfRings = 5;
+export function GenerateGeography(numberOfRings: number = 3){
     const radius = ((numberOfRings - 0.5) * HexSizeR) + numberOfRings;
     return {
         numberOfRings: numberOfRings,

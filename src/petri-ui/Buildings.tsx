@@ -19,8 +19,9 @@ export const HexPetriBuilding2: React.FC<{
     const building = useAppSelector(state => selectCityBuildingByHex(state.world, props.cityKey, `${props.hex.q},${props.hex.r}`));
     const city = useAppSelector(state => selectCity(state.world, props.cityKey));
     if (building)
-        return <PetriBuilding city={city} building={building}></PetriBuilding>
-    else return null;
+        return <PetriBuilding city={city} building={building}>{props.children}</PetriBuilding>
+    else if (props.children) return <span>{props.children}</span>;
+    return null
 }
 
 export const PetriHex: React.FC<{
@@ -60,7 +61,7 @@ export const PetriHexes2: React.FC<{
         const hexStr = hex.q+','+hex.r;
         const buildingKey: number|undefined = city.buildingMap[hexStr];
         return <PetriHex i={i} hex={hex} xy={xy} hexString={hexStr} cityKey={props.cityKey} buildingKey={buildingKey} key={hexStr}>
-            <HexPetriBuilding2 cityKey={props.cityKey} hex={hex}></HexPetriBuilding2>
+            <HexPetriBuilding2 cityKey={props.cityKey} hex={hex}><span className="tile-label">{hexStr}</span></HexPetriBuilding2>
         </PetriHex>
     })}</>
 }

@@ -35,7 +35,7 @@ export const PetriBuilding: React.FC<{
     // const buildingHex = props.building.address;
     // const p = hex_to_pixel(props.city.hex_size, props.city.petriOrigin, buildingHex);
     const sty = {}; //transformPoint(p);
-    return <UIBuilding building={props.building} style={sty} cityName={props.city.name} getStyle={hexToTransform}></UIBuilding>;
+    return <UIBuilding building={props.building} style={sty} cityName={props.city.name} getStyle={hexToTransform}>{props.children}</UIBuilding>;
 }
 
 export const UIBuilding: React.FC<{
@@ -49,7 +49,7 @@ export const UIBuilding: React.FC<{
     className={"building "+props.building.type}>
     {props.building.upgraded ? UpgradedBuildingIcon[props.building.type] : BuildingIcon[props.building.type]}
     <UIBuildingSlots building={props.building} getStyle={props.getStyle}></UIBuildingSlots>
-    {props.building.type === 'courthouse' ? <span className="tile-label">{props.cityName}</span> : null}
+    {props.building.type === 'courthouse' ? <span className="tile-label">{props.cityName}</span> : props.children}
     </div>
 }
 export const UIBuildingSlots: React.FC<{

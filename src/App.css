@@ -299,8 +299,8 @@ button.pull-r{
   position: relative;
 }
 .tile .hex{
-  border: 1px solid rgba(200, 200, 200, .1);
-  border-radius: 100px;
+  border: 1px solid rgba(200, 200, 200, .5);
+  border-radius: 100%;
   position: absolute;
 }
 .tile .hex.hex-selected{
