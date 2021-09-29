@@ -21,7 +21,7 @@ import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
-import { GenerateBean, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
+import { GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
@@ -47,6 +47,9 @@ export const worldSlice = createSlice({
         const city = state.cities.byID[0];
         state.seed = action.payload.seed;
         city.name = GetRandomCityName(state.seed);
+        const dls = GenerateDistrictsAndLots(city);
+        state.districts = dls.ds;
+        state.lots = dls.lots;
         GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);

@@ -3,7 +3,7 @@ import { DefaultDifficulty } from '../../Game'
 import { IBean } from '../../simulation/Agent'
 import { ICity } from '../../simulation/City'
 import { IEconomy } from '../../simulation/Economy'
-import { GenerateGeography, IBuilding } from '../../simulation/Geography'
+import { GenerateGeography, IBuilding, IDistrict, ILot } from '../../simulation/Geography'
 import { IGovernment, ILaw, LawAxis } from '../../simulation/Government'
 import { IEnterprise } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
@@ -22,6 +22,8 @@ export interface IWorldState {
   ufos: IEntitySlice<IUFO>,
   events: IEntitySlice<IEvent>,
   pickups: IEntitySlice<IPickup>,
+  districts: IEntitySlice<IDistrict>,
+  lots: IEntitySlice<ILot>,
   economy: IEconomy,
   law: IGovernment,
   marketTraitsForSale: MarketTraitListing[],
@@ -46,6 +48,8 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     ufos: CreateEmptyEntitySlice<IUFO>(),
     events: CreateEmptyEntitySlice<IEvent>(),
     pickups: CreateEmptyEntitySlice<IPickup>(),
+    lots: CreateEmptyEntitySlice<ILot>(),
+    districts: CreateEmptyEntitySlice<IDistrict>(),
     economy: {
       unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
       monthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },

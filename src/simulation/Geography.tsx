@@ -9,6 +9,19 @@ export interface HexPoint{
     q: number;
     r: number;
 }
+export interface IDistrict extends HexPoint{
+    key: number,
+    hexString: string,
+    point: Point,
+    kind: 'fallow'|'rural'|'urban',
+    lots: number[]
+}
+export interface ILot{
+    key: number,
+    point: Point,
+    buildingKey?: number,
+    kind: 'rural'|'urban',
+}
 export class Hex implements HexPoint{
     constructor(public q: number, public r: number){}
 }
@@ -438,16 +451,21 @@ export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
     'courthouse': 'polit'
 };
 
+//district sized hexes
 export const HexSizePX = 150;
 export const HexSizeR = 260; // rounded sqrt(3) * HexSizePX
+export const DistrictHexSize = {x: HexSizePX, y: HexSizePX};
 
 export function GenerateGeography(numberOfRings: number = 3){
-    const radius = ((numberOfRings - 0.5) * HexSizeR) + numberOfRings;
+    const radius = ((numberOfRings - 0.5) * HexSizeR);
     return {
         numberOfRings: numberOfRings,
         hexes: hex_spiral({q:0, r:0}, numberOfRings),
-        hex_size: {x: HexSizePX, y: HexSizePX},
+        hex_size: {...DistrictHexSize},
         petriRadius: radius,
         petriOrigin: {x: radius, y: radius}
     }
 }
+
+export const LotHexSizePX = 50;
+export const LotHexSizeR = 86; // rounded sqrt(3) * LotHexSizePX

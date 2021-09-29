@@ -59,6 +59,7 @@ export interface ICity{
     buildingKeys: number[],
     pickupMagnetPoint: Point|undefined,
     hexes: HexPoint[],
+    districtKeys: number[],
     buildingMap: {[hexKey: string]: number},
     pickupKeys: number[],
     costOfLiving: number
