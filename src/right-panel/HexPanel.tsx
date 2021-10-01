@@ -10,7 +10,7 @@ import { BuildingOpenSlots, BuildingUsedSlots } from "../simulation/RealEstate";
 import { useSelector } from "react-redux";
 import { RootState, selectSelectedBuilding, selectSelectedCity } from "../state/state";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
-import { beam, build, changeEnterprise, fireBean, selectCity, upgrade } from "../state/features/world.reducer";
+import { beam, build, changeEnterprise, fireBean, selectCity, upgrade, upgradeDistrict } from "../state/features/world.reducer";
 import { doSelectCity, doSelectDistrict, doSelectNone } from "../state/features/selected.reducer";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GoodIcon, TraitGood } from "../World";
@@ -38,7 +38,7 @@ export const BuildPanel: React.FC<{
     const targetLot = props.selectedLotKey ?? districtLots.find(z => z.buildingKey == null)?.key;
     const dispatch = useAppDispatch();
     const eHex = props.difficulty.cost.emptyHex;
-    if (targetLot){
+    if (targetLot != null){
         return <div>
 
         <h3>Build:</h3>
@@ -110,13 +110,25 @@ export const HexPanel: React.FC<{
             <strong>{DistrictTypeIcon[district.kind]} {DistrictTypeText[district.kind]} District</strong> in <strong>{city.name}</strong>
             <button type="button" className="pull-r" onClick={() => dispatch(doSelectCity({cityKey: city.key}))} >❌</button>
         </div>
+        <br/>
+        {
+            district.kind === 'fallow' ? <div><div className="card-parent">
+                <button className="card button" type="button" onClick={
+                    () => dispatch(upgradeDistrict({city: city.key, district: district.key}))}>
+                    🚧 Develop
+                    <CostSmall cost={props.difficulty.cost.hex.fallow_2_rural}></CostSmall>
+                </button>
+            </div></div> : district.kind === 'rural' ? <div><div className="card-parent">
+                <button className="card button" type="button" onClick={
+                    () => dispatch(upgradeDistrict({city: city.key, district: district.key}))}>
+                    🏗️ Urbanize
+                    <CostSmall cost={props.difficulty.cost.hex.rural_2_urban}></CostSmall>
+                </button>
+            </div></div> : null
+        }
 
         <BuildPanel cityKey={city.key} district={district} selectedLotKey={lotKey} difficulty={props.difficulty}></BuildPanel>
 
-        {/* <div>
-            {hex.q}x
-            {hex.r}
-        </div> */}
         <h3>Beings:</h3>
         <BeamButton difficulty={props.difficulty} hex={district} city={city.key}></BeamButton>
     </div>

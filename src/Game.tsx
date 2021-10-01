@@ -5,7 +5,7 @@ import { TicksPerDay } from "./simulation/Time";
 import { IThreshold, TraitGood } from "./World";
 
 export type PlayerEmptyHexAction = 'build';
-export type PlayerHexAction = 'beam'|'upgrade';
+export type PlayerHexAction = 'beam'|'upgrade'|'fallow_2_rural'|'rural_2_urban';
 export type PlayerBeanAction = 'scan'|'abduct'|'vaporize'|'siphon'|'empower'|'gift';
 export type PlayerBeanBrainAction = 'brainwash_ideal'|'brainimplant_secondary'|'brainwash_secondary';
 export type PlayerMarketAction = 'energy'|'bots';
@@ -119,6 +119,12 @@ export const DefaultDifficulty: IDifficulty = {
             upgrade: {
                 energy: 1,
                 bots: 4,
+            },
+            fallow_2_rural: {
+                bots: 1,
+            },
+            rural_2_urban: {
+                bots: 2,
             }
         },
         bean_brain: {

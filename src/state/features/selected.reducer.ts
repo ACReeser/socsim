@@ -33,6 +33,15 @@ export const selectedSlice = createSlice({
             selectedLotKey: undefined
         }
       },
+      doSelectLot: (state, action: PayloadAction<{cityKey: number, district: number, lot: number}>) => {
+        return {
+            selectedCityKey: action.payload.cityKey,
+            selectedBeanKey: undefined,
+            selectedBuildingKey: undefined,
+            selectedDistrictKey: action.payload.district,
+            selectedLotKey: action.payload.lot
+        }
+      },
       doSelectBuilding: (state, action: PayloadAction<{cityKey: number, buildingKey: number}>) => {
         return {
             selectedCityKey: action.payload.cityKey,
@@ -65,4 +74,4 @@ export const selectedSlice = createSlice({
     }
   })
   
-  export const { doSelectDistrict, doSelectNone, doSelectBean, doSelectCity, doSelectBuilding  } = selectedSlice.actions;
+  export const { doSelectDistrict, doSelectNone, doSelectBean, doSelectCity, doSelectBuilding, doSelectLot  } = selectedSlice.actions;

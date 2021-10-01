@@ -21,7 +21,7 @@ import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
-import { GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
+import { DistrictAddLots, GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
@@ -85,6 +85,27 @@ export const worldSlice = createSlice({
             case 'house':
               WorldSfxInstance.play('door');
               break;
+          }
+        }
+      },
+      upgradeDistrict: (state, action: PayloadAction<{city: number, district: number}>) => {
+        const district = state.districts.byID[action.payload.district];
+        if (!district)
+          return;
+        const newKind = district.kind === 'rural' ? 'urban' : 'rural';
+        if (newKind === 'rural'){
+          const cost: PlayerResources = state.alien.difficulty.cost.hex.fallow_2_rural;
+          if (PlayerTryPurchase(state.alien, cost)) {
+            DistrictAddLots(district, state.lots, 'rural');
+            district.kind = 'rural';
+            // WorldSfxInstance.play('moo');
+          }
+        } else {
+          const cost: PlayerResources = state.alien.difficulty.cost.hex.rural_2_urban;
+          if (PlayerTryPurchase(state.alien, cost)) {
+            DistrictAddLots(district, state.lots, 'urban');
+            district.kind = 'urban';
+            // WorldSfxInstance.play('moo');
           }
         }
       },
@@ -537,7 +558,7 @@ export const worldSlice = createSlice({
   
   export const { 
     refreshMarket, magnetChange, worldTick, 
-    remove_ufo,
+    remove_ufo, upgradeDistrict,
     newGame, loadGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,

@@ -161,15 +161,17 @@ const urbanHexes = [{q: 1, r: -1},{q: 1, r: 0},{q: 0, r: 1},{q: -1, r: 1},{q: -1
 const ruralHexes = [{q: 1, r: -1},{q: 0, r: 1},{q: -1, r: 0}];
 export function DistrictAddLots(district: IDistrict, lotSlice: IEntitySlice<ILot>, kind: 'urban'|'rural'){
     const hexes = (kind === 'rural')? ruralHexes : urbanHexes;
-    hexes.forEach(h => {
-        const lot: ILot = {
-            key: 0,
-            kind: kind,
-            districtKey: district.key,
-            point: hex_to_pixel({x: LotHexSizePX, y: LotHexSizePX}, district.point, h)
+    hexes.forEach((h, i) => {
+        if (district.lots[i] == null){
+            const lot: ILot = {
+                key: 0,
+                kind: kind,
+                districtKey: district.key,
+                point: hex_to_pixel({x: LotHexSizePX, y: LotHexSizePX}, district.point, h)
+            }
+            EntityAddToSlice(lotSlice, lot);
+            district.lots.push(lot.key);
         }
-        EntityAddToSlice(lotSlice, lot);
-        district.lots.push(lot.key);
     });
 }
 
