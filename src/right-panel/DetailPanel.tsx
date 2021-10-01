@@ -11,7 +11,8 @@ export const DetailPanel: React.FC<{
     openBrainwash: () => void
 }> = (props) => {
     const city = useAppSelector(selectSelectedCity);
-    const hex = useAppSelector((x) => x.selected.selectedHexKey);
+    const districtKey = useAppSelector((x) => x.selected.selectedDistrictKey);
+    const district = useAppSelector((x) => districtKey != null ? x.world.districts.byID[districtKey]: undefined);
     const bean = useAppSelector(selectSelectedBean);
     const alien = useAppSelector((x) => x.world.alien);
     const dispatch = useAppDispatch();
@@ -20,7 +21,7 @@ export const DetailPanel: React.FC<{
         brainwash={() => props.openBrainwash()}
         ></BeanPanel>
     }
-    if (hex) {
+    if (district) {
         return <HexPanel difficulty={alien.difficulty}></HexPanel>
     }
     if (city) {

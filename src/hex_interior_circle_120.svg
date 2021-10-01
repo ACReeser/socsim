@@ -38,6 +38,12 @@
                 <g transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
                     <path d="M285.25,0L285.251,43.341M300.181,69.173L337.211,89.968L300.181,69.173ZM270.408,69.173L233.288,90.21M285.248,43.317C294.78,43.317 302.519,51.056 302.519,60.588C302.519,70.12 294.78,77.859 285.248,77.859C275.716,77.859 267.977,70.12 267.977,60.588C267.977,51.056 275.716,43.317 285.248,43.317Z" style="fill:none;stroke:black;stroke-width:1px;"/>
                 </g>
+                <g id="circle" transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
+                    <circle cx="285.248" cy="60.588" r="17.271" style="fill:none;stroke:black;stroke-width:1px;"/>
+                </g>
+                <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                    <text x="265.931px" y="77.859px" style="font-family:'SegoeUIEmoji', 'Segoe UI Emoji', sans-serif;font-size:46.631px;">🌳</text>
+                </g>
             </g>
         </g>
     </g>

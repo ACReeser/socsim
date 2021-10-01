@@ -50,7 +50,7 @@ export const worldSlice = createSlice({
         const dls = GenerateDistrictsAndLots(city);
         state.districts = dls.ds;
         state.lots = dls.lots;
-        GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
+        // GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
@@ -69,10 +69,12 @@ export const worldSlice = createSlice({
         })
         return action.payload.newState
       },
-      build: (state, action: PayloadAction<{city: number, where: HexPoint, what: BuildingTypes}>) => {
+      build: (state, action: PayloadAction<{city: number, lot: number, what: BuildingTypes}>) => {
         const cost: PlayerResources = state.alien.difficulty.cost.emptyHex.build[action.payload.what];
         if (PlayerTryPurchase(state.alien, cost)) {
-          GenerateIBuilding(state, state.cities.byID[action.payload.city], action.payload.what, action.payload.where, state.economy);
+          const lot = state.lots.byID[action.payload.lot];
+          const district = state.districts.byID[lot.districtKey];
+          GenerateIBuilding(state, state.cities.byID[action.payload.city], action.payload.what, district, lot.point, lot.key, state.economy);
           switch(action.payload.what){
             case 'farm':
               WorldSfxInstance.play('moo');

@@ -165,6 +165,7 @@ export function DistrictAddLots(district: IDistrict, lotSlice: IEntitySlice<ILot
         const lot: ILot = {
             key: 0,
             kind: kind,
+            districtKey: district.key,
             point: hex_to_pixel({x: LotHexSizePX, y: LotHexSizePX}, district.point, h)
         }
         EntityAddToSlice(lotSlice, lot);

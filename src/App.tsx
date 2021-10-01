@@ -83,7 +83,7 @@ class App extends React.Component<AppPs, AppState>{
     });
     store.subscribe(() => {
       const s = store.getState();
-      if ((s.selected.selectedBeanKey != null || s.selected.selectedBuildingKey != null || s.selected.selectedHexKey != null) && this.state.activeRightPanel != 'overview'){
+      if ((s.selected.selectedBeanKey != null || s.selected.selectedBuildingKey != null || s.selected.selectedDistrictKey != null) && this.state.activeRightPanel != 'overview'){
         this.setState({activeRightPanel: 'overview'});
       }
     });
@@ -207,7 +207,6 @@ class App extends React.Component<AppPs, AppState>{
                 onClickBuilding={(b) => store.dispatch(doSelectBuilding({
                   cityKey: store.getState().world.cities.allIDs[0], 
                   buildingKey: b.key,
-                  hex: b.address
                  }))}
                 onClick={(b) => {
                   store.dispatch(doSelectBean({cityKey: b.cityKey, beanKey: b.key }));

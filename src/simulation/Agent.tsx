@@ -629,7 +629,7 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
 export function Route(seed: string, city: ICity, bean: IBean, destination: IBuilding): Point[]{
     const start = MoverStoreInstance.Get('bean', bean.key).current || {...OriginAccelerator};
     const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
-    return hex_linedraw(nearestHex, destination.address).map(
+    return hex_linedraw(nearestHex, destination.hex).map(
         (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
         ).map((x, i, a) => {
         if (i === a.length-1){

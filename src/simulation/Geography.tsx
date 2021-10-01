@@ -18,6 +18,7 @@ export interface IDistrict extends HexPoint{
 }
 export interface ILot{
     key: number,
+    districtKey: number,
     point: Point,
     buildingKey?: number,
     kind: 'rural'|'urban',
@@ -276,11 +277,13 @@ export function transformPoint(p: Point){
 
 export interface IBuilding{
     key: number;
-    address: HexPoint;
+    hex: HexPoint,
+    point: Point;
     type: BuildingTypes;
     jobs: number[];
     upgraded: boolean,
-    enterpriseKey?: number
+    enterpriseKey?: number,
+    lotKey: number
 }
 
 /**
@@ -306,89 +309,6 @@ export interface AddressBuildingGrid extends AddressGrid<IBuilding>{}
 export interface BuildingMap{
     coordByID: AddressBookHex;
     all: IBuilding[];
-}
-
-export class CityBook {
-    /**
-     * given "q,r", return the IBuilding.key
-     */
-    public readonly map = new LiveMap<string, number>(new Map());
-    /**
-     * given IBuilding.type return the IBuilding[]
-     */
-    public readonly yellow = new LiveMap<string, number[]>(new Map());
-    /**
-     * given IBuilding.key, return "q,r"
-     */
-    public readonly white = new LiveMap<number, string>(new Map());
-    /**
-     * given IBuilding.key, return IBuilding
-     */
-    public readonly db: LiveMap<number, IBuilding>;
-
-    constructor(_db: Map<number, IBuilding>){
-        this.db = new LiveMap<number, IBuilding>(_db);
-        this.buildIndexes();
-        this.db.afterSetBeforePublish = () => this.buildIndexes();
-    }
-
-    private buildIndexes(){
-        const keys = Array.from(this.db.get.keys());
-        const ix = { 
-            map: new Map<string, number>(),
-            yellow: new Map<string, number[]>(),
-            white: new Map<number, string>()
-        }
-        keys.forEach((key: number) => {
-            const b = this.db.get.get(key);
-            if (b){
-                const address = b.address.q+','+b.address.r;
-                ix.map.set(address, b.key);
-                ix.white.set(b.key, address);
-                const group = ix.yellow.get(b.type) || []
-                ix.yellow.set(b.type, group.concat([b.key]));
-            }
-
-        });
-        this.white.set(ix.white);
-        this.map.set(ix.map);
-        this.yellow.set(ix.yellow);
-    }
-
-    public addBuilding(b: IBuilding){
-        this.db.add(b.key, b);
-        this.buildIndexes();
-    }
-    public removeBuilding(b: IBuilding){
-        this.db.remove(b.key);
-        this.buildIndexes();
-    }
-
-    public getBuildings(): IBuilding[]{
-        return Array.from(this.db.get.values());
-    }
-    public findBuildingByCoordinate(h: HexPoint){
-        const address = h.q+','+h.r;
-        const key = this.map.get.get(address);
-        if (key != null) 
-            return this.db.get.get(key);
-        return undefined;
-    }
-    public getRandomBuildingOfType(seed: string, buildingType: BuildingTypes): IBuilding|undefined{
-        const keysOfType: number[] = this.yellow.get.get(buildingType) || [];
-        const r = GetRandom(seed, keysOfType);
-        return this.db.at(r);
-    }
-
-    public getRandomEntertainmentBuilding(seed: string): IBuilding|undefined{
-        const keysOfType: number[] = (this.yellow.get.get('park') || []).concat(this.yellow.get.get('nature') || []);
-        const r = GetRandom(seed, keysOfType);
-        return this.db.at(r);
-    }
-
-    public getCountOfType(buildingType: BuildingTypes): number{
-        return Array.from(this.yellow.get.get(buildingType) || []).length;
-    }
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';

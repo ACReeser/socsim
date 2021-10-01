@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { ICity } from "../simulation/City";
-import { CityBook, DistrictHexSize, HexPoint, hex_to_pixel, IBuilding, Point, transformPoint } from "../simulation/Geography";
-import { doSelectBuilding, doSelectHex } from "../state/features/selected.reducer";
+import { DistrictHexSize, HexPoint, hex_to_pixel, IBuilding, Point, transformPoint } from "../simulation/Geography";
+import { doSelectBuilding, doSelectDistrict } from "../state/features/selected.reducer";
 import { magnetChange, selectBuildingsByCity, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { PetriBuilding, UIBuilding } from "./Building";
@@ -12,7 +12,7 @@ import { hex_style } from "./WorldTile";
  * @param props 
  * @returns 
  */
-export const HexPetriBuilding2: React.FC<{
+export const HexLot: React.FC<{
     cityKey: number,
     hex: HexPoint
 }> = (props) => {
@@ -30,7 +30,7 @@ export const PetriHex: React.FC<{
 }> = (props) => {
     const dispatch = useAppDispatch();
     const district = useAppSelector(state => state.world.districts.byID[props.districtKey]);
-    const selected = useAppSelector(state => state.selected.selectedHexKey === district.hexString);
+    const selected = useAppSelector(state => state.selected.selectedDistrictKey === props.districtKey);
     const extraClasses = selected ? 'hex-selected' : ''; 
     return <div className={"hex "+extraClasses}
         key={props.districtKey}
@@ -40,15 +40,18 @@ export const PetriHex: React.FC<{
             // if (props.buildingKey != null)
             //     dispatch(doSelectBuilding({cityKey: props.cityKey, buildingKey: props.buildingKey, hex: props.hex}));
             // else 
-            dispatch(doSelectHex({cityKey: props.cityKey, hex: {q: district.q, r: district.r}})); 
+            dispatch(doSelectDistrict({cityKey: props.cityKey, district: props.districtKey})); 
             e.stopPropagation(); 
             return false; }}>
                 {
                     (district.kind === 'fallow') ? <svg width="116%" height="116%" viewBox="0 0 104 120" version="1.1" xmlns="http://www.w3.org/2000/svg" style={{position:'absolute',left:'-8%',top:'-6.5%',opacity:0.5}}>
                         <g transform="matrix(1,0,0,1,-233.288,0)">
                             <g id="rural-circle-120" transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
-                                <g transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
-                                    <path d="M285.25,0L285.251,43.341M300.181,69.173L337.211,89.968L300.181,69.173ZM270.408,69.173L233.288,90.21M285.248,43.317C294.78,43.317 302.519,51.056 302.519,60.588C302.519,70.12 294.78,77.859 285.248,77.859C275.716,77.859 267.977,70.12 267.977,60.588C267.977,51.056 275.716,43.317 285.248,43.317Z" style={{fill:'transparent',stroke:'black','strokeWidth':'0.2px'}}/>
+                                <g id="circle" transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
+                                    <circle cx="285.248" cy="60.588" r="17.271" style={{fill:'none',stroke:'black',strokeWidth:'0.2px'}}/>
+                                </g>
+                                <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                                    <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>🌳</text>
                                 </g>
                                 {/* <g className="lot rural_3" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)">
                                     <path d="M43.3,112.51L43.301,142.954L43.3,142.954C35.334,142.954 28.868,149.421 28.868,157.387C28.868,160.061 29.596,162.566 30.866,164.714L6.474,178.584C2.37,171.965 0,164.162 0,155.81C0,131.912 19.402,112.51 43.3,112.51L43.3,112.51Z" />
@@ -120,6 +123,11 @@ export const PetriHex: React.FC<{
                         <g className="lot urban_4" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)">
                             <path d="M55.725,150.044C53.211,145.801 48.585,142.954 43.301,142.954L43.3,112.51C59.792,112.51 74.143,121.75 81.453,135.331L55.725,150.044Z" />
                         </g>
+                        <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                            <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>
+                                {district.q +district.r === 0 ? '🏫' : '⛲'}
+                            </text>
+                        </g>
                     </g>
                 </g>
             </svg>
@@ -136,7 +144,7 @@ export const PetriHexes2: React.FC<{
     const districtKeys = useAppSelector(state => state.world.cities.byID[props.cityKey]?.districtKeys);
     return <>{districtKeys.map((dKey, i) => {
         return <PetriHex cityKey={props.cityKey }key={dKey} districtKey={dKey}>
-            <HexPetriBuilding2 cityKey={props.cityKey} hex={{q: 0, r: 0}}><span className="tile-label"></span></HexPetriBuilding2>
+            <HexLot cityKey={props.cityKey} hex={{q: 0, r: 0}}><span className="tile-label"></span></HexLot>
         </PetriHex>
     })}</>
 }
