@@ -74,7 +74,7 @@ export function CalculateCityComputed(city: ICity, economy: IEconomy){
  * @param world 
  */
 export function BeanLoseJob(bean: IBean, world: IWorldState){
-    if (bean.employerEnterpriseKey){
+    if (bean.employerEnterpriseKey != null){
         const building = world.buildings.byID[bean.employerEnterpriseKey];
         const enterprise = world.enterprises.byID[bean.employerEnterpriseKey];
         if (enterprise.ownerBeanKey == bean.key){

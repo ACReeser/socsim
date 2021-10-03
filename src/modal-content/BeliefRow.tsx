@@ -128,7 +128,6 @@ export class AddBeliefInput extends React.Component<{
                     options={SortedBeliefs} 
                     value={this.state.belief}
                     onChange={(a: string) => {
-                        console.log(a);
                         this.setState({belief: a as TraitBelief})
                     }}
                     ></StringDropdown>

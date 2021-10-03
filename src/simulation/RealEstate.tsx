@@ -29,7 +29,7 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
         type: type,
         key: world.buildings.nextID++,
         hex: hex,
-        point: point,
+        point: {...point},
         lotKey: lotKey,
         jobs: [],
         upgraded: false
@@ -37,6 +37,7 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     world.buildings.allIDs.push(newBuilding.key);
     world.buildings.byID[newBuilding.key] = newBuilding;
     city.buildingKeys.push(newBuilding.key);
+    world.lots.byID[lotKey].buildingKey = newBuilding.key;
 
     if (EnterpriseBuildings.some(x => type)){
         newBuilding.enterpriseKey = newBuilding.key;

@@ -110,7 +110,9 @@ export const HexPanel: React.FC<{
             <strong>{DistrictTypeIcon[district.kind]} {DistrictTypeText[district.kind]} District</strong> in <strong>{city.name}</strong>
             <button type="button" className="pull-r" onClick={() => dispatch(doSelectCity({cityKey: city.key}))} >❌</button>
         </div>
-        <br/>
+        {
+            lotKey != null ? <span>Lot #{lotKey+1}</span> : <br/>
+        }
         {
             district.kind === 'fallow' ? <div><div className="card-parent">
                 <button className="card button" type="button" onClick={

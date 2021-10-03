@@ -547,7 +547,7 @@ export function ActivityDisplay(data: IActivityData): string{
         case 'chat':
             return `chatting`;
         case 'crime':
-            return `commiting crime`;
+            return `stealing ${data?.crimeGood}`;
         case 'sleep':
             return `sleeping 😴`;
         case 'relax':
@@ -633,10 +633,8 @@ export function Route(seed: string, city: ICity, bean: IBean, destination: IBuil
         (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
         ).map((x, i, a) => {
         if (i === a.length-1){
-            const offset = getRandomSlotOffset(seed);
             return {
-                x: x.x + offset.x,
-                y: x.y + offset.y
+                ...destination.point
             }
         } else {
             return x;

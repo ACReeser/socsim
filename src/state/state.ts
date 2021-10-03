@@ -49,7 +49,7 @@ export const selectSelectedBuilding = (state: RootState) => {
   if (city && state.selected.selectedLotKey != null)
   {
     const buildingID = state.world.lots.byID[state.selected.selectedLotKey].buildingKey;
-    if (buildingID)
+    if (buildingID != null)
       return state.world.buildings.byID[buildingID];
   }
   return undefined;

@@ -1,8 +1,9 @@
 
 import React from "react";
 import { ICity } from "../simulation/City";
-import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
+import { useAppSelector } from "../state/hooks";
 import { GetRandom } from "../WorldGen";
 import './Building.css';
 
@@ -29,27 +30,26 @@ const hexDirectionToJobSlot: {[key: number]: number} = {
 }
 
 export const PetriBuilding: React.FC<{
-    city: ICity,
-    building: IBuilding
+    lotKey: number
 }> = (props) => {
-    // const buildingHex = props.building.address;
-    // const p = hex_to_pixel(props.city.hex_size, props.city.petriOrigin, buildingHex);
-    const sty = {}; //transformPoint(p);
-    return <UIBuilding building={props.building} style={sty} cityName={props.city.name} getStyle={hexToTransform}>{props.children}</UIBuilding>;
+    const lot: ILot = useAppSelector(state => state.world.lots.byID[props.lotKey]);
+    const building: IBuilding|undefined = useAppSelector(state => lot.buildingKey != null ? state.world.buildings.byID[lot.buildingKey]: undefined);
+    if (building)
+        return <text x="280.931px" y="77.859px" style={{fontSize:'36px'}}>{building.upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
+    else 
+        return <text x="280.931px" y="77.859px" style={{fontSize:'36px'}}>{lot.kind === 'rural' ? '🌼' : '🚏'}</text>
 }
 
 export const UIBuilding: React.FC<{
     building: IBuilding,
-    cityName: string,
     style: React.CSSProperties,
     getStyle: (h: HexPoint) => React.CSSProperties
 }> = (props) => {
-    
     return <div key={props.building.type+props.building.key} style={props.style} 
     className={"building "+props.building.type}>
     {props.building.upgraded ? UpgradedBuildingIcon[props.building.type] : BuildingIcon[props.building.type]}
     <UIBuildingSlots building={props.building} getStyle={props.getStyle}></UIBuildingSlots>
-    {props.building.type === 'courthouse' ? <span className="tile-label">{props.cityName}</span> : props.children}
+    {props.children}
     </div>
 }
 export const UIBuildingSlots: React.FC<{
