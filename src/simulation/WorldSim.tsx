@@ -26,6 +26,9 @@ const OwnerProfitPercentage = 0.25;
 
 export function simulate_world(world: IWorldState){
     world.date.hour++
+    if (world.date.hour % 2 === 0){
+        simulate_every_other_tick(world);
+    }
     if (world.date.hour >= TicksPerDay){
         world.date.hour = 0;
         world.date.day++;
@@ -156,6 +159,8 @@ export function simulate_every_day(world: IWorldState){
         }
         x.hedonHistory.unshift({});
     });
+}
+export function simulate_every_other_tick(world: IWorldState){
     //pay beans
     world.enterprises.allIDs.forEach((eKey) => {
         const enterprise = world.enterprises.byID[eKey];

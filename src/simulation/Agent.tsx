@@ -5,6 +5,7 @@ import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
+import { GetRandomNumber } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
@@ -68,7 +69,7 @@ export interface StateFunctions {
     act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction|AnyAction[], newActivity?: IActivityData};
     exit: (agent: IBean, seed: string) => AnyAction|undefined;
 }
-const RelaxationDurationMS = 1000;
+const RelaxationDurationMS = 3000;
 const CrimeDurationMS = 1500;
 const TransactMaximumDurationMS = 1100;
 const ChatDurationMS = 1000;
@@ -634,7 +635,8 @@ export function Route(seed: string, city: ICity, bean: IBean, destination: IBuil
         ).map((x, i, a) => {
         if (i === a.length-1){
             return {
-                ...destination.point
+                x: destination.point.x + GetRandomNumber(seed, -20, 20),
+                y: destination.point.y + GetRandomNumber(seed, -20, 20)
             }
         } else {
             return x;
