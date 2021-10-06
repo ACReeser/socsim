@@ -1,7 +1,7 @@
 
 import React from "react";
 import { ICity } from "../simulation/City";
-import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot } from "../simulation/Geography";
+import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { useAppSelector } from "../state/hooks";
 import { GetRandom } from "../WorldGen";
@@ -17,9 +17,6 @@ export function getSlotOffset(direction: HexPoint){
 export function getRandomSlotOffset(seed: string){
     return getSlotOffset(GetRandom(seed, hex_directions));
 }
-function hexToTransform(direction: HexPoint){
-    return transformPoint(getSlotOffset(direction))
-}
 const hexDirectionToJobSlot: {[key: number]: number} = {
     2: 0,
     0: 1,
@@ -29,13 +26,29 @@ const hexDirectionToJobSlot: {[key: number]: number} = {
     3: 5,
 }
 
+export const BuildingToJobIcon: {[type in BuildingTypes]: string} = {
+    'farm':'🪕',
+    'house':'🧹',
+    'hospital':'🩺',
+    'church':'',
+    'theater':'👘',
+    'courthouse':'💼',
+    'park':'🎒',
+    'nature': '🎒'
+};
+
 export const PetriBuilding: React.FC<{
     lotKey: number
 }> = (props) => {
     const lot: ILot = useAppSelector(state => state.world.lots.byID[props.lotKey]);
     const building: IBuilding|undefined = useAppSelector(state => lot.buildingKey != null ? state.world.buildings.byID[lot.buildingKey]: undefined);
     if (building)
-        return <text x="280.931px" y="77.859px" style={{fontSize:'36px'}}>{building.upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
+        return <>
+            <text x="280px" y="77.859px" style={{fontSize:'36px'}}>{building.upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
+            {
+                building.jobs.filter(x => x != null).map((y,i) => <text x="325px" y={(85+(i*-14))+"px"} style={{fontSize:'11px'}} key={y}>{BuildingToJobIcon[building.type]}</text>)
+            }
+        </>
     else 
         return <text x="280.931px" y="77.859px" style={{fontSize:'36px'}}>{lot.kind === 'rural' ? '🌼' : '🚏'}</text>
 }

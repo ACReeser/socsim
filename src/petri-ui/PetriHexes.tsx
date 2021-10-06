@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { ICity } from "../simulation/City";
-import { DistrictHexSize, HexPoint, hex_to_pixel, IBuilding, Point, transformPoint } from "../simulation/Geography";
-import { doSelectBuilding, doSelectDistrict, doSelectLot } from "../state/features/selected.reducer";
-import { magnetChange, selectBuildingsByCity, selectCity, selectCityBuildingByHex } from "../state/features/world.reducer";
+import { IBuilding, transformPoint } from "../simulation/Geography";
+import { doSelectDistrict, doSelectLot } from "../state/features/selected.reducer";
+import { magnetChange, selectBuildingsByCity } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { PetriBuilding, UIBuilding } from "./Building";
 import { hex_style } from "./WorldTile";
@@ -27,7 +27,7 @@ export const PetriHex: React.FC<{
             }
         }
         }>
-        <svg width="116%" height="116%" viewBox="0 0 104 120" version="1.1" xmlns="http://www.w3.org/2000/svg" style={{position:'absolute',left:'-8%',top:'-6.5%',opacity:0.5}}>
+        <svg width="100%" height="100%" viewBox="0 0 104 120" version="1.1" xmlns="http://www.w3.org/2000/svg" style={{position:'absolute',left:'0%',top:'0%',opacity:0.5}} className="svg-hex">
             <g transform="matrix(1,0,0,1,-233.288,0)">
             {
             (district.kind === 'fallow') ? <g id="rural-circle-120" transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
@@ -65,6 +65,24 @@ export const PetriHex: React.FC<{
                         </text>
                     </g>
                 </g> : <g id="rural-circle-120" transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
+                    <g transform="matrix(0.402264,0,0,0.299296,-271.444,-46.211)">
+                        <PetriBuilding lotKey={district.lots[0]}></PetriBuilding>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-253.016,-21.9919)">
+                        <PetriBuilding lotKey={district.lots[1]}></PetriBuilding>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-271.444,1.20645)">
+                        <PetriBuilding lotKey={district.lots[2]}></PetriBuilding>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-306.821,1.20645)">
+                        <PetriBuilding lotKey={district.lots[3]}></PetriBuilding>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-323.46,-21.9919)">
+                        <PetriBuilding lotKey={district.lots[4]}></PetriBuilding>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-306.821,-46.211)">
+                        <PetriBuilding lotKey={district.lots[5]}></PetriBuilding>
+                    </g>
                     <g transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
                         <path d="M285.25,0L285.251,43.341M300.181,69.173L337.211,89.968L300.181,69.173ZM270.408,69.173L233.288,90.21M285.248,43.317C294.78,43.317 302.519,51.056 302.519,60.588C302.519,70.12 294.78,77.859 285.248,77.859C275.716,77.859 267.977,70.12 267.977,60.588C267.977,51.056 275.716,43.317 285.248,43.317Z" style={{fill:'transparent',stroke:'black','strokeWidth':'0.2px'}}/>
                     </g>
@@ -87,24 +105,6 @@ export const PetriHex: React.FC<{
                         <path d="M55.725,150.044C53.211,145.801 48.585,142.954 43.301,142.954L43.3,112.51C59.792,112.51 74.143,121.75 81.453,135.331L55.725,150.044Z"/>
                         <text x="265.931px" y="77.859px" style={{fontSize:'36.631px'}} transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
                         </text>
-                    </g>
-                    <g transform="matrix(0.402264,0,0,0.299296,-271.444,-46.211)">
-                        <PetriBuilding lotKey={district.lots[0]}></PetriBuilding>
-                    </g>
-                    <g transform="matrix(0.402264,0,0,0.299296,-253.016,-21.9919)">
-                        <PetriBuilding lotKey={district.lots[1]}></PetriBuilding>
-                    </g>
-                    <g transform="matrix(0.402264,0,0,0.299296,-271.444,1.20645)">
-                        <PetriBuilding lotKey={district.lots[2]}></PetriBuilding>
-                    </g>
-                    <g transform="matrix(0.402264,0,0,0.299296,-306.821,1.20645)">
-                        <PetriBuilding lotKey={district.lots[3]}></PetriBuilding>
-                    </g>
-                    <g transform="matrix(0.402264,0,0,0.299296,-323.46,-21.9919)">
-                        <PetriBuilding lotKey={district.lots[4]}></PetriBuilding>
-                    </g>
-                    <g transform="matrix(0.402264,0,0,0.299296,-306.821,-46.211)">
-                        <PetriBuilding lotKey={district.lots[5]}></PetriBuilding>
                     </g>
                     <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
                         <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>
