@@ -307,7 +307,7 @@ button.pull-r{
   border-radius: 100%;
 }
 .tile .hex.hex-selected{
-  background: hsla(16, 100%, 50%, 5%);
+  /* background: hsla(16, 100%, 50%, 5%); district-circle is used instead */
   border-color: hsla(16, 100%, 50%, 50%);
 }
 .tile .hex:hover{
@@ -331,6 +331,14 @@ button.pull-r{
 }
 .tile .hex .lot.selected{
   fill: hsla(16, 100%, 50%, 25%)
+}
+.tile .hex-selected .district-circle{
+  fill: hsla(16, 100%, 50%, 25%)
+}
+.tile .district-circle{
+  fill:transparent;
+  stroke:black;
+  stroke-width: 0.2px
 }
 .tile .mtn{
   position: absolute;
