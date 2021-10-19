@@ -13,7 +13,7 @@ export interface IDistrict extends HexPoint{
     key: number,
     hexString: string,
     point: Point,
-    kind: 'fallow'|'rural'|'urban',
+    kind: 'fallow'|'rural'|'urban'|'nature',
     lots: number[]
 }
 export interface ILot{

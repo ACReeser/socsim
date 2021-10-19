@@ -145,7 +145,7 @@ export function GenerateDistrictsAndLots(city: ICity): {ds:IEntitySlice<IDistric
     }
 }
 
-export function GenerateDistrict(kind: 'urban'|'rural'|'fallow', city: ICity, hex: HexPoint): IDistrict{
+export function GenerateDistrict(kind: 'urban'|'rural'|'fallow'|'nature', city: ICity, hex: HexPoint): IDistrict{
     return {
         kind: kind,
         key: 0,

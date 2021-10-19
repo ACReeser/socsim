@@ -50,6 +50,8 @@ export const worldSlice = createSlice({
         const dls = GenerateDistrictsAndLots(city);
         state.districts = dls.ds;
         state.lots = dls.lots;
+        const natureID = GetRandom(state.seed, state.districts.allIDs.slice(1));
+        state.districts.byID[natureID].kind = 'nature';
         // GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);

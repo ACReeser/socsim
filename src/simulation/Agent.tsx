@@ -11,7 +11,7 @@ import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeC
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
-import { accelerate_towards, BuildingTypes, GoodToBuilding, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
 import { DumbPriorityQueue, IPriorityQueue, PriorityNode } from "./Priorities";
 import { IDate } from "./Time";
 import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
@@ -452,6 +452,14 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
             const buildingDest = CityGetRandomEntertainmentBuilding(city, world);
             if (buildingDest){
                 return Route(world.seed, city, agent, buildingDest);
+            } else {
+                const nature = world.districts.allIDs.map(x => world.districts.byID[x]).find(y => y.kind === 'nature');
+                if (nature){
+                    return RouteToHexAndPoint(world.seed, city, agent, {q: nature.q,r: nature.r}, {
+                        x: nature.point.x + (Math.random() * 150) - 75,
+                        y: nature.point.y + (Math.random() * 150) - 75
+                    });
+                }
             }
         }
     }
@@ -628,15 +636,18 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
  * @param buildingType 
  */
 export function Route(seed: string, city: ICity, bean: IBean, destination: IBuilding): Point[]{
+    return RouteToHexAndPoint(seed, city, bean, destination.hex, destination.point);
+}
+export function RouteToHexAndPoint(seed: string, city: ICity, bean: IBean, hex: HexPoint, point: Point): Point[]{
     const start = MoverStoreInstance.Get('bean', bean.key).current || {...OriginAccelerator};
     const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
-    return hex_linedraw(nearestHex, destination.hex).map(
+    return hex_linedraw(nearestHex, hex).map(
         (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
         ).map((x, i, a) => {
         if (i === a.length-1){
             return {
-                x: destination.point.x + GetRandomNumber(seed, -20, 20),
-                y: destination.point.y + GetRandomNumber(seed, -20, 20)
+                x: point.x + GetRandomNumber(seed, -20, 20),
+                y: point.y + GetRandomNumber(seed, -20, 20)
             }
         } else {
             return x;

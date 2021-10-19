@@ -79,15 +79,17 @@ export const BuildPanel: React.FC<{
     }
 }
 
-const DistrictTypeIcon = {
+export const DistrictTypeIcon = {
     urban: '⛲',
     rural: '📪',
-    fallow: '🌳'
+    fallow: '🌳',
+    nature: '🏔️'
 }
 const DistrictTypeText = {
     urban: 'Urban',
     rural: 'Rural',
-    fallow: 'Empty'
+    fallow: 'Empty',
+    nature: 'Nature'
 }
 
 export const HexPanel: React.FC<{

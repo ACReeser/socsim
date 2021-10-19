@@ -1,4 +1,5 @@
 import React, { useRef } from "react";
+import { DistrictTypeIcon } from "../right-panel/HexPanel";
 import { ICity } from "../simulation/City";
 import { IBuilding, transformPoint } from "../simulation/Geography";
 import { doSelectDistrict, doSelectLot } from "../state/features/selected.reducer";
@@ -47,7 +48,7 @@ export const PetriHex: React.FC<{
             {
             (district.kind === 'fallow') ? <g id="rural-circle-120" transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
                     <g id="circle" transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
-                        <circle cx="285.248" cy="60.588" r="17.271" style={{fill:'none',stroke:'black',strokeWidth:'0.2px'}}/>
+                        <circle className="district-circle"  cx="285.248" cy="60.588" r="17.271"/>
                     </g>
                     <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
                         <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>🌳</text>
@@ -73,7 +74,7 @@ export const PetriHex: React.FC<{
                             📪
                         </text>
                     </g>
-                </g> : <g id="rural-circle-120" transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
+                </g> : (district.kind === 'urban') ? <g id="rural-circle-120" transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
                     <g transform="matrix(0.402264,0,0,0.299296,-271.444,-46.211)">
                         <PetriBuilding lotKey={district.lots[0]}></PetriBuilding>
                     </g>
@@ -105,6 +106,22 @@ export const PetriHex: React.FC<{
                         <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>
                             {(district.q === 0 && district.r === 0) ? '🏫' : '⛲'}
                         </text>
+                    </g>
+                </g>: <g transform="matrix(0.990588,0,0,1.33139,453.063,64.7779)">
+                    <g id="circle" transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
+                        <circle className="district-circle" cx="285.248" cy="60.588" r="17.271"/>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                        <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>{DistrictTypeIcon['nature']}</text>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                        <text x="270px" y="-20px" style={{fontSize:'36.631px'}}>🏕️</text>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                        <text x="180.931px" y="147.859px" style={{fontSize:'36.631px'}}>🏕️</text>
+                    </g>
+                    <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
+                        <text x="365.931px" y="147.859px" style={{fontSize:'36.631px'}}>🏕️</text>
                     </g>
                 </g>}
             </g>
