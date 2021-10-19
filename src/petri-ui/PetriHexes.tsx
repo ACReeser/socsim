@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { ICity } from "../simulation/City";
 import { IBuilding, transformPoint } from "../simulation/Geography";
 import { doSelectDistrict, doSelectLot } from "../state/features/selected.reducer";
@@ -6,6 +6,21 @@ import { magnetChange, selectBuildingsByCity } from "../state/features/world.red
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { PetriBuilding, UIBuilding } from "./Building";
 import { hex_style } from "./WorldTile";
+
+export const PetriLot: React.FC<{
+    cityKey: number,
+    districtKey: number,
+    lotKey: number,
+    lotDrawn: string,
+    className: string
+}> = (props) => {
+    const dispatch = useAppDispatch();
+    const selected = useAppSelector(state => state.selected.selectedLotKey === props.lotKey);
+
+    return <g className={"lot "+ props.className + (selected ? " selected": "")} transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)" onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: props.lotKey})); e.preventDefault();return false;}}>
+        <path d={props.lotDrawn} />
+    </g>
+}
 
 export const PetriHex: React.FC<{
     cityKey: number,
@@ -41,15 +56,9 @@ export const PetriHex: React.FC<{
                     <g transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
                         <path d="M285.25,0L285.251,43.341M300.181,69.173L337.211,89.968L300.181,69.173ZM270.408,69.173L233.288,90.21M285.248,43.317C294.78,43.317 302.519,51.056 302.519,60.588C302.519,70.12 294.78,77.859 285.248,77.859C275.716,77.859 267.977,70.12 267.977,60.588C267.977,51.056 275.716,43.317 285.248,43.317Z" style={{fill:'transparent',stroke:'black','strokeWidth':'0.2px'}}/>
                     </g>
-                    <g className="lot rural_3" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)" onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[2]})); e.preventDefault();return false;}}>
-                        <path d="M43.3,112.51L43.301,142.954L43.3,142.954C35.334,142.954 28.868,149.421 28.868,157.387C28.868,160.061 29.596,162.566 30.866,164.714L6.474,178.584C2.37,171.965 0,164.162 0,155.81C0,131.912 19.402,112.51 43.3,112.51L43.3,112.51Z" />
-                    </g>
-                    <g className="lot rural_2" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)" onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[1]})); e.preventDefault();return false;}}>
-                        <path d="M55.735,164.713L80.126,178.583C72.489,190.9 58.846,199.11 43.3,199.11C27.754,199.11 14.111,190.9 6.474,178.584L30.866,164.714C33.378,168.965 38.009,171.819 43.3,171.819C48.592,171.819 53.223,168.964 55.735,164.713ZM0,155.81C0,155.81 0,155.81 0,155.81Z" />
-                    </g>
-                    <g className="lot rural_1" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)" onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[0]})); e.preventDefault();return false;}}>
-                        <path d="M43.3,112.51C67.198,112.51 86.6,131.912 86.6,155.81C86.6,164.162 84.23,171.965 80.126,178.583L55.735,164.713C57.004,162.564 57.732,160.06 57.732,157.387C57.732,149.421 51.266,142.954 43.301,142.954L43.3,112.51Z" />
-                    </g>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="rural_3" lotKey={district.lots[2]} lotDrawn="M43.3,112.51L43.301,142.954L43.3,142.954C35.334,142.954 28.868,149.421 28.868,157.387C28.868,160.061 29.596,162.566 30.866,164.714L6.474,178.584C2.37,171.965 0,164.162 0,155.81C0,131.912 19.402,112.51 43.3,112.51L43.3,112.51Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="rural_2" lotKey={district.lots[1]} lotDrawn="M55.735,164.713L80.126,178.583C72.489,190.9 58.846,199.11 43.3,199.11C27.754,199.11 14.111,190.9 6.474,178.584L30.866,164.714C33.378,168.965 38.009,171.819 43.3,171.819C48.592,171.819 53.223,168.964 55.735,164.713ZM0,155.81C0,155.81 0,155.81 0,155.81Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="rural_1" lotKey={district.lots[0]} lotDrawn="M43.3,112.51C67.198,112.51 86.6,131.912 86.6,155.81C86.6,164.162 84.23,171.965 80.126,178.583L55.735,164.713C57.004,162.564 57.732,160.06 57.732,157.387C57.732,149.421 51.266,142.954 43.301,142.954L43.3,112.51Z"></PetriLot>
                     <g transform="matrix(0.402264,0,0,0.299296,-271.444,-46.211)">
                         <PetriBuilding lotKey={district.lots[0]}></PetriBuilding>
                     </g>
@@ -86,26 +95,12 @@ export const PetriHex: React.FC<{
                     <g transform="matrix(1.0095,0,0,0.751097,-457.368,-48.6545)">
                         <path d="M285.25,0L285.251,43.341M300.181,69.173L337.211,89.968L300.181,69.173ZM270.408,69.173L233.288,90.21M285.248,43.317C294.78,43.317 302.519,51.056 302.519,60.588C302.519,70.12 294.78,77.859 285.248,77.859C275.716,77.859 267.977,70.12 267.977,60.588C267.977,51.056 275.716,43.317 285.248,43.317Z" style={{fill:'transparent',stroke:'black','strokeWidth':'0.2px'}}/>
                     </g>
-                    <g className="lot urban_9" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)" onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[5]}));e.preventDefault();return false;}}>
-                        <path d="M5.135,135.352C12.441,121.76 26.798,112.51 43.3,112.51L43.3,112.51L43.301,142.954L43.3,142.954C37.962,142.954 33.298,145.858 30.801,150.17L5.135,135.352Z" />
-                    </g>
-                    <g className="lot urban_8" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)"  onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[4]}));e.preventDefault();return false;}}>
-                        <path d="M5.158,135.317L30.861,150.068C29.594,152.215 28.868,154.717 28.868,157.387C28.868,160.061 29.596,162.566 30.866,164.714L6.474,178.584C2.37,171.965 0,164.162 0,155.81C0,148.284 1.774,141.487 5.158,135.317Z" />
-                    </g>
-                    <g className="lot urban_7" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)"  onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[3]}));e.preventDefault();return false;}}>
-                        <path d="M43.3,171.819L43.3,199.11C27.754,199.11 14.111,190.9 6.474,178.584L30.866,164.714C33.378,168.965 38.009,171.819 43.3,171.819ZM0,155.81C0,155.81 0,155.81 0,155.81Z" />
-                    </g>
-                    <g className="lot urban_6" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)"  onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[2]}));e.preventDefault();return false;}}>
-                        <path d="M43.3,171.819C48.592,171.819 53.223,168.964 55.735,164.713L80.126,178.583C72.489,190.9 58.846,199.11 43.3,199.11L43.3,171.819Z" />
-                    </g>
-                    <g className="lot urban_5" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)"  onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[1]}));e.preventDefault();return false;}}>
-                        <path d="M81.453,135.317C84.837,141.487 86.6,148.284 86.6,155.81C86.6,164.162 84.23,171.965 80.126,178.583L55.735,164.713C57.004,162.564 57.732,160.06 57.732,157.387C57.732,154.717 57.006,152.215 55.739,150.068L81.453,135.317Z" />
-                    </g>
-                    <g className="lot urban_4" transform="matrix(1.21104,0,0,0.901051,-221.832,-145.114)"  onClick={(e) => {dispatch(doSelectLot({cityKey: props.cityKey, district: props.districtKey, lot: district.lots[0]}));e.preventDefault();return false;}}>
-                        <path d="M55.725,150.044C53.211,145.801 48.585,142.954 43.301,142.954L43.3,112.51C59.792,112.51 74.143,121.75 81.453,135.331L55.725,150.044Z"/>
-                        <text x="265.931px" y="77.859px" style={{fontSize:'36.631px'}} transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
-                        </text>
-                    </g>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="urban_9" lotKey={district.lots[5]} lotDrawn="M5.135,135.352C12.441,121.76 26.798,112.51 43.3,112.51L43.3,112.51L43.301,142.954L43.3,142.954C37.962,142.954 33.298,145.858 30.801,150.17L5.135,135.352Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="urban_8" lotKey={district.lots[4]} lotDrawn="M5.158,135.317L30.861,150.068C29.594,152.215 28.868,154.717 28.868,157.387C28.868,160.061 29.596,162.566 30.866,164.714L6.474,178.584C2.37,171.965 0,164.162 0,155.81C0,148.284 1.774,141.487 5.158,135.317Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="urban_7" lotKey={district.lots[3]} lotDrawn="M43.3,171.819L43.3,199.11C27.754,199.11 14.111,190.9 6.474,178.584L30.866,164.714C33.378,168.965 38.009,171.819 43.3,171.819ZM0,155.81C0,155.81 0,155.81 0,155.81Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="urban_6" lotKey={district.lots[2]} lotDrawn="M43.3,171.819C48.592,171.819 53.223,168.964 55.735,164.713L80.126,178.583C72.489,190.9 58.846,199.11 43.3,199.11L43.3,171.819Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="urban_5" lotKey={district.lots[1]} lotDrawn="M81.453,135.317C84.837,141.487 86.6,148.284 86.6,155.81C86.6,164.162 84.23,171.965 80.126,178.583L55.735,164.713C57.004,162.564 57.732,160.06 57.732,157.387C57.732,154.717 57.006,152.215 55.739,150.068L81.453,135.317Z"></PetriLot>
+                    <PetriLot cityKey={props.cityKey} districtKey={props.districtKey} className="urban_4" lotKey={district.lots[0]} lotDrawn="M55.725,150.044C53.211,145.801 48.585,142.954 43.301,142.954L43.3,112.51C59.792,112.51 74.143,121.75 81.453,135.331L55.725,150.044Z"></PetriLot>
                     <g transform="matrix(0.402264,0,0,0.299296,-287.943,-23.1242)">
                         <text x="265.931px" y="77.859px" style={{fontSize:'46.631px'}}>
                             {(district.q === 0 && district.r === 0) ? '🏫' : '⛲'}

@@ -323,11 +323,14 @@ button.pull-r{
   pointer-events: bounding-box;
 }
 .tile .hex .lot:hover{
-  fill: rgba(255,0,0,0.2);
+  fill: hsla(16, 100%, 50%, 15%)
 }
 .tile .hex .lot path{
   stroke-width: 0.2px;
   /* stroke: rgba(0,0,0,0.5); */
+}
+.tile .hex .lot.selected{
+  fill: hsla(16, 100%, 50%, 25%)
 }
 .tile .mtn{
   position: absolute;
