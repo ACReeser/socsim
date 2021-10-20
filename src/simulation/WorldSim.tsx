@@ -1,5 +1,5 @@
 import { AnyAction } from "redux";
-import { IEvent } from "../events/Events";
+import { EventBufferLength, IEvent } from "../events/Events";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { SignalStoreInstance } from "../SignalStore";
 import { EntityAddToSlice } from "../state/entity.state";
@@ -22,7 +22,7 @@ import { GenerateEmoteFromBean } from "./Pickup";
 import { CheckGoals, CheckReportCard, HasResearched, TechData } from "./Player";
 import { TicksPerDay } from "./Time";
 
-const OwnerProfitPercentage = 0.25;
+const OwnerProfitPercentage = 0.15;
 
 export function simulate_world(world: IWorldState){
     world.date.hour++
@@ -219,6 +219,16 @@ export function WorldAddEvent(world: IWorldState, e: IEvent){
     world.events.byID[e.key] = e;
     world.events.allIDs.push(e.key);
     SignalStoreInstance.events.publish(e);
+    while (world.events.allIDs.length > EventBufferLength){
+        const removedID = world.events.allIDs[0];
+        if (removedID != null) {
+            world.events.allIDs = world.events.allIDs.slice(1);
+            world.events.byID = {
+                removedID,
+                ...world.events.byID
+            } as any;
+        }
+    }
 }
 export function animate_ufos(world: IWorldState, deltaMS: number): Array<AnyAction>{
     const actions: AnyAction[] = [];

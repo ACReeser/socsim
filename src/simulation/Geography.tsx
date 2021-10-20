@@ -1,4 +1,3 @@
-import { LiveMap } from "../events/Events";
 import { TraitGood, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
 import { IEnterprise } from "./Institutions";

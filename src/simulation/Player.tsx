@@ -1,9 +1,7 @@
-import { LiveList, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
 import { SignalStoreInstance } from "../SignalStore";
 import { IWorldState } from "../state/features/world";
 import { Number_Starting_City_Pop } from "../WorldGen";
-import { IBean } from "./Agent";
 import { TraitBelief } from "./Beliefs";
 import { IDate } from "./Time";
 

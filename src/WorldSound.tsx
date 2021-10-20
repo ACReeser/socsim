@@ -57,7 +57,7 @@ export class WorldSound{
         'pills': new SoundBuffer(SFXToFile['pills'], 1),
         'door': new SoundBuffer(SFXToFile['door'], 1),
         'teleport': new SoundBuffer(SFXToFile['teleport'], 0.6),
-        'cash': new SoundBuffer(SFXToFile['cash'], 0.33),
+        'cash': new SoundBuffer(SFXToFile['cash'], 0.23),
     }
 
     public play(sfx: SFX){

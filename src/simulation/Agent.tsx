@@ -12,7 +12,6 @@ import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Bel
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
 import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
-import { DumbPriorityQueue, IPriorityQueue, PriorityNode } from "./Priorities";
 import { IDate } from "./Time";
 import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
@@ -22,8 +21,17 @@ export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|
  * cruise == interruptible travel towards destination
  * 
  * approach == uninterruptible travel into destination slot
+ export type Travel = 'cruise'|'approach';
  */
-export type Travel = 'cruise'|'approach';
+
+export type RecreationActivity = 'performance'|'artistry'|'sport'|'music'|'outdoors';
+
+// 🎤 🩰 🎭
+// 🎨 🖋️ 🏺
+// ⚽️ 🏒 🎾
+// 🎹 🥁 🎸
+// 🎣 🤿 🎒
+// losers: 🏏 🏐 🏀
 
 export interface IActivityData {
     act: Act;

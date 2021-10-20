@@ -1,8 +1,5 @@
 import { TraitGood, TraitJob, GoodToJob, Trait } from "../World";
-import { LibertarianTaxUnhappyChance, ProgressivismTaxHappyChance } from "./Bean";
 import { IEnterprise } from "./Institutions";
-import { GetRandom } from "../WorldGen";
-import { IEvent, IEventBus, Live } from "../events/Events";
 import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw, IsLaw, SalesTaxPercentage } from "./Government";
 import { IBean } from "./Agent";
 
