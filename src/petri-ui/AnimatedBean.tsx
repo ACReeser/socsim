@@ -39,12 +39,12 @@ export const AnimatedBean: React.FC<AnimatedBeanP> = (props) => {
     <span className={classes}
       onClick={(e) => {e.stopPropagation(); dispatch(doSelectBean({cityKey: props.cityKey, beanKey: props.beanKey})) }}
     >
-      {state.face} {state.good ? <span className="purchase">
+      <span className="badge">⭐</span>{state.face} {state.good ? <span className="purchase">
         <span className="money">💸</span>
         <span className="purchase-good">{state.good}</span>
       </span>: null} {state.speech ? <span className="speech">
         <span className="">{state.speech}</span>
-      </span>: null}
+      </span>: null}<span className="hat">👒</span>
     </span>
   )
 }

@@ -706,6 +706,23 @@ table.classic .border-t{
   cursor: pointer;
   animation-play-state: paused;
 }
+.bean .hat{
+  top: -9px; left: 4px;
+  font-size: 12px;
+  position: absolute;
+}
+.bean .badge{
+  top: 13px; left: 2px;
+  font-size: 12px;
+  position: absolute;
+  z-index: -1;
+}
+.bean .badge.🛡️,
+.bean .badge.⚖️,
+.bean .badge.📋 {
+  left: 12px;
+}
+
 .purchase{
   position: absolute;
   left: 22px;
