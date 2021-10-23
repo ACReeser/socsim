@@ -4,8 +4,9 @@ import { BeanGetFace } from "../simulation/Bean";
 import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { ICity } from "../simulation/City";
 import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
+import { ITitle } from "../simulation/Titles";
 import { doSelectNone } from "../state/features/selected.reducer";
-import { abduct, scan, vaporize } from "../state/features/world.reducer";
+import { abduct, beanSetTitle, scan, vaporize } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean, selectSelectedCity } from "../state/state";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
@@ -169,6 +170,9 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                     }
                 </span>
             </div>
+            {
+                bean.titleKey != null ? <TitleView titleKey={bean.titleKey}></TitleView> : null
+            }
             <div className="horizontal">
                 <span className="text-center">
                     💰 ${bean.cash.toFixed(2)}
@@ -181,7 +185,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 </span>
             </div>
             {renderTraits(alien.scanned_bean[bean.key], bean, alien, () => {
-                dispatch(brainwash())
+                props.brainwash();
             }, () => {
                 dispatch(scan({beanKey: bean.key}));
                 setFaceOverride('😨');
@@ -219,6 +223,8 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                     <small>-Energy +Things</small>
                 </button>
             </div> */}
+            
+            <TitleButton beanKey={bean.key}></TitleButton>
             <div className="card-parent">
                 {/* <button type="button" className="button card" onClick={scan} disabled={true}
                     title="Steal a bit of this being's mind">
@@ -252,6 +258,33 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
     )
 }
 
-function brainwash(): any {
-    throw new Error("Function not implemented.");
+export const TitleButton: React.FC<{
+    beanKey: number
+}> = (props) => {
+    const titles = useAppSelector(s => s.world.titles.allIDs);
+    const dispatch = useAppDispatch();
+    if (titles.length > 0){
+        return <div className="card-parent">
+            <button type="button" className="button card"
+                // disabled={bean.lifecycle != 'alive' || !PlayerCanAfford(alien, alien.difficulty.cost.bean.abduct)}
+                onClick={() => dispatch(beanSetTitle({beanKey: props.beanKey, titleKey: 0}))}
+                title="Give this bean a title"
+            >
+                👑 Give Title
+                <CostSmall cost={{}} rider="+Title"></CostSmall>
+            </button>
+        </div>
+    }
+    return null
+}
+
+export const TitleView: React.FC<{
+    titleKey: number
+}> = (props) => {
+    const title = useAppSelector(s => s.world.titles.byID[props.titleKey]);
+    return <div className="text-center">
+        <strong>
+        {title.headwear} {title.name} {title.badge} 
+        </strong>
+    </div>
 }

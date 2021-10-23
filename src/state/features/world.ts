@@ -10,6 +10,7 @@ import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData } from '../../simulation/Player'
 import { IDate, Season } from '../../simulation/Time'
+import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { GenerateCity } from '../../WorldGen'
 import { CreateEmptyEntitySlice, CreateEntitySlice, IEntitySlice } from '../entity.state'
@@ -24,6 +25,7 @@ export interface IWorldState {
   pickups: IEntitySlice<IPickup>,
   districts: IEntitySlice<IDistrict>,
   lots: IEntitySlice<ILot>,
+  titles: IEntitySlice<ITitle>,
   economy: IEconomy,
   law: IGovernment,
   marketTraitsForSale: MarketTraitListing[],
@@ -50,6 +52,7 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     pickups: CreateEmptyEntitySlice<IPickup>(),
     lots: CreateEmptyEntitySlice<ILot>(),
     districts: CreateEmptyEntitySlice<IDistrict>(),
+    titles: CreateEmptyEntitySlice<ITitle>(),
     economy: {
       unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
       monthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },

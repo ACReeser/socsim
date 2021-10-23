@@ -711,6 +711,19 @@ table.classic .border-t{
   font-size: 12px;
   position: absolute;
 }
+.bean .hat.🧢{
+  top: -7px;
+  left: 3px;
+  font-size: 13px;
+}
+.bean .hat.🎓{
+  left: 3px;
+  font-size: 13px;
+}
+.bean .hat.👒{
+  left: 2.5px;
+  font-size: 14px;
+}
 .bean .badge{
   top: 13px; left: 2px;
   font-size: 12px;

@@ -25,7 +25,9 @@ export const selectBeanAnimation = (state: RootState, beanKey: number) => {
     face: BeanGetFace(bean),
     good: BeanIsBuying(bean) ? GoodIcon[bean.actionData.good || 'food'] : undefined,
     classes: [bean.job, bean.ethnicity, bean.actionData.act != 'travel' || bean.lifecycle === 'dead' ? 'paused' : '', ].join(' '),
-    animationClasses: ['bean-walker', working ? 'spin' : '', ].join(' ')
+    animationClasses: ['bean-walker', working ? 'spin' : '', ].join(' '),
+    badge: bean.badge,
+    hat: bean.hat
   }
 }
 
@@ -39,12 +41,12 @@ export const AnimatedBean: React.FC<AnimatedBeanP> = (props) => {
     <span className={classes}
       onClick={(e) => {e.stopPropagation(); dispatch(doSelectBean({cityKey: props.cityKey, beanKey: props.beanKey})) }}
     >
-      <span className="badge">⭐</span>{state.face} {state.good ? <span className="purchase">
+      {state.badge ? <span className={"badge "+state.badge}>{state.badge}</span>: null}{state.face} {state.good ? <span className="purchase">
         <span className="money">💸</span>
         <span className="purchase-good">{state.good}</span>
       </span>: null} {state.speech ? <span className="speech">
         <span className="">{state.speech}</span>
-      </span>: null}<span className="hat">👒</span>
+      </span>: null}{state.hat?<span className={"hat "+state.hat}>{state.hat}</span>:null}
     </span>
   )
 }

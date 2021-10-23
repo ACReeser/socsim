@@ -1,5 +1,6 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
+import { GameStorageInstance } from '../../GameStorage'
 import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
@@ -17,6 +18,7 @@ import { IPickup } from '../../simulation/Pickup'
 import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseCharge, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { GetSeedName } from '../../simulation/SeedGen'
+import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
@@ -522,6 +524,39 @@ export const worldSlice = createSlice({
           }
           bean.actionData.buyReceipt = receipt;
         }
+      },
+      addTitle: (state, action: PayloadAction<{}>) => {
+        EntityAddToSlice(state.titles, {
+          key: 0,
+          name: 'Title',
+          privileges: []
+        })
+      },
+      editTitle: (state, action: PayloadAction<{newT: ITitle}>) => {
+        const oldTitle = state.titles.byID[action.payload.newT.key];
+        state.titles.byID[action.payload.newT.key] = action.payload.newT;
+        if (oldTitle && oldTitle.badge != action.payload.newT.badge){
+          state.beans.allIDs.forEach((x) => {
+            if (state.beans.byID[x].titleKey === oldTitle.key)
+              state.beans.byID[x].badge = action.payload.newT.badge;
+          });
+        }
+        if (oldTitle && oldTitle.headwear != action.payload.newT.headwear){
+          state.beans.allIDs.forEach((x) => {
+            if (state.beans.byID[x].titleKey === oldTitle.key)
+              state.beans.byID[x].hat = action.payload.newT.headwear;
+          });
+        }
+      },
+      manualSave: (state) => {
+        GameStorageInstance.SaveGame(state);
+      },
+      beanSetTitle: (state, action: PayloadAction<{beanKey: number, titleKey: number}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        bean.titleKey = action.payload.titleKey;
+        const title = state.titles.byID[action.payload.titleKey];
+        bean.badge = title.badge;
+        bean.hat = title.headwear;
       }
     }
   });
@@ -565,7 +600,8 @@ export const worldSlice = createSlice({
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
-    beanBePersuaded, cheatAdd,
+    beanBePersuaded, cheatAdd, manualSave,
+    addTitle, editTitle, beanSetTitle,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   

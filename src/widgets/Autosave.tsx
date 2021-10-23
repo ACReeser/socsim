@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { GameStorageInstance } from '../GameStorage';
+import { manualSave } from '../state/features/world.reducer';
+import { useAppDispatch } from '../state/hooks';
 export const AutosaveWidget: React.FC<{}> = (props) => {
     const [isDirty, setDirty] = useState(false);
     const [isSaving, setSaving] = useState(false);
+    const dispatch = useAppDispatch();
     const onDirty = (dirty: boolean) => {
         setDirty(dirty);
     }
@@ -18,7 +21,9 @@ export const AutosaveWidget: React.FC<{}> = (props) => {
         GameStorageInstance.Saving.subscribe(onSaving);
         return () => GameStorageInstance.Saving.unsubscribe(onSaving);
     });
-    return <button disabled={!isDirty || isSaving}>
+    return <button disabled={!isDirty || isSaving} onClick={() => {
+        dispatch(manualSave());
+    }}>
             {
                 isSaving ? '💿' : isDirty ? '💾' : '✔️'
             }

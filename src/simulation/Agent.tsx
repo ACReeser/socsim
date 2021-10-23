@@ -621,7 +621,10 @@ export interface IBean extends ISeller, IBeanAgent{
     bornInPetri: boolean,
     ticksSinceLastRelax: number,
     lastChatMS: number,
-    lastPoint?: Point
+    lastPoint?: Point,
+    titleKey?: number,
+    badge?: string,
+    hat?: string
 }
 
 /**
