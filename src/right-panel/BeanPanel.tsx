@@ -20,6 +20,7 @@ interface BeanPanelP{
     bean: IBean,
     alien: IPlayerData;
     brainwash: () => void;
+    entitle: () => void;
 }
 function happyTable(mods: IHappinessModifier[]){
     return mods.filter((y) => y.mod != 0).map((x, i) => {
@@ -118,7 +119,7 @@ function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwa
             </div>
             <div className="card-parent">
                 {
-                    bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
+                    bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {brainwash()}}></CardButton>)
                 }
             </div>
             <div className="card-parent">
@@ -224,7 +225,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 </button>
             </div> */}
             
-            <TitleButton beanKey={bean.key}></TitleButton>
+            <TitleButton beanKey={bean.key} entitle={props.entitle}></TitleButton>
             <div className="card-parent">
                 {/* <button type="button" className="button card" onClick={scan} disabled={true}
                     title="Steal a bit of this being's mind">
@@ -259,15 +260,15 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
 }
 
 export const TitleButton: React.FC<{
-    beanKey: number
+    beanKey: number,
+    entitle: () => void
 }> = (props) => {
     const titles = useAppSelector(s => s.world.titles.allIDs);
-    const dispatch = useAppDispatch();
     if (titles.length > 0){
         return <div className="card-parent">
             <button type="button" className="button card"
                 // disabled={bean.lifecycle != 'alive' || !PlayerCanAfford(alien, alien.difficulty.cost.bean.abduct)}
-                onClick={() => dispatch(beanSetTitle({beanKey: props.beanKey, titleKey: 0}))}
+                onClick={() => props.entitle()}
                 title="Give this bean a title"
             >
                 👑 Give Title

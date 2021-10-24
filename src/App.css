@@ -230,6 +230,13 @@ button.pull-r{
 .modal button.done{
   float: right;
 }
+.modal.modal-tiny{
+  width: 30vw;
+  height: 30vh;
+  top: 35%;
+  left: 35%;
+
+}
 .pad-20{
   padding: 20px;
 }
@@ -1063,4 +1070,20 @@ select:invalid { color: gray; }
 
 .load-menu .card.marg-b-20{
   margin-bottom: 20px;
+}
+.title-row{
+  display: flex;
+  max-width: 100%;
+  overflow: auto;
+}
+.title-row div{
+  margin-right: 6px;
+}
+.title-box{
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 2px;
+  display: flex;
+  min-width: 254px;
+  flex-direction: column;
 }

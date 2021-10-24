@@ -38,8 +38,9 @@ import { SocialGraph } from './widgets/SocialGraph';
 import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { WorldSfxInstance, WorldSound } from './WorldSound';
+import { EntitleModalContent } from './modal-content/Entitling';
 
-export type ModalView = 'mainmenu'|'loadgame'|'escapemenu'|'greeting' | 'economy' | 'society' | 'gov' | 'polisci' | 'brainwash' | 'traits';
+export type ModalView = 'mainmenu'|'loadgame'|'escapemenu'|'greeting' | 'economy' | 'society' | 'gov' | 'polisci' | 'brainwash' | 'traits'|'entitle';
 interface AppPs {
 }
 interface AppState {
@@ -185,7 +186,10 @@ class App extends React.Component<AppPs, AppState>{
   getPanel() {
     switch (this.state.activeRightPanel) {
       case 'overview':
-        return <DetailPanel openBrainwash={() => this.setState({ activeModal: 'brainwash' })}></DetailPanel>
+        return <DetailPanel 
+          openBrainwash={() => this.setState({ activeModal: 'brainwash' })}
+          openEntitle={() => this.setState({activeModal: 'entitle'})}
+        ></DetailPanel>
       case 'goals':
         return <GoalsPanel></GoalsPanel>
       case 'events':
@@ -283,6 +287,9 @@ class App extends React.Component<AppPs, AppState>{
             </Modal>
             <Modal show={this.state.activeModal == 'brainwash'} onClick={() => this.setState({ activeModal: null })}>
               <BrainwashingContent></BrainwashingContent>
+            </Modal>
+            <Modal show={this.state.activeModal == 'entitle'} onClick={() => this.setState({ activeModal: null })} className="modal-tiny">
+              <EntitleModalContent></EntitleModalContent>
             </Modal>
             <div className="left">
               <div className="top">

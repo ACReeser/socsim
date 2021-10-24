@@ -8,7 +8,8 @@ import { HexPanel } from "./HexPanel";
 import { OverviewPanel } from "./OverviewPanel";
 
 export const DetailPanel: React.FC<{
-    openBrainwash: () => void
+    openBrainwash: () => void,
+    openEntitle: () => void,
 }> = (props) => {
     const city = useAppSelector(selectSelectedCity);
     const districtKey = useAppSelector((x) => x.selected.selectedDistrictKey);
@@ -19,6 +20,7 @@ export const DetailPanel: React.FC<{
     if (bean && city){
         return <BeanPanel bean={bean} city={city} alien={alien}
         brainwash={() => props.openBrainwash()}
+        entitle={() => props.openEntitle()}
         ></BeanPanel>
     }
     if (district) {

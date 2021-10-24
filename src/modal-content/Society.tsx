@@ -28,7 +28,7 @@ export const SocietyPanel: React.FC<{
                 >➕ Title</button>
             </h2>
         </div>
-        <div>
+        <div className="title-row">
             {
                 titles.map(y => <TitleEdit key={y.key} title={y} onEdit={(t) => {
                     dispatch(editTitle({newT: t}))
@@ -43,7 +43,7 @@ export const TitleEdit: React.FC<{
     title: ITitle,
     onEdit: (newT: ITitle) => void
 }> = (props) => {
-    return <div style={{border:'1px solid black',borderRadius: '10px',padding:'2px',display:'flex',width:'300px',flexDirection:'column'}}>
+    return <div className="title-box">
         <div>
             <label>
                 Title:&nbsp;
