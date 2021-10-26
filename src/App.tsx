@@ -289,7 +289,7 @@ class App extends React.Component<AppPs, AppState>{
               <BrainwashingContent></BrainwashingContent>
             </Modal>
             <Modal show={this.state.activeModal == 'entitle'} onClick={() => this.setState({ activeModal: null })} className="modal-tiny">
-              <EntitleModalContent></EntitleModalContent>
+              <EntitleModalContent closeModal={() => this.setState({activeModal: null})}></EntitleModalContent>
             </Modal>
             <div className="left">
               <div className="top">

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Subtabs } from "../chrome/Subtab";
-import { ITitle, TitleBadge, TitleHeadwear, TitlePrivilege } from "../simulation/Titles";
+import { ITitle, TitleBadge, TitleHeadwear, TitlePrivilege, PrivilegeData } from "../simulation/Titles";
 import { addTitle, editTitle } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 
@@ -94,17 +94,26 @@ export const TitleEdit: React.FC<{
             >➕ Privilege</button>
         </h3>
         {
-            props.title.privileges.map((p,i) => <div>
+            props.title.privileges.map((p,i) => <div key={p}>
                 <select key={i} value={p} onChange={(ev) => {
-                    
-                    // const c = props.title.privileges.splice(i, 1, ev.target.value as TitlePrivilege);
-                    // props.onEdit({...props.title, privileges: c})
+                    const newArray = props.title.privileges.slice();
+                    if (ev.target.value === 'None'){
+                        newArray.splice(i, 1);
+                    } else {
+                        newArray.splice(i, 1, ev.target.value as TitlePrivilege);
+                    }
+                    props.onEdit({...props.title, privileges: newArray})
                 }}>
                     <option value={undefined}>None</option>
-                    <option value={'tax_exemption'}>Social Deference</option>
-                    <option value={'tax_exemption'}>Criminal Immunity</option>
+                    <option value={'social_deference'}>Social Deference</option>
+                    <option value={'criminal_immunity'}>Criminal Immunity</option>
                     <option value={'tax_exemption'}>Tax Exemption</option>
+                    <option value={'hereditary'}>Hereditary</option>
+                    <option value={'gentility'}>Gentility</option>
                 </select>
+                {
+                    (p != null && PrivilegeData[p]) ? <div>{PrivilegeData[p].description}</div> : null
+                }
             </div>)
         }
     </div>
