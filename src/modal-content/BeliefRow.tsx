@@ -51,49 +51,49 @@ export const BeliefWidget: React.FC<{
     </div>
 }
 
-export class EditBeliefInput extends React.Component<{
+export const EditBeliefInput: React.FC<{
     data: IBeliefData,
     frozen?: boolean,
     divergent?: boolean,
     available: number,
     cost: number,
-    wash: () => void
-}, {
-
-}>{
-
-    render(){
-        return <div className="belief"><div className="horizontal badger">
+    wash: () => void,
+    extract: () => void,
+}> = (props) => {
+    return <div className="belief">
+        <div className="horizontal edit badger">
             <div className="vertical">
                 <div className="circular">
-                    {this.props.data.icon}
+                    {props.data.icon}
                 </div>
-                {
-                    this.props.frozen ? null : <ConfirmButton className="callout pad-4 marg-0"
-                        confirmText={'-'+this.props.cost.toString()+'🧠?'} disabled={this.props.available < this.props.cost} onConfirm={this.props.wash}>
-                    🚿 <small>Wash</small>
-                    </ConfirmButton>
-                }
             </div>
             <div className="vertical">
                 <div className="text-center">
-                    <strong title={this.props.data.description} className={this.props.divergent ? 'divergent marg-r-6': 'marg-r-6'}>
-                        {this.props.data.noun}
+                    <strong title={props.data.description} className={props.divergent ? 'divergent marg-r-6': 'marg-r-6'}>
+                        {props.data.noun}
                     </strong>
-                    <span className="pull-r">{this.props.cost}🧠</span>
+                    <span className="pull-r">{props.cost}🧠</span>
                 </div>
-                <small className="marg-b-6">{this.props.data.description}</small>
+                <small className="marg-b-6">{props.data.description}</small>
                 <div className="grow-1 text-center">
-                    {/* {
-                        RenderIdealBadges(this.props.data.idealPro || [], 'pos')
-                    }
-                    {
-                        RenderIdealBadges(this.props.data.idealCon || [], 'neg')
-                    }  */}
                 </div>
             </div>
-        </div></div>
-    }
+        </div>
+        <div className="horizontal">
+            {
+                props.frozen ? null : <ConfirmButton className="callout pad-4 marg-0"
+                    confirmText={'-'+props.cost.toString()+'🧠?'} disabled={props.available < props.cost} onConfirm={props.wash}>
+                🚿 <small>Wash Out</small>
+                </ConfirmButton>
+            }
+            {
+                <ConfirmButton className="callout pad-4 marg-0"
+                    confirmText={'-'+props.cost.toString()+'🧠?'} disabled={props.available < props.cost} onConfirm={props.extract}>
+                💎 <small>Copy to Gem</small>
+                </ConfirmButton>
+            }
+        </div>
+    </div>
 }
 
 const SortedBeliefs = BeliefsAll.slice().sort((a, b) => a.localeCompare(b));

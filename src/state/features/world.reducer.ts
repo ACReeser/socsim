@@ -5,7 +5,7 @@ import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCalculateSanity, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
@@ -29,7 +29,7 @@ import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
 
 const ChargePerMarket = 3;
-const ChargePerWash = 2;
+const ChargePerWash = 1;
 
 const UnderemploymentThresholdTicks = 8
 export const worldSlice = createSlice({
@@ -214,26 +214,44 @@ export const worldSlice = createSlice({
         if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
           const oldFaith = bean.faith;
-          while (bean.faith === oldFaith)
+          while (bean.faith === oldFaith){
             bean.faith = GetRandom(state.seed, ['rocket', 'dragon', 'music', 'noFaith']);
+          }
         }
       },
       washBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
         const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
-      if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
-        BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
-        bean.beliefs.splice(
-          bean.beliefs.indexOf(action.payload.trait), 1
-        );
-        const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
-        const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
-        if (existing) {
-          existing.charges += ChargePerWash + chargeBonus;
-        } else
-          state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
-        WorldSfxInstance.play('wash_out');
-      }
+        if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+          BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+          bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
+          bean.beliefs.splice(
+            bean.beliefs.indexOf(action.payload.trait), 1
+          );
+          // const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
+          // const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
+          // if (existing) {
+          //   existing.charges += ChargePerWash + chargeBonus;
+          // } else
+          //   state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
+          WorldSfxInstance.play('wash_out');
+        }
+      },
+      extractBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
+        if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+          BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+          bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
+          const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
+          const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
+          if (existing) {
+            existing.charges += ChargePerWash + chargeBonus;
+          } else {
+            state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
+          }
+          WorldSfxInstance.play('wash_out');
+        }
       },
       setResearch: (state, action: PayloadAction<{t: Tech}>) => {
         state.alien.currentlyResearchingTech = action.payload.t;
@@ -598,7 +616,7 @@ export const worldSlice = createSlice({
     remove_ufo, upgradeDistrict,
     newGame, loadGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, release, scan, vaporize, pickUpPickup,
-    implant, washBelief, washNarrative, washCommunity, washMotive,
+    implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
     beanBePersuaded, cheatAdd, manualSave,
     addTitle, editTitle, beanSetTitle,

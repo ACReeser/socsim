@@ -226,6 +226,7 @@ button.pull-r{
   border: 1px solid rgba(0,0,0,0.75);
   box-shadow: 3px 3px 15px 15px rgba(0,0,0,.5);
   pointer-events: all;
+  z-index: 1;
 }
 .modal button.done{
   float: right;
@@ -1086,4 +1087,28 @@ select:invalid { color: gray; }
   display: flex;
   min-width: 254px;
   flex-direction: column;
+}
+.trait-gem{
+  position: relative;
+  height: 1.25em;
+  width: 2em;
+  line-height: 1.25em;
+  display: inline-block;
+  font-style: normal;
+}
+.trait-gem:before{
+  position: absolute;
+  content: '💎';
+  left: 0em;
+  top: 0;
+  font-size: 1.5em;
+}
+.trait-gem:after{
+  position: absolute;
+  content: '🧠';
+  left: 20%;
+  top: -2px;
+  font-size: 0.9em;
+  z-index: 1;
+  opacity: .65;
 }

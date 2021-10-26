@@ -64,7 +64,7 @@ export function simulate_world(world: IWorldState){
         const max = TechData[tech].techPoints;
         const current = world.alien.techProgress[tech].researchPoints;
         if (current < max)
-            world.alien.techProgress[tech].researchPoints += world.alien.abductedBeanKeys.length;
+            world.alien.techProgress[tech].researchPoints += world.alien.abductedBeanKeys.length *  1/TicksPerDay;
         if (current >= max){
             if (world.alien.currentlyResearchingTech === 'neural_duplicator')
                 world.alien.beliefInventory.forEach((x) => x.charges += 1);
