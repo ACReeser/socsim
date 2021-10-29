@@ -67,7 +67,7 @@ export function simulate_world(world: IWorldState){
             world.alien.techProgress[tech].researchPoints += world.alien.abductedBeanKeys.length *  1/TicksPerDay;
         if (current >= max){
             if (world.alien.currentlyResearchingTech === 'neural_duplicator')
-                world.alien.beliefInventory.forEach((x) => x.charges += 1);
+                world.alien.beliefInventory.forEach((x) => x.gems += 1);
             world.alien.currentlyResearchingTech = undefined;
 
         }

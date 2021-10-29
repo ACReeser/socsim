@@ -40,7 +40,7 @@ export const TraitsReport: React.FC = () => {
                         </strong>
                       </div>
                       <div>
-                        This can be implanted {x.charges} more times
+                        This can be implanted {x.gems} more times
                       </div>
                     </div>)
             }

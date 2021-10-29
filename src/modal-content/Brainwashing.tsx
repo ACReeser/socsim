@@ -20,11 +20,11 @@ export const TraitInventoryList: React.FC<{
         {beliefInventory.map((x) => <BeliefWidget 
         key={x.trait} data={SecondaryBeliefData[x.trait]} titleView={<strong>{SecondaryBeliefData[x.trait].noun}</strong>}
         leftButton={
-            <ConfirmButton onConfirm={() => dispatch(implant({beanKey: props.beanKey, trait: x.trait}))} className="callout marg-0" confirmText="-1 🧠?" disabled={x.charges < 1 || props.dogmatic}>
+            <ConfirmButton onConfirm={() => dispatch(implant({beanKey: props.beanKey, trait: x.trait}))} className="callout marg-0" confirmText="-1 🧠?" disabled={x.gems < 1 || props.dogmatic}>
                 Implant
             </ConfirmButton>
         }
-        bottomView={<span><span className="trait-gem"></span>x{x.charges}</span>}>
+        bottomView={<span><span className="trait-gem"></span>x{x.gems}</span>}>
         </BeliefWidget>)}
     </>
 };

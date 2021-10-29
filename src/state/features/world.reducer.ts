@@ -5,7 +5,7 @@ import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, BeanCalculateSanity, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCalculateSanity, BeanCanPurchase, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
@@ -15,7 +15,7 @@ import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
-import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseCharge, Tech } from '../../simulation/Player'
+import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseTraitGem, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { GetSeedName } from '../../simulation/SeedGen'
 import { ITitle } from '../../simulation/Titles'
@@ -29,7 +29,7 @@ import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
 
 const ChargePerMarket = 3;
-const ChargePerWash = 1;
+const ChargePerExtract = 1;
 
 const UnderemploymentThresholdTicks = 8
 export const worldSlice = createSlice({
@@ -228,13 +228,13 @@ export const worldSlice = createSlice({
           bean.beliefs.splice(
             bean.beliefs.indexOf(action.payload.trait), 1
           );
-          // const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
-          // const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
-          // if (existing) {
-          //   existing.charges += ChargePerWash + chargeBonus;
-          // } else
-          //   state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
-          WorldSfxInstance.play('wash_out');
+          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (insanityEvent){
+            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+            WorldSfxInstance.play('crazy_laugh');
+          } else {
+            WorldSfxInstance.play('wash_out');
+          }
         }
       },
       extractBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
@@ -246,12 +246,21 @@ export const worldSlice = createSlice({
           const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
           const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
           if (existing) {
-            existing.charges += ChargePerWash + chargeBonus;
+            existing.gems += ChargePerExtract + chargeBonus;
           } else {
-            state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
+            state.alien.beliefInventory.push({trait: action.payload.trait, gems: ChargePerExtract + chargeBonus});
           }
-          WorldSfxInstance.play('wash_out');
+          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (insanityEvent){
+            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+            WorldSfxInstance.play('crazy_laugh');
+          } else {
+            WorldSfxInstance.play('wash_out');
+          }
         }
+      },
+      acknowledgeNewInsanity: (state) =>{
+        state.insanityEvent = undefined;
       },
       setResearch: (state, action: PayloadAction<{t: Tech}>) => {
         state.alien.currentlyResearchingTech = action.payload.t;
@@ -260,11 +269,18 @@ export const worldSlice = createSlice({
         const bean = state.beans.byID[action.payload.beanKey];
         const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
         if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
-          state.alien.beliefInventory.filter(x => x.trait == action.payload.trait && x.charges > 0)) {
+          state.alien.beliefInventory.filter(x => x.trait == action.payload.trait && x.gems > 0)) {
           bean.beliefs.push(action.payload.trait);
-          PlayerUseCharge(state.alien, action.payload.trait);
-          WorldSfxInstance.play('wash_in');
+          PlayerUseTraitGem(state.alien, action.payload.trait);
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0); 
+          bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
+          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (insanityEvent){
+            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+            WorldSfxInstance.play('crazy_laugh');
+          } else {
+            WorldSfxInstance.play('wash_in');
+          }
         }
       },
       scan: (state, action: PayloadAction<{beanKey: number}>) => {
@@ -480,9 +496,9 @@ export const worldSlice = createSlice({
       if (PlayerTryPurchase(state.alien, action.payload.l.cost)) {
         const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.l.trait);
         if (existing) {
-          existing.charges += ChargePerMarket;
+          existing.gems += ChargePerMarket;
         } else
-          state.alien.beliefInventory.push({trait: action.payload.l.trait, charges: ChargePerMarket});
+          state.alien.beliefInventory.push({trait: action.payload.l.trait, gems: ChargePerMarket});
       }
     },
       beanBuy: (state, action: PayloadAction<{beanKey: number, good: TraitGood}>) =>{

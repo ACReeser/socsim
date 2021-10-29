@@ -1,10 +1,12 @@
-import { TraitCommunity, TraitFaith, TraitIdeals } from "../World";
+import { TraitCommunity, TraitFaith, TraitIdeals, TraitSanity } from "../World";
+import { GetRandom, GetRandomRoll } from "../WorldGen";
 
-export type BeliefCommonality = 'common'|'uncommon'|'rare';
+export type BeliefCommonality = 'common'|'uncommon'|'rare'|'unique';
 export const CommonalityChances: {[b in BeliefCommonality]: number} = {
     'common': 3,
     'uncommon': 2,
-    'rare': 1
+    'rare': 1,
+    'unique': 0
 };
 
 export type TraitBelief = 'Diligence'| // happy from work
@@ -46,7 +48,10 @@ export type TraitBelief = 'Diligence'| // happy from work
 'Depression'|
 'Optimism'|
 'Fraud'|
-'Greed'; // steal easier
+'Greed'| // steal easier
+'Delirium'|
+'Catatonia'|
+'DelusionalMania';
 
 
 // 'friendly'| // likes all beings more
@@ -294,18 +299,18 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
 
     // madness traits
-    // Delirium: {
-    //     noun: 'Delirium', adj: 'Delirious', icon: '😪', rarity: 'rare',
-    //     description: "Chooses actions at random"
-    // },
-    // DelusionalMania: {
-    //     noun: 'Delusional Mania', adj: 'Delusional Maniac', icon: '😵', rarity: 'rare',
-    //     description: "🎲 to ☠️ nearby subjects"
-    // },
-    // Catatonia: {
-    //     noun: 'Catatonia', adj: 'Catatonic', icon: '😶', rarity: 'rare',
-    //     description: "-50% walk speed. Cannot work."
-    // },
+    Delirium: {
+        noun: 'Delirium', adj: 'Delirious', icon: '😪', rarity: 'unique',
+        description: "Chooses actions at random"
+    },
+    DelusionalMania: {
+        noun: 'Delusional Mania', adj: 'Delusional Maniac', icon: '😵', rarity: 'unique',
+        description: "🎲 to ☠️ nearby subjects"
+    },
+    Catatonia: {
+        noun: 'Catatonia', adj: 'Catatonic', icon: '😶', rarity: 'unique',
+        description: "-50% walk speed. Cannot work."
+    },
 
     // meta-traits
     Neuroticism: {
@@ -334,6 +339,53 @@ export function IsBeliefDivergent(belief: TraitBelief, utopiaMotive: TraitIdeals
     return data.idealCon != null && data.idealCon.reduce((isDivergent: boolean, con) => {
         return isDivergent || IsIdealDivergent(con, utopiaMotive, utopiaCommunity);
     }, false);
+}
+
+export type InsanityTraits = 'Depression'|'Catatonia'|'Neuroticism'|'DelusionalMania'|'Delirium'|'Sadism'|'Antagonism';
+export const Insanities: Array<InsanityTraits> = ['Depression','Catatonia','Neuroticism','DelusionalMania','Delirium','Sadism','Antagonism'];
+const InsanityChances = {
+    'Catatonia': 2,
+    'Neuroticism': 2,
+    'DelusionalMania': 2,
+    'Delirium': 2,
+    'Sadism': 2,
+    'Depression': 1,
+    'Antagonism': 1
+};
+/**
+ * maps bean sanity to chance of getting any insanity.
+ * 
+ * Value will be between 0-1
+ */
+const SanityChances = {
+    'psychotic': 1,
+    'disturbed': .65,
+    'stressed': .1,
+    'sane': 0
+}
+export function GetInsanityFromBrainwashing(seed: string, sanity: TraitSanity, existingBeliefs: TraitBelief[]): InsanityTraits|undefined{
+    const chance = SanityChances[sanity];
+    if (GetRandomRoll(seed, chance)){
+        const list: InsanityTraits[] = [];
+        for (let s = 0; s < Insanities.length; s++) {
+            const insanity = Insanities[s];
+
+            // don't allow duplicate insanities
+            if (existingBeliefs.find(x => x === insanity))
+                continue;
+            
+            let slots = InsanityChances[insanity];
+            if (sanity === 'psychotic')
+                slots *= 2;
+            
+            for (let i = 0; i < slots; i++) {
+                list.push(insanity);
+            }
+        }
+        return GetRandom(seed, list);
+    } else {
+        return undefined;
+    }
 }
 
 export const BeliefsAll = Object.keys(SecondaryBeliefData).map((x) => x as TraitBelief);

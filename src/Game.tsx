@@ -162,7 +162,8 @@ export const DefaultDifficulty: IDifficulty = {
             beliefs: {
                 common: {},
                 uncommon: {},
-                rare: {}
+                rare: {},
+                unique: {}
             },
         }
     },

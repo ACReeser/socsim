@@ -1,6 +1,7 @@
 import { IEvent } from '../../events/Events'
 import { DefaultDifficulty } from '../../Game'
 import { IBean } from '../../simulation/Agent'
+import { InsanityTraits } from '../../simulation/Beliefs'
 import { ICity } from '../../simulation/City'
 import { IEconomy } from '../../simulation/Economy'
 import { IBuilding, IDistrict, ILot } from '../../simulation/Geography'
@@ -32,6 +33,7 @@ export interface IWorldState {
   date: IDate,
   alien: IPlayerData,
   spotlightEvent: IEvent | undefined,
+  insanityEvent: {beanKey: number, newInsanity: InsanityTraits}|undefined,
   /**
    * 1-based ID of save slot (1-3)
    */
@@ -94,6 +96,7 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
       currentlyResearchingTech: undefined
     },
     spotlightEvent: undefined,
+    insanityEvent: undefined,
     saveSlot: 1,
     seed: seed
   }

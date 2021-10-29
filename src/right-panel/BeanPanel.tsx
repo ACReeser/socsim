@@ -5,7 +5,7 @@ import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { ICity } from "../simulation/City";
 import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
 import { ITitle } from "../simulation/Titles";
-import { doSelectNone } from "../state/features/selected.reducer";
+import { doSelectCity, doSelectNone } from "../state/features/selected.reducer";
 import { abduct, beanSetTitle, scan, vaporize } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean, selectSelectedCity } from "../state/state";
@@ -161,7 +161,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 }
                 </b>
                 <button type="button" className="pull-r" onClick={() => {
-                    dispatch(doSelectNone())
+                    dispatch(doSelectCity({cityKey:bean.cityKey}))
                 }} >❌</button>
             </div>
             <div className="bean-view">                
