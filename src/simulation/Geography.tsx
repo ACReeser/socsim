@@ -1,4 +1,3 @@
-import { LiveMap } from "../events/Events";
 import { TraitGood, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
 import { IEnterprise } from "./Institutions";
@@ -8,6 +7,20 @@ import { MathClamp } from "./Utils";
 export interface HexPoint{
     q: number;
     r: number;
+}
+export interface IDistrict extends HexPoint{
+    key: number,
+    hexString: string,
+    point: Point,
+    kind: 'fallow'|'rural'|'urban'|'nature',
+    lots: number[]
+}
+export interface ILot{
+    key: number,
+    districtKey: number,
+    point: Point,
+    buildingKey?: number,
+    kind: 'rural'|'urban',
 }
 export class Hex implements HexPoint{
     constructor(public q: number, public r: number){}
@@ -192,16 +205,26 @@ export const layout_flat: Orientation = new Orientation(
     Math.sqrt(3.0) / 3.0,
     0.0
 );
+export const layout_pointy: Orientation = new Orientation(
+    Math.sqrt(3.0), 
+    Math.sqrt(3.0) / 2.0, 
+    0.0, 3.0 / 2.0,       
+    Math.sqrt(3.0) / 3.0, 
+    -1.0 / 3.0, 
+    0.0, 
+    2.0 / 3.0,
+    0.5
+);
 export const origin_point: Point = {x: 0, y: 0};
 export const hex_origin: HexPoint = {q: 0, r: 0};
 export function hex_to_pixel(size: Point, origin: Point, h: HexPoint): Point {
-    const M: Orientation = layout_flat;
+    const M: Orientation = layout_pointy;
     const x = (M.f0 * h.q + M.f1 * h.r) * size.x;
     const y = (M.f2 * h.q + M.f3 * h.r) * size.y;
     return {x: x + origin.x, y: y + origin.y};
 }
 export function pixel_to_hex(size: Point, origin: Point, p: Point) {
-    const M = layout_flat;
+    const M = layout_pointy;
     const pt = {x: (p.x - origin.x) / size.x,
                 y: (p.y - origin.y) / size.y
             };
@@ -253,11 +276,13 @@ export function transformPoint(p: Point){
 
 export interface IBuilding{
     key: number;
-    address: HexPoint;
+    hex: HexPoint,
+    point: Point;
     type: BuildingTypes;
     jobs: number[];
     upgraded: boolean,
-    enterpriseKey?: number
+    enterpriseKey?: number,
+    lotKey: number
 }
 
 /**
@@ -283,89 +308,6 @@ export interface AddressBuildingGrid extends AddressGrid<IBuilding>{}
 export interface BuildingMap{
     coordByID: AddressBookHex;
     all: IBuilding[];
-}
-
-export class CityBook {
-    /**
-     * given "q,r", return the IBuilding.key
-     */
-    public readonly map = new LiveMap<string, number>(new Map());
-    /**
-     * given IBuilding.type return the IBuilding[]
-     */
-    public readonly yellow = new LiveMap<string, number[]>(new Map());
-    /**
-     * given IBuilding.key, return "q,r"
-     */
-    public readonly white = new LiveMap<number, string>(new Map());
-    /**
-     * given IBuilding.key, return IBuilding
-     */
-    public readonly db: LiveMap<number, IBuilding>;
-
-    constructor(_db: Map<number, IBuilding>){
-        this.db = new LiveMap<number, IBuilding>(_db);
-        this.buildIndexes();
-        this.db.afterSetBeforePublish = () => this.buildIndexes();
-    }
-
-    private buildIndexes(){
-        const keys = Array.from(this.db.get.keys());
-        const ix = { 
-            map: new Map<string, number>(),
-            yellow: new Map<string, number[]>(),
-            white: new Map<number, string>()
-        }
-        keys.forEach((key: number) => {
-            const b = this.db.get.get(key);
-            if (b){
-                const address = b.address.q+','+b.address.r;
-                ix.map.set(address, b.key);
-                ix.white.set(b.key, address);
-                const group = ix.yellow.get(b.type) || []
-                ix.yellow.set(b.type, group.concat([b.key]));
-            }
-
-        });
-        this.white.set(ix.white);
-        this.map.set(ix.map);
-        this.yellow.set(ix.yellow);
-    }
-
-    public addBuilding(b: IBuilding){
-        this.db.add(b.key, b);
-        this.buildIndexes();
-    }
-    public removeBuilding(b: IBuilding){
-        this.db.remove(b.key);
-        this.buildIndexes();
-    }
-
-    public getBuildings(): IBuilding[]{
-        return Array.from(this.db.get.values());
-    }
-    public findBuildingByCoordinate(h: HexPoint){
-        const address = h.q+','+h.r;
-        const key = this.map.get.get(address);
-        if (key != null) 
-            return this.db.get.get(key);
-        return undefined;
-    }
-    public getRandomBuildingOfType(seed: string, buildingType: BuildingTypes): IBuilding|undefined{
-        const keysOfType: number[] = this.yellow.get.get(buildingType) || [];
-        const r = GetRandom(seed, keysOfType);
-        return this.db.at(r);
-    }
-
-    public getRandomEntertainmentBuilding(seed: string): IBuilding|undefined{
-        const keysOfType: number[] = (this.yellow.get.get('park') || []).concat(this.yellow.get.get('nature') || []);
-        const r = GetRandom(seed, keysOfType);
-        return this.db.at(r);
-    }
-
-    public getCountOfType(buildingType: BuildingTypes): number{
-        return Array.from(this.yellow.get.get(buildingType) || []).length;
-    }
 }
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
@@ -428,17 +370,21 @@ export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
     'courthouse': 'polit'
 };
 
-export const HexSizePX = 70;
-export const HexSizeR = 120; // rounded sqrt(3) * HexSizePX
+//district sized hexes
+export const HexSizePX = 150;
+export const HexSizeR = 260; // rounded sqrt(3) * HexSizePX
+export const DistrictHexSize = {x: HexSizePX, y: HexSizePX};
 
-export function GenerateGeography(){
-    const numberOfRings = 5;
-    const radius = ((numberOfRings - 0.5) * HexSizeR) + numberOfRings;
+export function GenerateGeography(numberOfRings: number = 3){
+    const radius = ((numberOfRings - 0.5) * HexSizeR);
     return {
         numberOfRings: numberOfRings,
         hexes: hex_spiral({q:0, r:0}, numberOfRings),
-        hex_size: {x: HexSizePX, y: HexSizePX},
+        hex_size: {...DistrictHexSize},
         petriRadius: radius,
         petriOrigin: {x: radius, y: radius}
     }
 }
+
+export const LotHexSizePX = 50;
+export const LotHexSizeR = 86; // rounded sqrt(3) * LotHexSizePX

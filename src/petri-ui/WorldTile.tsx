@@ -3,7 +3,7 @@ import { HexSizeR, polarToPoint, transformPoint } from "../simulation/Geography"
 import { magnetChange } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { AnimatedUFO2 } from "./AnimatedUFO2";
-import { PetriHexes2 } from "./Buildings";
+import { PetriHexes2 } from "./PetriHexes";
 import { Magnet2 } from "./Magnet";
 import { PetriBeanList, PickupList2 } from "./Mover";
 

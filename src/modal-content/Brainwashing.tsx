@@ -1,8 +1,8 @@
 import React from "react";
-import { BeanBelievesIn } from "../simulation/Bean";
+import { BeanBelievesIn, BeanGetFace } from "../simulation/Bean";
 import { NarrativeBeliefData, SecondaryBeliefData } from "../simulation/Beliefs";
 import { HasResearched } from "../simulation/Player";
-import { implant, washBelief, washNarrative } from "../state/features/world.reducer";
+import { extractBelief, implant, washBelief, washNarrative } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean } from "../state/state";
 import { ConfirmButton } from "../widgets/ConfirmButton";
@@ -20,11 +20,11 @@ export const TraitInventoryList: React.FC<{
         {beliefInventory.map((x) => <BeliefWidget 
         key={x.trait} data={SecondaryBeliefData[x.trait]} titleView={<strong>{SecondaryBeliefData[x.trait].noun}</strong>}
         leftButton={
-            <ConfirmButton onConfirm={() => dispatch(implant({beanKey: props.beanKey, trait: x.trait}))} className="callout marg-0" confirmText="-1 🧠?" disabled={x.charges < 1 || props.dogmatic}>
+            <ConfirmButton onConfirm={() => dispatch(implant({beanKey: props.beanKey, trait: x.trait}))} className="callout marg-0" confirmText="-1 🧠?" disabled={x.gems < 1 || props.dogmatic}>
                 Implant
             </ConfirmButton>
         }
-        bottomView={<span>{x.charges} 🧠</span>}>
+        bottomView={<span><span className="trait-gem"></span>x{x.gems}</span>}>
         </BeliefWidget>)}
     </>
 };
@@ -39,27 +39,45 @@ export const BrainwashingContent: React.FC<{
     const sanityCostBonus = HasResearched(techProgress, 'sanity_bonus') ? -1 : 0;
     if (bean == null) return <div></div>;
     const dogmatic = BeanBelievesIn(bean, 'Dogmatism');
+    const brains = [];
+    for (let i = 1; i < 11; i++) {
+        brains.push(bean.discrete_sanity >= i ? '🧠': '😵');
+    }
     return <div>
         <div className="horizontal fancy-header">
             <div>
-                BRAIN
-            </div>
-            <div className="emoji-3">
-            🧠🚿
+            🧠🚿 BRAINWASH
             </div>
             <div>
-                WASH
+                <strong>{BeanGetFace(bean)} {bean.name}</strong>
+            </div>
+            <div>
+                <table className="trait-measure">
+                    <tbody>
+                    <tr>
+                        {
+                            brains.map((x, i) => <td key={i} className={x === '😵' ? 'grey' : ''}>{x}</td>)
+                        }
+                    </tr>
+                    <tr>
+                        <td colSpan={2} className="set-1"><small>Psychotic</small></td>
+                        <td colSpan={2} className="set-2"><small>Disturbed</small></td>
+                        <td colSpan={3} className="set-3"><small>Stressed</small></td>
+                        <td colSpan={3} className="set-4"><small>Sane</small></td>
+                        <td></td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div>
-            <p className="pad-4p">
-                <strong>{bean.name}</strong> has {bean.discrete_sanity.toFixed(0)} sanity 🧠. 
-                {
-                    bean.sanity === 'stressed' || bean.sanity === 'disturbed' ?
-                        <small className="pull-r">(Low sanity 🧠 causes {EmoteIcon['unhappiness']}; Negative sanity 🧠 causes extremely negative traits)</small>
-                    : null
-                }
-            </p>
+        <p className="pad-4p text-center">
+            {
+                bean.sanity != 'sane' ?
+                    <small>Low sanity 🧠 causes {EmoteIcon['unhappiness']}! Negative sanity 🧠 causes extremely negative traits!</small>
+                : null
+            }
+        </p>
+        <div style={{clear: 'both'}}>
             {
                 dogmatic ? <div className="text-center">
                     🐶 Dogmatic subjects cannot change their minds
@@ -81,6 +99,9 @@ export const BrainwashingContent: React.FC<{
                 <EditBeliefInput
                     available={bean.discrete_sanity} frozen={dogmatic}
                     wash={() => dispatch(washNarrative({beanKey: bean.key, faith:bean.faith}))} 
+                    extract={() => {
+                        
+                    }} 
                     cost={difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
                     data={NarrativeBeliefData[bean.faith]}
                 ></EditBeliefInput>
@@ -90,6 +111,7 @@ export const BrainwashingContent: React.FC<{
                     available={bean.discrete_sanity} frozen={dogmatic && b != 'Dogmatism'}
                     divergent={false}
                     wash={() => dispatch(washBelief({beanKey: bean.key, trait: b}))} 
+                    extract={() => dispatch(extractBelief({beanKey: bean.key, trait: b}))} 
                         cost={(difficulty.cost.bean_brain.brainwash_secondary.sanity || 0) + sanityCostBonus}
                         data={SecondaryBeliefData[b]}
                     >
@@ -104,7 +126,7 @@ export const BrainwashingContent: React.FC<{
                 } */}
             </div> : <div className="text-center">🛰️ Scan this subject to reveal its Traits! </div>}
             <h3 className="pad-4p">
-                🧠 Trait Inventory
+                <span className="trait-gem"></span> Trait Gems
             </h3>
             <div className="horizontal scroll">
                 <TraitInventoryList beanKey={bean.key}

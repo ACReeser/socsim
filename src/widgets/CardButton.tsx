@@ -1,4 +1,3 @@
-import { ReactComponent } from "*.svg";
 import React from "react";
 import { keyToName } from "../i18n/text";
 import { IBean } from "../simulation/Agent";

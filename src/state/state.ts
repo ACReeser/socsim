@@ -46,15 +46,14 @@ export const selectSelectedBean = (state: RootState) => {
 }
 export const selectSelectedBuilding = (state: RootState) => {
   const city = state.selected.selectedCityKey != null && state.world.cities.byID[state.selected.selectedCityKey];
-  if (city && state.selected.selectedHexKey != null)
+  if (city && state.selected.selectedLotKey != null)
   {
-    const buildingID = city.buildingMap[state.selected.selectedHexKey];
-    return state.world.buildings.byID[buildingID];
-
-  } else {
-    return undefined;
+    const buildingID = state.world.lots.byID[state.selected.selectedLotKey].buildingKey;
+    if (buildingID != null)
+      return state.world.buildings.byID[buildingID];
   }
+  return undefined;
 }
 export const selectEventIDs = (state: RootState) => {
-  return state.world.events.allIDs.map(y => state.world.events.byID[y]);
+  return state.world.events.allIDs;
 };

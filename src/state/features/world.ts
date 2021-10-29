@@ -1,15 +1,17 @@
 import { IEvent } from '../../events/Events'
 import { DefaultDifficulty } from '../../Game'
 import { IBean } from '../../simulation/Agent'
+import { InsanityTraits } from '../../simulation/Beliefs'
 import { ICity } from '../../simulation/City'
 import { IEconomy } from '../../simulation/Economy'
-import { GenerateGeography, IBuilding } from '../../simulation/Geography'
+import { IBuilding, IDistrict, ILot } from '../../simulation/Geography'
 import { IGovernment, ILaw, LawAxis } from '../../simulation/Government'
 import { IEnterprise } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData } from '../../simulation/Player'
 import { IDate, Season } from '../../simulation/Time'
+import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { GenerateCity } from '../../WorldGen'
 import { CreateEmptyEntitySlice, CreateEntitySlice, IEntitySlice } from '../entity.state'
@@ -22,12 +24,16 @@ export interface IWorldState {
   ufos: IEntitySlice<IUFO>,
   events: IEntitySlice<IEvent>,
   pickups: IEntitySlice<IPickup>,
+  districts: IEntitySlice<IDistrict>,
+  lots: IEntitySlice<ILot>,
+  titles: IEntitySlice<ITitle>,
   economy: IEconomy,
   law: IGovernment,
   marketTraitsForSale: MarketTraitListing[],
   date: IDate,
   alien: IPlayerData,
   spotlightEvent: IEvent | undefined,
+  insanityEvent: {beanKey: number, newInsanity: InsanityTraits}|undefined,
   /**
    * 1-based ID of save slot (1-3)
    */
@@ -46,6 +52,9 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     ufos: CreateEmptyEntitySlice<IUFO>(),
     events: CreateEmptyEntitySlice<IEvent>(),
     pickups: CreateEmptyEntitySlice<IPickup>(),
+    lots: CreateEmptyEntitySlice<ILot>(),
+    districts: CreateEmptyEntitySlice<IDistrict>(),
+    titles: CreateEmptyEntitySlice<ITitle>(),
     economy: {
       unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
       monthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
@@ -87,6 +96,7 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
       currentlyResearchingTech: undefined
     },
     spotlightEvent: undefined,
+    insanityEvent: undefined,
     saveSlot: 1,
     seed: seed
   }

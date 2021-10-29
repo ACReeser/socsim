@@ -1,11 +1,12 @@
 import { IBean } from './simulation/Agent';
 import { RandomBeliefBucket } from './simulation/Beliefs';
 import { ICity } from './simulation/City';
-import { BuildingTypes, GenerateGeography, HexPoint, PolarPoint } from './simulation/Geography';
+import { BuildingTypes, GenerateGeography, HexPoint, hex_to_pixel, IDistrict, ILot, LotHexSizePX, PolarPoint } from './simulation/Geography';
 import { IDate } from './simulation/Time';
 import { IWorldState } from './state/features/world';
 import { TraitCommunity, TraitEthno, TraitFaith, TraitIdeals, TraitJob } from './World';
 import Rand, {PRNG} from 'rand-seed';
+import { CreateEntitySlice, EntityAddToSlice, IEntitySlice } from './state/entity.state';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
@@ -123,8 +124,55 @@ export function GenerateCity(): ICity{
         buildingKeys: [],
         pickupMagnetPoint: undefined,
         costOfLiving: 0,
-        buildingMap: {}
+        buildingMap: {},
+        districtKeys: []
       }
+}
+export function GenerateDistrictsAndLots(city: ICity): {ds:IEntitySlice<IDistrict>,lots:IEntitySlice<ILot>}{
+    const lots = CreateEntitySlice<ILot>([]);
+    const ds = CreateEntitySlice<IDistrict>(city.hexes.map((x, i) => {
+        const isCenter = (x.q === 0 && x.r === 0);
+        const d = GenerateDistrict(isCenter ? 'urban': 'fallow', city, x);
+        d.key = i+1;
+        city.districtKeys.push(d.key);
+        if (isCenter)
+            DistrictAddLots(d, lots, 'urban');
+        return d;
+    }));
+    return {
+        ds: ds,
+        lots: lots
+    }
+}
+
+export function GenerateDistrict(kind: 'urban'|'rural'|'fallow'|'nature', city: ICity, hex: HexPoint): IDistrict{
+    return {
+        kind: kind,
+        key: 0,
+        q: hex.q,
+        r: hex.r,
+        hexString: hex.q+','+hex.r,
+        point: hex_to_pixel(city.hex_size, city.petriOrigin, hex),
+        lots: []
+    }
+}
+
+const urbanHexes = [{q: 1, r: -1},{q: 1, r: 0},{q: 0, r: 1},{q: -1, r: 1},{q: -1, r: 0},{q: 0, r: -1}];
+const ruralHexes = [{q: 1, r: -1},{q: 0, r: 1},{q: -1, r: 0}];
+export function DistrictAddLots(district: IDistrict, lotSlice: IEntitySlice<ILot>, kind: 'urban'|'rural'){
+    const hexes = (kind === 'rural')? ruralHexes : urbanHexes;
+    hexes.forEach((h, i) => {
+        if (district.lots[i] == null){
+            const lot: ILot = {
+                key: 0,
+                kind: kind,
+                districtKey: district.key,
+                point: hex_to_pixel({x: LotHexSizePX, y: LotHexSizePX}, district.point, h)
+            }
+            EntityAddToSlice(lotSlice, lot);
+            district.lots.push(lot.key);
+        }
+    });
 }
 
 export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: string}, city: ICity, parent?: IBean, hexPoint?: HexPoint, job?: TraitJob): IBean{

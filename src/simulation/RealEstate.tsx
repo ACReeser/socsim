@@ -24,18 +24,20 @@ export function BuildingTryFreeBean(b: IBuilding, beanKey: number): boolean{
     b.jobs = b.jobs.filter(x => x != beanKey);
     return oldLen === b.jobs.length+1;
 }
-export function GenerateIBuilding(world: IWorldState, city: ICity, type: BuildingTypes, hex: HexPoint, econ: IEconomy): IBuilding{
+export function GenerateIBuilding(world: IWorldState, city: ICity, type: BuildingTypes, hex: HexPoint, point: Point, lotKey: number, econ: IEconomy): IBuilding{
     const newBuilding: IBuilding = {
         type: type,
         key: world.buildings.nextID++,
-        address: hex,
+        hex: hex,
+        point: {...point},
+        lotKey: lotKey,
         jobs: [],
         upgraded: false
     }
     world.buildings.allIDs.push(newBuilding.key);
     world.buildings.byID[newBuilding.key] = newBuilding;
     city.buildingKeys.push(newBuilding.key);
-    city.buildingMap[`${hex.q},${hex.r}`] = newBuilding.key;
+    world.lots.byID[lotKey].buildingKey = newBuilding.key;
 
     if (EnterpriseBuildings.some(x => type)){
         newBuilding.enterpriseKey = newBuilding.key;

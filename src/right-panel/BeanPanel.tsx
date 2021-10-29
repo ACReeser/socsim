@@ -4,8 +4,9 @@ import { BeanGetFace } from "../simulation/Bean";
 import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { ICity } from "../simulation/City";
 import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
-import { doSelectNone } from "../state/features/selected.reducer";
-import { abduct, scan, vaporize } from "../state/features/world.reducer";
+import { ITitle } from "../simulation/Titles";
+import { doSelectCity, doSelectNone } from "../state/features/selected.reducer";
+import { abduct, beanSetTitle, scan, vaporize } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean, selectSelectedCity } from "../state/state";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
@@ -19,6 +20,7 @@ interface BeanPanelP{
     bean: IBean,
     alien: IPlayerData;
     brainwash: () => void;
+    entitle: () => void;
 }
 function happyTable(mods: IHappinessModifier[]){
     return mods.filter((y) => y.mod != 0).map((x, i) => {
@@ -117,7 +119,7 @@ function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwa
             </div>
             <div className="card-parent">
                 {
-                    bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {}}></CardButton>)
+                    bean.beliefs.map((b) => <CardButton key={b} icon={SecondaryBeliefData[b].icon} title={SecondaryBeliefData[b].adj} name='' thin={true} singleLine={true} onClick={() => {brainwash()}}></CardButton>)
                 }
             </div>
             <div className="card-parent">
@@ -159,7 +161,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 }
                 </b>
                 <button type="button" className="pull-r" onClick={() => {
-                    dispatch(doSelectNone())
+                    dispatch(doSelectCity({cityKey:bean.cityKey}))
                 }} >❌</button>
             </div>
             <div className="bean-view">                
@@ -169,6 +171,9 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                     }
                 </span>
             </div>
+            {
+                bean.titleKey != null ? <TitleView titleKey={bean.titleKey}></TitleView> : null
+            }
             <div className="horizontal">
                 <span className="text-center">
                     💰 ${bean.cash.toFixed(2)}
@@ -181,7 +186,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 </span>
             </div>
             {renderTraits(alien.scanned_bean[bean.key], bean, alien, () => {
-                dispatch(brainwash())
+                props.brainwash();
             }, () => {
                 dispatch(scan({beanKey: bean.key}));
                 setFaceOverride('😨');
@@ -219,6 +224,8 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                     <small>-Energy +Things</small>
                 </button>
             </div> */}
+            
+            <TitleButton beanKey={bean.key} entitle={props.entitle}></TitleButton>
             <div className="card-parent">
                 {/* <button type="button" className="button card" onClick={scan} disabled={true}
                     title="Steal a bit of this being's mind">
@@ -252,6 +259,33 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
     )
 }
 
-function brainwash(): any {
-    throw new Error("Function not implemented.");
+export const TitleButton: React.FC<{
+    beanKey: number,
+    entitle: () => void
+}> = (props) => {
+    const titles = useAppSelector(s => s.world.titles.allIDs);
+    if (titles.length > 0){
+        return <div className="card-parent">
+            <button type="button" className="button card"
+                // disabled={bean.lifecycle != 'alive' || !PlayerCanAfford(alien, alien.difficulty.cost.bean.abduct)}
+                onClick={() => props.entitle()}
+                title="Give this bean a title"
+            >
+                👑 Give Title
+                <CostSmall cost={{}} rider="+Title"></CostSmall>
+            </button>
+        </div>
+    }
+    return null
+}
+
+export const TitleView: React.FC<{
+    titleKey: number
+}> = (props) => {
+    const title = useAppSelector(s => s.world.titles.byID[props.titleKey]);
+    return <div className="text-center">
+        <strong>
+        {title.headwear} {title.name} {title.badge} 
+        </strong>
+    </div>
 }

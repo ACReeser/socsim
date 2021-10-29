@@ -58,7 +58,7 @@ import { EmoteIcon } from "../World";
         <div>
             
             <small>
-                <i>Current 🧠 Traits for sale:</i>
+                <i>Current <span className="trait-gem"></span> Trait Gems for sale:</i>
             </small>
         </div>
         <div className="short-scroll">

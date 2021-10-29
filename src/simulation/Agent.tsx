@@ -5,13 +5,13 @@ import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
+import { GetRandomNumber } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
-import { accelerate_towards, BuildingTypes, GoodToBuilding, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
-import { DumbPriorityQueue, IPriorityQueue, PriorityNode } from "./Priorities";
+import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
 import { IDate } from "./Time";
 import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
@@ -21,8 +21,17 @@ export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|
  * cruise == interruptible travel towards destination
  * 
  * approach == uninterruptible travel into destination slot
+ export type Travel = 'cruise'|'approach';
  */
-export type Travel = 'cruise'|'approach';
+
+export type RecreationActivity = 'performance'|'artistry'|'sport'|'music'|'outdoors';
+
+// 🎤 🩰 🎭
+// 🎨 🖋️ 🏺
+// ⚽️ 🏒 🎾
+// 🎹 🥁 🎸
+// 🎣 🤿 🎒
+// losers: 🏏 🏐 🏀
 
 export interface IActivityData {
     act: Act;
@@ -68,7 +77,7 @@ export interface StateFunctions {
     act: (agent: IBean, world: IWorldState, elapsed: number, deltaMS: number) => {action?: AnyAction|AnyAction[], newActivity?: IActivityData};
     exit: (agent: IBean, seed: string) => AnyAction|undefined;
 }
-const RelaxationDurationMS = 1000;
+const RelaxationDurationMS = 3000;
 const CrimeDurationMS = 1500;
 const TransactMaximumDurationMS = 1100;
 const ChatDurationMS = 1000;
@@ -451,6 +460,14 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
             const buildingDest = CityGetRandomEntertainmentBuilding(city, world);
             if (buildingDest){
                 return Route(world.seed, city, agent, buildingDest);
+            } else {
+                const nature = world.districts.allIDs.map(x => world.districts.byID[x]).find(y => y.kind === 'nature');
+                if (nature){
+                    return RouteToHexAndPoint(world.seed, city, agent, {q: nature.q,r: nature.r}, {
+                        x: nature.point.x + (Math.random() * 150) - 75,
+                        y: nature.point.y + (Math.random() * 150) - 75
+                    });
+                }
             }
         }
     }
@@ -547,7 +564,7 @@ export function ActivityDisplay(data: IActivityData): string{
         case 'chat':
             return `chatting`;
         case 'crime':
-            return `commiting crime`;
+            return `stealing ${data?.crimeGood}`;
         case 'sleep':
             return `sleeping 😴`;
         case 'relax':
@@ -604,7 +621,10 @@ export interface IBean extends ISeller, IBeanAgent{
     bornInPetri: boolean,
     ticksSinceLastRelax: number,
     lastChatMS: number,
-    lastPoint?: Point
+    lastPoint?: Point,
+    titleKey?: number,
+    badge?: string,
+    hat?: string
 }
 
 /**
@@ -627,16 +647,18 @@ export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildi
  * @param buildingType 
  */
 export function Route(seed: string, city: ICity, bean: IBean, destination: IBuilding): Point[]{
+    return RouteToHexAndPoint(seed, city, bean, destination.hex, destination.point);
+}
+export function RouteToHexAndPoint(seed: string, city: ICity, bean: IBean, hex: HexPoint, point: Point): Point[]{
     const start = MoverStoreInstance.Get('bean', bean.key).current || {...OriginAccelerator};
     const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
-    return hex_linedraw(nearestHex, destination.address).map(
+    return hex_linedraw(nearestHex, hex).map(
         (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
         ).map((x, i, a) => {
         if (i === a.length-1){
-            const offset = getRandomSlotOffset(seed);
             return {
-                x: x.x + offset.x,
-                y: x.y + offset.y
+                x: point.x + GetRandomNumber(seed, -20, 20),
+                y: point.y + GetRandomNumber(seed, -20, 20)
             }
         } else {
             return x;

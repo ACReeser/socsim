@@ -4,6 +4,7 @@ export interface modalPs{
     show: boolean;
     onClick?: () => void;
     closeButtonText?: string;
+    className?: string;
 }
 export class Modal extends React.Component<modalPs> {
     constructor(props: modalPs) {
@@ -23,7 +24,7 @@ export class Modal extends React.Component<modalPs> {
             return null;
         }
         return (
-        <div className="modal">
+        <div className={"modal " + (this.props.className || '')}>
             {this.props.children}
             {this.getButton()}
         </div>

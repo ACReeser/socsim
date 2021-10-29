@@ -226,9 +226,17 @@ button.pull-r{
   border: 1px solid rgba(0,0,0,0.75);
   box-shadow: 3px 3px 15px 15px rgba(0,0,0,.5);
   pointer-events: all;
+  z-index: 1;
 }
 .modal button.done{
   float: right;
+}
+.modal.modal-tiny{
+  width: 30vw;
+  height: 30vh;
+  top: 35%;
+  left: 35%;
+
 }
 .pad-20{
   padding: 20px;
@@ -299,12 +307,15 @@ button.pull-r{
   position: relative;
 }
 .tile .hex{
-  border: 1px solid rgba(200, 200, 200, .1);
-  border-radius: 100px;
+  border: 1px solid rgba(200, 200, 200, .5);
+  border-radius: 100%;
   position: absolute;
 }
+.tile .svg-hex{
+  border-radius: 100%;
+}
 .tile .hex.hex-selected{
-  background: hsla(16, 100%, 50%, 5%);
+  /* background: hsla(16, 100%, 50%, 5%); district-circle is used instead */
   border-color: hsla(16, 100%, 50%, 50%);
 }
 .tile .hex:hover{
@@ -314,6 +325,28 @@ button.pull-r{
 .tile .hex:hover .building,
 .tile .hex.hex-selected .building{
   opacity: 1;
+}
+.tile .hex .lot{
+  fill: none;
+  pointer-events: bounding-box;
+}
+.tile .hex .lot:hover{
+  fill: hsla(16, 100%, 50%, 15%)
+}
+.tile .hex .lot path{
+  stroke-width: 0.2px;
+  /* stroke: rgba(0,0,0,0.5); */
+}
+.tile .hex .lot.selected{
+  fill: hsla(16, 100%, 50%, 25%)
+}
+.tile .hex-selected .district-circle{
+  fill: hsla(16, 100%, 50%, 25%)
+}
+.tile .district-circle{
+  fill:transparent;
+  stroke:black;
+  stroke-width: 0.2px
 }
 .tile .mtn{
   position: absolute;
@@ -681,6 +714,36 @@ table.classic .border-t{
   cursor: pointer;
   animation-play-state: paused;
 }
+.bean .hat{
+  top: -9px; left: 4px;
+  font-size: 12px;
+  position: absolute;
+}
+.bean .hat.🧢{
+  top: -7px;
+  left: 3px;
+  font-size: 13px;
+}
+.bean .hat.🎓{
+  left: 3px;
+  font-size: 13px;
+}
+.bean .hat.👒{
+  left: 2.5px;
+  font-size: 14px;
+}
+.bean .badge{
+  top: 13px; left: 2px;
+  font-size: 12px;
+  position: absolute;
+  z-index: -1;
+}
+.bean .badge.🛡️,
+.bean .badge.⚖️,
+.bean .badge.📋 {
+  left: 12px;
+}
+
 .purchase{
   position: absolute;
   left: 22px;
@@ -1008,4 +1071,44 @@ select:invalid { color: gray; }
 
 .load-menu .card.marg-b-20{
   margin-bottom: 20px;
+}
+.title-row{
+  display: flex;
+  max-width: 100%;
+  overflow: auto;
+}
+.title-row div{
+  margin-right: 6px;
+}
+.title-box{
+  border: 1px solid black;
+  border-radius: 10px;
+  padding: 2px;
+  display: flex;
+  min-width: 254px;
+  flex-direction: column;
+}
+.trait-gem{
+  position: relative;
+  height: 1.25em;
+  width: 2em;
+  line-height: 1.25em;
+  display: inline-block;
+  font-style: normal;
+}
+.trait-gem:before{
+  position: absolute;
+  content: '💎';
+  left: 0em;
+  top: 0;
+  font-size: 1.5em;
+}
+.trait-gem:after{
+  position: absolute;
+  content: '🧠';
+  left: 20%;
+  top: -2px;
+  font-size: 0.9em;
+  z-index: 1;
+  opacity: .65;
 }

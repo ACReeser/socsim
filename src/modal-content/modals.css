@@ -1,15 +1,35 @@
 .fancy-header{
-    font-size: 2em;
+    font-size: 1.2em;
     text-align: center;
     font-weight: bold;
+    padding-top: 1em;
 }
-.fancy-header .emoji-3{
-    width: 5em;
-    flex-grow: 0;
+table.trait-measure{
+    border-collapse: collapse;
 }
-.fancy-header *:first-child{
-    text-align: right;
+.trait-measure td{
+    min-width: 1em;
 }
-.fancy-header *:last-child{
-    text-align: left;
+.trait-measure small{
+    font-size: 8px;
+    font-weight: normal;
+}
+.trait-measure td.set-1{
+    background-color: rgba(255, 0, 0, .5);
+    line-height: 9px;
+}
+.trait-measure td.set-2{
+    background-color: rgba(255, 153, 0, 0.5);
+    line-height: 9px
+}
+.trait-measure td.set-3{
+    background-color: rgba(251, 255, 0, 0.5);
+    line-height: 9px
+}
+.trait-measure td.set-4{
+    background-color: rgba(0, 238, 0, 0.5);
+    line-height: 9px
+}
+.grey{
+    filter: grayscale(1);
 }

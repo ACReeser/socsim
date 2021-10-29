@@ -1,9 +1,7 @@
-import { LiveList, LiveMap } from "../events/Events";
 import { DefaultDifficulty, IDifficulty, PlayerResources } from "../Game";
 import { SignalStoreInstance } from "../SignalStore";
 import { IWorldState } from "../state/features/world";
 import { Number_Starting_City_Pop } from "../WorldGen";
-import { IBean } from "./Agent";
 import { TraitBelief } from "./Beliefs";
 import { IDate } from "./Time";
 
@@ -192,7 +190,7 @@ export interface IPlayerTechProgress{
 export type TechProgress = {[key: string]: IPlayerTechProgress};
 export interface BeliefInventory{
     trait: TraitBelief,
-    charges: number
+    gems: number
 }
 
 export function PlayerReward(player: IPlayerData, reward: PlayerResources){
@@ -237,12 +235,12 @@ export function PlayerCanAfford(player: IPlayerData, cost: PlayerResources, qty:
     (cost.energy === undefined || player.energy.amount >= cost.energy * qty) && 
     (cost.hedons === undefined || player.hedons.amount >= cost.hedons * qty);
 }
-export function PlayerUseCharge(alien: IPlayerData, t: TraitBelief){
+export function PlayerUseTraitGem(alien: IPlayerData, t: TraitBelief){
     const all = alien.beliefInventory;
     const existing = all.find(x => x.trait === t);
     if (existing){
-        existing.charges -= 1;
-        alien.beliefInventory = [...all.filter(x => x.charges > 0)];
+        existing.gems -= 1;
+        alien.beliefInventory = [...all.filter(x => x.gems > 0)];
     }
 }
 export function PlayerTryPurchase(player: IPlayerData, cost: PlayerResources, qty: number = 1): boolean{

@@ -8,19 +8,22 @@ import { HexPanel } from "./HexPanel";
 import { OverviewPanel } from "./OverviewPanel";
 
 export const DetailPanel: React.FC<{
-    openBrainwash: () => void
+    openBrainwash: () => void,
+    openEntitle: () => void,
 }> = (props) => {
     const city = useAppSelector(selectSelectedCity);
-    const hex = useAppSelector((x) => x.selected.selectedHexKey);
+    const districtKey = useAppSelector((x) => x.selected.selectedDistrictKey);
+    const district = useAppSelector((x) => districtKey != null ? x.world.districts.byID[districtKey]: undefined);
     const bean = useAppSelector(selectSelectedBean);
     const alien = useAppSelector((x) => x.world.alien);
     const dispatch = useAppDispatch();
     if (bean && city){
         return <BeanPanel bean={bean} city={city} alien={alien}
         brainwash={() => props.openBrainwash()}
+        entitle={() => props.openEntitle()}
         ></BeanPanel>
     }
-    if (hex) {
+    if (district) {
         return <HexPanel difficulty={alien.difficulty}></HexPanel>
     }
     if (city) {

@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
 import { MoverContext } from "../App";
-import { LiveList } from "../events/Events";
-import { Pickup } from "../simulation/City";
 import { IAccelerator } from "../simulation/Geography";
 import { MoverType } from "../simulation/MoverBus";
 import { selectCityBeanIDs } from "../state/features/world.reducer";

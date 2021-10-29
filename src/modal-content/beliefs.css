@@ -17,6 +17,9 @@
     margin-left: 1.5em;
     height: 100%;
 }
+.badger.edit{
+    height: auto;
+}
 .badger.add{
     border-style: dashed;
 }
@@ -28,10 +31,10 @@
     /* width: 300px; */
     display: inline-block;
     margin-right: 2px;
-    /* height: 5em; */
     margin-bottom: 6px;
     margin-left: 1em;
-    width: 220px;
+    max-width: 320px;
+    min-width: 200px;
 }
 .belief small{
     font-size: 11px;

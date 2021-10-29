@@ -13,7 +13,8 @@ function shouldEventJumpToBean(e: IEvent): boolean{
 export const EventsPanel: React.FC<{
     
 }> = (props) => {
-    const events = useAppSelector(selectEventIDs);
+    const eventIDs = useAppSelector(selectEventIDs);
+    const events = useAppSelector(state => eventIDs.slice().reverse().map(id => state.world.events.byID[id]));
     const dispatch = useAppDispatch();
     let elements = events.map((e, i) => {
         const alert = e.icon === '🚨';

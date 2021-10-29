@@ -1,10 +1,11 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import { PlayerResources } from '../../Game'
+import { GameStorageInstance } from '../../GameStorage'
 import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, BeanCanPurchase, BeanDie, BeanLoseSanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCalculateSanity, BeanCanPurchase, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTrySetJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
@@ -14,20 +15,21 @@ import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
-import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseCharge, Tech } from '../../simulation/Player'
+import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseTraitGem, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
 import { GetSeedName } from '../../simulation/SeedGen'
+import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
-import { GenerateBean, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
+import { DistrictAddLots, GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
 
 const ChargePerMarket = 3;
-const ChargePerWash = 2;
+const ChargePerExtract = 1;
 
 const UnderemploymentThresholdTicks = 8
 export const worldSlice = createSlice({
@@ -47,10 +49,15 @@ export const worldSlice = createSlice({
         const city = state.cities.byID[0];
         state.seed = action.payload.seed;
         city.name = GetRandomCityName(state.seed);
-        GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);
-        GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
+        const dls = GenerateDistrictsAndLots(city);
+        state.districts = dls.ds;
+        state.lots = dls.lots;
+        const natureID = GetRandom(state.seed, state.districts.allIDs.slice(1));
+        state.districts.byID[natureID].kind = 'nature';
+        // GenerateIBuilding(state, city, 'courthouse', {q: 0, r: 0}, state.economy);
+        // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 15, 20)], state.economy);
+        // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 21, 25)], state.economy);
+        // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
       },
       loadGame: (state, action:PayloadAction<{newState: IWorldState}>) => {
         action.payload.newState.beans.allIDs.map(k => {
@@ -66,10 +73,12 @@ export const worldSlice = createSlice({
         })
         return action.payload.newState
       },
-      build: (state, action: PayloadAction<{city: number, where: HexPoint, what: BuildingTypes}>) => {
+      build: (state, action: PayloadAction<{city: number, lot: number, what: BuildingTypes}>) => {
         const cost: PlayerResources = state.alien.difficulty.cost.emptyHex.build[action.payload.what];
         if (PlayerTryPurchase(state.alien, cost)) {
-          GenerateIBuilding(state, state.cities.byID[action.payload.city], action.payload.what, action.payload.where, state.economy);
+          const lot = state.lots.byID[action.payload.lot];
+          const district = state.districts.byID[lot.districtKey];
+          GenerateIBuilding(state, state.cities.byID[action.payload.city], action.payload.what, district, lot.point, lot.key, state.economy);
           switch(action.payload.what){
             case 'farm':
               WorldSfxInstance.play('moo');
@@ -80,6 +89,27 @@ export const worldSlice = createSlice({
             case 'house':
               WorldSfxInstance.play('door');
               break;
+          }
+        }
+      },
+      upgradeDistrict: (state, action: PayloadAction<{city: number, district: number}>) => {
+        const district = state.districts.byID[action.payload.district];
+        if (!district)
+          return;
+        const newKind = district.kind === 'rural' ? 'urban' : 'rural';
+        if (newKind === 'rural'){
+          const cost: PlayerResources = state.alien.difficulty.cost.hex.fallow_2_rural;
+          if (PlayerTryPurchase(state.alien, cost)) {
+            DistrictAddLots(district, state.lots, 'rural');
+            district.kind = 'rural';
+            // WorldSfxInstance.play('moo');
+          }
+        } else {
+          const cost: PlayerResources = state.alien.difficulty.cost.hex.rural_2_urban;
+          if (PlayerTryPurchase(state.alien, cost)) {
+            DistrictAddLots(district, state.lots, 'urban');
+            district.kind = 'urban';
+            // WorldSfxInstance.play('moo');
           }
         }
       },
@@ -184,26 +214,53 @@ export const worldSlice = createSlice({
         if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal, 0)) {
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0);
           const oldFaith = bean.faith;
-          while (bean.faith === oldFaith)
+          while (bean.faith === oldFaith){
             bean.faith = GetRandom(state.seed, ['rocket', 'dragon', 'music', 'noFaith']);
+          }
         }
       },
       washBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
         const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
-      if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
-        BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
-        bean.beliefs.splice(
-          bean.beliefs.indexOf(action.payload.trait), 1
-        );
-        const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
-        const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
-        if (existing) {
-          existing.charges += ChargePerWash + chargeBonus;
-        } else
-          state.alien.beliefInventory.push({trait: action.payload.trait, charges: ChargePerWash + chargeBonus});
-        WorldSfxInstance.play('wash_out');
-      }
+        if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+          BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+          bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
+          bean.beliefs.splice(
+            bean.beliefs.indexOf(action.payload.trait), 1
+          );
+          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (insanityEvent){
+            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+            WorldSfxInstance.play('crazy_laugh');
+          } else {
+            WorldSfxInstance.play('wash_out');
+          }
+        }
+      },
+      extractBelief: (state, action: PayloadAction<{beanKey: number, trait: TraitBelief}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
+        if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary, sanityCostBonus)) {
+          BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainwash_secondary.sanity || 0);
+          bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
+          const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.trait);
+          const chargeBonus = HasResearched(state.alien.techProgress, 'neural_duplicator') ? 1 : 0;
+          if (existing) {
+            existing.gems += ChargePerExtract + chargeBonus;
+          } else {
+            state.alien.beliefInventory.push({trait: action.payload.trait, gems: ChargePerExtract + chargeBonus});
+          }
+          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (insanityEvent){
+            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+            WorldSfxInstance.play('crazy_laugh');
+          } else {
+            WorldSfxInstance.play('wash_out');
+          }
+        }
+      },
+      acknowledgeNewInsanity: (state) =>{
+        state.insanityEvent = undefined;
       },
       setResearch: (state, action: PayloadAction<{t: Tech}>) => {
         state.alien.currentlyResearchingTech = action.payload.t;
@@ -212,11 +269,18 @@ export const worldSlice = createSlice({
         const bean = state.beans.byID[action.payload.beanKey];
         const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
         if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
-          state.alien.beliefInventory.filter(x => x.trait == action.payload.trait && x.charges > 0)) {
+          state.alien.beliefInventory.filter(x => x.trait == action.payload.trait && x.gems > 0)) {
           bean.beliefs.push(action.payload.trait);
-          PlayerUseCharge(state.alien, action.payload.trait);
-          WorldSfxInstance.play('wash_in');
+          PlayerUseTraitGem(state.alien, action.payload.trait);
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0); 
+          bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
+          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (insanityEvent){
+            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+            WorldSfxInstance.play('crazy_laugh');
+          } else {
+            WorldSfxInstance.play('wash_in');
+          }
         }
       },
       scan: (state, action: PayloadAction<{beanKey: number}>) => {
@@ -432,9 +496,9 @@ export const worldSlice = createSlice({
       if (PlayerTryPurchase(state.alien, action.payload.l.cost)) {
         const existing = state.alien.beliefInventory.find((x) => x.trait === action.payload.l.trait);
         if (existing) {
-          existing.charges += ChargePerMarket;
+          existing.gems += ChargePerMarket;
         } else
-          state.alien.beliefInventory.push({trait: action.payload.l.trait, charges: ChargePerMarket});
+          state.alien.beliefInventory.push({trait: action.payload.l.trait, gems: ChargePerMarket});
       }
     },
       beanBuy: (state, action: PayloadAction<{beanKey: number, good: TraitGood}>) =>{
@@ -494,6 +558,39 @@ export const worldSlice = createSlice({
           }
           bean.actionData.buyReceipt = receipt;
         }
+      },
+      addTitle: (state, action: PayloadAction<{}>) => {
+        EntityAddToSlice(state.titles, {
+          key: 0,
+          name: 'Title',
+          privileges: []
+        })
+      },
+      editTitle: (state, action: PayloadAction<{newT: ITitle}>) => {
+        const oldTitle = state.titles.byID[action.payload.newT.key];
+        state.titles.byID[action.payload.newT.key] = action.payload.newT;
+        if (oldTitle && oldTitle.badge != action.payload.newT.badge){
+          state.beans.allIDs.forEach((x) => {
+            if (state.beans.byID[x].titleKey === oldTitle.key)
+              state.beans.byID[x].badge = action.payload.newT.badge;
+          });
+        }
+        if (oldTitle && oldTitle.headwear != action.payload.newT.headwear){
+          state.beans.allIDs.forEach((x) => {
+            if (state.beans.byID[x].titleKey === oldTitle.key)
+              state.beans.byID[x].hat = action.payload.newT.headwear;
+          });
+        }
+      },
+      manualSave: (state) => {
+        GameStorageInstance.SaveGame(state);
+      },
+      beanSetTitle: (state, action: PayloadAction<{beanKey: number, titleKey: number}>) => {
+        const bean = state.beans.byID[action.payload.beanKey];
+        bean.titleKey = action.payload.titleKey;
+        const title = state.titles.byID[action.payload.titleKey];
+        bean.badge = title.badge;
+        bean.hat = title.headwear;
       }
     }
   });
@@ -532,12 +629,13 @@ export const worldSlice = createSlice({
   
   export const { 
     refreshMarket, magnetChange, worldTick, 
-    remove_ufo,
+    remove_ufo, upgradeDistrict,
     newGame, loadGame, build, changeEnterprise, fireBean, upgrade, beam,
     abduct, release, scan, vaporize, pickUpPickup,
-    implant, washBelief, washNarrative, washCommunity, washMotive,
+    implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
-    beanBePersuaded, cheatAdd,
+    beanBePersuaded, cheatAdd, manualSave,
+    addTitle, editTitle, beanSetTitle,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   

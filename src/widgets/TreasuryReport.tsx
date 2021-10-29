@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Live } from "../events/Events";
 import { useAppSelector } from "../state/hooks";
 
 

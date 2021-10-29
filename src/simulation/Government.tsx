@@ -1,9 +1,7 @@
-import { Live } from "../events/Events";
 import { TraitCommunity, TraitFood, TraitGood, TraitHealth, TraitIdeals } from "../World";
 import { IBean } from "./Agent";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IEconomicAgent } from "./Economy";
-import { IPolicy } from "./Politics";
 
 export type LawGroup = 'Taxation'|'Welfare'|'Economics'|'Crime'|'Culture';
 export type LawAxis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_sub'|'cul_rel'|'cul_theo'|'crime_theo';
@@ -211,7 +209,6 @@ export class Government{
         });
     }
     public lawTree: {[key in LawAxis]: ILaw|undefined} = {} as {[key in LawAxis]: ILaw|undefined};
-    public treasury: Live<number> = new Live<number>(0);
 
     isLaw(l: LawKey): boolean{
         return this.lawTree[LawData[l].axis]?.key === l;
@@ -239,18 +236,6 @@ export class Government{
                 return (bean.health === 'sick' || bean.health === 'sickly') && this.isLaw('medical_aid');
         }
         return false;
-    }
-    CanPayWelfare(price: number): boolean{
-        return this.treasury.get >= price;
-    }
-    MaybeRebate(beans: IBean[]){
-        const allowedTreasury = beans.length * DollarPerBeanRebateThreshold;
-        if (this.treasury.get > allowedTreasury){
-            const overage = this.treasury.get - allowedTreasury;
-            const perBean = overage / beans.length;
-            this.treasury.set(allowedTreasury);
-            beans.forEach((b) => b.cash += perBean);
-        }
     }
 }
 

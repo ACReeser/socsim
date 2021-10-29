@@ -4,7 +4,7 @@ import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFood, TraitGood, TraitHealth, TraitSanity, TraitStamina } from "../World";
 import { GetRandom, GetRandomNumber, GetRandomRoll } from "../WorldGen";
 import { IBean, IChatData } from "./Agent";
-import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
+import { GetInsanityFromBrainwashing, InsanityTraits, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { GetFairGoodPrice, IEconomy } from "./Economy";
 import { OriginAccelerator } from "./Geography";
 import { IGovernment } from "./Government";
@@ -416,4 +416,15 @@ export function BeanGetFace(bean: IBean): string{
     if (bean.lastHappiness >= 50)
         return '🙂';
     return '😐';
+}
+
+export function BeanMaybeGetInsanity(seed: string, bean: IBean): {beanKey: number, newInsanity: InsanityTraits}|undefined{
+    const insanity = GetInsanityFromBrainwashing(seed, bean.sanity, bean.beliefs);
+    if (insanity){
+        return {
+            beanKey: bean.key,
+            newInsanity: insanity
+        }
+    }
+    return undefined;
 }

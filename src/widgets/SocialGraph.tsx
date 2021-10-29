@@ -1,6 +1,6 @@
 import React from "react";
 import { AnimatedBean } from "../petri-ui/AnimatedBean";
-import { SocialBuildings } from "../petri-ui/Buildings";
+import { SocialBuildings } from "../petri-ui/PetriHexes";
 import { IBean } from "../simulation/Agent";
 import { ICity } from "../simulation/City";
 import { IBuilding } from "../simulation/Geography";

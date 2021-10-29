@@ -9,12 +9,14 @@ export interface MarketTraitListing {
 export const CommonalityBaseCost: {[b in BeliefCommonality]: number} = {
     'common': 3,
     'uncommon': 5,
-    'rare': 7
+    'rare': 7,
+    'unique': 99,
 };
 export const CommonalityRandomMaxCost: {[b in BeliefCommonality]: number} = {
     'common': 3,
     'uncommon': 5,
-    'rare': 7
+    'rare': 7,
+    'unique': 99,
 };
 
 export function GetMarketTraits(seed: string): MarketTraitListing[]{

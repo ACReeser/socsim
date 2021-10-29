@@ -23,11 +23,14 @@ export const TraitsReport: React.FC = () => {
         <div>
           <div className="scroll">
             <div className="scoll-sticky-h">
-              <strong>Trait Inventory</strong>
+              <strong>
+                <span className="trait-gem"></span>
+                Trait Gems
+              </strong>
             </div>
             {
               beliefInventory.length < 1 ? <div>
-                No Traits! <br/>
+                No Trait Gems! <br/>
                 😵 Brainwash your subjects  <br/>
                 or buy from the 🛍️ Market
                 </div> : beliefInventory.map((x) => <div key={x.trait}>
@@ -37,7 +40,7 @@ export const TraitsReport: React.FC = () => {
                         </strong>
                       </div>
                       <div>
-                        This can be implanted {x.charges} more times
+                        This can be implanted {x.gems} more times
                       </div>
                     </div>)
             }
@@ -50,7 +53,7 @@ export const TraitsReport: React.FC = () => {
             </div>
             {
               beliefs.length < 1 ? <div>
-                No Traits! <br/>
+                No Traits Scanned! <br/>
                 🛰️ Scan some of your subjects.
               </div> : beliefs.map((x) => <BeliefWidget key={x.noun} data={x} cost={0}
               titleView={<strong>{x.noun}</strong>}
