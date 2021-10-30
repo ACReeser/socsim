@@ -2,7 +2,7 @@ import React from "react";
 import { BeanBelievesIn, BeanGetFace } from "../simulation/Bean";
 import { NarrativeBeliefData, SecondaryBeliefData } from "../simulation/Beliefs";
 import { HasResearched } from "../simulation/Player";
-import { extractBelief, implant, washBelief, washNarrative } from "../state/features/world.reducer";
+import { acknowledgeNewInsanity, extractBelief, implant, washBelief, washNarrative } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean } from "../state/state";
 import { ConfirmButton } from "../widgets/ConfirmButton";
@@ -35,6 +35,7 @@ export const BrainwashingContent: React.FC<{
     const isScanned = useAppSelector(s => bean?.key != null && s.world.alien.scanned_bean[bean.key]);
     const difficulty = useAppSelector(s => s.world.alien.difficulty);
     const techProgress = useAppSelector(s => s.world.alien.techProgress);
+    const insanityEvent = useAppSelector(s => s.world.insanityEvent);
     const dispatch = useAppDispatch();
     const sanityCostBonus = HasResearched(techProgress, 'sanity_bonus') ? -1 : 0;
     if (bean == null) return <div></div>;
@@ -73,10 +74,18 @@ export const BrainwashingContent: React.FC<{
         <p className="pad-4p text-center">
             {
                 bean.sanity != 'sane' ?
-                    <small>Low sanity 🧠 causes {EmoteIcon['unhappiness']}! Negative sanity 🧠 causes extremely negative traits!</small>
+                    <small>Brainwashing subjects with low sanity 🧠 has a 🎲 to add extremely negative traits!</small>
                 : null
             }
         </p>
+        {
+            insanityEvent && insanityEvent.beanKey === bean.key ? <div className="pad-4p text-center red-alert">
+                <h2>
+                    {bean.name} is inflicted with {SecondaryBeliefData[insanityEvent.newInsanity].icon} {SecondaryBeliefData[insanityEvent.newInsanity].noun} due to brainwashing!
+                    <button onClick={() => dispatch(acknowledgeNewInsanity())}>❌</button>
+                </h2>
+            </div> : null
+        }
         <div style={{clear: 'both'}}>
             {
                 dogmatic ? <div className="text-center">
@@ -84,18 +93,6 @@ export const BrainwashingContent: React.FC<{
                 </div> : null
             }
             { isScanned ? <div className="horizontal scroll">
-                {/* <EditBeliefInput
-                    available={bean.discrete_sanity} frozen={dogmatic}
-                    wash={() => this.props.washCommunity(bean, bean.community)} 
-                    cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
-                    data={PrimaryBeliefData[bean.community]}
-                ></EditBeliefInput>
-                <EditBeliefInput
-                    available={bean.discrete_sanity}  frozen={dogmatic}
-                    wash={() => this.props.washMotive(bean, bean.ideals)} 
-                    cost={this.props.world.alien.difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
-                    data={PrimaryBeliefData[bean.ideals]}
-                ></EditBeliefInput> */}
                 <EditBeliefInput
                     available={bean.discrete_sanity} frozen={dogmatic}
                     wash={() => dispatch(washNarrative({beanKey: bean.key, faith:bean.faith}))} 
@@ -105,7 +102,6 @@ export const BrainwashingContent: React.FC<{
                     cost={difficulty.cost.bean_brain.brainwash_ideal.sanity || 0}
                     data={NarrativeBeliefData[bean.faith]}
                 ></EditBeliefInput>
-                {/* IsBeliefDivergent(b, this.props.world.party.ideals, this.props.world.party.community) */}
                 {
                     bean.beliefs.map((b) => <EditBeliefInput key={b}
                     available={bean.discrete_sanity} frozen={dogmatic && b != 'Dogmatism'}
@@ -117,13 +113,6 @@ export const BrainwashingContent: React.FC<{
                     >
                     </EditBeliefInput>)
                 }
-                {/* {
-                    dogmatic ? null : <AddBeliefInput
-                        available={bean.discrete_sanity}
-                        add={(b) => this.props.implantBelief(bean, b)} 
-                        cost={this.props.world.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0}
-                    ></AddBeliefInput>
-                } */}
             </div> : <div className="text-center">🛰️ Scan this subject to reveal its Traits! </div>}
             <h3 className="pad-4p">
                 <span className="trait-gem"></span> Trait Gems

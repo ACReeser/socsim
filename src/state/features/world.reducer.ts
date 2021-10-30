@@ -228,9 +228,9 @@ export const worldSlice = createSlice({
           bean.beliefs.splice(
             bean.beliefs.indexOf(action.payload.trait), 1
           );
-          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
-          if (insanityEvent){
-            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+          state.insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (state.insanityEvent){
+            bean.beliefs = [...bean.beliefs, state.insanityEvent.newInsanity];
             WorldSfxInstance.play('crazy_laugh');
           } else {
             WorldSfxInstance.play('wash_out');
@@ -250,9 +250,9 @@ export const worldSlice = createSlice({
           } else {
             state.alien.beliefInventory.push({trait: action.payload.trait, gems: ChargePerExtract + chargeBonus});
           }
-          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
-          if (insanityEvent){
-            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+          state.insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (state.insanityEvent){
+            bean.beliefs = [...bean.beliefs, state.insanityEvent.newInsanity];
             WorldSfxInstance.play('crazy_laugh');
           } else {
             WorldSfxInstance.play('wash_out');
@@ -274,9 +274,9 @@ export const worldSlice = createSlice({
           PlayerUseTraitGem(state.alien, action.payload.trait);
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0); 
           bean.sanity = BeanCalculateSanity(bean, state.alien.difficulty);
-          const insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
-          if (insanityEvent){
-            bean.beliefs = [...bean.beliefs, insanityEvent.newInsanity];
+          state.insanityEvent = BeanMaybeGetInsanity(state.seed, bean);
+          if (state.insanityEvent){
+            bean.beliefs = [...bean.beliefs, state.insanityEvent.newInsanity];
             WorldSfxInstance.play('crazy_laugh');
           } else {
             WorldSfxInstance.play('wash_in');
@@ -635,7 +635,7 @@ export const worldSlice = createSlice({
     implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
     beanBePersuaded, cheatAdd, manualSave,
-    addTitle, editTitle, beanSetTitle,
+    addTitle, editTitle, beanSetTitle, acknowledgeNewInsanity,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions
   

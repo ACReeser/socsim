@@ -215,6 +215,11 @@ button.pull-r{
   margin-top: 1em;
 }
 
+.red-alert{
+  background-color: firebrick;
+  color: white;
+}
+
 .modal{
   width: 60vw;
   height: 60vh;

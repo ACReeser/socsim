@@ -309,7 +309,7 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     },
     Catatonia: {
         noun: 'Catatonia', adj: 'Catatonic', icon: '😶', rarity: 'unique',
-        description: "-50% walk speed. Cannot work."
+        description: "-60% walk speed. Cannot work."
     },
 
     // meta-traits

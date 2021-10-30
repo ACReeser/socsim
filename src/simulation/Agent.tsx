@@ -83,6 +83,7 @@ const TransactMaximumDurationMS = 1100;
 const ChatDurationMS = 1000;
 const WorkDurationMS = 3000;
 const SleepDurationMS = 3000;
+const CatatoniaWalkSpeedPercentage = 0.4;
 
 export const BeanActions: {[act in Act]: StateFunctions} = {
     'travel': {
@@ -124,7 +125,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             const collide = accelerate_towards(
                 newAccelerator,
                 target,
-                BeanPhysics.AccelerateS * deltaMS/1000, 
+                BeanPhysics.AccelerateS * (BeanBelievesIn(agent, 'Catatonia') ? CatatoniaWalkSpeedPercentage : 1) * deltaMS/1000, 
                 BeanPhysics.MaxSpeed, 
                 BeanPhysics.CollisionDistance,
                 BeanPhysics.Brake);
@@ -495,37 +496,46 @@ const WanderlustEmoteChance = 0.002;
  */
 export const GetPriority = {
     work: function(bean: IBean, seed: string, city: ICity): number{
-        if (bean.job == 'jobless'){
+        const deviation = BeanBelievesIn(bean, 'Delirium') ? StatsNormalDev*2 : StatsNormalDev;
+        if (bean.job == 'jobless' || BeanBelievesIn(bean, 'Catatonia')){
             return 0;
         }
         else if (bean.cash === 0){
-            return SampleNormalDistribution(seed, StatsNormalMean + (StatsNormalDev * 2));
+            return SampleNormalDistribution(seed, StatsNormalMean + (StatsNormalDev * 2), deviation);
         }
         else if (city){
             return SampleNormalDistribution(seed, StatsNormalMean + 
-                (StatsNormalDev * Math.min(1, city.costOfLiving / bean.cash))
+                (StatsNormalDev * Math.min(1, city.costOfLiving / bean.cash), deviation)
             );
         }
-        return SampleNormalDistribution(seed);
+        return SampleNormalDistribution(seed, StatsNormalMean, deviation);
     },
     food: function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        const deviation = BeanBelievesIn(bean, 'Delirium') ? StatsNormalDev*2 : StatsNormalDev;
         return SampleNormalDistribution(seed, StatsNormalMean + (
-            StatsNormalDev * 6 * Math.min(1, difficulty.bean_life.vital_thresh.food.warning / bean.discrete_food)
+            StatsNormalDev * 6 * Math.min(1, difficulty.bean_life.vital_thresh.food.warning / bean.discrete_food),
+            deviation
         ));
     },
     stamina: function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        const deviation = BeanBelievesIn(bean, 'Delirium') ? StatsNormalDev*2 : StatsNormalDev;
         return SampleNormalDistribution(seed, StatsNormalMean + (
-            StatsNormalDev * 4 * Math.min(1, difficulty.bean_life.vital_thresh.shelter.warning / bean.discrete_stamina)
+            StatsNormalDev * 4 * Math.min(1, difficulty.bean_life.vital_thresh.shelter.warning / bean.discrete_stamina),
+            deviation
         ));
     },
     medicine:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        const deviation = BeanBelievesIn(bean, 'Delirium') ? StatsNormalDev*2 : StatsNormalDev;
         return SampleNormalDistribution(seed, StatsNormalMean + (
-            StatsNormalDev * 2 * Math.min(1, difficulty.bean_life.vital_thresh.medicine.warning / bean.discrete_health)
+            StatsNormalDev * 2 * Math.min(1, difficulty.bean_life.vital_thresh.medicine.warning / bean.discrete_health),
+            deviation
         ));
     },
     fun:function(bean: IBean, seed: string, difficulty: IDifficulty): number{
+        const deviation = BeanBelievesIn(bean, 'Delirium') ? StatsNormalDev*2 : StatsNormalDev;
         return SampleNormalDistribution(seed, StatsNormalMean + (
-            StatsNormalDev * Math.min(1, -bean.lastHappiness / 100)
+            StatsNormalDev * Math.min(1, -bean.lastHappiness / 100),
+            deviation
         ));
     }
 }
