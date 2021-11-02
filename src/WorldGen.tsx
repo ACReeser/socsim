@@ -192,6 +192,7 @@ export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: 
         discrete_sanity: 10,
         discrete_stamina: 7,
         discrete_fun: 0,
+        housing: 'homeless',
         graceTicks: 0,
         dob: {year: world.date.year, season: world.date.season, day: world.date.day, hour: world.date.hour},
         sanity: 'sane',

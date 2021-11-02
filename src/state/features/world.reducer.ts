@@ -5,7 +5,7 @@ import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, BeanCalculateSanity, BeanCanPurchase, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCalculateSanity, BeanCalculateStamina, BeanCanPurchase, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTryFindJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
@@ -323,6 +323,10 @@ export const worldSlice = createSlice({
         const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
         if (oldAct === 'chat')
           bean.lastChatMS = Date.now();
+        if (oldAct === 'sleep'){
+          bean.discrete_stamina = 7;
+          BeanCalculateStamina(bean, state.alien.difficulty);
+        }
         if (action.payload.newState.act === 'idle'){
           bean.priorities = GetPriorities(bean, state.seed, state.cities.byID[bean.cityKey], state.alien.difficulty);
         }
@@ -525,15 +529,15 @@ export const worldSlice = createSlice({
                 }
             }
             break;
-          case 'shelter':
-            receipt = EconomyTryTransact(state.economy, state.law, bean, 'shelter', getSeller);
-            if (receipt?.bought) {
-                bean.discrete_stamina = 10;
-                bean.stamina = 'awake';
-            } else if (bean.discrete_stamina <= 0){
-                bean.stamina = 'homeless';
-            }
-            break;
+          // case 'shelter':
+          //   receipt = EconomyTryTransact(state.economy, state.law, bean, 'shelter', getSeller);
+          //   if (receipt?.bought) {
+          //       bean.discrete_stamina = 10;
+          //       bean.stamina = 'awake';
+          //   } else if (bean.discrete_stamina <= 0){
+          //       bean.stamina = 'homeless';
+          //   }
+          //   break;
           case 'medicine':
             receipt = EconomyTryTransact(state.economy, state.law, bean, 'medicine', getSeller, 0.5, 3);
             if (receipt?.bought){

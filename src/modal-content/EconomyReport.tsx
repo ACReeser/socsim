@@ -24,6 +24,7 @@ function median(values: Array<number>){
 export const EconomyReport: React.FC<{}> = () => {
     const beans = useAppSelector(s => selectBeansByCity(s.world, 0));
     const economy = useAppSelector(s => s.world.economy);
+    const numDwellings = useAppSelector(s => s.world.dwellings.allIDs.length);
     const food_median = median(beans.map(x => x.discrete_food));
     const health_median = median(beans.map(x => x.discrete_health)).toFixed(1);
     const shelter_median = median(beans.map(x => x.discrete_stamina)).toFixed(1);
@@ -49,7 +50,6 @@ export const EconomyReport: React.FC<{}> = () => {
     }
     const food = economy.market.listings['food'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
     const meds = economy.market.listings['medicine'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
-    const houses = economy.market.listings['shelter'].reduce(reducer, {supply: 0, price: 0, avg: 0, count: 0});
     return (
       <div>
         <div className="pad-4p">
@@ -97,16 +97,15 @@ export const EconomyReport: React.FC<{}> = () => {
         <div className="col-2">
           <div>
             <strong>🏡 Housing</strong> <br/>
-            <NeedReadout beans={beans} need={(b) => b.stamina} dire="homeless" abundant="rested" className="big"></NeedReadout>
+            <NeedReadout beans={beans} need={(b) => b.housing} dire="homeless" abundant="housed" className="big"></NeedReadout>
             <table className="width-100p">
               <tbody>
                 <tr>
                   <td>Median {shelter_median} 🏡</td>
                   <td className="text-center">
-                    Supply: {houses.supply} 🏡 @ ${houses.avg.toFixed(2)}
+                    Supply: {numDwellings} 🏡
                   </td>
                   <td className="text-right">
-                    Deficit: {economy.unfulfilledMonthlyDemand.shelter} 🏡
                   </td>
                 </tr>
               </tbody>

@@ -113,6 +113,7 @@ export function simulate_world(world: IWorldState){
             if (openDwellingKey != null){
                 world.dwellings.byID[openDwellingKey].occupantKey = b.key;
                 b.dwellingKey = openDwellingKey;
+                b.housing = "housed";
             }
         }
         
@@ -137,9 +138,9 @@ export function simulate_every_year(world: IWorldState){
 }
 export function simulate_every_month(world: IWorldState){
     //resetMonthlyDemand
-    world.economy.unfulfilledMonthlyDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
-    world.economy.monthlyDemand = { food: 0, shelter: 0, medicine: 0, fun: 0, };
-    world.economy.monthlySupply = { food: 0, shelter: 0, medicine: 0, fun: 0, };
+    world.economy.unfulfilledMonthlyDemand = { food: 0, medicine: 0, fun: 0, };
+    world.economy.monthlyDemand = { food: 0, medicine: 0, fun: 0, };
+    world.economy.monthlySupply = { food: 0, medicine: 0, fun: 0, };
 }
 export function simulate_every_week(world: IWorldState){
     world.marketTraitsForSale = GetMarketTraits(world.seed);

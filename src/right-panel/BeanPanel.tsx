@@ -126,6 +126,7 @@ function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwa
                 {TraitToCard(bean, bean.food, undefined)}
                 {TraitToCard(bean, bean.stamina, undefined)}
                 {TraitToCard(bean, bean.health, undefined)}
+                {TraitToCard(bean, bean.housing, undefined)}
             </div>
         </div>
     } else {

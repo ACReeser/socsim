@@ -59,11 +59,14 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     titles: CreateEmptyEntitySlice<ITitle>(),
     dwellings: CreateEmptyEntitySlice<IDwelling>(),
     economy: {
-      unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
-      monthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
-      monthlySupply: { food: 0, shelter: 0, medicine: 0, fun: 0, },
+      unfulfilledMonthlyDemand: { food: 0, medicine: 0, fun: 0, },
+      monthlyDemand: { food: 0, medicine: 0, fun: 0, },
+      monthlySupply: { food: 0, medicine: 0, fun: 0, },
       market: {
-        listings: {food: [], fun: [], medicine: [], shelter: []}
+        listings: {
+          food: [], fun: [], medicine: []
+          //, shelter: []
+        }
       }
     },
     law: {

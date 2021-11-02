@@ -4,7 +4,7 @@ import { MoverStoreInstance as MoverStoreInstance } from "../MoverStoreSingleton
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
 import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
-import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
+import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitHousing, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { GetRandomNumber } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
@@ -336,7 +336,7 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                 if (elapsed > 750)
                     return {
                         newActivity: {
-                            act: agent.actionData.good === 'shelter' ? 'sleep' : 'idle'
+                            act: 'idle'
                         }
                     }
             } else {
@@ -423,7 +423,7 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
                     }
                 }
             } else {
-                const isPhysical = intent.good === 'food' || intent.good === 'medicine' || intent.good === 'shelter';
+                const isPhysical = intent.good === 'food' || intent.good === 'medicine';
                 if (isPhysical){
                     return {
                         sideEffect: beanEmote({beanKey: bean.key, emote: 'unhappiness', source: GoodIcon[intent.good] + ' Poverty'})
@@ -624,6 +624,7 @@ export interface IBean extends ISeller, IBeanAgent{
     discrete_sanity: number;
     discrete_stamina: number;
     discrete_fun: number;
+    housing: TraitHousing;
     graceTicks: number;
     cash: number;
     dob: IDate;

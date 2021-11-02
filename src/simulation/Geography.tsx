@@ -337,7 +337,7 @@ export const BuildingToGood: {[key in BuildingTypes]: TraitGood|undefined} = {
 };
 export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
     'food': 'farm',
-    'shelter': 'house',
+    // 'shelter': 'house',
     'medicine':'hospital',
     'fun': 'theater'
 };

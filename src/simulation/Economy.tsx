@@ -26,7 +26,7 @@ export interface IListing{
     seller?: ISeller;
     quantity: number;
 }
-const AllGoods: TraitGood[] = ['food', 'shelter', 'medicine', 'fun'];
+const AllGoods: TraitGood[] = ['food', 'medicine', 'fun'];
 
 export interface IEconomy{
     unfulfilledMonthlyDemand: {[key in TraitGood]: number};
@@ -167,7 +167,7 @@ export function GetFairGoodPrice(econ: IEconomy, good: TraitGood){
     return 0.25 + (0.75 * Math.min(demand/supply, 1));
 }
 export function GetCostOfLiving(econ: IEconomy){
-    return GetFairGoodPrice(econ, 'food')+GetFairGoodPrice(econ, 'shelter')+GetFairGoodPrice(econ,'medicine');
+    return GetFairGoodPrice(econ, 'food')+GetFairGoodPrice(econ,'medicine');
 }
 export function EconomyCanBuy(econ: IEconomy, gov: IGovernment, buyer: IEconomicAgent, good: TraitGood,
     minDemand: number = 1,

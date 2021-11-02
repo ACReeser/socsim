@@ -40,12 +40,13 @@ export type TraitIdeals = 'prog'|'trad';
 export type TraitEthno = 'circle'|'square'|'triangle';
 export type TraitFaith = 'rocket'|'music'|'dragon'|'noFaith';
 export type TraitFood = 'starving'|'hungry'|'sated'|'stuffed';
-export type TraitStamina = 'homeless'|'sleepy'|'awake'|'rested';
+export type TraitStamina = 'sleepy'|'awake'|'rested';
+export type TraitHousing = 'homeless'|'housed';
 export type TraitHealth = 'sick'|'sickly'|'bruised'|'fresh';
 export type TraitSanity = 'psychotic'|'disturbed'|'stressed'|'sane';
 export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
 
-export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitStamina|TraitHealth|TraitSanity;
+export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitStamina|TraitHealth|TraitSanity|TraitHousing;
 
 export const TraitIcon: {[key in Trait]: string} = {
     'state': '🕊️', 'ego': '🦅',
@@ -54,7 +55,7 @@ export const TraitIcon: {[key in Trait]: string} = {
     'rocket': '🚀', 'music': '🎵', 'dragon': '🐲',
     'noFaith': '⚫️',
     'starving': '🍴', 'hungry': '🍽️', 'sated': '🥜', 'stuffed': '🥩',
-    'homeless': '🌨️', 'sleepy': '🌙', 'awake': '☀️', 'rested': '🌞',
+    'homeless': '🌨️', 'housed': '🚪', 'sleepy': '🌙', 'awake': '☀️', 'rested': '🌞',
     'sick': '🤢', 'sickly': '😷', 'bruised': '🩹', 'fresh': '💪',
     'psychotic': '🤪', 'disturbed': '🤤', 'stressed':'', 'sane': '🧠',
 }
@@ -83,31 +84,15 @@ export function GetHappiness(array: IHappinessModifier[]){
     return (clampedPercent * 100);
 }
 
-export const TraitToModifier: {[key in TraitFood|TraitStamina|TraitHealth]: IHappinessModifier} = {
-    'homeless': {reason: 'Homeless', mod: MaslowHappinessScore.Deficient},
-    'sleepy': {reason: 'Renting', mod: MaslowHappinessScore.Sufficient},
-    'awake': {reason: 'Homeowner', mod: MaslowHappinessScore.Sufficient},
-    'rested': {reason: 'Homeowner', mod: MaslowHappinessScore.Abundant},
-    'sick': {reason: 'Sick', mod: MaslowHappinessScore.Deficient},
-    'sickly': {reason: 'Sick', mod: MaslowHappinessScore.Sufficient},
-    'bruised': {reason: 'Bruised', mod: MaslowHappinessScore.Sufficient},
-    'fresh': {reason: 'Healthy', mod: MaslowHappinessScore.Abundant},
-    'starving': {reason: 'Hungry', mod: MaslowHappinessScore.Deficient},
-    'hungry': {reason: 'Hungry', mod: MaslowHappinessScore.Sufficient},
-    'sated': {reason: 'Sated', mod: MaslowHappinessScore.Sufficient},
-    'stuffed': {reason: 'Stuffed', mod: MaslowHappinessScore.Abundant},
-}
 export interface IThreshold {warning: number, sufficient: number, abundant: number}
 export const GoodToThreshold: {[key in TraitGood]: IThreshold} = {
     'food': {warning: 0.5, sufficient: 1, abundant: 3},
-    'shelter': {warning: 3, sufficient: 4, abundant: 7},
     'medicine': {warning: 0.5, sufficient: 1, abundant: 3},
     'fun': {warning: 0.1, sufficient: 1, abundant: 3},
 }
 
 export function JobToGood(job: TraitJob): TraitGood{
     switch(job){
-        case 'builder': return 'shelter';
         case 'doc': return 'medicine';
         case 'entertainer': return 'fun';
         default: case 'farmer': return 'food';
@@ -115,16 +100,14 @@ export function JobToGood(job: TraitJob): TraitGood{
 }
 export function GoodToJob(good: TraitGood): TraitJob{
     switch(good){
-        case 'shelter': return 'builder';
         case 'medicine': return 'doc';
         case 'fun': return 'entertainer';
         default: case 'food': return 'farmer';
     }
 }
-export type TraitGood = 'food'|'shelter'|'medicine'|'fun';
+export type TraitGood = 'food'|'medicine'|'fun';
 export const GoodIcon: {[key in TraitGood]: string} ={
     'food': '🥪',
-    'shelter': '🏠', 
     'medicine': '💊', 
     'fun': '👏'
 };

@@ -57,7 +57,7 @@ export interface IDifficulty{
         }
     },
     bean_life: {
-        vital_thresh: {[key in TraitGood]: IThreshold},
+        vital_thresh: {[key in (TraitGood|'shelter')]: IThreshold},
         degrade_per_tick: {
             food: number,
             health: number,

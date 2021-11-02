@@ -67,9 +67,11 @@ export function BeanCalculateHealth(bean: IBean, difficulty: IDifficulty): Trait
     return bean.health;
 }
 
-export function BeanCalculateShelter(bean: IBean, difficulty: IDifficulty): TraitStamina{
+export function BeanCalculateStamina(bean: IBean, difficulty: IDifficulty): TraitStamina{
     if (bean.discrete_stamina < 0)
-        bean.stamina = 'homeless';
+        bean.stamina = 'sleepy';
+    else if (bean.discrete_stamina <= 4)
+        bean.stamina =  'awake';
     else
         bean.stamina = 'rested';
     
@@ -116,7 +118,7 @@ export function BeanCalculateBeliefs(bean: IBean, econ: IEconomy, difficulty: ID
     BeanCalculateFood(bean, difficulty);
     BeanCalculateHealth(bean, difficulty);
     BeanCalculateSanity(bean, difficulty);
-    BeanCalculateShelter(bean, difficulty);
+    BeanCalculateStamina(bean, difficulty);
 
     if (bean.job === 'jobless'){
         bean.fairGoodPrice = 1;
@@ -208,10 +210,10 @@ export function BeanAge(bean: IBean, seed: string, diff: IDifficulty): {death?: 
         
     bean.discrete_stamina -= diff.bean_life.degrade_per_tick.stamina;
 
-    BeanCalculateShelter(bean, diff);
-    const exposure = BeanMaybeDie(bean, seed, 'exposure', bean.stamina === 'homeless', 0.2);
-    if (exposure)
-        return exposure;
+    BeanCalculateStamina(bean, diff);
+    // const exposure = BeanMaybeDie(bean, seed, 'exposure', bean.housing === 'homeless', 0.2);
+    // if (exposure)
+    //     return exposure;
 
     bean.discrete_health -= diff.bean_life.degrade_per_tick.health;
     bean.discrete_health = Math.min(bean.discrete_health, 3);
@@ -275,7 +277,6 @@ export function BeanMaybeBaby(bean: IBean, seed: string, costOfLiving: number): 
     }
 }
 export function BeanMaybeCrime(bean: IBean, good: TraitGood): boolean {
-    if (good === 'shelter') return false;
     if (good === 'fun') return false;
     const roll = Math.random();
     let chance = 0.05;
@@ -311,8 +312,6 @@ export function BeanMaybeParanoid(bean: IBean) {
 export function BeanMaybeScarcity(bean: IBean, good: TraitGood){
     let scarce = false;
     if (good === 'food' && (bean.food === 'starving' || bean.food === 'hungry'))
-        scarce = true;
-    else if (good === 'shelter' && (bean.stamina === 'homeless' || bean.stamina === 'sleepy'))
         scarce = true;
     else if (good === 'medicine' && (bean.health === 'sick' || bean.health === 'sickly'))
         scarce = true;
@@ -372,7 +371,7 @@ export function BeanGetSpeech(bean: IBean): string|undefined {
 
 export function BeanIsInCrisis(bean: IBean): boolean{
     return bean.food === 'starving' ||
-    bean.stamina === 'homeless' ||
+    // bean.stamina === 'homeless' ||
     bean.health === 'sick';
 }
 
@@ -384,7 +383,7 @@ export function BeanGetFace(bean: IBean): string{
     if (bean.lifecycle === 'dead')
         return '💀';
     if (bean.actionData.act === 'sleep'){
-        return '😴';
+        return bean.housing === 'housed' ? '😴' : '🥶';
     }
     if (bean.actionData.act === 'crime'){
         return '😈';
@@ -407,8 +406,6 @@ export function BeanGetFace(bean: IBean): string{
         return '😫';
     if (bean.health === 'sick')
         return '🤢';
-    if (bean.stamina === 'homeless')
-        return '🥶';
     if (bean.job === 'jobless')
         return '😧';
     if (bean.lastHappiness < 0)
