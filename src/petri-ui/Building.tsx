@@ -1,8 +1,9 @@
 
 import React, { ReactElement } from "react";
 import { ICity } from "../simulation/City";
-import { IBuilding, BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes, BuildingToGood } from "../simulation/Geography";
+import { BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes, BuildingToGood } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
+import { IBuilding } from "../simulation/RealEstate";
 import { build } from "../state/features/world.reducer";
 import { useAppSelector } from "../state/hooks";
 import { GoodIcon, TraitGood } from "../World";
@@ -69,14 +70,16 @@ export const PetriBuilding: React.FC<{
 }> = (props) => {
     const lot: ILot = useAppSelector(state => state.world.lots.byID[props.lotKey]);
     const building: IBuilding|undefined = useAppSelector(state => lot.buildingKey != null ? state.world.buildings.byID[lot.buildingKey]: undefined);
-    if (building)
+    if (building){
+        const good = BuildingToGood[building.type];
         return <>
-            <text x="280px" y="77.859px" style={{fontSize:'36px'}}>{building.upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
-            {
-                building.jobs.filter(x => x != null).map((y,i) => <text x="325px" y={(85+(i*-14))+"px"} style={{fontSize:'11px'}} key={y}>{BuildingToJobIcon[building.type]}</text>)
-            }
-            {(building.enterpriseKey != null) ? <PetriGoods enterpriseKey={building.enterpriseKey} goodType={BuildingToGood[building.type]}></PetriGoods> : null}
-        </>
+        <text x="280px" y="77.859px" style={{fontSize:'36px'}}>{building.upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
+        {
+            building.employeeBeanKeys.map((y,i) => <text x="325px" y={(85+(i*-14))+"px"} style={{fontSize:'11px'}} key={y}>{BuildingToJobIcon[building.type]}</text>)
+        }
+        {(building.enterpriseKey != null && good) ? <PetriGoods enterpriseKey={building.enterpriseKey} goodType={good}></PetriGoods> : null}
+    </>
+    }
     else 
         return <text x="280.931px" y="77.859px" style={{fontSize:'36px'}}>{lot.kind === 'rural' ? '🌼' : '🚏'}</text>
 }
@@ -99,7 +102,7 @@ export const UIBuildingSlots: React.FC<{
 }> = (props) => {
     return <>{hex_directions.map((d, i: number) => {
         const jobSlot: BuildingJobSlot = hexDirectionToJobSlot[i];
-        const hasJob = props.building.jobs[jobSlot] != null;
+        const hasJob = props.building.employeeBeanKeys[jobSlot] != null;
         return <span key={i} className="slot" style={props.getStyle(d)}>
             {hasJob ? BuildingJobIcon[props.building.type] : null}
         </span>

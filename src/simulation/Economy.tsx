@@ -2,6 +2,8 @@ import { TraitGood, TraitJob, GoodToJob, Trait } from "../World";
 import { IEnterprise } from "./Institutions";
 import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw, IsLaw, SalesTaxPercentage } from "./Government";
 import { IBean } from "./Agent";
+import { DistrictKind } from "./Geography";
+import { BeanBelievesIn } from "./Bean";
 
 export interface IEconomicAgent{
     cash: number;
@@ -9,8 +11,12 @@ export interface IEconomicAgent{
 export interface ISeller extends IEconomicAgent{
     ticksSinceLastSale: number;
 }
-function AgentIsSeller(a: any): a is ISeller{
-    return a.ticksSinceLastSale != null;
+export function BeanDistrictIdeologyBonus(b: IBean, kind: DistrictKind): number{
+    if (kind === 'rural')
+        return BeanBelievesIn(b, 'Parochialism') ? 1 : BeanBelievesIn(b, 'Cosmopolitanism') ? -1 : 0;
+    else if (kind === 'urban')
+        return BeanBelievesIn(b, 'Parochialism') ? -1 : BeanBelievesIn(b, 'Cosmopolitanism') ? 1 : 0;
+    return 0;
 }
 export interface IListing{
     sellerCityKey?: number;

@@ -14,6 +14,7 @@ export const EnterpriseTypeIcon: {[e in EnterpriseType]: string} = {
 export interface IEnterprise extends ISeller{
     key: number;
     cityKey: number;
+    buildingKey: number;
     enterpriseType: EnterpriseType;
     ownerBeanKey?: number;
 }

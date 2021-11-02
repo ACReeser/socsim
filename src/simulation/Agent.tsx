@@ -9,9 +9,10 @@ import { GetRandomNumber } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
-import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, ICity } from "./City";
+import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, CityGetRandomHomelessSleepingBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
-import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, IAccelerator, IBuilding, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, ILot, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { IBuilding } from "./RealEstate";
 import { IDate } from "./Time";
 import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
@@ -454,9 +455,18 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
     switch(intent.act){
         case 'buy':
             if (intent.good)
-                return RouteRandom(city, world, agent, GoodToBuilding[intent.good]);
+                return RouteRandomBuildingOfType(city, world, agent, GoodToBuilding[intent.good]);
+        case 'sleep': {
+            if (agent.dwellingKey !== undefined){
+                const lot = world.lots.byID[agent.dwellingKey];
+                const district = world.districts.byID[lot.districtKey];
+                return RouteToHexAndPoint(world.seed, city, agent, {q: district.q, r: district.r}, lot.point);
+            } else {
+                return RouteRandomHomelessSleepingBuilding(city, world, agent);
+            }
+        }
         case 'work':
-            return RouteRandom(city, world, agent, JobToBuilding[agent.job]);
+            return RouteRandomBuildingOfType(city, world, agent, JobToBuilding[agent.job]);
         case 'relax': {
             const buildingDest = CityGetRandomEntertainmentBuilding(city, world);
             if (buildingDest){
@@ -543,7 +553,7 @@ export const GetPriority = {
 export function GetPriorities(bean: IBean, seed: string, city: ICity, difficulty: IDifficulty): IPrioritizedActivityData[]{
     const priors: IPrioritizedActivityData[] = [
         {act: 'work', good: JobToGood(bean.job), priority: GetPriority.work(bean, seed, city)} as IPrioritizedActivityData,
-        {act: 'buy', good: 'shelter', priority: GetPriority.stamina(bean, seed, difficulty)} as IPrioritizedActivityData,
+        {act: 'sleep', priority: GetPriority.stamina(bean, seed, difficulty)} as IPrioritizedActivityData,
         {act: 'buy', good: 'food', priority: GetPriority.food(bean, seed, difficulty)} as IPrioritizedActivityData,
         {act: 'buy', good: 'medicine', priority: GetPriority.medicine(bean, seed, difficulty)} as IPrioritizedActivityData,
         {act: 'buy', good: 'fun', priority: GetPriority.fun(bean, seed, difficulty)} as IPrioritizedActivityData,
@@ -627,6 +637,7 @@ export interface IBean extends ISeller, IBeanAgent{
     hedonFiveDayRecord: HedonExtremes,
     fairGoodPrice: number,
     employerEnterpriseKey?: number,
+    dwellingKey?: number,
     activity_duration: {[act in Act]: number},
     bornInPetri: boolean,
     ticksSinceLastRelax: number,
@@ -643,8 +654,14 @@ export interface IBean extends ISeller, IBeanAgent{
  * @param bean 
  * @param buildingType 
  */
-export function RouteRandom(city: ICity, world: IWorldState, bean: IBean, buildingType: BuildingTypes): Point[]|null{
+export function RouteRandomBuildingOfType(city: ICity, world: IWorldState, bean: IBean, buildingType: BuildingTypes): Point[]|null{
     const destination: IBuilding|undefined = CityGetRandomBuildingOfType(city, world, buildingType);
+    if (destination === undefined) 
+        return null;
+    return Route(world.seed, city, bean, destination);
+}
+export function RouteRandomHomelessSleepingBuilding(city: ICity, world: IWorldState, bean: IBean): Point[]|null{
+    const destination: IBuilding|undefined = CityGetRandomHomelessSleepingBuilding(city, world);
     if (destination === undefined) 
         return null;
     return Route(world.seed, city, bean, destination);

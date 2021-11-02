@@ -6,17 +6,17 @@ import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BeanBelievesIn, BeanCalculateSanity, BeanCanPurchase, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
-import { BeanTrySetJob } from '../../simulation/BeanAndCity'
+import { BeanTryFindJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
-import { BuildingTypes, HexPoint, hex_to_pixel, IBuilding, OriginAccelerator, Point } from '../../simulation/Geography'
+import { BuildingTypes, HexPoint, hex_to_pixel, OriginAccelerator, Point } from '../../simulation/Geography'
 import { LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseTraitGem, Tech } from '../../simulation/Player'
-import { BuildingTryFreeBean, GenerateIBuilding } from '../../simulation/RealEstate'
+import { BuildingTryFreeBean, GenerateIBuilding, IBuilding } from '../../simulation/RealEstate'
 import { GetSeedName } from '../../simulation/SeedGen'
 import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
@@ -298,8 +298,10 @@ export const worldSlice = createSlice({
       },
       vaporize: (state, action: PayloadAction<{beanKey: number}>) => {
         if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.vaporize)) {
-          const d = BeanDie(state.beans.byID[action.payload.beanKey], state.seed, 'vaporization');
+          const bean = state.beans.byID[action.payload.beanKey];
+          const d = BeanDie(bean, state.seed, 'vaporization');
           EntityAddToSlice(state.events, d.death);
+          BeanLoseJob(bean, state);
           d.emotes.map(e => EntityAddToSlice(state.pickups, e));
         }
       },
@@ -395,8 +397,8 @@ export const worldSlice = createSlice({
                 if (employer.ownerBeanKey != bean.key && Math.random() > 0.5) {
                     const newJob = EconomyMostInDemandJob(state.economy);
                     if (newJob){
-                      BuildingUnsetJob(state.buildings.byID[bean.employerEnterpriseKey], bean);
-                      BeanTrySetJob(state, bean, newJob);
+                      BeanTryFindJob(state, bean, bean.employerEnterpriseKey);
+                      bean.ticksSinceLastSale = 0;
                     }
                 }
             }

@@ -3,7 +3,7 @@ import { AnimatedBean } from "../petri-ui/AnimatedBean";
 import { SocialBuildings } from "../petri-ui/PetriHexes";
 import { IBean } from "../simulation/Agent";
 import { ICity } from "../simulation/City";
-import { IBuilding } from "../simulation/Geography";
+import { IBuilding } from "../simulation/RealEstate";
 import { doSelectBean } from "../state/features/selected.reducer";
 import { selectCityBeanIDs } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";

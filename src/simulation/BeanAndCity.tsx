@@ -1,54 +1,50 @@
 import { IWorldState } from "../state/features/world";
 import { TraitJob } from "../World";
+import { GetRandom } from "../WorldGen";
 import { IBean } from "./Agent";
-import { BuildingToJob, IBuilding, JobToBuilding } from "./Geography";
+import { BuildingUnsetJob } from "./City";
+import { BeanDistrictIdeologyBonus } from "./Economy";
+import { BuildingToJob, JobToBuilding } from "./Geography";
 import { IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
-import { BuildingOpenSlots } from "./RealEstate";
+import { BuildingNumOfOpenJobs, IBuilding } from "./RealEstate";
 import { shuffle } from "./Utils";
 
-export function BeanTryFindJob(world: IWorldState, bean: IBean): boolean{
+export function BeanTryFindJob(world: IWorldState, bean: IBean, previousEmployerKey: number|null = null): boolean{
     const city = world.cities.byID[bean.cityKey];
-
-    const openSlotBuildings = shuffle(city.buildingKeys.map(
-        x => world.buildings.byID[x]
-        ).filter(
-        x => {
-            const canHire = ['farm', 'house', 'theater', 'hospital'].includes(x.type);
-            const isHiring = BuildingOpenSlots(x).length > 0;
-            return canHire && isHiring;
-        }));
-    
-    
-    for (let i = 0; i < openSlotBuildings.length; i++) {
-        const building = openSlotBuildings[i];
-        const slots = BuildingOpenSlots(building);
-        if (slots.length > 0){
-            BeanSetJob(bean, building, world.enterprises.byID[building.key]);
-            return true;
-        }
-    }
-    return false;
-}
-export function BeanTrySetJob(world: IWorldState, bean: IBean, job: TraitJob): boolean{
-    if (job === 'jobless') 
+    const employableBuildingKeys = city.buildingKeys.filter(x => BuildingNumOfOpenJobs(world.buildings.byID[x]) > 0);
+    if (employableBuildingKeys.length < 1)
         return false;
-    const city = world.cities.byID[bean.cityKey];
-
-    const allOfType = city.buildingKeys.map(x => world.buildings.byID[x]).filter((x) => x.type === JobToBuilding[job]);
-    
-    for (let i = 0; i < allOfType.length; i++) {
-        const building = allOfType[i];
-        const slots = BuildingOpenSlots(building);
-        if (slots.length > 0){
-            BeanSetJob(bean, building, world.enterprises.byID[building.key]);
-            return true;
+    const employableBuildings = employableBuildingKeys.map(x => world.buildings.byID[x]);
+    const jobs = employableBuildings.map(x => {
+        return {
+            ideologyBonus: BeanDistrictIdeologyBonus(bean, world.districts.byID[world.lots.byID[x.lotKey].districtKey].kind),
+            isEmpty: x.employeeBeanKeys.length === 0,
+            openJobs: BuildingNumOfOpenJobs(x),
+            building: x
         }
+    });
+    jobs.sort((a, b) => {
+        if (a.isEmpty != b.isEmpty)
+            return a.isEmpty ? -1 : 1;
+        else if (a.ideologyBonus != b.ideologyBonus)
+            return a.ideologyBonus - b.ideologyBonus;
+        return a.openJobs - b.openJobs;
+    });
+    
+    if (jobs.length > 0){
+        const {building} = jobs[0];
+        if (bean.employerEnterpriseKey != null){
+            BuildingUnsetJob(world.buildings.byID[bean.employerEnterpriseKey], bean);
+        }
+        BeanSetJob(bean, building, world.enterprises.byID[building.key]);
+        return true;
     }
     return false;
 }
+
 export function BeanSetJob(bean: IBean, building: IBuilding, enterprise: IEnterprise){
-    building.jobs.push(bean.key);
+    building.employeeBeanKeys.push(bean.key);
     bean.employerEnterpriseKey = building.key;
     if (enterprise && enterprise.ownerBeanKey == null){
         enterprise.ownerBeanKey = bean.key;

@@ -2,17 +2,19 @@ import { TraitGood, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
 import { IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
+import { IBuilding } from "./RealEstate";
 import { MathClamp } from "./Utils";
 
 export interface HexPoint{
     q: number;
     r: number;
 }
+export type DistrictKind = 'fallow'|'rural'|'urban'|'nature';
 export interface IDistrict extends HexPoint{
     key: number,
     hexString: string,
     point: Point,
-    kind: 'fallow'|'rural'|'urban'|'nature',
+    kind: DistrictKind,
     lots: number[]
 }
 export interface ILot{
@@ -274,17 +276,6 @@ export function transformPoint(p: Point){
     return {transform:`translate(${p.x}px, ${p.y}px)`};
 }
 
-export interface IBuilding{
-    key: number;
-    hex: HexPoint,
-    point: Point;
-    type: BuildingTypes;
-    jobs: number[];
-    upgraded: boolean,
-    enterpriseKey?: number,
-    lotKey: number
-}
-
 /**
  * address books allow lookups from entity "name" to location
  */
@@ -312,7 +303,7 @@ export interface BuildingMap{
 
 export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
 export type TopiaBuildingTypes = 'utopia_fields'|'utopia_pump'|'dystopia_refinery'|'dystopia_crypt';
-//utopian fields = free relax
+//third place - cafe/bookstore/barbershop/pub/gym/arcade/bingohall
 //utopia pump = slowly sucks up happiness/unhappiness?
 //dystopia refinery = slowly converts negative emotions to energy/bots
 //dystopia crypt = skips death notifications (limited use?)
@@ -334,9 +325,9 @@ export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
     'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🪑', 'courthouse':'🏫',
     'park': '💐', 'nature': '♨️'
 };
-export const BuildingToGood: {[key in BuildingTypes]: TraitGood} = {
+export const BuildingToGood: {[key in BuildingTypes]: TraitGood|undefined} = {
     'farm': 'food',
-    'house': 'shelter', 
+    'house': undefined, 
     'hospital': 'medicine', 
     'church': 'fun', 
     'theater': 'fun', 

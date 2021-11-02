@@ -57,3 +57,7 @@ export function SampleNormalDistribution(seed: string, mean: number = StatsNorma
     p = Math.sqrt(-2.0 * Math.log(q) / q);
     return mean + standardDeviation * u * p;
 }
+
+export function toTitleCase(str: string): string{
+    return str[0].toUpperCase() + str.substr(1);
+}

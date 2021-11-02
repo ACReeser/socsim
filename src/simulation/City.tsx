@@ -6,9 +6,9 @@ import { GetRandom } from "../WorldGen";
 import { IBean } from "./Agent";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { GetCostOfLiving, IEconomy } from "./Economy";
-import { BuildingTypes, HexPoint, IBuilding, Point, Vector } from "./Geography";
+import { BuildingTypes, HexPoint, Point, Vector } from "./Geography";
 import { IPickup } from "./Pickup";
-import { BuildingTryFreeBean } from "./RealEstate";
+import { BuildingTryFreeBean, IBuilding } from "./RealEstate";
 
 
 export function reportIdeals(beans: IBean[]): {avg: number, winner: Trait}{
@@ -78,7 +78,7 @@ export function BeanLoseJob(bean: IBean, world: IWorldState){
         const building = world.buildings.byID[bean.employerEnterpriseKey];
         const enterprise = world.enterprises.byID[bean.employerEnterpriseKey];
         if (enterprise.ownerBeanKey == bean.key){
-            enterprise.ownerBeanKey = building.jobs.find(x => x != bean.key);
+            enterprise.ownerBeanKey = building.employeeBeanKeys.find(x => x != bean.key);
         }
         BuildingUnsetJob(building, bean);
     }
@@ -117,6 +117,13 @@ export function CityGetPopulationTraitsList(scannedBeans: {[beanKey: number]: bo
 }
 export function CityGetRandomBuildingOfType(city: ICity, world: IWorldState, buildingType: BuildingTypes): IBuilding|undefined{
     const keysOfType: number[] = city.buildingKeys.filter(x => world.buildings.byID[x].type === buildingType);
+    if (keysOfType.length < 1)
+        return undefined;
+    const r = GetRandom(world.seed, keysOfType);
+    return world.buildings.byID[r]
+}
+export function CityGetRandomHomelessSleepingBuilding(city: ICity, world: IWorldState): IBuilding|undefined{
+    const keysOfType: number[] = city.buildingKeys.filter(x => world.buildings.byID[x].type !== 'house');
     if (keysOfType.length < 1)
         return undefined;
     const r = GetRandom(world.seed, keysOfType);

@@ -4,12 +4,13 @@ import { IBean } from '../../simulation/Agent'
 import { InsanityTraits } from '../../simulation/Beliefs'
 import { ICity } from '../../simulation/City'
 import { IEconomy } from '../../simulation/Economy'
-import { IBuilding, IDistrict, ILot } from '../../simulation/Geography'
+import { IDistrict, ILot } from '../../simulation/Geography'
 import { IGovernment, ILaw, LawAxis } from '../../simulation/Government'
 import { IEnterprise } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { IPlayerData } from '../../simulation/Player'
+import { IBuilding, IDwelling } from '../../simulation/RealEstate'
 import { IDate, Season } from '../../simulation/Time'
 import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
@@ -27,6 +28,7 @@ export interface IWorldState {
   districts: IEntitySlice<IDistrict>,
   lots: IEntitySlice<ILot>,
   titles: IEntitySlice<ITitle>,
+  dwellings: IEntitySlice<IDwelling>,
   economy: IEconomy,
   law: IGovernment,
   marketTraitsForSale: MarketTraitListing[],
@@ -55,6 +57,7 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     lots: CreateEmptyEntitySlice<ILot>(),
     districts: CreateEmptyEntitySlice<IDistrict>(),
     titles: CreateEmptyEntitySlice<ITitle>(),
+    dwellings: CreateEmptyEntitySlice<IDwelling>(),
     economy: {
       unfulfilledMonthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },
       monthlyDemand: { food: 0, shelter: 0, medicine: 0, fun: 0, },

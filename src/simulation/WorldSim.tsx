@@ -108,6 +108,13 @@ export function simulate_world(world: IWorldState){
                 WorldAddEvent(world, {icon: '🏚️', trigger: 'nojobslots', message: `A subject cannot find a job; build or upgrade more buildings.`, key: 0});
             }
         }
+        if (b.dwellingKey === undefined){
+            const openDwellingKey = world.dwellings.allIDs.find(dKey => world.dwellings.byID[dKey].occupantKey === undefined);
+            if (openDwellingKey != null){
+                world.dwellings.byID[openDwellingKey].occupantKey = b.key;
+                b.dwellingKey = openDwellingKey;
+            }
+        }
         
         b.happiness = GetHedonReport(b.hedonHistory);
     });
@@ -165,7 +172,7 @@ export function simulate_every_other_tick(world: IWorldState){
     world.enterprises.allIDs.forEach((eKey) => {
         const enterprise = world.enterprises.byID[eKey];
         const building = world.buildings.byID[eKey];
-        const workers = building.jobs.map(x => world.beans.byID[x]);
+        const workers = building.employeeBeanKeys.map(x => world.beans.byID[x]);
         //distribute cash
         switch(enterprise.enterpriseType){
             case 'company':
@@ -212,7 +219,7 @@ export function simulate_every_other_tick(world: IWorldState){
                 });
                 break;
         }
-    })
+    });
 }
 export function WorldAddEvent(world: IWorldState, e: IEvent){
     e.key = world.events.nextID++;

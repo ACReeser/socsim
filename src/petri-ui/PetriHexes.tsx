@@ -1,7 +1,8 @@
 import React, { useRef } from "react";
 import { DistrictTypeIcon } from "../right-panel/HexPanel";
 import { ICity } from "../simulation/City";
-import { IBuilding, transformPoint } from "../simulation/Geography";
+import { transformPoint } from "../simulation/Geography";
+import { IBuilding } from "../simulation/RealEstate";
 import { doSelectDistrict, doSelectLot } from "../state/features/selected.reducer";
 import { magnetChange, selectBuildingsByCity } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";

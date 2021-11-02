@@ -3,10 +3,10 @@ import { keyToName } from "../i18n/text";
 import { Subtabs } from "../chrome/Subtab";
 import { IDifficulty } from "../Game";
 import { ICity } from "../simulation/City";
-import { BuildingIcon, BuildingJobIcon, BuildingToGood, BuildingTypes, HexPoint, IBuilding, IDistrict } from "../simulation/Geography";
+import { BuildingIcon, BuildingJobIcon, BuildingToGood, BuildingTypes, HexPoint, IDistrict } from "../simulation/Geography";
 import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, IEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";
-import { BuildingOpenSlots, BuildingUsedSlots } from "../simulation/RealEstate";
+import { BuildingJobs, BuildingNumOfOpenJobs, IBuilding } from "../simulation/RealEstate";
 import { useSelector } from "react-redux";
 import { RootState, selectSelectedBuilding, selectSelectedCity } from "../state/state";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
@@ -14,6 +14,7 @@ import { beam, build, changeEnterprise, fireBean, selectCity, upgrade, upgradeDi
 import { doSelectCity, doSelectDistrict, doSelectNone } from "../state/features/selected.reducer";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GoodIcon, TraitGood } from "../World";
+import { DwellingList } from "./DwellingList";
 
 export const BeamButton: React.FC<{
     city: number,
@@ -149,9 +150,9 @@ export const HexBuildingPanel: React.FC<{
 }> = (props) => {
     const b = props.building;
     const e = useAppSelector(s => b.enterpriseKey != null ? s.world.enterprises.byID[b.enterpriseKey]: undefined);
+    const good = BuildingToGood[b.type];
     const dispatch = useAppDispatch();
-    const free = BuildingOpenSlots(b);
-    const hasJobs = b.type != 'park' && b.type != 'nature';
+    const hasJobs = BuildingJobs[b.type] > 0;
     return <div>
         <div>
             <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong>
@@ -163,11 +164,11 @@ export const HexBuildingPanel: React.FC<{
             </small>
         </div>
     {
-        e != null ? <div>
+        e != null && good != null ? <div>
             <small>
                 ${e.cash?.toFixed(2)} from sales today
             </small>
-            <EnterpriseListings enterpriseKey={e.key} good={BuildingToGood[b.type]}></EnterpriseListings>
+            <EnterpriseListings enterpriseKey={e.key} good={good}></EnterpriseListings>
         </div> : null
     }
     {
@@ -176,17 +177,20 @@ export const HexBuildingPanel: React.FC<{
         </div> : null
     }
     {
-        e != null ?  <EnterpriseTypePicker 
+        b.dwellingKeys != null && b.dwellingKeys.length ? <DwellingList dwellingKeys={b.dwellingKeys}></DwellingList> : null
+    }
+    {
+        hasJobs && e != null ?  <EnterpriseTypePicker 
             enter={e} 
             changeEnterprise={(t) => dispatch(changeEnterprise({enterpriseKey: b.key, newType: t}))}>
             </EnterpriseTypePicker> : null
     }
     {
-        <WorkerList cityKey={props.city.key} building={b}></WorkerList>
+        hasJobs ? <WorkerList cityKey={props.city.key} building={b}></WorkerList> : null
     }
     {
         !hasJobs ? null : <div>
-            This {keyToName[b.type]} can support {free.length} more jobs.
+            This {keyToName[b.type]} can support {BuildingNumOfOpenJobs(b)} more jobs.
             {
                 b.upgraded ? null : <span><br/>Upgrade it to add 3 more job slots.</span>
             }
@@ -230,7 +234,7 @@ export const WorkerList: React.FC<{
     building: IBuilding
 }> = (props) => {
     const dispatch = useAppDispatch();
-    const beans = useAppSelector(x => props.building.jobs.map((k) => x.world.beans.byID[k]));
+    const beans = useAppSelector(x => props.building.employeeBeanKeys.map((k) => x.world.beans.byID[k]));
     const enterprise = useAppSelector(s => s.world.enterprises.byID[props.building.key]);
     if (beans.length < 0) {
         return <div>No Workers</div>
