@@ -458,7 +458,9 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
                 return RouteRandomBuildingOfType(city, world, agent, GoodToBuilding[intent.good]);
         case 'sleep': {
             if (agent.dwellingKey !== undefined){
-                const lot = world.lots.byID[agent.dwellingKey];
+                const dwelling = world.dwellings.byID[agent.dwellingKey];
+                const building = world.buildings.byID[dwelling.buildingKey];
+                const lot = world.lots.byID[building.lotKey];
                 const district = world.districts.byID[lot.districtKey];
                 return RouteToHexAndPoint(world.seed, city, agent, {q: district.q, r: district.r}, lot.point);
             } else {

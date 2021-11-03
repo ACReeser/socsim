@@ -19,7 +19,7 @@ export const SocietyPanel: React.FC<{
         </div> */}
         <div className="subheader">
             <h2>
-                Titles
+                👑 Titles
                 <button 
                     className="callout marg-0 pull-r"
                     onClick={() => {
@@ -33,6 +33,16 @@ export const SocietyPanel: React.FC<{
                 titles.map(y => <TitleEdit key={y.key} title={y} onEdit={(t) => {
                     dispatch(editTitle({newT: t}))
                 }}></TitleEdit>)
+            }
+            {
+                titles.length === 0 ? <div>
+                    <p>
+                    <i>No Titles</i>
+                    </p>
+                    <p>
+                        Titles are cosmetic items and privileges that can be awarded to subjects.
+                    </p>
+                </div> : null
             }
         </div>
       </div>

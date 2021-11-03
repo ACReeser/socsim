@@ -72,8 +72,9 @@ export const PetriBuilding: React.FC<{
     const building: IBuilding|undefined = useAppSelector(state => lot.buildingKey != null ? state.world.buildings.byID[lot.buildingKey]: undefined);
     if (building){
         const good = BuildingToGood[building.type];
+        const upgraded = building.upgradedJobs || building.upgradedStorage;
         return <>
-        <text x="280px" y="77.859px" style={{fontSize:'36px'}}>{building.upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
+        <text x="280px" y="77.859px" style={{fontSize:'36px'}}>{upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
         {
             building.employeeBeanKeys.map((y,i) => <text x="325px" y={(85+(i*-14))+"px"} style={{fontSize:'11px'}} key={y}>{BuildingToJobIcon[building.type]}</text>)
         }
@@ -89,9 +90,10 @@ export const UIBuilding: React.FC<{
     style: React.CSSProperties,
     getStyle: (h: HexPoint) => React.CSSProperties
 }> = (props) => {
+    const upgraded = props.building.upgradedJobs || props.building.upgradedStorage;
     return <div key={props.building.type+props.building.key} style={props.style} 
     className={"building "+props.building.type}>
-    {props.building.upgraded ? UpgradedBuildingIcon[props.building.type] : BuildingIcon[props.building.type]}
+    {upgraded ? UpgradedBuildingIcon[props.building.type] : BuildingIcon[props.building.type]}
     <UIBuildingSlots building={props.building} getStyle={props.getStyle}></UIBuildingSlots>
     {props.children}
     </div>

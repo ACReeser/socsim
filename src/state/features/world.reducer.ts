@@ -16,7 +16,7 @@ import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseTraitGem, Tech } from '../../simulation/Player'
-import { BuildingTryFreeBean, GenerateIBuilding, IBuilding } from '../../simulation/RealEstate'
+import { BuildingTryFreeBean, GenerateIBuilding, IBuilding, IDwelling } from '../../simulation/RealEstate'
 import { GetSeedName } from '../../simulation/SeedGen'
 import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
@@ -124,7 +124,28 @@ export const worldSlice = createSlice({
         const cost = state.alien.difficulty.cost.hex.upgrade;
         const what = state.buildings.byID[action.payload.buildingKey];
         if (PlayerTryPurchase(state.alien, cost)) {
-          what.upgraded = true;
+          what.upgradedJobs = true;
+        }
+      },
+      upgradeLoft: (state, action: PayloadAction<{buildingKey: number}>) => {
+        const cost = state.alien.difficulty.cost.hex.add_loft;
+        const what = state.buildings.byID[action.payload.buildingKey];
+        if (PlayerTryPurchase(state.alien, cost)) {
+          what.upgradedLoft = true;
+          const loft: IDwelling = {
+            key: 0,
+            buildingKey: action.payload.buildingKey,
+            kind: 'loft'
+          }
+          EntityAddToSlice(state.dwellings, loft);
+          what.dwellingKeys = [loft.key];
+        }
+      },
+      upgradeStorage: (state, action: PayloadAction<{buildingKey: number}>) => {
+        const cost = state.alien.difficulty.cost.hex.upgrade;
+        const what = state.buildings.byID[action.payload.buildingKey];
+        if (PlayerTryPurchase(state.alien, cost)) {
+          what.upgradedStorage = true;
         }
       },
       beam: (state, action: PayloadAction<{cityKey: number, where: HexPoint}>) => {
@@ -636,7 +657,7 @@ export const worldSlice = createSlice({
   export const { 
     refreshMarket, magnetChange, worldTick, 
     remove_ufo, upgradeDistrict,
-    newGame, loadGame, build, changeEnterprise, fireBean, upgrade, beam,
+    newGame, loadGame, build, changeEnterprise, fireBean, upgrade, upgradeLoft, upgradeStorage, beam,
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,

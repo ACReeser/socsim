@@ -22,7 +22,6 @@ export interface IBuilding{
     hex: HexPoint,
     point: Point;
     type: BuildingTypes;
-    upgraded: boolean,
     employeeBeanKeys: number[];
     upgradedJobs: boolean, // more jobs in 1 place
     upgradedStorage: boolean, //store more goods
@@ -39,7 +38,7 @@ export interface IDwelling{
     kind: DwellingKind
 }
 
-const EnterpriseBuildings: BuildingTypes[] = ['farm', 'hospital', 'house', 'theater'];
+const EnterpriseBuildings: BuildingTypes[] = ['farm', 'hospital', 'theater'];
 
 export function BuildingNumOfOpenJobs(b: IBuilding): number{
     return BuildingMaximumJobs(b) - b.employeeBeanKeys.length;
@@ -72,7 +71,6 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
         point: {...point},
         lotKey: lotKey,
         employeeBeanKeys: [],
-        upgraded: false,
         upgradedLoft: false,
         upgradedJobs: false,
         upgradedStorage: false
@@ -83,7 +81,7 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     const lot = world.lots.byID[lotKey];
     lot.buildingKey = newBuilding.key;
 
-    if (EnterpriseBuildings.some(x => type)){
+    if (EnterpriseBuildings.some(x => x === type)){
         newBuilding.enterpriseKey = newBuilding.key;
         world.enterprises.allIDs.push(newBuilding.key);
         world.enterprises.byID[newBuilding.key] = {

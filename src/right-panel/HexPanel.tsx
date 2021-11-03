@@ -10,7 +10,7 @@ import { BuildingJobs, BuildingNumOfOpenJobs, IBuilding } from "../simulation/Re
 import { useSelector } from "react-redux";
 import { RootState, selectSelectedBuilding, selectSelectedCity } from "../state/state";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
-import { beam, build, changeEnterprise, fireBean, selectCity, upgrade, upgradeDistrict } from "../state/features/world.reducer";
+import { beam, build, changeEnterprise, fireBean, selectCity, upgrade, upgradeDistrict, upgradeLoft } from "../state/features/world.reducer";
 import { doSelectCity, doSelectDistrict, doSelectNone } from "../state/features/selected.reducer";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GoodIcon, TraitGood } from "../World";
@@ -149,13 +149,14 @@ export const HexBuildingPanel: React.FC<{
     hex: HexPoint
 }> = (props) => {
     const b = props.building;
-    const e = useAppSelector(s => b.enterpriseKey != null ? s.world.enterprises.byID[b.enterpriseKey]: undefined);
+    const enterprise = useAppSelector(s => b.enterpriseKey != null ? s.world.enterprises.byID[b.enterpriseKey]: undefined);
     const good = BuildingToGood[b.type];
     const dispatch = useAppDispatch();
     const hasJobs = BuildingJobs[b.type] > 0;
+    const upgraded = props.building.upgradedJobs || props.building.upgradedStorage;
     return <div>
         <div>
-            <strong>{b.upgraded && hasJobs ? 'Dense ': 'Small '}{keyToName[b.type]}</strong>
+            <strong>{keyToName[b.type]}</strong>
             <button type="button" className="pull-r" onClick={() => dispatch(doSelectNone())}>❌</button>
         </div>
         <div className="text-right">
@@ -164,24 +165,21 @@ export const HexBuildingPanel: React.FC<{
             </small>
         </div>
     {
-        e != null && good != null ? <div>
+        (enterprise != null && good != null) ? <div>
             <small>
-                ${e.cash?.toFixed(2)} from sales today
+                ${enterprise.cash?.toFixed(2)} from sales today
             </small>
-            <EnterpriseListings enterpriseKey={e.key} good={good}></EnterpriseListings>
+            <EnterpriseListings enterpriseKey={enterprise.key} good={good} buildingKey={b.key}></EnterpriseListings>
         </div> : null
     }
     {
-        b.upgraded && hasJobs ? <div>
+        upgraded && hasJobs ? <div>
             {renderDensityWarning(b.type)}
         </div> : null
     }
     {
-        b.dwellingKeys != null && b.dwellingKeys.length ? <DwellingList dwellingKeys={b.dwellingKeys}></DwellingList> : null
-    }
-    {
-        hasJobs && e != null ?  <EnterpriseTypePicker 
-            enter={e} 
+        hasJobs && enterprise != null ?  <EnterpriseTypePicker 
+            enter={enterprise} 
             changeEnterprise={(t) => dispatch(changeEnterprise({enterpriseKey: b.key, newType: t}))}>
             </EnterpriseTypePicker> : null
     }
@@ -190,20 +188,43 @@ export const HexBuildingPanel: React.FC<{
     }
     {
         !hasJobs ? null : <div>
+            <small>
             This {keyToName[b.type]} can support {BuildingNumOfOpenJobs(b)} more jobs.
             {
-                b.upgraded ? null : <span><br/>Upgrade it to add 3 more job slots.</span>
+                upgraded ? null : <span><br/>Add Worker Space to add 3 more job slots.</span>
             }
+            </small>
         </div>
     }
+    {/* {renderDensityWarning(b.type)} */}
     {
-        b.upgraded || !hasJobs ? null : <div><div className="card-parent">
+        b.upgradedJobs || b.upgradedStorage || !hasJobs ? null : <div><div className="card-parent">
                 <button className="card button" type="button" onClick={() => dispatch(upgrade({buildingKey: b.key}))}>
-                    🛠️ Upgrade
+                    🛠️ Add Worker Space
                     <CostSmall cost={props.difficulty.cost.hex.upgrade}></CostSmall>
                 </button>
             </div>
-            {renderDensityWarning(b.type)}
+        </div>
+    }
+    {
+        b.upgradedJobs || b.upgradedStorage || !hasJobs ? null : <div><div className="card-parent">
+                <button className="card button" type="button" onClick={() => dispatch(upgrade({buildingKey: b.key}))}>
+                    📦 Add Storage Space
+                    <CostSmall cost={props.difficulty.cost.hex.upgrade}></CostSmall>
+                </button>
+            </div>
+        </div>
+    }
+    {
+        b.dwellingKeys != null && b.dwellingKeys.length ? <DwellingList dwellingKeys={b.dwellingKeys}></DwellingList> : null
+    }
+    {
+        b.upgradedLoft || !hasJobs ? null : <div><div className="card-parent">
+                <button className="card button" type="button" onClick={() => dispatch(upgradeLoft({buildingKey: b.key}))}>
+                    🛌 Add Loft Housing
+                    <CostSmall cost={props.difficulty.cost.hex.add_loft}></CostSmall>
+                </button>
+            </div>
         </div>
     }
     <BeamButton city={props.city.key} difficulty={props.difficulty} hex={props.hex}></BeamButton>
@@ -270,15 +291,20 @@ export const EnterpriseTypePicker: React.FC<{
 
 export const EnterpriseListings: React.FC<{
     enterpriseKey: number,
+    buildingKey: number,
     good: TraitGood
 }> = (props) => {
-    const listings = useAppSelector(s => s.world.economy.market.listings[props.good])
-    return <div>
+    const listings = useAppSelector(s => s.world.economy.market.listings[props.good]);
+    const building = useAppSelector(s => s.world.buildings.byID[props.buildingKey]);
+    return <div className="horizontal">
         {
             listings.filter(y => y.sellerEnterpriseKey === props.enterpriseKey).map((x,i) => <div key={i}>
                 {x.quantity} {GoodIcon[props.good]} @ ${x.price.toFixed(2)}
             </div>)
         }
+        <div>
+            📦 Storage x{building.upgradedStorage ? 20 : 10}
+        </div>
     </div>
 }
 
