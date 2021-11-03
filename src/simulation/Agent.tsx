@@ -208,6 +208,8 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
     }, 
     'sleep':{
         enter: (agent: IBean) => {
+            if (agent.housing === 'homeless')
+                return beanEmote({beanKey: agent.key, emote: 'unhappiness', source: 'Homelessness'});
             return undefined;
         },
         act: (agent: IBean, world, elapsed) => {
