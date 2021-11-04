@@ -650,7 +650,9 @@ export interface IBean extends ISeller, IBeanAgent{
     lastPoint?: Point,
     titleKey?: number,
     badge?: string,
-    hat?: string
+    hat?: string,
+    faceOverride?: string,
+    faceOverrideTicks?: number
 }
 
 /**

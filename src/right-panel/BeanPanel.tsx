@@ -138,16 +138,10 @@ function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwa
 
 export const BeanPanel: React.FC<BeanPanelP> = (props) => {
     const dispatch = useAppDispatch();
-    const [faceOverride, setFaceOverride] = useState<string|undefined>(undefined);
     const [innerView, setInnerView] = useState<'priorities'|'feelings'|'beliefs'>('beliefs');
     const alien = useAppSelector(state => state.world.alien);
     const bean = useAppSelector(selectSelectedBean);
     const city = useAppSelector(selectSelectedCity);
-    function _resetFace(){
-        setTimeout(() => {
-            setFaceOverride(undefined);
-        }, 5000);
-    }
     if (!bean || !city) 
         return null;
     const classes = bean.job + ' ' + bean.ethnicity;
@@ -168,7 +162,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
             <div className="bean-view">                
                 <span className={classes+" bean"}>
                     {
-                        faceOverride === undefined ? BeanGetFace(bean) : faceOverride
+                        BeanGetFace(bean)
                     }
                 </span>
             </div>
@@ -190,8 +184,6 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 props.brainwash();
             }, () => {
                 dispatch(scan({beanKey: bean.key}));
-                setFaceOverride('😨');
-                _resetFace();
             })}
         </div>
         <div className="grow-1 pad-4 bean-panel-content">
@@ -235,8 +227,6 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 </button> */}
                 <button type="button" className="button card" onClick={() => {
                     dispatch(vaporize({beanKey: bean.key}));
-                    setFaceOverride('😨');
-                    _resetFace();
                 }}
                     disabled={!PlayerCanAfford(alien, alien.difficulty.cost.bean.vaporize)}
                     title="Delete this being from the experiment"

@@ -314,6 +314,8 @@ export const worldSlice = createSlice({
               SignalStoreInstance.newTraitSeen.publish({k: SecondaryBeliefData[b].noun, v: true});
             }
           });
+          bean.faceOverrideTicks = 4;
+          bean.faceOverride = '😨';
           WorldSfxInstance.play('scan');
         }
       },
@@ -472,15 +474,32 @@ export const worldSlice = createSlice({
         } else {
           const stolen = Math.min(listing.quantity, 3);
           MarketListingSubtract(state.economy.market, listing, action.payload.good, stolen);
-          if (stolen != null){
-              switch(action.payload.good){
-                  case 'food':
-                      bean.discrete_food += stolen;
-                      break;
-                  case 'medicine':
-                      bean.discrete_health += stolen;
-                      break;
+          switch(action.payload.good){
+              case 'food':
+                  bean.discrete_food += stolen;
+                  break;
+              case 'medicine':
+                  bean.discrete_health += stolen;
+                  break;
+          }
+          if (listing.sellerEnterpriseKey != null){
+            const enterprise = state.enterprises.byID[listing.sellerEnterpriseKey];
+            let unluckyBean: IBean|undefined = undefined;
+            if (enterprise.enterpriseType === 'company'){
+              const ownerKey = enterprise.ownerBeanKey;
+              if (ownerKey != null && action.payload.beanKey != ownerKey){
+                unluckyBean = state.beans.byID[ownerKey];
               }
+            } else {
+              const beanKeys = state.beans.allIDs.filter(b => b != action.payload.beanKey && state.beans.byID[b].employerEnterpriseKey === listing.sellerEnterpriseKey);
+              const unluckyBeanKey = GetRandom(state.seed, beanKeys);
+              unluckyBean = state.beans.byID[unluckyBeanKey];
+            }
+            if (unluckyBean){
+              unluckyBean.faceOverride = '😤';
+              unluckyBean.faceOverrideTicks = 4;
+              _emote(unluckyBean, state, {emote: 'unhappiness', source: 'Theft Victim'});
+            }
           }
         }
       },

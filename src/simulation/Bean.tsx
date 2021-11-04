@@ -385,6 +385,9 @@ export function BeanGetFace(bean: IBean): string{
     if (bean.actionData.act === 'sleep'){
         return bean.housing === 'housed' ? '😴' : '🥶';
     }
+    if (bean.faceOverride){
+        return bean.faceOverride;
+    }
     if (bean.actionData.act === 'crime'){
         return '😈';
     }

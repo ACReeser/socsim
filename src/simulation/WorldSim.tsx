@@ -6,7 +6,7 @@ import { EntityAddToSlice } from "../state/entity.state";
 import { IWorldState } from "../state/features/world";
 import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../state/features/world.reducer";
 import { MaxHedonHistory, PickupPhysics, WorldInflate } from "../World";
-import { GenerateBean } from "../WorldGen";
+import { GenerateBean, GetRandom } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
@@ -86,6 +86,14 @@ export function simulate_world(world: IWorldState){
         if (ageResult?.death){
             EntityAddToSlice(world.events, ageResult.death);
             BeanLoseJob(b, world);
+            if (b.dwellingKey != null){
+                const house = world.dwellings.byID[b.dwellingKey];
+                if (house)
+                    house.occupantKey = undefined;
+            }
+            const luckyBeanKey = GetRandom(world.seed, world.beans.allIDs.filter(x => x !== bKey));
+            if (luckyBeanKey != null)
+                world.beans.byID[luckyBeanKey].cash = b.cash;
             WorldSfxInstance.play('death');
         }
         // todo: on bean death
@@ -169,6 +177,17 @@ export function simulate_every_day(world: IWorldState){
     });
 }
 export function simulate_every_other_tick(world: IWorldState){
+    world.beans.allIDs.forEach((bKey) => {
+        const ticks = world.beans.byID[bKey].faceOverrideTicks;
+        if (ticks != null){
+            if (ticks <= 1){
+                world.beans.byID[bKey].faceOverrideTicks = undefined;
+                world.beans.byID[bKey].faceOverride = undefined;
+            } else {
+                world.beans.byID[bKey].faceOverrideTicks = ticks - 2;
+            }
+        }
+    });
     //pay beans
     world.enterprises.allIDs.forEach((eKey) => {
         const enterprise = world.enterprises.byID[eKey];
