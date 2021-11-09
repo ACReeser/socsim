@@ -1,6 +1,7 @@
 import { IEvent } from "../events/Events";
 import { BeanResources, IDifficulty } from "../Game";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
+import { IWorldState } from "../state/features/world";
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFood, TraitGood, TraitHealth, TraitSanity, TraitStamina } from "../World";
 import { GetRandom, GetRandomNumber, GetRandomRoll } from "../WorldGen";
 import { IBean, IChatData } from "./Agent";
@@ -380,8 +381,12 @@ export function BeanCanPurchase(bean: IBean, cost: BeanResources, sanityBonus: n
 }
 
 export function BeanGetFace(bean: IBean): string{
-    if (bean.lifecycle === 'dead')
-        return '💀';
+    switch (bean.lifecycle){
+        case 'dead':
+            return '💀';
+        case 'incarcerated':
+            return '🤐';
+    }
     if (bean.actionData.act === 'sleep'){
         return bean.housing === 'housed' ? '😴' : '🥶';
     }
@@ -390,6 +395,20 @@ export function BeanGetFace(bean: IBean): string{
     }
     if (bean.actionData.act === 'crime'){
         return '😈';
+    }
+    if (bean.actionData.act === 'chase' || bean.actionData.act === 'assault'){
+        if (bean.key === bean.actionData?.assault?.victimBeanKey)
+            return '😰';
+        switch(bean.actionData.assault?.assaultType ?? bean.actionData.chase?.type){
+            case 'arrest':
+                return '🤠';
+            case 'assault':
+                return '😡';
+            case 'murder':
+                return '👿';
+            case 'rob':
+                return '😈';
+        }
     }
     if (bean.actionData.act === 'relax'){
         return '😎';
@@ -427,4 +446,8 @@ export function BeanMaybeGetInsanity(seed: string, bean: IBean): {beanKey: numbe
         }
     }
     return undefined;
+}
+
+export function BeanDidWitnessCrime(person: IBean, state: IWorldState, beanKey: number): boolean {
+    return GetRandomNumber(state.seed) >= 0.5;
 }

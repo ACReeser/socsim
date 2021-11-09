@@ -1,7 +1,4 @@
 import { ISeller } from "./Economy";
-import { TraitGood, GoodToJob } from "../World";
-import { Policy } from "./Politics";
-import { Government } from "./Government";
 
 export type EnterpriseType = 'company'|'co-op'|'commune';
 export const EnterpriseTypes: EnterpriseType[] = ['company','co-op','commune'];

@@ -3,7 +3,7 @@ import { IDifficulty } from "../Game";
 import { MoverStoreInstance as MoverStoreInstance } from "../MoverStoreSingleton";
 import { getRandomSlotOffset } from "../petri-ui/Building";
 import { IWorldState } from "../state/features/world";
-import { beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
+import { beanArrest, beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
 import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitHousing, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { GetRandomNumber } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
@@ -12,11 +12,12 @@ import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Bel
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, CityGetRandomHomelessSleepingBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
 import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, ILot, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { CrimeKey } from "./Government";
 import { IBuilding } from "./RealEstate";
 import { IDate } from "./Time";
 import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
-export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax';
+export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax'|'chase'|'assault';
 
 /**
  * cruise == interruptible travel towards destination
@@ -26,6 +27,7 @@ export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|
  */
 
 export type RecreationActivity = 'performance'|'artistry'|'sport'|'music'|'outdoors';
+
 
 // 🎤 🩰 🎭
 // 🎨 🖋️ 🏺
@@ -46,7 +48,18 @@ export interface IActivityData {
     // travel?: Travel;
     chat?: IChatData;
     buyAttempts?: number;
-    buyReceipt?: IMarketReceipt
+    buyReceipt?: IMarketReceipt;
+    chase?: {
+        targetBeanKey?: number,
+        type: 'arrest'|'rob'|'murder'|'assault',
+        crime: CrimeKey
+    },
+    assault? : {
+        perpBeanKey: number;
+        victimBeanKey: number;
+        assaultType: 'arrest'|'rob'|'murder'|'assault';
+        crime: CrimeKey
+    }
 }
 
 export interface IPrioritizedActivityData extends IActivityData{
@@ -84,8 +97,10 @@ const TransactMaximumDurationMS = 1100;
 const ChatDurationMS = 1000;
 const WorkDurationMS = 3000;
 const SleepDurationMS = 3000;
+const AssaultDurationMS = 2000;
 const CatatoniaWalkSpeedPercentage = 0.4;
 
+const ChaseGiveUpTimeMS = 15000;
 export const BeanActions: {[act in Act]: StateFunctions} = {
     'travel': {
         enter: (agent: IBean) => {
@@ -318,6 +333,96 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
         exit: (agent: IBean) => {
             if (BeanMaybeParanoid(agent))
                 return beanEmote({beanKey: agent.key, emote: 'unhappiness', source:'Paranoia'});
+        },
+    }, 
+    'chase':{
+        enter: (agent: IBean) => {
+            return undefined;
+        },
+        act: (agent: IBean, world, elapsed: number, deltaMS: number) => {
+            if (agent.actionData.chase?.targetBeanKey != null && elapsed < ChaseGiveUpTimeMS){
+                const targetPos = (MoverStoreInstance.Get('bean', agent.actionData.chase.targetBeanKey).current?.point || world.beans.byID[agent.actionData.chase.targetBeanKey].lastPoint);
+                if (targetPos == null || isNaN(targetPos.x) || isNaN(targetPos.y)) {
+                    //sanity check
+                    console.warn('NaN destination, resetting to idle')
+                    return {
+                        newActivity: {
+                            act: 'idle'
+                        }
+                    };
+                }
+                const newAccelerator = {
+                    ...(MoverStoreInstance.Get('bean', agent.key).current || OriginAccelerator)
+                };
+    
+                const collide = accelerate_towards(
+                    newAccelerator,
+                    targetPos,
+                    BeanPhysics.AccelerateS * (BeanBelievesIn(agent, 'Catatonia') ? CatatoniaWalkSpeedPercentage : 1) * deltaMS/1000, 
+                    BeanPhysics.MaxSpeed, 
+                    BeanPhysics.CollisionDistance,
+                    BeanPhysics.Brake);
+    
+                MoverStoreInstance.Get('bean', agent.key).publish(newAccelerator);
+
+                if (collide){
+                    const arrest = beanArrest({criminalBeanKey: agent.actionData.chase.targetBeanKey, crime: agent.actionData.chase.crime});
+                    if (agent.actionData.intent){
+                        return {
+                            newActivity : {
+                                ...agent.actionData.intent,
+                            },
+                            action: arrest
+                        };
+                    } else {
+                        return {
+                            newActivity: {act: 'idle'},
+                            action: arrest
+                        }
+                    }
+                } else {
+                    return {};
+                }
+            } else { //no-one to chase or ran out of time
+                // intent is arrest/murder, so look for intent after that one
+                if (agent.actionData.intent?.intent){
+                    return {
+                        newActivity: {
+                            ...agent.actionData.intent.intent
+                        }
+                    }
+                } else {
+                    return {newActivity: {act: 'idle'}};
+                }
+            }
+        },
+        exit: (agent: IBean) => {
+            return undefined;
+        },
+    }, 
+    'assault':{
+        enter: (agent: IBean) => {
+            return undefined;
+        },
+        act: (agent: IBean, world, elapsed) => {
+            if (elapsed > AssaultDurationMS){
+                if (agent.actionData.intent){
+                    return {
+                        newActivity: {
+                            ...agent.actionData.intent
+                        }
+                    }
+                }
+                return {
+                    newActivity: {
+                        act: 'idle'
+                    }
+                }
+            }
+            return {};
+        },
+        exit: (agent: IBean) => {
+            return undefined;
         },
     }, 
     'buy': {
@@ -595,6 +700,10 @@ export function ActivityDisplay(data: IActivityData): string{
             return `relaxing`;
         case 'travel':
             return `travelling to ` + data.intent?.act || '';
+        case 'chase':
+            return `in a chase to ` + data.chase?.type || '';
+        case 'assault':
+            return `in the middle of a ` + data?.assault?.assaultType || '';
         case 'work':
             if (data.good)
                 return 'working to make '+ GoodIcon[data.good];
@@ -634,7 +743,7 @@ export interface IBean extends ISeller, IBeanAgent{
     dob: IDate;
     sanity: TraitSanity;
     beliefs: TraitBelief[];
-    lifecycle: 'alive'|'dead'|'abducted',
+    lifecycle: 'alive'|'dead'|'abducted'|'incarcerated',
     hedonHistory: HedonSourceToVal[],
     job: TraitJob,
     happiness: HedonReport,
@@ -652,7 +761,8 @@ export interface IBean extends ISeller, IBeanAgent{
     badge?: string,
     hat?: string,
     faceOverride?: string,
-    faceOverrideTicks?: number
+    faceOverrideTicks?: number,
+    jailTicksLeft?: number
 }
 
 /**

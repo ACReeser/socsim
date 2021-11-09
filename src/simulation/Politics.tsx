@@ -1,78 +1,10 @@
-import { Trait, TraitCommunity, TraitIdeals } from "../World";
-import { Government, LawAxis } from "./Government";
+import { TraitCommunity, TraitIdeals } from "../World";
 
 
 export interface Party{
     slogan: string;
     community: TraitCommunity;
     ideals: TraitIdeals;
-    
-    availablePolicies: Policy[]; 
-    proposedPolicy?: Policy;
-    availableCampaigns: Campaign[];
-    activeCampaigns: Campaign[];
-
-    platform: {[key in LawAxis]: IPolicy};
 
     leadership: number;
-}
-
-export class BaseParty implements Party{
-    key = 1;
-    playerKey = 1;
-    public name: string = "Citizen's Party";
-    public slogan: string = "Vote for us!";
-    public community: TraitCommunity = 'state';
-    public ideals: TraitIdeals = 'trad';
-    public availablePolicies: Policy[] = [];
-    public proposedPolicy?: Policy;
-    public availableCampaigns: Campaign[] = [];
-    public activeCampaigns: Campaign[] = [];
-    public leadership: number = 10;
-    public activeHQs: number[] = [];
-    public platform: {[key in LawAxis]: IPolicy} = {} as {[key in LawAxis]: IPolicy};
-
-    constructor(){
-    }
-    // differingPolicies(law: Government): IPolicy[]{
-    //     return Object.keys(this.platform).filter((key: string) => {
-    //         const ax = key as LawAxis;
-    //         return this.platform[ax] != law.laws[ax];
-    //     }).map((key) => this.platform[key as LawAxis]);
-    // }
-}
-
-export interface ICityPartyHQ{
-    cityKey: number;
-}
-export class CityPartyHQ implements ICityPartyHQ{
-    cityKey: number = 0;
-}
-
-export interface PoliticalEffect {
-    key: Trait;
-    /**
-     * magnitude (-3 to +3)
-     */
-    mag: number;
-}
-export interface Policy {
-    key: string; 
-    fx: PoliticalEffect[];
-    axis?: LawAxis;
-}
-export interface Campaign {
-    key: string; 
-    fx: PoliticalEffect[];
-    cityKey?: number;
-
-    seasonalCost: number;
-}
-export interface IPolicy{
-    key: string, 
-    name: string, 
-    community?: TraitCommunity, 
-    ideals?: TraitIdeals, 
-    axis: LawAxis,
-    hint?: string
 }

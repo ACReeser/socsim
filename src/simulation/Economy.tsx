@@ -1,6 +1,6 @@
 import { TraitGood, TraitJob, GoodToJob, Trait } from "../World";
 import { IEnterprise } from "./Institutions";
-import { GovCanPayWelfare, Government, GovPurchaseQualifiesForWelfare, IGovernment, ILaw, IsLaw, SalesTaxPercentage } from "./Government";
+import { GovCanPayWelfare, GovPurchaseQualifiesForWelfare, IGovernment, IGovPolicy, IsLaw, SalesTaxPercentage } from "./Government";
 import { IBean } from "./Agent";
 import { DistrictKind } from "./Geography";
 import { BeanBelievesIn } from "./Bean";

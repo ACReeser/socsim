@@ -212,7 +212,7 @@ export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: 
         lastChatMS: 0,
         action: 'idle',
         actionData: {act: 'idle'},
-        activity_duration: {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0},
+        activity_duration: {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0, 'chase': 0, 'assault': 0},
     };
     // MoverBusInstance.Get('bean', newBean.key).publish({
     //     velocity: {x: 0, y: 0},

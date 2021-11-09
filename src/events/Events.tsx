@@ -1,6 +1,6 @@
 import { Point } from "../simulation/Geography";
 
-export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots'|'marketrefresh'|'persuasion';
+export type EventTrigger = 'speechcrime'|'birth'|'death'|'nojobslots'|'marketrefresh'|'persuasion'|'crimecrime';
 
 export interface IEvent{
     key: number;

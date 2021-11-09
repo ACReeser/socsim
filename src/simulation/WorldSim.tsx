@@ -76,6 +76,23 @@ export function simulate_world(world: IWorldState){
     const CoL = GetCostOfLiving(world.economy);
     world.beans.allIDs.forEach((bKey: number, i: number) => {
         const b = world.beans.byID[bKey];
+
+        const ticks = b.faceOverrideTicks;
+        if (ticks != null){
+            if (ticks <= 1){
+                b.faceOverrideTicks = undefined;
+                b.faceOverride = undefined;
+            } else {
+                b.faceOverrideTicks = ticks - 1;
+            }
+        }
+        if (b.jailTicksLeft != null){
+            b.jailTicksLeft = b.jailTicksLeft - 1;
+            if (b.jailTicksLeft <= 0){
+                b.jailTicksLeft = undefined;
+                b.lifecycle = 'alive';
+            }
+        }
         if (b.lifecycle != 'alive')
             return;
         
@@ -177,17 +194,6 @@ export function simulate_every_day(world: IWorldState){
     });
 }
 export function simulate_every_other_tick(world: IWorldState){
-    world.beans.allIDs.forEach((bKey) => {
-        const ticks = world.beans.byID[bKey].faceOverrideTicks;
-        if (ticks != null){
-            if (ticks <= 1){
-                world.beans.byID[bKey].faceOverrideTicks = undefined;
-                world.beans.byID[bKey].faceOverride = undefined;
-            } else {
-                world.beans.byID[bKey].faceOverrideTicks = ticks - 2;
-            }
-        }
-    });
     //pay beans
     world.enterprises.allIDs.forEach((eKey) => {
         const enterprise = world.enterprises.byID[eKey];

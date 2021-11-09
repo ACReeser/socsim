@@ -4,7 +4,7 @@ import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { IEconomicAgent } from "./Economy";
 
 export type LawGroup = 'Taxation'|'Welfare'|'Economics'|'Crime'|'Culture';
-export type LawAxis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_sub'|'cul_rel'|'cul_theo'|'crime_theo';
+export type LawAxis = 'wel_food'|'wel_house'|'wel_health'|'tax_basic'|'tax_second'|'econ_sub'|'cul_rel'|'cul_theo';
 
 export type LawType = 'civil'|'criminal';
 
@@ -29,6 +29,12 @@ export type LawKey = 'food_aid'
 // |'vice_tax'
 // |'prop_tax'
 |'death_tax';
+
+export type CrimePersonal = 'rob'|'murder'|'hurt';
+export type CrimeProperty = 'steal'|'destroy';
+export type CrimeSociety = 'profanity';
+export type CrimeKey = CrimePersonal|CrimeProperty|CrimeSociety;
+export type CrimePunishment = 'fine'|'jail'|'death';
 
 export type LawPrereq = TraitBelief|TraitBelief[];
 export const DollarPerBeanRebateThreshold = 1;
@@ -56,9 +62,8 @@ export function BeliefString(prereq: TraitBelief){
     return SecondaryBeliefData[prereq].icon+' '+SecondaryBeliefData[prereq].noun;
 }
 
-export type LawPunishment = 'fine'|'imprison'|'death';
 
-export interface ILaw{
+export interface IGovPolicy{
     /**
      * convenience grouping property
      */
@@ -73,30 +78,30 @@ export interface ILaw{
     key: LawKey;
 }
 export interface IGovernment{
-    laws: ILaw[];
-    lawTree: {[key in LawAxis]: ILaw|undefined};
+    laws: IGovPolicy[];
+    lawTree: {[key in LawAxis]: IGovPolicy|undefined};
+    crimes: {[key in CrimeKey]: CrimePunishment|undefined}
     cash: number;
     ticksSinceLastSale: number;
 }
-export interface ILawData extends ILaw{
+export interface ILawData{
     prereqs: LawPrereq[];
     name: string;
     hint?: string;
     description?: string;
     icon?: string;
 }
-export const LawAxisData: {[key in LawAxis]: {name: string}} = {
-    'wel_food': {name: 'Food Welfare'},
-    'wel_house': {name: 'Housing Welfare'},
-    'wel_health': {name: 'Healthcare'},
-    'tax_basic': {name: 'Taxation'},
-    'tax_second': {name: 'Advanced Taxation'},
-    'econ_sub': {name: 'Subsidies'},
-    'cul_rel': {name: 'Culture'},
-    'cul_theo': {name: 'State Narrative'},
-    crime_theo: {name: 'Persecution'}
+export interface IPolicyData extends ILawData, IGovPolicy{
+    prereqs: LawPrereq[];
+    name: string;
+    hint?: string;
+    description?: string;
+    icon?: string;
 }
-export const LawData: {[key in LawKey]: ILawData} = {
+export interface ICrimeData extends ILawData{
+    key: CrimeKey;
+}
+export const LawData: {[key in LawKey]: IPolicyData} = {
     'food_aid':{
         key: 'food_aid', group: 'Welfare', name: 'Food Aid', axis: 'wel_food', icon: '👨‍🌾',
         description: 'The government buys Hungry Subjects food.', prereqs: [['Gluttony','Parochialism'], ['Charity', 'Socialism']]},
@@ -179,68 +184,42 @@ export const LawData: {[key in LawKey]: ILawData} = {
     'death_tax':{
         key: 'death_tax', group: 'Taxation', name: 'Death Tax', axis: 'tax_second', prereqs: [], icon: '☠️',
         description: 'Dead subjects pay a portion of their cash to the government.'},
-}
-export interface IGovernment{
+    }
     
+export const CrimeData: {[key in CrimeKey]:ICrimeData} = {
+    'murder': {
+        key: 'murder', name: 'Murder', prereqs: [], icon: '👿',
+        description: 'A subject kills another subject.'
+    },
+    'hurt': {
+        key: 'hurt', name: 'Assault', prereqs: [], icon: '👿',
+        description: 'A subject hurts another subject.'
+    },
+    'rob': {
+        key: 'rob', name: 'Robbery', prereqs: [], icon: '🔫',
+        description: 'A subject takes money from another subject.'
+    },
+    'steal': {
+        key: 'steal',  name: 'Theft', prereqs: [], icon: '🛒',
+        description: 'A subject takes goods from a building.'
+    },
+    'profanity': {
+        key: 'profanity', name: 'Profanity', prereqs: [], icon: '🤬',
+        description: 'A subject discusses illegal topics.'
+    },
+    'destroy': {
+        key: 'destroy', name: 'Vandalism', prereqs: [], icon: '🔨',
+        description: 'A subject.'
+    }
 }
-export type LawGroupToLaws = {
-    [key in LawGroup]: ILaw[]
-};
+
 export const SalesTaxPercentage = 0.05;
-export class Government{
-    public get laws(): ILaw[] {
-        return Object.values(this.lawTree).flatMap(law => law ? [law] : []);
-    }
-    public set laws(val: ILaw[]) {
-        val.forEach((v) => {
-            this.lawTree[v.axis] = v;
-        });
-    }
-    public getLawsByGroup(): LawGroupToLaws {
-        return this.laws.reduce((d, x) => {
-            d[x.group].push(x);
-            return d;
-        }, {
-            Taxation: [] as ILaw[],
-            Welfare: [] as ILaw[],
-            Economics: [] as ILaw[],
-            Crime: [] as ILaw[],
-            Culture: [] as ILaw[]
-        });
-    }
-    public lawTree: {[key in LawAxis]: ILaw|undefined} = {} as {[key in LawAxis]: ILaw|undefined};
-
-    isLaw(l: LawKey): boolean{
-        return this.lawTree[LawData[l].axis]?.key === l;
-    }
-
-    enact(l: LawKey): void {
-        const data = LawData[l];
-        this.lawTree[data.axis] = data;
-    }
-
-    revoke(l: LawKey): void {
-        const data = LawData[l];
-        this.lawTree[data.axis] = undefined;
-    }
-
-    get salesTaxPercentage(): number{
-        return this.isLaw('sales_tax') ? SalesTaxPercentage : 0;
-    }
-    
-    PurchaseQualifiesForWelfare(bean: IBean, good: TraitGood): boolean{
-        switch(good){
-            case 'food':
-                return (bean.food === 'starving' || bean.food === 'hungry') && this.isLaw('food_aid');
-            case 'medicine':
-                return (bean.health === 'sick' || bean.health === 'sickly') && this.isLaw('medical_aid');
-        }
-        return false;
-    }
-}
 
 export function IsLaw(gov: IGovernment, l: LawKey){
     return gov.lawTree[LawData[l].axis]?.key === l;
+}
+export function IsActionIllegal(gov: IGovernment, c: CrimeKey){
+    return gov.crimes[c] != null;
 }
 export function MaybeRebate(gov: IGovernment, beans: IBean[]){
     const allowedTreasury = beans.length * DollarPerBeanRebateThreshold;

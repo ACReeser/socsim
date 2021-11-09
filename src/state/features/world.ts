@@ -5,7 +5,7 @@ import { InsanityTraits } from '../../simulation/Beliefs'
 import { ICity } from '../../simulation/City'
 import { IEconomy } from '../../simulation/Economy'
 import { IDistrict, ILot } from '../../simulation/Geography'
-import { IGovernment, ILaw, LawAxis } from '../../simulation/Government'
+import { CrimeKey, CrimePunishment, IGovernment, IGovPolicy, LawAxis } from '../../simulation/Government'
 import { IEnterprise } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
@@ -71,8 +71,15 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     },
     law: {
       cash: 0,
-      lawTree: {} as {[key in LawAxis]: ILaw|undefined},
-      laws: [] as ILaw[],
+      lawTree: {} as {[key in LawAxis]: IGovPolicy|undefined},
+      crimes: {
+        'murder': 'jail',
+        'destroy': 'jail',
+        'hurt': 'jail',
+        'rob': 'jail',
+        'steal': 'jail',
+      } as {[key in CrimeKey]: CrimePunishment|undefined},
+      laws: [] as IGovPolicy[],
       ticksSinceLastSale: 0
     },
     date: {year: 1, season: Season.Spring, day: 1, hour: 1},

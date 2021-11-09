@@ -1,23 +1,25 @@
 import { createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import { WritableDraft } from '@reduxjs/toolkit/node_modules/immer/dist/types/types-external'
 import { PlayerResources } from '../../Game'
 import { GameStorageInstance } from '../../GameStorage'
 import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
 import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
-import { BeanBelievesIn, BeanCalculateSanity, BeanCalculateStamina, BeanCanPurchase, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
+import { BeanBelievesIn, BeanCalculateSanity, BeanCalculateStamina, BeanCanPurchase, BeanDidWitnessCrime, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTryFindJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, OriginAccelerator, Point } from '../../simulation/Geography'
-import { LawData, LawKey } from '../../simulation/Government'
+import { CrimeKey, IsActionIllegal, LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseTraitGem, Tech } from '../../simulation/Player'
 import { BuildingTryFreeBean, GenerateIBuilding, IBuilding, IDwelling } from '../../simulation/RealEstate'
 import { GetSeedName } from '../../simulation/SeedGen'
+import { TicksPerDay } from '../../simulation/Time'
 import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
@@ -32,6 +34,7 @@ const ChargePerMarket = 3;
 const ChargePerExtract = 1;
 
 const UnderemploymentThresholdTicks = 8
+const BeanJailSentenceInDays = 2
 export const worldSlice = createSlice({
     name: 'world',
     initialState: GetBlankWorldState(),
@@ -341,28 +344,7 @@ export const worldSlice = createSlice({
         WorldSfxInstance.play(pickup.type);
       },
       changeState: (state, action: PayloadAction<{beanKey: number, newState: IActivityData}>) => {
-        const oldAct = state.beans.byID[action.payload.beanKey].action;
-        const bean = state.beans.byID[action.payload.beanKey];
-        const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
-        if (oldAct === 'chat')
-          bean.lastChatMS = Date.now();
-        if (oldAct === 'sleep'){
-          bean.discrete_stamina = 7;
-          BeanCalculateStamina(bean, state.alien.difficulty);
-        }
-        if (action.payload.newState.act === 'idle'){
-          bean.priorities = GetPriorities(bean, state.seed, state.cities.byID[bean.cityKey], state.alien.difficulty);
-        }
-        bean.activity_duration[oldAct] += ADS.elapsed;
-        bean.action = action.payload.newState.act;
-        bean.actionData = action.payload.newState;
-        const p = MoverStoreInstance.Get('bean', bean.key).current?.point;
-        if (p) {
-          bean.lastPoint = {
-            ...p
-          };
-        }
-        ADS.elapsed = 0;
+        _changeState(state, action)
       },
       beanHitDestination: (state, action: PayloadAction<{beanKey: number}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
@@ -468,10 +450,12 @@ export const worldSlice = createSlice({
       },
       beanCrime: (state, action: PayloadAction<{beanKey: number, good: 'food'|'medicine'}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
+        const crime: CrimeKey = 'steal';
         
         const listing = GetRandom(state.seed, state.economy.market.listings[action.payload.good]);
         if (listing == null){
         } else {
+          //give the stealer stolen goods
           const stolen = Math.min(listing.quantity, 3);
           MarketListingSubtract(state.economy.market, listing, action.payload.good, stolen);
           switch(action.payload.good){
@@ -482,6 +466,7 @@ export const worldSlice = createSlice({
                   bean.discrete_health += stolen;
                   break;
           }
+          //make the stolen-from bean sad
           if (listing.sellerEnterpriseKey != null){
             const enterprise = state.enterprises.byID[listing.sellerEnterpriseKey];
             let unluckyBean: IBean|undefined = undefined;
@@ -491,17 +476,85 @@ export const worldSlice = createSlice({
                 unluckyBean = state.beans.byID[ownerKey];
               }
             } else {
-              const beanKeys = state.beans.allIDs.filter(b => b != action.payload.beanKey && state.beans.byID[b].employerEnterpriseKey === listing.sellerEnterpriseKey);
+              const beanKeys = state.beans.allIDs.filter(b => b != action.payload.beanKey && state.beans.byID[b].lifecycle === 'alive' && state.beans.byID[b].employerEnterpriseKey === listing.sellerEnterpriseKey);
               const unluckyBeanKey = GetRandom(state.seed, beanKeys);
               unluckyBean = state.beans.byID[unluckyBeanKey];
             }
             if (unluckyBean){
-              unluckyBean.faceOverride = '😤';
+              unluckyBean.faceOverride = '🥺';
               unluckyBean.faceOverrideTicks = 4;
               _emote(unluckyBean, state, {emote: 'unhappiness', source: 'Theft Victim'});
             }
           }
+          if (IsActionIllegal(state.law, crime)){
+            // see if the stealer is caught
+            const witnessCandidateBeanKeys = state.beans.allIDs.filter(b => b != action.payload.beanKey && state.beans.byID[b].lifecycle === 'alive');
+            const witnesses: IBean[] = witnessCandidateBeanKeys.reduce((arr, bK) => {
+              const person = state.beans.byID[bK];
+              const wasWitness = BeanDidWitnessCrime(person, state, action.payload.beanKey);
+              if (wasWitness)
+                arr.push(person);
+              return arr;
+            }, [] as Array<IBean>);
+            if (witnesses.length){
+              WorldAddEvent(state, {
+                icon: '🤠',
+                key: 0,
+                message: `${bean.name} was caught stealing ${action.payload.good}!`,
+                trigger: 'crimecrime',
+                beanKey: bean.key
+              })
+            }
+            witnesses.forEach((witness) => {
+              _changeState(state, {
+                payload: {
+                  beanKey: witness.key,
+                  newState: {
+                    act: 'chase',
+                    chase: {
+                      targetBeanKey: action.payload.beanKey,
+                      type: 'arrest',
+                      crime: crime
+                    },
+                    intent: {
+                      act: 'assault',
+                      assault: {
+                        perpBeanKey: witness.key,
+                        assaultType: 'arrest',
+                        victimBeanKey: action.payload.beanKey,
+                        crime: crime
+                      },
+                      intent: witness.actionData
+                    }
+                  }
+                }, type: ''
+              });
+            });
+          }
         }
+      },
+      beanArrest: (state, action: PayloadAction<{criminalBeanKey: number, crime: CrimeKey}>) => {
+        const criminal = state.beans.byID[action.payload.criminalBeanKey];
+        const punishment = state.law.crimes[action.payload.crime];
+        if (punishment){
+          switch(punishment){
+            case 'death': {
+              break;
+            }
+            case 'jail': {
+              WorldSfxInstance.play('handcuffs');
+              criminal.lifecycle = 'incarcerated';
+              criminal.jailTicksLeft = TicksPerDay * BeanJailSentenceInDays;
+              break;
+            }
+          }
+        }
+        state.beans.allIDs.forEach((b) => {
+          const bean = state.beans.byID[b];
+          if (bean.actionData.act === 'chase' && bean.actionData.chase?.targetBeanKey === criminal.key){
+            bean.actionData.elapsed = 999999; //make the other beans give up the chase
+          }
+        })
       },
       beanRelax: (state, action: PayloadAction<{beanKey: number}>) => {
         const bean = state.beans.byID[action.payload.beanKey];
@@ -641,6 +694,31 @@ export const worldSlice = createSlice({
     }
   });
 
+function _changeState(state: WritableDraft<IWorldState>, action: { payload: { beanKey: number; newState: IActivityData }; type: string }) {
+  const oldAct = state.beans.byID[action.payload.beanKey].action;
+  const bean = state.beans.byID[action.payload.beanKey];
+  const ADS = AgentDurationStoreInstance.Get('bean', bean.key);
+  if (oldAct === 'chat')
+    bean.lastChatMS = Date.now()
+  if (oldAct === 'sleep') {
+    bean.discrete_stamina = 7
+    BeanCalculateStamina(bean, state.alien.difficulty)
+  }
+  if (action.payload.newState.act === 'idle') {
+    bean.priorities = GetPriorities(bean, state.seed, state.cities.byID[bean.cityKey], state.alien.difficulty)
+  }
+  bean.activity_duration[oldAct] += ADS.elapsed;
+  bean.action = action.payload.newState.act;
+  bean.actionData = action.payload.newState;
+  const p = MoverStoreInstance.Get('bean', bean.key).current?.point;
+  if (p) {
+    bean.lastPoint = {
+      ...p
+    };
+  }
+  ADS.elapsed = 0;
+}
+
   function _ifBelievesInMaybeEmote(state: IWorldState, bean: IBean, source: TraitBelief, emote: TraitEmote, chance: number){
     if (BeanBelievesIn(bean, source) && Math.random() < chance){
       _emote(bean, state, {emote: emote, source: source});
@@ -679,7 +757,7 @@ export const worldSlice = createSlice({
     newGame, loadGame, build, changeEnterprise, fireBean, upgrade, upgradeLoft, upgradeStorage, beam,
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
-    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,
+    changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,beanArrest,
     beanBePersuaded, cheatAdd, manualSave,
     addTitle, editTitle, beanSetTitle, acknowledgeNewInsanity,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
@@ -733,4 +811,5 @@ export const worldSlice = createSlice({
   });
   
   export default worldSlice.reducer;
+
   

@@ -1,5 +1,5 @@
-export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav'|'death_bell.wav'|'digital_beeping.mp3'|'squish_pop.mp3'|'squish_suck.mp3'|'baby_squeak.wav'|'mhmm.mp3'|'cow-moo.wav'|'pill-shake.wav'|'door-open.wav'|'teleport.wav'|'cash_ding.mp3'|'crazy_laugh.mp3';
-export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate'|'death'|'scan'|'wash_in'|'wash_out'|'squeak'|'mhmm'|'moo'|'door'|'pills'|'teleport'|'cash'|'crazy_laugh';
+export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav'|'death_bell.wav'|'digital_beeping.mp3'|'squish_pop.mp3'|'squish_suck.mp3'|'baby_squeak.wav'|'mhmm.mp3'|'cow-moo.wav'|'pill-shake.wav'|'door-open.wav'|'teleport.wav'|'cash_ding.mp3'|'crazy_laugh.mp3'|'handcuffs_ratchet.wav';
+export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate'|'death'|'scan'|'wash_in'|'wash_out'|'squeak'|'mhmm'|'moo'|'door'|'pills'|'teleport'|'cash'|'crazy_laugh'|'handcuffs';
 
 const SFXToFile: {[sfx in SFX]: SFXFile} = {
     drop: "drop.mp3",
@@ -18,7 +18,8 @@ const SFXToFile: {[sfx in SFX]: SFXFile} = {
     door: 'door-open.wav',
     teleport: 'teleport.wav',
     cash: 'cash_ding.mp3',
-    crazy_laugh: 'crazy_laugh.mp3'
+    crazy_laugh: 'crazy_laugh.mp3',
+    handcuffs: 'handcuffs_ratchet.wav'
 };
 
 type SFXMap = {[sfx in SFX]: SoundBuffer};
@@ -60,6 +61,7 @@ export class WorldSound{
         'teleport': new SoundBuffer(SFXToFile['teleport'], 0.6),
         'cash': new SoundBuffer(SFXToFile['cash'], 0.23),
         'crazy_laugh': new SoundBuffer(SFXToFile['crazy_laugh'], 0.5),
+        'handcuffs': new SoundBuffer(SFXToFile['handcuffs'], 0.95),
     }
 
     public play(sfx: SFX){
