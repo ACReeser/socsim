@@ -503,7 +503,10 @@ export const worldSlice = createSlice({
                 message: `${bean.name} was caught stealing ${action.payload.good}!`,
                 trigger: 'crimecrime',
                 beanKey: bean.key
-              })
+              });
+              WorldSfxInstance.play('siren');
+            } else {
+              WorldSfxInstance.play('crime');
             }
             witnesses.forEach((witness) => {
               _changeState(state, {

@@ -448,6 +448,7 @@ export function BeanMaybeGetInsanity(seed: string, bean: IBean): {beanKey: numbe
     return undefined;
 }
 
+const CrimeWitnessChance = 0.33;
 export function BeanDidWitnessCrime(person: IBean, state: IWorldState, beanKey: number): boolean {
-    return GetRandomNumber(state.seed) >= 0.5;
+    return GetRandomNumber(state.seed) >= CrimeWitnessChance;
 }
