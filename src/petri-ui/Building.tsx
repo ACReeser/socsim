@@ -33,9 +33,10 @@ export const BuildingToJobIcon: {[type in BuildingTypes]: string} = {
     'farm':'🪕',
     'house':'🧹',
     'hospital':'🩺',
-    'church':'',
+    'church':'📿',
     'theater':'👘',
-    'courthouse':'💼',
+    'jail':'🚨',
+    'graveyard':'📿',
     'park':'🎒',
     'nature': '🎒'
 };

@@ -10,6 +10,7 @@ export const keyToName: { [key in Trait | BuildingTypes]: string } = {
     homeless: 'Homeless', sleepy: 'Sleepy', awake: 'Awake', rested: 'Rested',
     sick: 'Sick', sickly: 'Sickly', bruised: 'Bruised', fresh: 'Robust',
     sane: 'Sane', stressed: 'Confused', disturbed: 'Disturbed', 'psychotic': 'Psychotic',
-    housed: 'Housed',
-    house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', courthouse: 'Courthouse', park: 'Park', nature: 'Elysian Scenery'
+    housed: 'Housed', 
+    graveyard: 'Graveyard',
+    house: 'House', hospital: 'Hospital', farm: 'Farm', theater: 'Theater', church: 'Church', jail: 'Jail', park: 'Park', nature: 'Elysian Scenery'
   };

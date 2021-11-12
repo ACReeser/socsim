@@ -45,7 +45,8 @@ export function BuildingNumOfOpenJobs(b: IBuilding): number{
 }
 export const BuildingJobs: {[key in BuildingTypes]: number} = {
     'church': 0,
-    'courthouse': 0,
+    'jail': 3,
+    'graveyard': 0,
     'park': 0,
     'house': 0,
     'farm': 3,

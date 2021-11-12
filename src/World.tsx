@@ -44,7 +44,7 @@ export type TraitStamina = 'sleepy'|'awake'|'rested';
 export type TraitHousing = 'homeless'|'housed';
 export type TraitHealth = 'sick'|'sickly'|'bruised'|'fresh';
 export type TraitSanity = 'psychotic'|'disturbed'|'stressed'|'sane';
-export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless';
+export type TraitJob = 'farmer'|'builder'|'doc'|'entertainer'|'cleric'|'polit'|'jobless'|'cop';
 
 export type Trait = TraitCommunity|TraitIdeals|TraitEthno|TraitFaith|TraitFood|TraitStamina|TraitHealth|TraitSanity|TraitHousing;
 

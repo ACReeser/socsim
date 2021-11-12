@@ -301,7 +301,7 @@ export interface BuildingMap{
     all: IBuilding[];
 }
 
-export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'courthouse'|'park'|'nature';
+export type BuildingTypes = 'farm'|'house'|'hospital'|'church'|'theater'|'jail'|'park'|'nature'|'graveyard';
 export type TopiaBuildingTypes = 'utopia_fields'|'utopia_pump'|'dystopia_refinery'|'dystopia_crypt';
 //third place - cafe/bookstore/barbershop/pub/gym/arcade/bingohall
 //utopia pump = slowly sucks up happiness/unhappiness?
@@ -312,18 +312,18 @@ export type MatterTypes = MoverTypes|BuildingTypes;
 
 export const BuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🐄',
-    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🎪', 'courthouse':'🏫',
-    'park': '⛲️', 'nature': '🏞️'
+    'house': '🏡', 'hospital': '🏥', 'church': '⛪', 'theater': '🎪', 'jail':'🏛️',
+    'park': '⛲️', 'nature': '🏞️', 'graveyard': '⚱️'
 };
 export const UpgradedBuildingIcon: {[key in BuildingTypes]: string} = {
     'farm': '🚜',
-    'house': '🏘️', 'hospital': '🏙️', 'church': '⛪', 'theater': '🏟️', 'courthouse':'🏫',
-    'park': '🎡', 'nature': '🏞️'
+    'house': '🏘️', 'hospital': '🏙️', 'church': '⛪', 'theater': '🏟️', 'jail':'🏫',
+    'park': '🎡', 'nature': '🏞️', 'graveyard': '⚱️'
 };
 export const BuildingJobIcon: {[key in BuildingTypes]: string} = {
-    'farm': '🌾',
-    'house': '📪', 'hospital': '🛏️', 'church': '⛪', 'theater': '🪑', 'courthouse':'🏫',
-    'park': '💐', 'nature': '♨️'
+    'farm': '🪕',
+    'house': '📪', 'hospital': '🩺', 'church': '📿', 'theater': '🪑', 'jail':'🚨',
+    'park': '💐', 'nature': '♨️', 'graveyard': '📿'
 };
 export const BuildingToGood: {[key in BuildingTypes]: TraitGood|undefined} = {
     'farm': 'food',
@@ -331,7 +331,8 @@ export const BuildingToGood: {[key in BuildingTypes]: TraitGood|undefined} = {
     'hospital': 'medicine', 
     'church': 'fun', 
     'theater': 'fun', 
-    'courthouse': 'fun',
+    'jail': undefined,
+    'graveyard': undefined,
     'park': 'fun', 
     'nature': 'fun'
 };
@@ -343,12 +344,13 @@ export const GoodToBuilding: {[key in TraitGood]: BuildingTypes} = {
 };
 export const JobToBuilding: {[key in TraitJob]: BuildingTypes} = {
     'farmer': 'farm',
-    'builder': 'house', 
-    'doc':'hospital', 
+    'builder': 'house',
+    'doc': 'hospital',
     'entertainer': 'theater',
-    'cleric': 'church', 
-    'jobless': 'house', 
-    'polit': 'house'
+    'cleric': 'church',
+    'jobless': 'house',
+    'polit': 'house',
+    'cop': 'jail'
 };
 export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
     'farm': 'farmer',
@@ -358,7 +360,8 @@ export const BuildingToJob: {[key in BuildingTypes]: TraitJob} = {
     'church': 'cleric',
     'park': 'entertainer',
     'nature': 'entertainer',
-    'courthouse': 'polit'
+    'jail': 'cop',
+    'graveyard': 'cleric'
 };
 
 //district sized hexes

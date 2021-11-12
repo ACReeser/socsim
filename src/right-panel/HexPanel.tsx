@@ -74,6 +74,18 @@ export const BuildPanel: React.FC<{
                 <CostSmall cost={eHex.build.park}></CostSmall>
             </button>
         </div>
+        <div className="card-parent">
+            <button className="card button" type="button" onClick={
+                () => dispatch(build({city: props.cityKey, lot: targetLot, what: 'jail'}))}>
+                {BuildingIcon['jail']} Jail
+                <CostSmall cost={eHex.build.jail}></CostSmall>
+            </button>
+            <button className="card button" type="button" onClick={
+                () => dispatch(build({city: props.cityKey, lot: targetLot, what: 'graveyard'}))}>
+                {BuildingIcon['graveyard']} Graveyard
+                <CostSmall cost={eHex.build.graveyard}></CostSmall>
+            </button>
+        </div>
         </div>
     } else {
         return <div></div>

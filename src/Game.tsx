@@ -98,9 +98,13 @@ export const DefaultDifficulty: IDifficulty = {
                     energy: 1,
                     bots: 4
                 },
-                courthouse: {
-                    energy: 999,
-                    bots: 999
+                jail: {
+                    energy: 1,
+                    bots: 4
+                },
+                graveyard: {
+                    energy: 1,
+                    bots: 2
                 },
                 park: {
                     energy: 1,

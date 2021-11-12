@@ -92,6 +92,12 @@ export const worldSlice = createSlice({
             case 'house':
               WorldSfxInstance.play('door');
               break;
+            case 'jail':
+              WorldSfxInstance.play('siren');
+              break;
+            case 'graveyard':
+              WorldSfxInstance.play('death');
+              break;
           }
         }
       },
