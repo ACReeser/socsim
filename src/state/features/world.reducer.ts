@@ -11,7 +11,7 @@ import { BeanTryFindJob } from '../../simulation/BeanAndCity'
 import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
-import { BuildingTypes, HexPoint, hex_to_pixel, OriginAccelerator, Point } from '../../simulation/Geography'
+import { BuildingTypes, HexPoint, hex_to_pixel, OriginAccelerator, Point, polarToPoint } from '../../simulation/Geography'
 import { CrimeKey, IsActionIllegal, LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
@@ -548,14 +548,27 @@ export const worldSlice = createSlice({
               WorldSfxInstance.play('handcuffs');
               criminal.lifecycle = 'incarcerated';
               criminal.jailTicksLeft = TicksPerDay * BeanJailSentenceInDays;
+              const randAngle = GetRandomFloat(state.seed) * Math.PI * 2;
+              const point = polarToPoint({ az: randAngle, r: 30});
+              const jailPoint = {
+                x: state.districts.byID[1].point.x + point.x,
+                y: state.districts.byID[1].point.y + point.y
+              };
+              criminal.lastPoint = jailPoint;
+              MoverStoreInstance.Get('bean', criminal.key).publish({
+                point: {...jailPoint}, 
+                velocity: {...OriginAccelerator.velocity}
+              });
               break;
             }
           }
         }
         state.beans.allIDs.forEach((b) => {
           const bean = state.beans.byID[b];
-          if (bean.actionData.act === 'chase' && bean.actionData.chase?.targetBeanKey === criminal.key){
-            bean.actionData.elapsed = 999999; //make the other beans give up the chase
+          if (bean.actionData.act === 'chase' && 
+            bean.actionData.chase &&
+            bean.actionData.chase.targetBeanKey === criminal.key){
+            bean.actionData.chase.targetBeanKey = undefined; //make the other beans give up the chase
           }
         })
       },
