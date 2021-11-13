@@ -34,6 +34,7 @@ export type CrimePersonal = 'rob'|'murder'|'hurt';
 export type CrimeProperty = 'steal'|'destroy';
 export type CrimeSociety = 'profanity';
 export type CrimeKey = CrimePersonal|CrimeProperty|CrimeSociety;
+export const AllCrimes: CrimeKey[] = ['destroy', 'hurt', 'murder', 'profanity', 'rob', 'steal'];
 export type CrimePunishment = 'fine'|'jail'|'death';
 
 export type LawPrereq = TraitBelief|TraitBelief[];
@@ -189,27 +190,27 @@ export const LawData: {[key in LawKey]: IPolicyData} = {
 export const CrimeData: {[key in CrimeKey]:ICrimeData} = {
     'murder': {
         key: 'murder', name: 'Murder', prereqs: [], icon: '👿',
-        description: 'A subject kills another subject.'
+        description: 'Ceasing brain function.'
     },
     'hurt': {
-        key: 'hurt', name: 'Assault', prereqs: [], icon: '👿',
-        description: 'A subject hurts another subject.'
+        key: 'hurt', name: 'Assault', prereqs: [], icon: '😈',
+        description: 'Damaging biological matter.'
     },
     'rob': {
         key: 'rob', name: 'Robbery', prereqs: [], icon: '🔫',
-        description: 'A subject takes money from another subject.'
+        description: 'Taking of scarcity tokens.'
     },
     'steal': {
         key: 'steal',  name: 'Theft', prereqs: [], icon: '🛒',
-        description: 'A subject takes goods from a building.'
+        description: 'Taking of inanimate objects.'
     },
     'profanity': {
         key: 'profanity', name: 'Profanity', prereqs: [], icon: '🤬',
-        description: 'A subject discusses illegal topics.'
+        description: 'Uttering abnormal syllables.'
     },
     'destroy': {
         key: 'destroy', name: 'Vandalism', prereqs: [], icon: '🔨',
-        description: 'A subject.'
+        description: 'Damaging inanimate objects.'
     }
 }
 

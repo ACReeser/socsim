@@ -337,6 +337,9 @@ export const worldSlice = createSlice({
           d.emotes.map(e => EntityAddToSlice(state.pickups, e));
         }
       },
+      setCrimeLegality: (state) => {
+
+      },
       pickUpPickup: (state, action: PayloadAction<{cityKey: number, pickupKey: number}>) => {
         const pickup = state.pickups.byID[action.payload.pickupKey];
 
@@ -780,7 +783,7 @@ function _changeState(state: WritableDraft<IWorldState>, action: { payload: { be
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,beanArrest,
-    beanBePersuaded, cheatAdd, manualSave,
+    beanBePersuaded, cheatAdd, manualSave, setCrimeLegality,
     addTitle, editTitle, beanSetTitle, acknowledgeNewInsanity,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions

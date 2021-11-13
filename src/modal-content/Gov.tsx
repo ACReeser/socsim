@@ -1,8 +1,9 @@
 import React, { useState } from "react";
+import { Subtabs } from "../chrome/Subtab";
 import { SecondaryBeliefData } from "../simulation/Beliefs";
-import { IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
+import { AllCrimes, CrimeData, CrimeKey, IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
 import { BeliefInventory } from "../simulation/Player";
-import { enactLaw, repealLaw } from "../state/features/world.reducer";
+import { enactLaw, repealLaw, setCrimeLegality } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { TreasuryReport } from "../widgets/TreasuryReport";
 
@@ -36,6 +37,8 @@ export const GovernmentPanel: React.FC<{
                 </div>
                 <div>
                 </div>
+            </div> : view === 'Crime' ? <div>
+                <CrimeDetailList></CrimeDetailList>
             </div> : <LawDetailList 
                 group={view}
             ></LawDetailList>
@@ -43,6 +46,89 @@ export const GovernmentPanel: React.FC<{
     </div>
 }
 
+export const CrimeDetailList: React.FC<{
+
+}> = (props) => {
+    const topRow: CrimeKey[] = ['steal', 'rob', 'profanity'];
+    const bRow: CrimeKey[] = ['murder', 'hurt', 'destroy'];
+    return <div className="pad-4p">
+        <strong>Criminal Laws</strong>
+        <div className="horizontal scroll">
+            {
+                topRow.map(c => {
+                    return <CrimeDetail crime={c}></CrimeDetail>
+                })
+            }
+        </div>
+        <br/>
+        <div className="horizontal scroll">
+            {
+                bRow.map(c => {
+                    return <CrimeDetail crime={c}></CrimeDetail>
+                })
+            }
+        </div>
+    </div>
+}
+const CrimeDetail: React.FC<{
+    crime: CrimeKey
+}> = (props) => {
+    return <div key={props.crime}>
+    <div className="horizontal">
+        <div className="circular">
+            {CrimeData[props.crime].icon} 
+        </div>
+        <div>
+            <strong>
+            {CrimeData[props.crime].name}
+            </strong><br/>
+            <small>
+            {CrimeData[props.crime].description}
+            </small>
+        </div>
+    </div>
+    <div>
+        <LegalitySwitch crime={props.crime}></LegalitySwitch>
+    </div>
+</div>
+}
+const legalOptions = [
+    {
+        icon: '✔️',
+        text: 'Legal',
+        value: 'none',
+        onClick: () => {}
+    },
+    {
+        icon: '💸',
+        text: 'Fine',
+        value: 'fine',
+        onClick: () => {}
+    },
+    {
+        icon: '🚨',
+        text: 'Jail',
+        value: 'jail',
+        onClick: () => {}
+    },
+    {
+        icon: '☠️',
+        text: 'Death',
+        value: 'death',
+        onClick: () => {}
+    },
+]
+export const LegalitySwitch: React.FC<{
+    crime: CrimeKey
+}> = (props) => {
+    const legality = useAppSelector(x => x.world.law.crimes[props.crime]);
+    const dispatch = useAppDispatch()
+    const opts = legalOptions.map(x => {
+        x.onClick = () => dispatch(setCrimeLegality());
+        return x;
+    });
+    return <Subtabs active={legality || 'none'} options={opts}></Subtabs>
+}
 
 export const LawDetailList: React.FC<{
     group: LawGroup

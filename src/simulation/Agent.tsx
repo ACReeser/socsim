@@ -303,6 +303,8 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
             return undefined;
         },
         act: (agent: IBean, world: IWorldState, elapsed: number) => {
+            if (agent.lifecycle === 'incarcerated')
+                return {};
             if (elapsed < 200)
                 return {};
             
