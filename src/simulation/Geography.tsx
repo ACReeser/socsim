@@ -1,5 +1,6 @@
 import { TraitGood, TraitJob } from "../World";
 import { GetRandom } from "../WorldGen";
+import { IHexPlane } from "./City";
 import { IEnterprise } from "./Institutions";
 import { BuildingJobSlot } from "./Occupation";
 import { IBuilding } from "./RealEstate";
@@ -85,15 +86,37 @@ export function move_towards(current: Point, target: Point, maxDistanceDelta: nu
         y: current.y + a.y / magnitude * maxDistanceDelta,
     };
 }
-export interface IAccelerator {point: Point, velocity: Vector};
-export const OriginAccelerator = { point: {x: 0, y: 0}, velocity: {x: 0, y: 0}}
+export interface IAccelerator {
+    point: Point, 
+    velocity: Vector,
+    hex: HexPoint
+};
+export const OriginAccelerator = { 
+    point: {x: 0, y: 0}, 
+    velocity: {x: 0, y: 0},
+    hex: {q: 0, r: 0}
+};
+export function point_magnitude(p: Point){
+    return Math.sqrt((p.x * p.x) + (p.y * p.y));
+}
+export function point_normalize(p: Point){
+    const magnitude: number = point_magnitude(p);
+    if (magnitude > 0){
+        p.x /= magnitude;
+        p.y /= magnitude;
+    } else {
+        p.x = p.y = 0;
+    }
+}
 export function accelerate_towards(
     mover: IAccelerator, 
+    plane: IHexPlane,
     target: Point, 
     acceleration: number,
     maxSpeed: number, 
     colDistance: number, 
-    brake: Point): boolean
+    brake: Point, 
+    getAvoidanceVelocity?: () => Point): boolean
 {
     const delta: Point = {
         x: target.x - mover.point.x, 
@@ -104,13 +127,21 @@ export function accelerate_towards(
 
     delta.x /= magnitude;
     delta.y /= magnitude;
+    //now delta is normalized 
 
     mover.velocity.x += (delta.x * acceleration);
     mover.velocity.y += (delta.y * acceleration);
+    if (getAvoidanceVelocity){
+        const avoidV = getAvoidanceVelocity();
+        mover.velocity.x -= avoidV.x;
+        mover.velocity.y -= avoidV.y;
+    }
     mover.velocity.x = MathClamp(mover.velocity.x, -maxSpeed, maxSpeed);
     mover.velocity.y = MathClamp(mover.velocity.y, -maxSpeed, maxSpeed);
 
+
     accelerator_coast(mover, brake);
+    mover.hex = round_point_to_hex(pixel_to_hex(plane.district_hex_size, plane.petriOrigin, mover.point));
     return false;
 }
 export function accelerator_coast(
@@ -225,14 +256,14 @@ export function hex_to_pixel(size: Point, origin: Point, h: HexPoint): Point {
     const y = (M.f2 * h.q + M.f3 * h.r) * size.y;
     return {x: x + origin.x, y: y + origin.y};
 }
-export function pixel_to_hex(size: Point, origin: Point, p: Point) {
+export function pixel_to_hex(size: Point, origin: Point, p: Point): HexPoint {
     const M = layout_pointy;
     const pt = {x: (p.x - origin.x) / size.x,
                 y: (p.y - origin.y) / size.y
             };
     const q = M.b0 * pt.x + M.b1 * pt.y;
     const r = M.b2 * pt.x + M.b3 * pt.y;
-    return new Hex(q, r);
+    return {q: q, r: r};
 }
 
 
@@ -374,7 +405,7 @@ export function GenerateGeography(numberOfRings: number = 3){
     return {
         numberOfRings: numberOfRings,
         hexes: hex_spiral({q:0, r:0}, numberOfRings),
-        hex_size: {...DistrictHexSize},
+        district_hex_size: {...DistrictHexSize},
         petriRadius: radius,
         petriOrigin: {x: radius, y: radius}
     }

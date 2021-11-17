@@ -117,9 +117,13 @@ export function simulate_world(world: IWorldState){
         const e = BeanMaybeBaby(b, world.seed, CoL);
         if (e) {
             const newBean = GenerateBean(world, world.cities.byID[b.cityKey], b);
-            if (b.lastPoint){
+            if (b.lastPoint && b.lastHex){
                 newBean.lastPoint = b.lastPoint;
-                MoverStoreInstance.Get('bean', newBean.key).publish({point: {x: b.lastPoint.x, y: b.lastPoint.y}, velocity: {x: 0, y: 0}});
+                MoverStoreInstance.Get('bean', newBean.key).publish({
+                    point: {x: b.lastPoint.x, y: b.lastPoint.y}, 
+                    hex: {q: b.lastHex.q, r: b.lastHex.r}, 
+                    velocity: {x: 0, y: 0}
+                });
             }
             world.beans.byID[newBean.key] = newBean;
             world.beans.allIDs.push(newBean.key);
@@ -323,6 +327,7 @@ export function animate_pickups(world: IWorldState, deltaMS: number): Array<AnyA
         if (magnet){
             const collide = accelerate_towards(
                 newAccelerator,
+                city,
                 magnet,
                 PickupPhysics.AccelerateS * deltaMS/1000, 
                 PickupPhysics.MaxSpeed, 

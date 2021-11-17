@@ -11,11 +11,11 @@ import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeC
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, CityGetRandomHomelessSleepingBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
-import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, ILot, JobToBuilding, OriginAccelerator, pixel_to_hex, Point } from "./Geography";
+import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, ILot, JobToBuilding, OriginAccelerator, pixel_to_hex, Point, point_normalize } from "./Geography";
 import { CrimeKey } from "./Government";
 import { IBuilding } from "./RealEstate";
 import { IDate } from "./Time";
-import { SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
+import { MathClamp, SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax'|'chase'|'assault';
 
@@ -101,6 +101,8 @@ const AssaultDurationMS = 2000;
 const CatatoniaWalkSpeedPercentage = 0.4;
 
 const ChaseGiveUpTimeMS = 15000;
+const AvoidanceScale = 0.78;
+const AvoidanceClamp = 0.07;
 export const BeanActions: {[act in Act]: StateFunctions} = {
     'travel': {
         enter: (agent: IBean) => {
@@ -134,19 +136,32 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                     }
                 };
             }
+            const oldAccelerator = MoverStoreInstance.Get('bean', agent.key).current || OriginAccelerator;
             const newAccelerator = {
-                ...(MoverStoreInstance.Get('bean', agent.key).current || OriginAccelerator)
+                ...oldAccelerator
             };
 
             const collide = accelerate_towards(
                 newAccelerator,
+                city,
                 target,
                 BeanPhysics.AccelerateS * (BeanBelievesIn(agent, 'Catatonia') ? CatatoniaWalkSpeedPercentage : 1) * deltaMS/1000, 
                 BeanPhysics.MaxSpeed, 
                 BeanPhysics.CollisionDistance,
-                BeanPhysics.Brake);
+                BeanPhysics.Brake, () => {
+                    return MoverStoreInstance.GetOthersInHexBin('bean', agent.key, oldAccelerator.hex).reduce((vec, sib) => {
+                        const delta = {
+                            x: sib.point.x - oldAccelerator.point.x, 
+                            y: sib.point.y - oldAccelerator.point.y
+                        };
+                        point_normalize(delta);
+                        vec.x = MathClamp(delta.x * AvoidanceScale + vec.x, -AvoidanceClamp, AvoidanceClamp);
+                        vec.y = MathClamp(delta.y * AvoidanceScale + vec.y, -AvoidanceClamp, AvoidanceClamp);
+                        return vec;
+                    }, {x: 0, y: 0} as Point)
+                });
 
-            MoverStoreInstance.Get('bean', agent.key).publish(newAccelerator);
+            MoverStoreInstance.UpdatePosition('bean', agent.key, newAccelerator, oldAccelerator.hex);
             
             if (collide){
                 return {
@@ -353,19 +368,22 @@ export const BeanActions: {[act in Act]: StateFunctions} = {
                         }
                     };
                 }
+                const oldAccelerator = MoverStoreInstance.Get('bean', agent.key).current || OriginAccelerator;
                 const newAccelerator = {
-                    ...(MoverStoreInstance.Get('bean', agent.key).current || OriginAccelerator)
+                    ...oldAccelerator
                 };
+    
     
                 const collide = accelerate_towards(
                     newAccelerator,
+                    world.cities.byID[agent.cityKey],
                     targetPos,
                     BeanPhysics.AccelerateS * (BeanBelievesIn(agent, 'Catatonia') ? CatatoniaWalkSpeedPercentage : 1) * deltaMS/1000, 
                     BeanPhysics.MaxSpeed, 
                     BeanPhysics.CollisionDistance,
                     BeanPhysics.Brake);
     
-                MoverStoreInstance.Get('bean', agent.key).publish(newAccelerator);
+                MoverStoreInstance.UpdatePosition('bean', agent.key, newAccelerator, oldAccelerator.hex);
 
                 if (collide){
                     const arrest = beanArrest({criminalBeanKey: agent.actionData.chase.targetBeanKey, crime: agent.actionData.chase.crime});
@@ -759,6 +777,7 @@ export interface IBean extends ISeller, IBeanAgent{
     ticksSinceLastRelax: number,
     lastChatMS: number,
     lastPoint?: Point,
+    lastHex?: HexPoint,
     titleKey?: number,
     badge?: string,
     hat?: string,
@@ -797,9 +816,9 @@ export function Route(seed: string, city: ICity, bean: IBean, destination: IBuil
 }
 export function RouteToHexAndPoint(seed: string, city: ICity, bean: IBean, hex: HexPoint, point: Point): Point[]{
     const start = MoverStoreInstance.Get('bean', bean.key).current || {...OriginAccelerator};
-    const nearestHex = pixel_to_hex(city.hex_size, city.petriOrigin, start.point);
+    const nearestHex = pixel_to_hex(city.district_hex_size, city.petriOrigin, start.point);
     return hex_linedraw(nearestHex, hex).map(
-        (h) => hex_to_pixel(city.hex_size, city.petriOrigin, h)
+        (h) => hex_to_pixel(city.district_hex_size, city.petriOrigin, h)
         ).map((x, i, a) => {
         if (i === a.length-1){
             return {

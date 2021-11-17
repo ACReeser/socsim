@@ -22,7 +22,7 @@ export const AnimatedUFO2:  React.FC<{
         }, 1800);
     }, []);
     let style = {
-        ...transformPoint(hex_to_pixel(city.hex_size, city.petriOrigin, ufo.point))
+        ...transformPoint(hex_to_pixel(city.district_hex_size, city.petriOrigin, ufo.hex))
     };
     return <span style={style} className="ufo">
         🛸

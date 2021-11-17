@@ -152,7 +152,7 @@ export function GenerateDistrict(kind: 'urban'|'rural'|'fallow'|'nature', city: 
         q: hex.q,
         r: hex.r,
         hexString: hex.q+','+hex.r,
-        point: hex_to_pixel(city.hex_size, city.petriOrigin, hex),
+        point: hex_to_pixel(city.district_hex_size, city.petriOrigin, hex),
         lots: []
     }
 }

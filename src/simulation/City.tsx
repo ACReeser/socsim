@@ -46,13 +46,14 @@ export class Pickup implements IPickup{
     public velocity: Vector = {x: 0, y: 0};
     public onMove = new PubSub<Point>();
 }
-
-export interface ICity{
-    key: number,
-    name: string,
+export interface IHexPlane{
     petriRadius: number,
     petriOrigin: Point,
-    hex_size: Point,
+    district_hex_size: Point,
+}
+export interface ICity extends IHexPlane{
+    key: number,
+    name: string,
     deadBeanKeys: number[],
     beanKeys: number[],
     ufoKeys: number[],

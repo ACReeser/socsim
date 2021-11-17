@@ -66,12 +66,20 @@ export const worldSlice = createSlice({
         action.payload.newState.beans.allIDs.map(k => {
           const bean = action.payload.newState.beans.byID[k];
           if (bean){
-            MoverStoreInstance.Get('bean', k).publish({
+            MoverStoreInstance.UpdatePosition('bean', k, {
               point: {
                 x: bean.lastPoint?.x || 0,
                 y: bean.lastPoint?.y || 0
-              }, velocity: {x: 0, y: 0}
-            })
+              }, 
+              velocity: {
+                x: 0, 
+                y: 0
+              },
+              hex: {
+                q: bean.lastHex?.q || 0,
+                r: bean.lastHex?.r || 0
+              }
+            }, {q: 0, r: 0});
           }
         })
         return action.payload.newState
@@ -165,7 +173,7 @@ export const worldSlice = createSlice({
             key: state.ufos.nextID++,
             action: 'beam-in',
             duration: 0,
-            point: {...action.payload.where},
+            hex: {...action.payload.where},
             cityKey: action.payload.cityKey
           };
           state.ufos.allIDs.push(ufo.key);
@@ -175,7 +183,7 @@ export const worldSlice = createSlice({
       },
       remove_ufo: (state, action: PayloadAction<{ufoKey: number}>) => {
         const ufo = state.ufos.byID[action.payload.ufoKey];
-        const newBean = GenerateBean(state, state.cities.byID[0], undefined, ufo.point);
+        const newBean = GenerateBean(state, state.cities.byID[0], undefined, ufo.hex);
         newBean.priorities = GetPriorities(newBean, state.seed, state.cities.byID[newBean.cityKey], state.alien.difficulty);
         delete state.ufos.byID[action.payload.ufoKey];
         state.ufos.allIDs = state.ufos.allIDs.filter(x => x != action.payload.ufoKey);
@@ -185,7 +193,10 @@ export const worldSlice = createSlice({
         state.beans.allIDs.push(newBean.key);
         state.cities.byID[ufo.cityKey].beanKeys.push(newBean.key);
         MoverStoreInstance.Get('bean', newBean.key).current = {
-          point: hex_to_pixel(state.cities.byID[ufo.cityKey].hex_size, state.cities.byID[ufo.cityKey].petriOrigin, ufo.point), 
+          point: hex_to_pixel(state.cities.byID[ufo.cityKey].district_hex_size, state.cities.byID[ufo.cityKey].petriOrigin, ufo.hex), 
+          hex: {
+            ...ufo.hex
+          },
           velocity: {x: 0, y: 0}
         };
       },
@@ -564,10 +575,17 @@ export const worldSlice = createSlice({
                 y: state.districts.byID[1].point.y + point.y
               };
               criminal.lastPoint = jailPoint;
-              MoverStoreInstance.Get('bean', criminal.key).publish({
+              const hexes = state.districts.byID[1].hexString.split(',').map(x => parseInt(x));
+              const jailHex = {
+                q: hexes[0],
+                r: hexes[1]
+              };
+              MoverStoreInstance.UpdatePosition('bean', criminal.key, {
                 point: {...jailPoint}, 
-                velocity: {...OriginAccelerator.velocity}
-              });
+                velocity: {...OriginAccelerator.velocity},
+                hex: { ... jailHex },
+              }, criminal.lastHex || {q: 0, r: 0});
+              criminal.lastHex = jailHex;
               break;
             }
           }
@@ -736,7 +754,7 @@ function _changeState(state: WritableDraft<IWorldState>, action: { payload: { be
   bean.action = action.payload.newState.act;
   bean.actionData = action.payload.newState;
   const p = MoverStoreInstance.Get('bean', bean.key).current?.point;
-  if (p) {
+  if (p && !isNaN(p.x) && !isNaN(p.y)) {
     bean.lastPoint = {
       ...p
     };
@@ -771,6 +789,10 @@ function _changeState(state: WritableDraft<IWorldState>, action: { payload: { be
       point: {
         x: beanPosition.point.x,
         y: beanPosition.point.y
+      },
+      hex: {
+        q: beanPosition.hex.q,
+        r: beanPosition.hex.r
       },
       velocity: {x: 0, y: 0}
     });
