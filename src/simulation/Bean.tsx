@@ -3,7 +3,7 @@ import { BeanResources, IDifficulty } from "../Game";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { IWorldState } from "../state/features/world";
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFood, TraitGood, TraitHealth, TraitSanity, TraitStamina } from "../World";
-import { GetRandom, GetRandomNumber, GetRandomRoll } from "../WorldGen";
+import { GetRandom, GetRandomFloat, GetRandomNumber, GetRandomRoll } from "../WorldGen";
 import { IBean, IChatData } from "./Agent";
 import { GetInsanityFromBrainwashing, InsanityTraits, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { GetFairGoodPrice, IEconomy } from "./Economy";
@@ -277,9 +277,9 @@ export function BeanMaybeBaby(bean: IBean, seed: string, costOfLiving: number): 
         return undefined;
     }
 }
-export function BeanMaybeCrime(bean: IBean, good: TraitGood): boolean {
+export function BeanMaybeCrime(bean: IBean, seed: string, good: TraitGood): boolean {
     if (good === 'fun') return false;
-    const roll = Math.random();
+    const roll = GetRandomFloat(seed);
     let chance = 0.05;
     if (bean.community === 'ego'){
         chance += .1;
@@ -449,6 +449,13 @@ export function BeanMaybeGetInsanity(seed: string, bean: IBean): {beanKey: numbe
 }
 
 const CrimeWitnessChance = 0.33;
-export function BeanDidWitnessCrime(person: IBean, state: IWorldState, beanKey: number): boolean {
-    return GetRandomNumber(state.seed) >= CrimeWitnessChance;
+export function BeanDidWitnessCrime(bean: IBean, seed: string, perpBeanKey: number): boolean {
+    if (bean.action === 'sleep')
+        return false;
+    let chance = CrimeWitnessChance;
+    if (BeanBelievesIn(bean, 'Anarchism'))
+        chance -= 0.25;
+    if (BeanBelievesIn(bean, 'Authority'))
+        chance += 0.25;
+    return GetRandomFloat(seed) <= chance;
 }

@@ -59,10 +59,13 @@ export class MoverStore{
             this.bins[type][newHexStr].push(key);
         }
     }
-    public GetOthersInHexBin(type: MoverType, selfKey: number, hex: HexPoint): IAccelerator[]{
+    public GetOtherKeysInHexBin(type: MoverType, selfKey: number, hex: HexPoint): number[]{
         const allKeysInBin = this.bins[type][hex.q+','+hex.r];
         if (Array.isArray(allKeysInBin))
-            return allKeysInBin.filter(keyInBin => keyInBin != selfKey).map(otherKey => this.cache[type][otherKey]?.current || OriginAccelerator)
-        else return []
+            return allKeysInBin.filter(keyInBin => keyInBin != selfKey);
+        return [];
+    }
+    public GetOthersInHexBin(type: MoverType, selfKey: number, hex: HexPoint): IAccelerator[]{
+        return this.GetOtherKeysInHexBin(type, selfKey, hex).map(otherKey => this.cache[type][otherKey]?.current || OriginAccelerator);
     }
 }

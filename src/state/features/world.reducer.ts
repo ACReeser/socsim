@@ -508,10 +508,11 @@ export const worldSlice = createSlice({
           }
           if (IsActionIllegal(state.law, crime)){
             // see if the stealer is caught
-            const witnessCandidateBeanKeys = state.beans.allIDs.filter(b => b != action.payload.beanKey && state.beans.byID[b].lifecycle === 'alive');
+            const bucket = bean.lastHex ? MoverStoreInstance.GetOtherKeysInHexBin('bean', action.payload.beanKey, bean.lastHex) : state.beans.allIDs.filter(b => b != action.payload.beanKey);
+            const witnessCandidateBeanKeys = bucket.filter(b => state.beans.byID[b].lifecycle === 'alive');
             const witnesses: IBean[] = witnessCandidateBeanKeys.reduce((arr, bK) => {
               const person = state.beans.byID[bK];
-              const wasWitness = BeanDidWitnessCrime(person, state, action.payload.beanKey);
+              const wasWitness = BeanDidWitnessCrime(person, state.seed, action.payload.beanKey);
               if (wasWitness)
                 arr.push(person);
               return arr;

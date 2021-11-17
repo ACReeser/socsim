@@ -542,7 +542,7 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
                 }
             }
         } else if (desiredGoodState === 'pricedout') {
-            if ((intent.good == 'food' || intent.good == 'medicine') && BeanMaybeCrime(bean, intent.good)){
+            if ((intent.good == 'food' || intent.good == 'medicine') && BeanMaybeCrime(bean, world.seed, intent.good)){
                 return {
                     intent: {
                         act: 'crime',
