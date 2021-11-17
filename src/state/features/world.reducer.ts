@@ -12,7 +12,7 @@ import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/B
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, OriginAccelerator, Point, polarToPoint } from '../../simulation/Geography'
-import { CrimeKey, IsActionIllegal, LawData, LawKey } from '../../simulation/Government'
+import { CrimeKey, CrimePunishment, IsActionIllegal, LawData, LawKey } from '../../simulation/Government'
 import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
@@ -23,7 +23,7 @@ import { TicksPerDay } from '../../simulation/Time'
 import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
-import { simulate_world, WorldAddEvent } from '../../simulation/WorldSim'
+import { simulate_world, WorldAddEvent, WorldOnBeanDie } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
 import { DistrictAddLots, GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
@@ -343,13 +343,13 @@ export const worldSlice = createSlice({
         if (PlayerTryPurchase(state.alien, state.alien.difficulty.cost.bean.vaporize)) {
           const bean = state.beans.byID[action.payload.beanKey];
           const d = BeanDie(bean, state.seed, 'vaporization');
-          EntityAddToSlice(state.events, d.death);
-          BeanLoseJob(bean, state);
-          d.emotes.map(e => EntityAddToSlice(state.pickups, e));
+          WorldOnBeanDie(state, bean, d.death, d.emotes);
         }
       },
-      setCrimeLegality: (state) => {
-
+      setCrimeLegality: (state, action: PayloadAction<{crime: CrimeKey, legality: CrimePunishment|'none'|undefined}>) => {
+        if (action.payload.legality === 'none')
+          action.payload.legality = undefined;
+        state.law.crimes[action.payload.crime] = action.payload.legality;
       },
       pickUpPickup: (state, action: PayloadAction<{cityKey: number, pickupKey: number}>) => {
         const pickup = state.pickups.byID[action.payload.pickupKey];
@@ -563,6 +563,8 @@ export const worldSlice = createSlice({
         if (punishment){
           switch(punishment){
             case 'death': {
+              const d = BeanDie(criminal, state.seed, 'execution');
+              WorldOnBeanDie(state, criminal, d.death, d.emotes);
               break;
             }
             case 'jail': {

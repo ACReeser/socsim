@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Subtabs } from "../chrome/Subtab";
 import { SecondaryBeliefData } from "../simulation/Beliefs";
-import { AllCrimes, CrimeData, CrimeKey, IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
+import { AllCrimes, CrimeData, CrimeKey, CrimePunishment, IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
 import { BeliefInventory } from "../simulation/Player";
 import { enactLaw, repealLaw, setCrimeLegality } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
@@ -56,7 +56,7 @@ export const CrimeDetailList: React.FC<{
         <div className="horizontal scroll">
             {
                 topRow.map(c => {
-                    return <CrimeDetail crime={c}></CrimeDetail>
+                    return <CrimeDetail key={c} crime={c}></CrimeDetail>
                 })
             }
         </div>
@@ -64,7 +64,7 @@ export const CrimeDetailList: React.FC<{
         <div className="horizontal scroll">
             {
                 bRow.map(c => {
-                    return <CrimeDetail crime={c}></CrimeDetail>
+                    return <CrimeDetail key={c} crime={c}></CrimeDetail>
                 })
             }
         </div>
@@ -92,7 +92,12 @@ const CrimeDetail: React.FC<{
     </div>
 </div>
 }
-const legalOptions = [
+const legalOptions: Array<{
+    icon: string,
+    text: string,
+    value: CrimePunishment|'none',
+    onClick: () => void
+}> = [
     {
         icon: '✔️',
         text: 'Legal',
@@ -124,8 +129,15 @@ export const LegalitySwitch: React.FC<{
     const legality = useAppSelector(x => x.world.law.crimes[props.crime]);
     const dispatch = useAppDispatch()
     const opts = legalOptions.map(x => {
-        x.onClick = () => dispatch(setCrimeLegality());
-        return x;
+        return {
+            ...x,
+            onClick: () => {
+                dispatch(setCrimeLegality({
+                    crime: props.crime,
+                    legality: x.value
+                }));
+            }
+        }
     });
     return <Subtabs active={legality || 'none'} options={opts}></Subtabs>
 }

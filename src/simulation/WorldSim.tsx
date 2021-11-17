@@ -18,7 +18,7 @@ import { GetCostOfLiving } from "./Economy";
 import { accelerate_towards, accelerator_coast, OriginAccelerator } from "./Geography";
 import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
 import { GetMarketTraits } from "./MarketTraits";
-import { GenerateEmoteFromBean } from "./Pickup";
+import { GenerateEmoteFromBean, IPickup } from "./Pickup";
 import { CheckGoals, CheckReportCard, HasResearched, TechData } from "./Player";
 import { TicksPerDay } from "./Time";
 
@@ -100,18 +100,9 @@ export function simulate_world(world: IWorldState){
         if (ageResult?.emotes){
             ageResult.emotes.map(x => EntityAddToSlice(world.pickups, x));
         }
-        if (ageResult?.death){
-            EntityAddToSlice(world.events, ageResult.death);
-            BeanLoseJob(b, world);
-            if (b.dwellingKey != null){
-                const house = world.dwellings.byID[b.dwellingKey];
-                if (house)
-                    house.occupantKey = undefined;
-            }
-            const luckyBeanKey = GetRandom(world.seed, world.beans.allIDs.filter(x => x !== bKey));
-            if (luckyBeanKey != null)
-                world.beans.byID[luckyBeanKey].cash = b.cash;
-            WorldSfxInstance.play('death');
+        const death = ageResult?.death;
+        if (death){
+            WorldOnBeanDie(world, b, death, []);
         }
         // todo: on bean death
         const e = BeanMaybeBaby(b, world.seed, CoL);
@@ -266,6 +257,21 @@ export function WorldAddEvent(world: IWorldState, e: IEvent){
             } as any;
         }
     }
+}
+export function WorldOnBeanDie(world: IWorldState, b: IBean, deathEvent: IEvent, emotes: IPickup[]){
+    EntityAddToSlice(world.events, deathEvent);
+    emotes.map(e => EntityAddToSlice(world.pickups, e));
+    BeanLoseJob(b, world);
+    if (b.dwellingKey != null){
+        const house = world.dwellings.byID[b.dwellingKey];
+        if (house)
+            house.occupantKey = undefined;
+        b.dwellingKey = undefined;
+    }
+    const luckyBeanKey = GetRandom(world.seed, world.beans.allIDs.filter(x => x !== b.key));
+    if (luckyBeanKey != null)
+        world.beans.byID[luckyBeanKey].cash = b.cash;
+    WorldSfxInstance.play('death');
 }
 export function animate_ufos(world: IWorldState, deltaMS: number): Array<AnyAction>{
     const actions: AnyAction[] = [];

@@ -209,12 +209,12 @@ export const SecondaryBeliefData: {[key in TraitBelief]: IBeliefData} = {
     // 😈 Crime traits
     Authority: {
         noun: 'Authority', adj: 'Authoritarian', icon: '👢', rarity: 'common',
-        description: "Less 🎲 for all 😈 Crime", //implemented
+        description: "Less 🎲 for all 😈 Crime; Extra 🎲 to report Crime", //implemented
         //idealCon: ['ego'], idealPro: ['state']
     },
     Anarchism: {
         noun: 'Anarchism', adj: 'Anarchist', icon: '🖕', rarity: 'uncommon',
-        description: "Extra 🎲 for all 😈 Crime", //implemented
+        description: "Extra 🎲 for all 😈 Crime; Less 🎲 to report Crime", //implemented
     },
     Greed: {
         noun: 'Greed', adj: 'Greedy', icon: '🤑', rarity: 'common',
