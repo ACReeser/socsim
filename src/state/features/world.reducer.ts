@@ -617,7 +617,15 @@ export const worldSlice = createSlice({
         const data = LawData[action.payload.lawKey];
         delete state.law.lawTree[data.axis];
       },
-      
+      beanInter: (state, action: PayloadAction<{bean: number, graveyard: number}>) => {
+        const grave = state.buildings.byID[action.payload.graveyard];
+        const bean = state.beans.byID[action.payload.bean]
+        if (grave && bean && grave.interredBeanKeys){
+          grave.interredBeanKeys.push(bean.key);
+          const city = state.cities.byID[bean.cityKey];
+          city.beanKeys = city.beanKeys.filter(x => x != bean.key);
+        }
+      },
     buyBots: (state, action: PayloadAction<{amount: number}>) => {
       const cost = state.alien.difficulty.cost.market.resource.bots;
       if (PlayerTryPurchase(state.alien, cost, action.payload.amount)) {
@@ -808,7 +816,7 @@ function _changeState(state: WritableDraft<IWorldState>, action: { payload: { be
     abduct, release, scan, vaporize, pickUpPickup,
     implant, washBelief, washNarrative, washCommunity, washMotive,extractBelief,
     changeState, beanEmote, beanGiveCharity, beanHitDestination, beanWork, beanRelax, beanBuy, beanCrime,beanArrest,
-    beanBePersuaded, cheatAdd, manualSave, setCrimeLegality,
+    beanBePersuaded, cheatAdd, manualSave, setCrimeLegality, beanInter,
     addTitle, editTitle, beanSetTitle, acknowledgeNewInsanity,
     enactLaw, repealLaw, setResearch, buyBots, buyEnergy, buyTrait, scrubHedons
   } = worldSlice.actions

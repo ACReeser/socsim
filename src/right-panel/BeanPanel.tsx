@@ -6,7 +6,7 @@ import { ICity } from "../simulation/City";
 import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
 import { ITitle } from "../simulation/Titles";
 import { doSelectCity, doSelectNone } from "../state/features/selected.reducer";
-import { abduct, beanSetTitle, scan, vaporize } from "../state/features/world.reducer";
+import { abduct, beanInter, beanSetTitle, scan, vaporize } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean, selectSelectedCity } from "../state/state";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
@@ -135,10 +135,58 @@ function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwa
         </div>
     }
 }
+export const BeanInnerPanel: React.FC<{
+    bean: IBean,
+    alien: IPlayerData,
+    city: ICity
+}> = (props) => {
+    const [innerView, setInnerView] = useState<'priorities'|'feelings'|'beliefs'>('beliefs');
+    return <div className="grow-1 pad-4 bean-panel-content">
+        <div className="cylinder blue-orange horizontal">
+            <button type="button" className={innerView=='beliefs'?'active':''} onClick={()=>setInnerView('beliefs')}>
+                😇 Traits
+            </button>
+            <button type="button" className={innerView=='feelings'?'active':''} onClick={()=>setInnerView('feelings')}>
+                😐 Feelings
+            </button>
+            <button type="button" className={innerView=='priorities'?'active':''} onClick={()=>setInnerView('priorities')}>
+                💪 Priorities
+            </button>
+        </div>
+        {renderInner(props.alien.scanned_bean[props.bean.key], innerView, props.bean, props.city, props.alien)}
+    </div>
+}
+export const DeadBeanActions: React.FC<{
+    beanKey: number
+}> = (props) => {
+    const dispatch = useAppDispatch();
+    const graveyard = useAppSelector(s => s.world.buildings.allIDs.find(x => {
+        const build = s.world.buildings.byID[x]; 
+        return build.type === 'graveyard' && build.interredBeanKeys && build.interredBeanKeys.length < 6
+    }));
+    return <div className="bean-action-card-parent"> 
+        {graveyard === undefined ? <div className="text-center">
+            No ⚱️ Graveyard
+        </div>: null}
+        <div className="card-parent">
+            <button type="button" className="button card" onClick={() => {
+                if (graveyard != null){
+                    dispatch(beanInter({
+                        bean: props.beanKey,
+                        graveyard: graveyard
+                    }));
+                }
+            }} disabled={graveyard === undefined}
+                title="Dispose of the body"
+            >⚰️ Dispose
+                <small>-Body</small>
+            </button>
+        </div>
+    </div>;
+}
 
 export const BeanPanel: React.FC<BeanPanelP> = (props) => {
     const dispatch = useAppDispatch();
-    const [innerView, setInnerView] = useState<'priorities'|'feelings'|'beliefs'>('beliefs');
     const alien = useAppSelector(state => state.world.alien);
     const bean = useAppSelector(selectSelectedBean);
     const city = useAppSelector(selectSelectedCity);
@@ -181,26 +229,23 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 </span>
             </div>
             {renderTraits(alien.scanned_bean[bean.key], bean, alien, () => {
-                props.brainwash();
+                if (bean.lifecycle != 'dead')
+                    props.brainwash();
             }, () => {
                 dispatch(scan({beanKey: bean.key}));
             })}
         </div>
-        <div className="grow-1 pad-4 bean-panel-content">
-            <div className="cylinder blue-orange horizontal">
-                <button type="button" className={innerView=='beliefs'?'active':''} onClick={()=>setInnerView('beliefs')}>
-                    😇 Traits
-                </button>
-                <button type="button" className={innerView=='feelings'?'active':''} onClick={()=>setInnerView('feelings')}>
-                    😐 Feelings
-                </button>
-                <button type="button" className={innerView=='priorities'?'active':''} onClick={()=>setInnerView('priorities')}>
-                    💪 Priorities
-                </button>
-            </div>
-            {renderInner(alien.scanned_bean[bean.key], innerView, bean, city, alien)}
-        </div>
-        <div className="bean-action-card-parent">
+        {
+            bean.lifecycle === 'dead' ? <div className="bean-panel-content">
+                <div className="text-center">
+                    <small>
+                    This subject has ceased biological functions. <br/> The carbon shell requires disposal.
+                    </small>
+                </div>
+            </div> : <BeanInnerPanel bean={bean} city={city} alien={alien}></BeanInnerPanel>
+        }
+        {
+            bean.lifecycle === 'dead' ? <DeadBeanActions beanKey={bean.key}></DeadBeanActions> : <div className="bean-action-card-parent">
             <div className="card-parent">
                 <button type="button" className="button card" onClick={() => {
                     props.brainwash()
@@ -210,21 +255,9 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                     <small>-Sanity +-Trait</small>
                 </button>
             </div>
-            {/* <div className="card-parent">
-                <button type="button" className="button card"  onClick={() => brainwash()}  disabled={true}
-                    title="Give this being food or meds or cash">
-                    🎁 Gift
-                    <small>-Energy +Things</small>
-                </button>
-            </div> */}
             
             <TitleButton beanKey={bean.key} entitle={props.entitle}></TitleButton>
             <div className="card-parent">
-                {/* <button type="button" className="button card" onClick={scan} disabled={true}
-                    title="Steal a bit of this being's mind">
-                    🤪 Braindrain
-                    <small>-Energy -Sanity</small>
-                </button> */}
                 <button type="button" className="button card" onClick={() => {
                     dispatch(vaporize({beanKey: bean.key}));
                 }}
@@ -246,6 +279,7 @@ export const BeanPanel: React.FC<BeanPanelP> = (props) => {
                 </button>
             </div>
         </div>
+        }
     </div>
     )
 }

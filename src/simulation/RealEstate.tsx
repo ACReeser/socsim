@@ -28,7 +28,8 @@ export interface IBuilding{
     upgradedLoft: boolean, //add 1 dwelling
     enterpriseKey?: number,
     lotKey: number,
-    dwellingKeys?: number[]
+    dwellingKeys?: number[],
+    interredBeanKeys?: number[]
 }
 
 export interface IDwelling{
@@ -108,7 +109,9 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
         }
         newBuilding.dwellingKeys = dwellingKeys;
     }
-
+    if (type === 'graveyard'){
+        newBuilding.interredBeanKeys = [];
+    }
     const good = BuildingToGood[type];
     
     if (good && good != 'fun')

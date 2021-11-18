@@ -1,7 +1,7 @@
 
 import React, { ReactElement } from "react";
 import { ICity } from "../simulation/City";
-import { BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes, BuildingToGood } from "../simulation/Geography";
+import { BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes, BuildingToGood, polarToPoint } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { IBuilding } from "../simulation/RealEstate";
 import { build } from "../state/features/world.reducer";
@@ -74,12 +74,19 @@ export const PetriBuilding: React.FC<{
     if (building){
         const good = BuildingToGood[building.type];
         const upgraded = building.upgradedJobs || building.upgradedStorage;
+        const center = {x: 280, y: 77.859};
         return <>
-        <text x="280px" y="77.859px" style={{fontSize:'36px'}}>{upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
+        <text x={center.x} y={center.y} style={{fontSize:'36px'}}>{upgraded ? UpgradedBuildingIcon[building.type] : BuildingIcon[building.type]}</text>
         {
             building.employeeBeanKeys.map((y,i) => <text x="325px" y={(85+(i*-14))+"px"} style={{fontSize:'11px'}} key={y}>{BuildingToJobIcon[building.type]}</text>)
         }
         {(building.enterpriseKey != null && good) ? <PetriGoods enterpriseKey={building.enterpriseKey} goodType={good}></PetriGoods> : null}
+        {
+            building.interredBeanKeys != null ? building.interredBeanKeys.map((x,i) => {
+                const p = polarToPoint({r: 40, az: (Math.PI/2) + (Math.PI*2*i/6)})
+                return <text x={center.x+p.x+10} y={center.y+p.y-10} style={{fontSize:'11px'}} key={x}>⚰️</text>
+            }) : null
+        }
     </>
     }
     else 
