@@ -104,7 +104,7 @@ export const worldSlice = createSlice({
               WorldSfxInstance.play('siren');
               break;
             case 'graveyard':
-              WorldSfxInstance.play('death');
+              WorldSfxInstance.play('graveyard');
               break;
           }
         }
@@ -119,14 +119,14 @@ export const worldSlice = createSlice({
           if (PlayerTryPurchase(state.alien, cost)) {
             DistrictAddLots(district, state.lots, 'rural');
             district.kind = 'rural';
-            // WorldSfxInstance.play('moo');
+            WorldSfxInstance.play('develop');
           }
         } else {
           const cost: PlayerResources = state.alien.difficulty.cost.hex.rural_2_urban;
           if (PlayerTryPurchase(state.alien, cost)) {
             DistrictAddLots(district, state.lots, 'urban');
             district.kind = 'urban';
-            // WorldSfxInstance.play('moo');
+            WorldSfxInstance.play('urbanize');
           }
         }
       },

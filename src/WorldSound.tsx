@@ -1,8 +1,12 @@
 export type SFXFile = 'drop.mp3'|'ding_soft.mp3'|'ding_bad.wav'|'death_bell.wav'|'digital_beeping.mp3'|
 'squish_pop.mp3'|'squish_suck.mp3'|'baby_squeak.wav'|'mhmm.mp3'|'cow-moo.wav'|'pill-shake.wav'|'door-open.wav'|
-'teleport.wav'|'cash_ding.mp3'|'crazy_laugh.mp3'|'handcuffs_ratchet.wav'|'crime_uncaught.mp3'|'siren_double.mp3';
+'teleport.wav'|'cash_ding.mp3'|'crazy_laugh.mp3'|'handcuffs_ratchet.wav'|'crime_uncaught.mp3'|'siren_double.mp3'|
+'wood_saw.mp3'|'nail_saw.mp3'|
+'crow.wav';
 export type SFX = 'drop'|'happiness'|'unhappiness'|'love'|'hate'|'death'|'scan'|'wash_in'|'wash_out'|
-'squeak'|'mhmm'|'moo'|'door'|'pills'|'teleport'|'cash'|'crazy_laugh'|'handcuffs'|'crime'|'siren';
+'squeak'|'mhmm'|'moo'|'door'|'pills'|'teleport'|'cash'|'crazy_laugh'|'handcuffs'|'crime'|'siren'|
+'develop'|'urbanize'|
+'graveyard';
 
 const SFXToFile: {[sfx in SFX]: SFXFile} = {
     drop: "drop.mp3",
@@ -24,7 +28,10 @@ const SFXToFile: {[sfx in SFX]: SFXFile} = {
     crazy_laugh: 'crazy_laugh.mp3',
     handcuffs: 'handcuffs_ratchet.wav',
     crime: 'crime_uncaught.mp3',
-    siren: 'siren_double.mp3'
+    siren: 'siren_double.mp3',
+    graveyard: 'crow.wav',
+    develop: 'wood_saw.mp3',
+    urbanize: 'nail_saw.mp3'
 };
 
 type SFXMap = {[sfx in SFX]: SoundBuffer};
@@ -66,9 +73,12 @@ export class WorldSound{
         'teleport': new SoundBuffer(SFXToFile['teleport'], 0.6),
         'cash': new SoundBuffer(SFXToFile['cash'], 0.23),
         'crazy_laugh': new SoundBuffer(SFXToFile['crazy_laugh'], 0.5),
-        'handcuffs': new SoundBuffer(SFXToFile['handcuffs'], 0.95),
+        'handcuffs': new SoundBuffer(SFXToFile['handcuffs'], 0.85),
         'crime': new SoundBuffer(SFXToFile['crime'], 0.55),
-        'siren': new SoundBuffer(SFXToFile['siren'], 0.30),
+        'siren': new SoundBuffer(SFXToFile['siren'], 0.20),
+        'graveyard': new SoundBuffer(SFXToFile['graveyard'], 0.60),
+        'urbanize': new SoundBuffer(SFXToFile['urbanize'], 0.60),
+        'develop': new SoundBuffer(SFXToFile['develop'], 0.60),
     }
 
     public play(sfx: SFX){

@@ -7,5 +7,9 @@ export const HelpAbout: React.FC<{
         <div>
         <small>Mystery Sound by Annyew@freesound.org</small>
         </div>
+        <div>
+            <small>Crow by inchadney@freesound.org</small>
+        </div>
+        <div><small>Sierra by benway@freesound.org</small></div>
     </div>
 }

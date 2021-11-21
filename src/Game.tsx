@@ -104,7 +104,7 @@ export const DefaultDifficulty: IDifficulty = {
                 },
                 graveyard: {
                     energy: 1,
-                    bots: 2
+                    bots: 1
                 },
                 park: {
                     energy: 1,
