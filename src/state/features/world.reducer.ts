@@ -4,11 +4,11 @@ import { PlayerResources } from '../../Game'
 import { GameStorageInstance } from '../../GameStorage'
 import { MoverStoreInstance } from '../../MoverStoreSingleton'
 import { SignalStoreInstance } from '../../SignalStore'
-import { Act, GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
+import { GetPriorities, IActivityData, IBean } from '../../simulation/Agent'
 import { AgentDurationStoreInstance } from '../../simulation/AgentDurationInstance'
 import { BeanBelievesIn, BeanCalculateSanity, BeanCalculateStamina, BeanCanPurchase, BeanDidWitnessCrime, BeanDie, BeanLoseSanity, BeanMaybeGetInsanity, CosmopolitanHappyChance, DiligenceHappyChance, GermophobiaHospitalWorkChance, HedonismExtraChance, HedonismHateWorkChance, LibertarianTaxUnhappyChance, ParochialHappyChance, ProgressivismTaxHappyChance } from '../../simulation/Bean'
 import { BeanTryFindJob } from '../../simulation/BeanAndCity'
-import { BeliefsAll, SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
+import { SecondaryBeliefData, TraitBelief } from '../../simulation/Beliefs'
 import { BeanLoseJob, BuildingUnsetJob } from '../../simulation/City'
 import { EconomyEmployAndPrice, EconomyMostInDemandJob, EconomyProduceAndPrice, EconomyTryTransact, IListing, IMarketReceipt, MarketListingSubtract } from '../../simulation/Economy'
 import { BuildingTypes, HexPoint, hex_to_pixel, OriginAccelerator, Point, polarToPoint } from '../../simulation/Geography'
@@ -17,15 +17,14 @@ import { EnterpriseType } from '../../simulation/Institutions'
 import { MarketTraitListing } from '../../simulation/MarketTraits'
 import { IPickup } from '../../simulation/Pickup'
 import { HasResearched, PlayerCanAfford, PlayerPurchase, PlayerTryPurchase, PlayerUseTraitGem, Tech } from '../../simulation/Player'
-import { BuildingTryFreeBean, GenerateIBuilding, IBuilding, IDwelling } from '../../simulation/RealEstate'
-import { GetSeedName } from '../../simulation/SeedGen'
+import { GenerateIBuilding, IBuilding, IDwelling } from '../../simulation/RealEstate'
 import { TicksPerDay } from '../../simulation/Time'
 import { ITitle } from '../../simulation/Titles'
 import { IUFO } from '../../simulation/Ufo'
 import { MathClamp } from '../../simulation/Utils'
 import { simulate_world, WorldAddEvent, WorldOnBeanDie } from '../../simulation/WorldSim'
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFaith, TraitGood } from '../../World'
-import { DistrictAddLots, GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat, GetRandomNumber } from '../../WorldGen'
+import { DistrictAddLots, GenerateBean, GenerateDistrictsAndLots, GetRandom, GetRandomCityName, GetRandomFloat } from '../../WorldGen'
 import { WorldSfxInstance } from '../../WorldSound'
 import { EntityAddToSlice } from '../entity.state'
 import { GetBlankWorldState, IWorldState } from './world'
@@ -63,7 +62,7 @@ export const worldSlice = createSlice({
         // GenerateIBuilding(state, city, 'nature', city.hexes[GetRandomNumber(state.seed, 26, 60)], state.economy);
       },
       loadGame: (state, action:PayloadAction<{newState: IWorldState}>) => {
-        action.payload.newState.beans.allIDs.map(k => {
+        action.payload.newState.beans.allIDs.forEach(k => {
           const bean = action.payload.newState.beans.byID[k];
           if (bean){
             MoverStoreInstance.UpdatePosition('bean', k, {
@@ -186,8 +185,8 @@ export const worldSlice = createSlice({
         const newBean = GenerateBean(state, state.cities.byID[0], undefined, ufo.hex);
         newBean.priorities = GetPriorities(newBean, state.seed, state.cities.byID[newBean.cityKey], state.alien.difficulty);
         delete state.ufos.byID[action.payload.ufoKey];
-        state.ufos.allIDs = state.ufos.allIDs.filter(x => x != action.payload.ufoKey);
-        state.cities.byID[ufo.cityKey].ufoKeys = state.cities.byID[ufo.cityKey].ufoKeys.filter(x => x != action.payload.ufoKey);
+        state.ufos.allIDs = state.ufos.allIDs.filter(x => x !== action.payload.ufoKey);
+        state.cities.byID[ufo.cityKey].ufoKeys = state.cities.byID[ufo.cityKey].ufoKeys.filter(x => x !== action.payload.ufoKey);
         
         state.beans.byID[newBean.key] = newBean;
         state.beans.allIDs.push(newBean.key);
@@ -209,7 +208,7 @@ export const worldSlice = createSlice({
               const building = state.buildings.byID[bean.employerEnterpriseKey];
               BuildingUnsetJob(building, bean);
             }
-            state.cities.byID[bean.cityKey].beanKeys = state.cities.byID[bean.cityKey].beanKeys.filter(x => x != bean.key);
+            state.cities.byID[bean.cityKey].beanKeys = state.cities.byID[bean.cityKey].beanKeys.filter(x => x !== bean.key);
             state.alien.abductedBeanKeys.push(bean.key);
           }
         }
@@ -310,7 +309,7 @@ export const worldSlice = createSlice({
         const bean = state.beans.byID[action.payload.beanKey];
         const sanityCostBonus = HasResearched(state.alien.techProgress, 'sanity_bonus') ? -1 : 0;
         if (BeanCanPurchase(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary, sanityCostBonus) && 
-          state.alien.beliefInventory.filter(x => x.trait == action.payload.trait && x.gems > 0)) {
+          state.alien.beliefInventory.filter(x => x.trait === action.payload.trait && x.gems > 0)) {
           bean.beliefs.push(action.payload.trait);
           PlayerUseTraitGem(state.alien, action.payload.trait);
           BeanLoseSanity(bean, state.alien.difficulty.cost.bean_brain.brainimplant_secondary.sanity || 0); 

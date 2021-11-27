@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { UFO } from "../simulation/City";
-import { hex_to_pixel, origin_point, transformPoint } from "../simulation/Geography";
+import { hex_to_pixel, transformPoint } from "../simulation/Geography";
 import { useAppSelector } from "../state/hooks";
 import { WorldSfxInstance } from "../WorldSound";
 
@@ -25,7 +24,7 @@ export const AnimatedUFO2:  React.FC<{
         ...transformPoint(hex_to_pixel(city.district_hex_size, city.petriOrigin, ufo.hex))
     };
     return <span style={style} className="ufo">
-        🛸
+        <span role="img" aria-label="saucer">🛸</span>
         {showBeam ? <span className="beam"></span> : null}
     </span>
 }

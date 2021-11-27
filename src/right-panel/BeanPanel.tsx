@@ -48,7 +48,7 @@ function beliefTable(beliefs: TraitBelief[]): React.ReactNode {
         const classes = 'belief-name shadow text-left '+SecondaryBeliefData[b].rarity;
         return <table className="width-100p" key={b+i}><tbody><tr>
         <th className={classes}>
-            {SecondaryBeliefData[b].icon} {SecondaryBeliefData[b].adj}
+            <span role="img" aria-label="icon">{SecondaryBeliefData[b].icon}</span> {SecondaryBeliefData[b].adj}
         </th>
         <td className="text-right">
             {(SecondaryBeliefData[b].idealPro || []).map(y => <span key={y}>+{TraitIcon[y]}</span>)}

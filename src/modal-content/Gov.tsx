@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Subtabs } from "../chrome/Subtab";
-import { SecondaryBeliefData } from "../simulation/Beliefs";
-import { AllCrimes, CrimeData, CrimeKey, CrimePunishment, IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
+import { CrimeData, CrimeKey, CrimePunishment, IsLaw, LawData, LawGroup, LawKey, PlayerCanSeePrereqs, PlayerKnowsPrereq, PlayerMeetsPrereqs, PrereqKey, PrereqString } from "../simulation/Government";
 import { BeliefInventory } from "../simulation/Player";
 import { enactLaw, repealLaw, setCrimeLegality } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
@@ -16,16 +15,16 @@ export const GovernmentPanel: React.FC<{
             <div>
                 <div className="horizontal blue-orange cylinder f-size-125em marg-t-20">
                     <button type="button" onClick={() => setView('Welfare')} className={view === 'Welfare' ? 'active' : ''}>
-                        🤲 Welfare
+                        <span role="img" aria-label="hands">🤲</span> Welfare
                     </button>
                     <button type="button" onClick={() => setView('Crime')} className={view === 'Crime' ? 'active' : ''}>
-                        🚨 Crime
+                        <span role="img" aria-label="siren">🚨</span> Crime
                     </button>
                     <button type="button" onClick={() => setView('Taxation')} className={view === 'Taxation' ? 'active' : ''}>
-                        💰 Taxes
+                        <span role="img" aria-label="cashbag">💰</span> Taxes
                     </button>
                     <button type="button" onClick={() => setView('funds')} className={view === 'funds' ? 'active' : ''}>
-                        💸 Funds
+                        <span role="img" aria-label="flyingmoney">💸</span> Funds
                     </button>
                 </div>
             </div>
@@ -196,7 +195,7 @@ export const LawFormula: React.FC<{
                     const has = PlayerKnowsPrereq(x, props.seenBeliefs);
                     const key = PrereqKey(x);
                     return !has ? <span className="law-formula-ingredient unknown" key={key}>
-                        ❔ Unknown
+                        <span role="img" aria-label="question">❔</span> Unknown
                     </span> : <span className="law-formula-ingredient" key={key}>
                         {PrereqString(x)}
                     </span>
@@ -205,10 +204,10 @@ export const LawFormula: React.FC<{
         </div>
         {
             props.enacted ? <button className="callout"  onClick={() => props.revokeLaw(props.id)}>
-                🗑️&nbsp;Revoke Active Law
+                <span role="img" aria-label="trash">🗑️</span>&nbsp;Revoke Active Law
             </button> : <button className="callout" disabled={!unlocked} onClick={() => props.enactLaw(props.id)}>
                 {
-                    unlocked ? '✒️' : <span className="grey">🔒</span>
+                    unlocked ? '✒️' : <span className="grey"><span role="img" aria-label="lock">🔒</span></span>
                 }
                 &nbsp;Enact
             </button>

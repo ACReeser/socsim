@@ -27,7 +27,7 @@ export const SocialGraph: React.FC<SocialGraphP> = (props) => {
                 <AnimatedBean beanKey={b} static={true} sitStill={true} cityKey={props.city.key}>
                 </AnimatedBean>
                 {
-                    scannedBeans[b] ? null : <span className="social-graph-unscanned prohibited-emoji">🛰️</span>
+                    scannedBeans[b] ? null : <span className="social-graph-unscanned prohibited-emoji"><span role="img" aria-label="satellite">🛰️</span></span>
                 }
             </div>)
         }

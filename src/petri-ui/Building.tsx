@@ -1,10 +1,8 @@
 
-import React, { ReactElement } from "react";
-import { ICity } from "../simulation/City";
-import { BuildingIcon, hex_directions, transformPoint, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes, BuildingToGood, polarToPoint } from "../simulation/Geography";
+import React from "react";
+import { BuildingIcon, hex_directions, hex_to_pixel, origin_point, HexPoint, BuildingJobIcon, UpgradedBuildingIcon, ILot, BuildingTypes, BuildingToGood, polarToPoint } from "../simulation/Geography";
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { IBuilding } from "../simulation/RealEstate";
-import { build } from "../state/features/world.reducer";
 import { useAppSelector } from "../state/hooks";
 import { GoodIcon, TraitGood } from "../World";
 import { GetRandom } from "../WorldGen";
@@ -84,7 +82,7 @@ export const PetriBuilding: React.FC<{
         {
             building.interredBeanKeys != null ? building.interredBeanKeys.map((x,i) => {
                 const p = polarToPoint({r: 40, az: (Math.PI/2) + (Math.PI*2*i/6)})
-                return <text x={center.x+p.x+10} y={center.y+p.y-10} style={{fontSize:'11px'}} key={x}>⚰️</text>
+                return <text x={center.x+p.x+10} y={center.y+p.y-10} style={{fontSize:'11px'}} key={x}><span role="img" aria-label="coffin">⚰️</span></text>
             }) : null
         }
     </>

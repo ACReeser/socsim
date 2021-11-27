@@ -62,7 +62,7 @@ export function BuildingMaximumJobs(b: IBuilding): number{
 
 export function BuildingTryFreeBean(b: IBuilding, beanKey: number): boolean{
     const oldLen = b.employeeBeanKeys.length;
-    b.employeeBeanKeys = b.employeeBeanKeys.filter(x => x != beanKey);
+    b.employeeBeanKeys = b.employeeBeanKeys.filter(x => x !== beanKey);
     return oldLen === b.employeeBeanKeys.length+1;
 }
 export function GenerateIBuilding(world: IWorldState, city: ICity, type: BuildingTypes, hex: HexPoint, point: Point, lotKey: number, econ: IEconomy): IBuilding{
@@ -114,7 +114,7 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     }
     const good = BuildingToGood[type];
     
-    if (good && good != 'fun')
+    if (good && good !== 'fun')
     {
         world.economy.market.listings[good].push({
             price: 1,

@@ -31,7 +31,7 @@ export const BeliefWidget: React.FC<{
                     }
                     {
                         props.cost ? 
-                        <span className="pull-r">{props.cost}🧠</span>
+                        <span className="pull-r">{props.cost}<span role="img" aria-label="brain">🧠</span></span>
                         : null
                     }
                 </div>
@@ -72,7 +72,7 @@ export const EditBeliefInput: React.FC<{
                     <strong title={props.data.description} className={props.divergent ? 'divergent marg-r-6': 'marg-r-6'}>
                         {props.data.noun}
                     </strong>
-                    <span className="pull-r">{props.cost}🧠</span>
+                    <span className="pull-r">{props.cost}<span role="img" aria-label="brain">🧠</span></span>
                 </div>
                 <small className="marg-b-6">{props.data.description}</small>
                 <div className="grow-1 text-center">
@@ -83,13 +83,13 @@ export const EditBeliefInput: React.FC<{
             {
                 props.frozen ? null : <ConfirmButton className="callout pad-4 marg-0"
                     confirmText={'-'+props.cost.toString()+'🧠?'} disabled={props.available < props.cost} onConfirm={props.wash}>
-                🚿 <small>Wash Out</small>
+                <span role="img" aria-label="shower">🚿</span> <small>Wash Out</small>
                 </ConfirmButton>
             }
             {
                 <ConfirmButton className="callout pad-4 marg-0"
                     confirmText={'-'+props.cost.toString()+'🧠?'} disabled={props.available < props.cost} onConfirm={props.extract}>
-                💎 <small>Copy to Gem</small>
+                <span role="img" aria-label="gem">💎</span> <small>Copy to Gem</small>
                 </ConfirmButton>
             }
         </div>

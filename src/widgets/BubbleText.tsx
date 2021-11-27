@@ -14,7 +14,7 @@ function useBubbles<T>(sub: PubSub<T>, transform: (input: T) => {string: string,
         }]));
         setTimeout(() => {
             setBubbles(
-                bubbles.filter((b) => b.id != id)
+                bubbles.filter((b) => b.id !== id)
             )
         }, 1500)
     }
@@ -57,7 +57,7 @@ export class BubbleNumberText extends React.Component<{
         });
         setTimeout(() => {
             this.setState({
-                bubbles: this.state.bubbles.filter((b) => b.id != id)
+                bubbles: this.state.bubbles.filter((b) => b.id !== id)
             })
         }, 1500)
     }

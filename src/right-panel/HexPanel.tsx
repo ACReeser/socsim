@@ -122,7 +122,7 @@ export const HexPanel: React.FC<{
     } else if (city && district){
         return <div>
         <div>
-            <strong>{DistrictTypeIcon[district.kind]} {DistrictTypeText[district.kind]} District</strong> in <strong>{city.name}</strong>
+            <strong><span role="img" aria-label="district">{DistrictTypeIcon[district.kind]}</span> {DistrictTypeText[district.kind]} District</strong> in <strong>{city.name}</strong>
             <button type="button" className="pull-r" onClick={() => dispatch(doSelectCity({cityKey: city.key}))} >❌</button>
         </div>
         {

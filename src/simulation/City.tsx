@@ -78,8 +78,8 @@ export function BeanLoseJob(bean: IBean, world: IWorldState){
     if (bean.employerEnterpriseKey != null){
         const building = world.buildings.byID[bean.employerEnterpriseKey];
         const enterprise = world.enterprises.byID[bean.employerEnterpriseKey];
-        if (enterprise.ownerBeanKey == bean.key){
-            enterprise.ownerBeanKey = building.employeeBeanKeys.find(x => x != bean.key);
+        if (enterprise.ownerBeanKey === bean.key){
+            enterprise.ownerBeanKey = building.employeeBeanKeys.find(x => x !== bean.key);
         }
         BuildingUnsetJob(building, bean);
     }
@@ -142,7 +142,7 @@ export function CityGetNearestNeighbors(city: ICity, source: IBean): number[]{
     if (!q)
         return [];
     return city.beanKeys.filter((bKey) => {
-        if (bKey == source.key) return false;
+        if (bKey === source.key) return false;
 
         const p = MoverStoreInstance.Get('bean', bKey).current;
         if (!p)

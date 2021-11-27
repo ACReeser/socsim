@@ -76,7 +76,7 @@ export const ResearchPanel: React.FC<{}> = () => {
   return <div>
       <div className="col-2">
         <div>
-          <h2>Research 🧪 Lab</h2>
+          <h2>Research <span role="img" aria-label="beaker">🧪</span> Lab</h2>
           <div className="vertical">
             {
               techs.map((t) => renderTech(t, techProgress, currentTech, (t) => dispatch(setResearch({t: t}))))

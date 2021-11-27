@@ -1,5 +1,10 @@
-body, html {margin: 0;}
+body, html {
+  margin: 0;
+  font-family: apple color emoji, segoe ui emoji, noto color emoji, android emoji, emojisymbols, emojione mozilla, twemoji mozilla, segoe ui symbol;
+
+}
 body, html, #root, .canvas, .world{height: 100%; width: 100%;}
+span[role=img]{font-weight: 100;}
 
 .canvas{
   overflow: hidden;
@@ -1100,6 +1105,7 @@ select:invalid { color: gray; }
   line-height: 1.25em;
   display: inline-block;
   font-style: normal;
+  font-weight: 100;
 }
 .trait-gem:before{
   position: absolute;

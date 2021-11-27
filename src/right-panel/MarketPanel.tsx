@@ -12,7 +12,7 @@ import { EmoteIcon } from "../World";
      const dispatch = useAppDispatch();
     return <div>
         <div className="text-center">
-            <strong>🌌 Galactic 😨 Emotion 💰 Market</strong>
+            <strong><span role="img" aria-label="galaxy">🌌</span> Galactic <span role="img" aria-label="scared">😨</span> Emotion <span role="img" aria-label="cashbag">💰</span> Market</strong>
         </div>
         <p>
             <small>

@@ -19,14 +19,14 @@ export const OverviewPanel: React.FC<OverviewPanelP> = (props) => {
     let header = <div>
         Human Emotion Farm
         <div>
-            <small>Part of the 🌌 Galactic Xenosensation Federation</small>
+            <small>Part of the <span role="img" aria-label="galaxy">🌌</span> Galactic Xenosensation Federation</small>
         </div>
     </div>;
     if (props.city) {
         header = <div>
             <div>
                 <b>{props.city.name}</b>
-                <button type="button" className="pull-r" onClick={() => props.clearCity()} >❌</button>
+                <button type="button" className="pull-r" onClick={() => props.clearCity()} ><span role="img" aria-label="x">❌</span></button>
             </div>
         </div>;
     }
@@ -49,7 +49,7 @@ export const OverviewPanel: React.FC<OverviewPanelP> = (props) => {
             <b>Avg. Happiness</b> {Math.round(avg_happy)}%
             {
                 beans && beans.length ? <>
-                    <div className="header"><b>🧠 Traits</b></div>
+                    <div className="header"><b><span role="img" aria-label="brain">🧠</span> Traits</b></div>
                     <div className="max-w-300">
                         { 
                             CityGetPopulationTraitsList(props.alien.scanned_bean, beans).map((v) => 

@@ -19,13 +19,13 @@ export const SocietyPanel: React.FC<{
         </div> */}
         <div className="subheader">
             <h2>
-                👑 Titles
+                <span role="img" aria-label="crown">👑</span> Titles
                 <button 
                     className="callout marg-0 pull-r"
                     onClick={() => {
                         dispatch(addTitle({}));
                     }}
-                >➕ Title</button>
+                ><span role="img" aria-label="plus">➕</span> Title</button>
             </h2>
         </div>
         <div className="title-row">
@@ -68,11 +68,11 @@ export const TitleEdit: React.FC<{
                     headwear: e.target.value as TitleHeadwear
                 })}>
                     <option value={undefined}>None</option>
-                    <option value='👑'>👑</option>
-                    <option value='👒'>👒</option>
-                    <option value='🎩'>🎩</option>
-                    <option value='🎓'>🎓</option>
-                    <option value='🧢'>🧢</option>
+                    <option value='👑'><span role="img" aria-label="crown">👑</span></option>
+                    <option value='👒'><span role="img" aria-label="hat">👒</span></option>
+                    <option value='🎩'><span role="img" aria-label="hat">🎩</span></option>
+                    <option value='🎓'><span role="img" aria-label="hat">🎓</span></option>
+                    <option value='🧢'><span role="img" aria-label="hat">🧢</span></option>
                 </select>
             </label>
             <label>
@@ -82,13 +82,13 @@ export const TitleEdit: React.FC<{
                     badge: e.target.value as TitleBadge
                 })}>
                     <option value={undefined}>None</option>
-                    <option value='⭐'>⭐</option>
-                    <option value='🛡️'>🛡️</option>
-                    <option value='⚖️'>⚖️</option>
-                    <option value='📋'>📋</option>
-                    <option value='🏅'>🏅</option>
-                    <option value='🎀'>🎀</option>
-                    <option value='🌸'>🌸</option>
+                    <option value='⭐'><span role="img" aria-label="badge">⭐</span></option>
+                    <option value='🛡️'><span role="img" aria-label="badge">🛡️</span></option>
+                    <option value='⚖️'><span role="img" aria-label="badge">⚖️</span></option>
+                    <option value='📋'><span role="img" aria-label="badge">📋</span></option>
+                    <option value='🏅'><span role="img" aria-label="badge">🏅</span></option>
+                    <option value='🎀'><span role="img" aria-label="badge">🎀</span></option>
+                    <option value='🌸'><span role="img" aria-label="badge">🌸</span></option>
                 </select>
             </label>
         </div>

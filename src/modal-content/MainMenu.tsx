@@ -9,24 +9,24 @@ export const MainMenu: React.FC<{
     const continueID = GameStorageInstance.HasContinueGame();
     const slots = GameStorageInstance.GetGameSlots();
     return <div>
-        <h1 className="text-center">👽 Alien 🌍 Utopia 🔬 Lab</h1>
+        <h1 className="text-center"><span role="img" aria-label="alien">👽</span> Alien <span role="img" aria-label="globe">🌍</span> Utopia <span role="img" aria-label="microscope">🔬</span> Lab</h1>
         {
             (view === 'main') ? <div>
                 {
                     continueID != null ? <div className="text-center">
                         <button className="callout button f-size-15em" onClick={() => props.loadGame(continueID)}>
-                        🧫 Continue Game
+                        <span role="img" aria-label="petridish">🧫</span> Continue Game
                         </button>
                     </div>: null
                 }
                 <div className="text-center">
                     <button className="callout button f-size-15em" onClick={() => props.startGame()}>
-                    🛸 Start New Game
+                    <span role="img" aria-label="flyingsaucer">🛸</span> Start New Game
                     </button>
                 </div>
                 <div className="text-center">
                     <button className="callout button f-size-15em" onClick={() => setView('showslots')} disabled={slots.every(x => x.brief == null)}>
-                    🗂️ Load Game
+                    <span role="img" aria-label="folder">🗂️</span> Load Game
                     </button>
                 </div>
             </div> : <div className="card-parent vertical load-menu pad-4p">

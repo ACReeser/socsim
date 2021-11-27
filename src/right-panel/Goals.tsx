@@ -1,13 +1,13 @@
 import React from "react";
-import { DefaultDifficulty, triadToString } from "../Game";
-import { Curriculums, GetAverage, Goals, IGoal, IGoalProgress, IPlayerData, IProgressable } from "../simulation/Player";
+import { triadToString } from "../Game";
+import { Curriculums, GetAverage, Goals, IGoal, IGoalProgress } from "../simulation/Player";
 import { useAppSelector } from "../state/hooks";
 
 
 function renderReward(g: IGoal){
   return <div>
     <small>
-    🎁 {triadToString(g.reward || {}, '+')}
+    <span role="img" aria-label="gift">🎁</span> {triadToString(g.reward || {}, '+')}
     </small>
   </div>
 }
@@ -44,7 +44,7 @@ export const GoalsPanel: React.FC = () => {
     <table style={{margin: 'auto'}}>
       <tbody>
         <tr>
-          <th>🎯 Happiness
+          <th><span role="img" aria-label="target">🎯</span> Happiness
           </th>
           <td>
             {workingReportCard.Happiness}
@@ -61,7 +61,7 @@ export const GoalsPanel: React.FC = () => {
           </td>
         </tr>
         <tr>
-          <th>🎯 Prosperity</th>
+          <th><span role="img" aria-label="target">🎯</span> Prosperity</th>
           <td>
             {workingReportCard.Prosperity}
           </td>
@@ -75,7 +75,7 @@ export const GoalsPanel: React.FC = () => {
           </td>
         </tr>
         <tr>
-          <th>🎯 Stability
+          <th><span role="img" aria-label="target">🎯</span> Stability
           </th>
           <td>
             {workingReportCard.Stability}
@@ -90,7 +90,7 @@ export const GoalsPanel: React.FC = () => {
           </td>
         </tr>
         <tr>
-          <th>🎯 Dogma
+          <th><span role="img" aria-label="target">🎯</span> Dogma
           </th>
           <td>
             {workingReportCard.Dogma}

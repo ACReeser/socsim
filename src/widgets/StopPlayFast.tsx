@@ -7,10 +7,10 @@ export class StopPlayFastButtons extends React.Component<{
 }>{
     render(){
         return <div className="s-p-f button-group cylinder blue-orange">
-            ⌛️
-            <button type="button" className={this.props.timeScale == 0 ? 'active': ''} onClick={() => this.props.setTimeScale(0)}>⏹</button>
-            <button type="button" className={this.props.timeScale == 1 ? 'active': ''} onClick={() => this.props.setTimeScale(1)}>▶️</button>
-            <button type="button" className={this.props.timeScale == 2 ? 'active': ''} onClick={() => this.props.setTimeScale(2)}>⏩</button>
+            <span role="img" aria-label="hourglass">⌛️</span>
+            <button type="button" className={this.props.timeScale == 0 ? 'active': ''} onClick={() => this.props.setTimeScale(0)}><span role="img" aria-label="stop">⏹</span></button>
+            <button type="button" className={this.props.timeScale == 1 ? 'active': ''} onClick={() => this.props.setTimeScale(1)}><span role="img" aria-label="play">▶️</span></button>
+            <button type="button" className={this.props.timeScale == 2 ? 'active': ''} onClick={() => this.props.setTimeScale(2)}><span role="img" aria-label="fastforward">⏩</span></button>
         </div>
     }
 }

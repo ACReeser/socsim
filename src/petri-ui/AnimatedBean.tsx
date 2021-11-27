@@ -14,7 +14,7 @@ interface AnimatedBeanP {
 }
 
 function BeanIsBuying(bean: IBean){
-  return bean.actionData.act == 'buy';
+  return bean.actionData.act === 'buy';
 }
 
 export const selectBeanAnimation = (state: RootState, beanKey: number) => {
@@ -24,7 +24,7 @@ export const selectBeanAnimation = (state: RootState, beanKey: number) => {
     speech: BeanGetSpeech(bean),
     face: BeanGetFace(bean),
     good: BeanIsBuying(bean) ? GoodIcon[bean.actionData.good || 'food'] : undefined,
-    classes: [bean.job, bean.ethnicity, bean.actionData.act != 'travel' || bean.lifecycle === 'dead' ? 'paused' : '', ].join(' '),
+    classes: [bean.job, bean.ethnicity, bean.actionData.act !== 'travel' || bean.lifecycle === 'dead' ? 'paused' : '', ].join(' '),
     animationClasses: ['bean-walker', working ? 'spin' : '', ].join(' '),
     badge: bean.badge,
     hat: bean.hat
@@ -42,7 +42,7 @@ export const AnimatedBean: React.FC<AnimatedBeanP> = (props) => {
       onClick={(e) => {e.stopPropagation(); dispatch(doSelectBean({cityKey: props.cityKey, beanKey: props.beanKey})) }}
     >
       {state.badge ? <span className={"badge "+state.badge}>{state.badge}</span>: null}{state.face} {state.good ? <span className="purchase">
-        <span className="money">💸</span>
+        <span className="money"><span role="img" aria-label="flyingmoney">💸</span></span>
         <span className="purchase-good">{state.good}</span>
       </span>: null} {state.speech ? <span className="speech">
         <span className="">{state.speech}</span>

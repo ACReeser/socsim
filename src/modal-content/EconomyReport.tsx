@@ -40,7 +40,7 @@ export const EconomyReport: React.FC<{}> = () => {
       obj[b.job] = (obj[b.job] || 0)+1;
       return obj;
     }, {} as {[key in TraitJob]: number});
-    const unemployed = (((jobs.jobless || 0) / beans.length)*100).toFixed(1);
+    const unemployed =  beans.length ? (((jobs.jobless || 0) / beans.length)*100).toFixed(1) : 0;
     function reducer(obj:  {supply: number, price: number, avg: number, count: number}, l: IListing){
       obj.supply += l.quantity;
       obj.price += l.price;
@@ -60,7 +60,7 @@ export const EconomyReport: React.FC<{}> = () => {
         </div> */}
         <div className="col-2">
           <div>
-            <strong>🍞 Food Security</strong>
+            <strong><span role="img" aria-label="bread">🍞</span> Food Security</strong>
             <NeedReadout beans={beans} need={(b) => b.food} dire="hungry" abundant="stuffed" className="big"></NeedReadout>
             <table className="width-100p">
               <tbody>
@@ -77,7 +77,7 @@ export const EconomyReport: React.FC<{}> = () => {
             </table>
           </div>
           <div>
-            <strong>🩺 Healthcare</strong>
+            <strong><span role="img" aria-label="stethoscope">🩺</span> Healthcare</strong>
             <NeedReadout beans={beans} need={(b) => b.health} dire="sick" abundant="fresh" className="big"></NeedReadout>
             <table className="width-100p">
               <tbody>
@@ -96,7 +96,7 @@ export const EconomyReport: React.FC<{}> = () => {
         </div>
         <div className="col-2">
           <div>
-            <strong>🏡 Housing</strong> <br/>
+            <strong><span role="img" aria-label="house">🏡</span> Housing</strong> <br/>
             <NeedReadout beans={beans} need={(b) => b.housing} dire="homeless" abundant="housed" className="big"></NeedReadout>
             <table className="width-100p">
               <tbody>
@@ -117,7 +117,7 @@ export const EconomyReport: React.FC<{}> = () => {
         </div> */}
         <div className="col-2">
           <div>
-            <strong>💰 Wealth</strong> <br/>
+            <strong><span role="img" aria-label="cashbag">💰</span> Wealth</strong> <br/>
             {wealth_dire} penniless citizens &nbsp; &nbsp; Cost of Living: ${GetCostOfLiving(economy).toFixed(2)} <br/>
             <table className="width-100p">
               <tbody>
@@ -135,7 +135,7 @@ export const EconomyReport: React.FC<{}> = () => {
             Top {wealthy_percentage.toFixed(1)}% of subjects own {wealthy_ownership.toFixed(1)}% of the wealth
           </div>
           <span>
-            <strong>Unemployment</strong> {unemployed}% ({jobs.jobless})<br/>
+            <strong><span role="img" aria-label="newspaper">📰</span> Unemployment</strong> {unemployed}% ({jobs.jobless})<br/>
             <ul className="boxes">
               <li>{jobs.farmer || 0} farmers</li>
               <li>{jobs.builder || 0} builders</li>

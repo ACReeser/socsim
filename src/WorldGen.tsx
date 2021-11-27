@@ -3,7 +3,6 @@ import { RandomBeliefBucket } from './simulation/Beliefs';
 import { ICity } from './simulation/City';
 import { BuildingTypes, GenerateGeography, HexPoint, hex_to_pixel, IDistrict, ILot, LotHexSizePX, PolarPoint } from './simulation/Geography';
 import { IDate } from './simulation/Time';
-import { IWorldState } from './state/features/world';
 import { TraitCommunity, TraitEthno, TraitFaith, TraitIdeals, TraitJob } from './World';
 import Rand, {PRNG} from 'rand-seed';
 import { CreateEntitySlice, EntityAddToSlice, IEntitySlice } from './state/entity.state';

@@ -1,17 +1,15 @@
 import { AnyAction } from "@reduxjs/toolkit";
 import { IDifficulty } from "../Game";
-import { MoverStoreInstance as MoverStoreInstance } from "../MoverStoreSingleton";
-import { getRandomSlotOffset } from "../petri-ui/Building";
+import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { IWorldState } from "../state/features/world";
 import { beanArrest, beanBePersuaded, beanBuy, beanCrime, beanEmote, beanHitDestination, beanRelax, beanWork, changeState } from "../state/features/world.reducer";
-import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEmote, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitHousing, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
+import { BeanPhysics, GoodIcon, JobToGood, TraitCommunity, TraitEthno, TraitFaith, TraitFood, TraitGood, TraitHealth, TraitHousing, TraitIdeals, TraitJob, TraitSanity, TraitStamina } from "../World";
 import { GetRandomNumber } from "../WorldGen";
-import { WorldSfxInstance } from "../WorldSound";
-import { BeanBelievesIn, BeanEmote, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
+import { BeanBelievesIn, BeanGetRandomChat, BeanMaybeChat, BeanMaybeCrime, BeanMaybeParanoid, BeanMaybePersuaded, BeanMaybeScarcity } from "./Bean";
 import { HedonExtremes, HedonReport, HedonSourceToVal, TraitBelief } from "./Beliefs";
 import { CityGetNearestNeighbors, CityGetRandomBuildingOfType, CityGetRandomEntertainmentBuilding, CityGetRandomHomelessSleepingBuilding, ICity } from "./City";
 import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
-import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, ILot, JobToBuilding, OriginAccelerator, pixel_to_hex, Point, point_normalize } from "./Geography";
+import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, JobToBuilding, OriginAccelerator, pixel_to_hex, Point, point_normalize } from "./Geography";
 import { CrimeKey } from "./Government";
 import { IBuilding } from "./RealEstate";
 import { IDate } from "./Time";
@@ -535,14 +533,14 @@ function SubstituteIntent(bean: IBean, world: IWorldState, intent: IActivityData
 }|undefined{
     if (intent.act === 'buy' && intent.good != null){
         const desiredGoodState = EconomyCanBuy(world.economy, world.law, bean, intent.good);
-        if (desiredGoodState != 'yes' && intent.good === 'fun'){ //if you can't buy happiness, go somewhere to relax{
+        if (desiredGoodState !== 'yes' && intent.good === 'fun'){ //if you can't buy happiness, go somewhere to relax{
             return {
                 intent: {
                     act: 'relax'
                 }
             }
         } else if (desiredGoodState === 'pricedout') {
-            if ((intent.good == 'food' || intent.good == 'medicine') && BeanMaybeCrime(bean, world.seed, intent.good)){
+            if ((intent.good === 'food' || intent.good === 'medicine') && BeanMaybeCrime(bean, world.seed, intent.good)){
                 return {
                     intent: {
                         act: 'crime',
@@ -583,6 +581,7 @@ export function IntentToDestination(agent: IBean, city: ICity, intent: IActivity
         case 'buy':
             if (intent.good)
                 return RouteRandomBuildingOfType(city, world, agent, GoodToBuilding[intent.good]);
+            break;
         case 'sleep': {
             if (agent.dwellingKey !== undefined){
                 const dwelling = world.dwellings.byID[agent.dwellingKey];
@@ -636,7 +635,7 @@ const WanderlustEmoteChance = 0.002;
 export const GetPriority = {
     work: function(bean: IBean, seed: string, city: ICity): number{
         const deviation = BeanBelievesIn(bean, 'Delirium') ? StatsNormalDev*2 : StatsNormalDev;
-        if (bean.job == 'jobless' || BeanBelievesIn(bean, 'Catatonia')){
+        if (bean.job === 'jobless' || BeanBelievesIn(bean, 'Catatonia')){
             return 0;
         }
         else if (bean.cash === 0){

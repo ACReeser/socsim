@@ -1,7 +1,6 @@
 import { IEvent } from "../events/Events";
 import { BeanResources, IDifficulty } from "../Game";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
-import { IWorldState } from "../state/features/world";
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFood, TraitGood, TraitHealth, TraitSanity, TraitStamina } from "../World";
 import { GetRandom, GetRandomFloat, GetRandomNumber, GetRandomRoll } from "../WorldGen";
 import { IBean, IChatData } from "./Agent";
@@ -187,7 +186,7 @@ export function BeanGetRandomChat(bean: IBean, seed: string, findNeedy: () => IB
 }
 
 export function BeanAge(bean: IBean, seed: string, diff: IDifficulty): {death?: IEvent, emotes?: IPickup[]}|undefined {
-    if (bean.lifecycle != 'alive') return undefined;
+    if (bean.lifecycle !== 'alive') return undefined;
     const emotes: IPickup[] = [];
 
     const wasNotHungry = bean.food !== 'starving';

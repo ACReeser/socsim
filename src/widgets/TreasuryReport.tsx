@@ -9,7 +9,7 @@ export const TreasuryReport: React.FC<{
 
     return <div className="pad-4p">
         <div>
-            <strong>💰 Treasury: {coin.toFixed(2)}</strong>
+            <strong><span role="img" aria-label="cashbag">💰</span> Treasury: {coin.toFixed(2)}</strong>
         </div>
     </div>
 }
