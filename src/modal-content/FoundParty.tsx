@@ -42,7 +42,7 @@ export class FoundParty extends React.Component<FoundPartyPS, FoundPartyS> {
     onBigFourChange(){
         if (this.state.community === 'ego' && this.state.ideal === 'trad'){
             this.setState({
-                name: 'Arcadia',
+                name: 'Arcadia ',
                 slogan: "A man belongs on the farm.",
                 members: "Farmers", goal: "Tariffs"});
         } else if (this.state.community === 'ego' && this.state.ideal === 'prog') {
