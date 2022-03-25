@@ -10,7 +10,7 @@ import { GenerateBean, GetRandom } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
 import { BeanActions, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
-import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs, BeanEmote } from "./Bean";
+import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs, BeanEmote, BeanCreateActivityClock } from "./Bean";
 import { BeanTryFindJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
 import { BeanLoseJob, CalculateCityComputed } from "./City";
@@ -186,6 +186,7 @@ export function simulate_every_day(world: IWorldState){
             x.hedonHistory.pop();
         }
         x.hedonHistory.unshift({});
+        x.actionClock = BeanCreateActivityClock(x, world.seed);
     });
 }
 export function simulate_every_other_tick(world: IWorldState){

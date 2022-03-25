@@ -8,6 +8,8 @@ export class CostSmall extends React.Component<{
 }>{
 
     render(){
+        if (this.props.cost == null)
+            return "No Cost";
         return <small>
             {triadToString(this.props.cost, '-', this.props.qty)} {this.props.rider}
         </small>

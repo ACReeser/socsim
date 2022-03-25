@@ -24,7 +24,38 @@ export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|
  export type Travel = 'cruise'|'approach';
  */
 
-export type RecreationActivity = 'performance'|'artistry'|'sport'|'music'|'outdoors';
+export type RecreationActivity = 'performance'|'artistry'|'sport'|'game'|'relax';
+export type RecPerformType = 'sing'|'dance'|'act'|'drum'|'guitar'|'piano'|'horn';
+export type RecArtType = 'paint'|'write'|'sculpt';
+export type RecSportType = 'soccer'|'basketball'|'hockey'|'tennis'|'baseball'|'cricket';
+export type RecGameType = 'chess'|'cards'|'mahjong';
+export type RecRelaxType = 'watch'|'read'|'hike'|'swim'|'fish';
+
+export enum ActivityPeriod {
+    Rest = 1,
+    Chores = 2,
+    Work = 3,
+    Play = 4
+};
+
+export const ActivityPeriodMetadata = {
+    [ActivityPeriod.Rest]: {
+        icon: '💤',
+        class: 'a-p-rest',
+    },
+    [ActivityPeriod.Chores]: {
+        icon: '🛍️',
+        class: 'a-p-chores',
+    },
+    [ActivityPeriod.Work]: {
+        icon: '💪',
+        class: 'a-p-work',
+    },
+    [ActivityPeriod.Play]: {
+        icon: '⚽',
+        class: 'a-p-play',
+    }
+}
 
 
 // 🎤 🩰 🎭
@@ -37,13 +68,11 @@ export type RecreationActivity = 'performance'|'artistry'|'sport'|'music'|'outdo
 export interface IActivityData {
     act: Act;
     elapsed?: number;
-    // location?: Point, //FROM Point
     destinations?: Point[]; //point to travel to??
     destinationIndex?: number; //which point are we heading towards
     intent?: IActivityData; //when travelling, what do you intend to do next
     good?: TraitGood; //good to buy or work
     crimeGood?: 'food'|'medicine';
-    // travel?: Travel;
     chat?: IChatData;
     buyAttempts?: number;
     buyReceipt?: IMarketReceipt;
@@ -82,7 +111,8 @@ export interface IBeanAgent{
     key: number;
     action: Act;
     actionData: IActivityData;
-    priorities: IPrioritizedActivityData[]
+    priorities: IPrioritizedActivityData[];
+    actionClock: ActivityPeriod[]
 }
 export interface StateFunctions {
     enter: (agent: IBean) => AnyAction|undefined;
@@ -763,6 +793,7 @@ export interface IBean extends ISeller, IBeanAgent{
     sanity: TraitSanity;
     beliefs: TraitBelief[];
     lifecycle: 'alive'|'dead'|'abducted'|'incarcerated',
+    deathCause?: string,
     hedonHistory: HedonSourceToVal[],
     job: TraitJob,
     happiness: HedonReport,

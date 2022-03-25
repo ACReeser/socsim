@@ -1,9 +1,15 @@
 import { IWorldState } from "../state/features/world";
+import { ActivityPeriod } from "./Agent";
 
 export enum Season {Spring, Summer, Fall, Winter}
-export const TicksPerHour = 2;
-export const TicksPerDay = TicksPerHour * 4;
-export enum PartOfDay {Midnight = 0, Morning = TicksPerHour, Noon = TicksPerHour*2, Evening = TicksPerHour*3}
+export const TicksPerPeriod = 3;
+export const TicksPerDay = TicksPerPeriod * 4;
+export enum PartOfDay {
+    Midnight = 0, 
+    Morning = TicksPerPeriod, 
+    Noon = TicksPerPeriod*2, 
+    Evening = TicksPerPeriod*3
+}
 
 export interface IDate{
     day: number;
@@ -12,7 +18,7 @@ export interface IDate{
     /**
      * analogous to ticks
      * 
-     * zero based, ranges from 0 to `HoursPerDay -1`
+     * zero based, ranges from 0 to `TicksPerDay -1`
      */
     hour: number;
 }

@@ -1,35 +1,86 @@
-.fancy-header{
+.modal {
+    width: 60vw;
+    height: 60vh;
+    position: fixed;
+    top: 20%;
+    left: 20%;
+    background: white;
+    border-radius: 7px;
+    border: 1px solid rgba(0, 0, 0, 0.75);
+    box-shadow: 3px 3px 15px 15px rgba(0, 0, 0, .5);
+    pointer-events: all;
+    z-index: 1;
+}
+
+@media screen and (max-width: 575px) {
+    .modal {
+        width: 90vw;
+        height: 80vh;
+        left: 5%;
+        top: 10%;
+        overflow-y: auto;
+    }
+    .modal .col-2 {
+        flex-direction: column;
+        padding: 4px;
+    }
+    .modal .col-2>* {
+        width: 100%;
+        margin-left: 0;
+    }
+}
+
+.modal button.done {
+    float: right;
+}
+
+.modal.modal-tiny {
+    width: 30vw;
+    height: 30vh;
+    top: 35%;
+    left: 35%;
+}
+
+.fancy-header {
     font-size: 1.2em;
     text-align: center;
     font-weight: bold;
     padding-top: 1em;
 }
-table.trait-measure{
+
+table.trait-measure {
     border-collapse: collapse;
 }
-.trait-measure td{
+
+.trait-measure td {
     min-width: 1em;
 }
-.trait-measure small{
+
+.trait-measure small {
     font-size: 8px;
     font-weight: normal;
 }
-.trait-measure td.set-1{
+
+.trait-measure td.set-1 {
     background-color: rgba(255, 0, 0, .5);
     line-height: 9px;
 }
-.trait-measure td.set-2{
+
+.trait-measure td.set-2 {
     background-color: rgba(255, 153, 0, 0.5);
     line-height: 9px
 }
-.trait-measure td.set-3{
+
+.trait-measure td.set-3 {
     background-color: rgba(251, 255, 0, 0.5);
     line-height: 9px
 }
-.trait-measure td.set-4{
+
+.trait-measure td.set-4 {
     background-color: rgba(0, 238, 0, 0.5);
     line-height: 9px
 }
-.grey{
+
+.grey {
     filter: grayscale(1);
 }

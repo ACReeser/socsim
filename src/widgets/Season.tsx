@@ -14,6 +14,6 @@ function SeasonHour(hour: number){
 export const SeasonWidget: React.FC = () => {
     const date = useAppSelector(s => s.world.date)
     return <span>
-        &nbsp;Year {date.year},&nbsp;{Season[date.season]} {date.day} {SeasonHour(date.hour)}
+        &nbsp;<span className="hide-mobile">Year</span><span className="show-mobile-inline">Y</span> {date.year},&nbsp;{Season[date.season]} {date.day} {SeasonHour(date.hour)}
     </span>
 }

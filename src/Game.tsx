@@ -24,6 +24,7 @@ export interface BeanResources{
 export type BeanDeathCause = 'vaporization'|'exposure'|'starvation'|'sickness';
 export function triadToString(cost: PlayerResources, sign: '+'|''|'-', qty: number = 1){
     const costs = [];
+
     if (cost.energy){
         costs.push(sign+(cost.energy*qty)+' Energy');
     }

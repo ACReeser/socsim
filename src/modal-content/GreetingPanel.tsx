@@ -10,7 +10,7 @@ export const GreetingPanel: React.FC<{
             <div>
                 <h3>Welcome to the</h3>
                 <h2><span role="img" aria-label="alien">👽</span> Alien <span role="img" aria-label="globe">🌍</span> Utopia <span role="img" aria-label="microscope">🔬</span> Laboratory</h2>
-                <div> emoji 
+                <div>
                     Thank you for joining the <select><option>Human</option></select> Cultivation Division of the <strong><span role="img" aria-label="galaxy">🌌</span>&nbsp;Galactic Xenosensation Federation!</strong> Interdimensional petri dish <span style={{whiteSpace:'nowrap'}}>#<input type="text" value={props.seed} onChange={(e) => props.changeSeed(e.currentTarget.value)} maxLength={19} style={{width:'115px', fontFamily:'monospace', fontSize:'11px'}} /></span> is ready for farming.
                 </div>
                 <p>
@@ -55,7 +55,7 @@ export const GreetingPanel: React.FC<{
                     </li>
                 </ul>
                 <h3>
-                    <span role="img" aria-label="galaxy">pipette</span> Galactic Xenosensation Federation <br/>
+                    <span role="img" aria-label="galaxy">🌌</span> Galactic Xenosensation Federation <br/>
                     <div className="text-right">
                         <small>
                         {/* <i>THE market leader in corporeal sensations.</i> */}

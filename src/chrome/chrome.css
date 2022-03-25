@@ -1,28 +1,34 @@
-
 .overlay {
     display: flex;
     height: 100%;
     width: 100%;
     position: fixed;
-    left: 0; top: 0;
+    left: 0;
+    top: 0;
     pointer-events: none;
-  }
-  .overlay button, .overlay a{
+}
+
+.overlay button,
+.overlay a {
     pointer-events: all;
-  }
-  .left{
+}
+
+.left {
     flex-grow: 2;
     display: flex;
     flex-direction: column;
-  }
-  .right {
+}
+
+.right {
     background: hsla(187, 100%, 57%, .5);
     /* background: hsla(16, 100%, 50%, .5); */
     min-width: 300px;
     height: 100%;
-  }
-  .right-panel{
-    display: inline-block; /*removes gap between this and sibling*/
+}
+
+.right-panel {
+    display: inline-block;
+    /*removes gap between this and sibling*/
     background: hsla(187, 100%, 90%, .8);
     margin: 4px;
     padding: 0px 2px 2px 2px;
@@ -30,70 +36,107 @@
     opacity: .99;
     min-width: 300px;
     height: calc(100% - 62px);
-  }
-  .right-panel .tall{
+}
+
+.right-panel .tall {
     height: 3em;
     max-width: 280px;
-  }
-  .events-panel{
+}
+
+.events-panel {
     max-height: 100%;
     overflow: auto;
     pointer-events: all;
-  }
-  .top{
-      display: flex;
+}
+
+.top {
+    display: flex;
     height: 2em;
     width: 100%;
     justify-content: space-between;
-  }
-  .top > span:first-child{
+}
+
+.top>span:first-child {
     flex-direction: column-reverse;
-  }
-  .top > button, .top > span{
+}
+
+.top>button,
+.top>span {
     margin-left: 8px;
     padding: 4px;
+}
 
-  }
-  .top > span{
-      border-radius: 4px;
-      background: hsla(187, 100%, 57%, .5);
-      color: white;
-  }
-  .top > button {
-      height: 2.4em;
-      margin-top: 0
-  }
-  
-.full-width-tabs{
-  display: flex;
+.top>span {
+    border-radius: 4px;
+    background: hsla(187, 100%, 57%, .5);
+    color: white;
 }
-.overlay .full-width-tabs > button{
-  flex-grow: 1;
-  margin: 0;
-  height: 3em;
+
+.top>button {
+    height: 2.4em;
+    margin-top: 0
 }
-  .bottom{
+
+@media screen and (min-width: 575px) {
+    .game-name>.a::after {
+        content: "Alien";
+    }
+    .game-name>.u::after {
+        content: "Utopia";
+    }
+    .game-name>.l::after {
+        content: "Lab";
+    }
+}
+
+@media screen and (max-width: 575px) {
+    .game-name>.a::after {
+        content: "A";
+    }
+    .game-name>.u::after {
+        content: "U";
+    }
+    .game-name>.l::after {
+        content: "L";
+    }
+}
+
+.full-width-tabs {
+    display: flex;
+}
+
+.overlay .full-width-tabs>button {
+    flex-grow: 1;
+    margin: 0;
+    height: 3em;
+}
+
+.bottom {
     margin-top: auto;
-    height: 4em; width: 100%;
+    height: 4em;
+    width: 100%;
     background: hsla(187, 100%, 57%, .5);
     display: flex;
     justify-content: space-between;
-  }
-  .bottom button{
+}
+
+.bottom button {
     height: 44px;
     margin: 2px;
-  }
+}
 
-.modal-scroll-v{
-  max-height: 50vh;
-  overflow-y: auto;
+.modal-scroll-v {
+    max-height: 50vh;
+    overflow-y: auto;
 }
-.modal-scroll-h{
-  max-width: 50vw;
-  overflow-x: auto;
+
+.modal-scroll-h {
+    max-width: 50vw;
+    overflow-x: auto;
 }
-.sticky-t-0{
-  position: sticky;
-  top: 0;
-  background: white;
+
+.sticky-t-0 {
+    position: sticky;
+    top: 0;
+    background: white;
 }

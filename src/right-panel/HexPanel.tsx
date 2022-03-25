@@ -15,6 +15,7 @@ import { doSelectCity, doSelectDistrict, doSelectNone } from "../state/features/
 import { BuildingJobSlot } from "../simulation/Occupation";
 import { GoodIcon, TraitGood } from "../World";
 import { DwellingList } from "./DwellingList";
+import { Gravesites } from "./Gravesites";
 
 export const BeamButton: React.FC<{
     city: number,
@@ -238,6 +239,9 @@ export const HexBuildingPanel: React.FC<{
                 </button>
             </div>
         </div>
+    }
+    {
+        b.interredBeanKeys ? <Gravesites interredBeanKeys={b.interredBeanKeys}></Gravesites> : null
     }
     <BeamButton city={props.city.key} difficulty={props.difficulty} hex={props.hex}></BeamButton>
     </div>

@@ -2,8 +2,8 @@ import { IEvent } from "../events/Events";
 import { BeanResources, IDifficulty } from "../Game";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFood, TraitGood, TraitHealth, TraitSanity, TraitStamina } from "../World";
-import { GetRandom, GetRandomFloat, GetRandomNumber, GetRandomRoll } from "../WorldGen";
-import { IBean, IChatData } from "./Agent";
+import { GetRandom, GetRandomFloat, GetRandomNumber, GetRandomRoll, GetRandomShuffle } from "../WorldGen";
+import { ActivityPeriod, IBean, IChatData } from "./Agent";
 import { GetInsanityFromBrainwashing, InsanityTraits, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { GetFairGoodPrice, IEconomy } from "./Economy";
 import { OriginAccelerator } from "./Geography";
@@ -341,6 +341,7 @@ export function BeanMaybeDie(bean: IBean, seed: string, cause: string, isDire: b
 }
 export function BeanDie(bean: IBean, seed: string, cause: string): {death: IEvent, emotes: IPickup[]}{
     bean.lifecycle = 'dead';
+    bean.deathCause = cause;
     const pains = GetRandomNumber(seed, 2, 3);
     const emotes = (new Array(pains)).map(
         x => GenerateEmoteFromBean(bean, 'hate')
@@ -457,4 +458,17 @@ export function BeanDidWitnessCrime(bean: IBean, seed: string, perpBeanKey: numb
     if (BeanBelievesIn(bean, 'Authority'))
         chance += 0.25;
     return GetRandomFloat(seed) <= chance;
+}
+
+export function BeanCreateActivityClock(bean: IBean, seed: string): ActivityPeriod[]{
+    const clock: ActivityPeriod[] = GetRandomShuffle(seed, [ActivityPeriod.Chores, ActivityPeriod.Work, ActivityPeriod.Play]);
+    const normSleep = GetRandomRoll(seed, 0.75);
+    if (normSleep){
+        clock.unshift(ActivityPeriod.Rest);
+    } else {
+        clock.unshift(
+            GetRandom(seed, [ActivityPeriod.Chores, ActivityPeriod.Work, ActivityPeriod.Play])
+        );
+    }
+    return clock;
 }

@@ -6,6 +6,7 @@ import { IDate } from './simulation/Time';
 import { TraitCommunity, TraitEthno, TraitFaith, TraitIdeals, TraitJob } from './World';
 import Rand, {PRNG} from 'rand-seed';
 import { CreateEntitySlice, EntityAddToSlice, IEntitySlice } from './state/entity.state';
+import { BeanCreateActivityClock } from './simulation/Bean';
 
 const EnterpriseStartingListing = 1;
 const MaxNumBeanTraitsOnGenerate = 3;
@@ -48,6 +49,17 @@ export function GetRandomRoll(seed: string, chance: number): boolean{
     const randomNumber = GetRandomFloat(seed);
     //console.log(`DC ${(chance*100).toFixed(3)} rolled ${(randomNumber*100).toFixed(4)}`);
     return randomNumber <= chance;
+}
+
+export function GetRandomShuffle<T>(seed: string, deck: Array<T>){
+    let j: number, x: T, i: number;
+    for (i = deck.length - 1; i > 0; i--) {
+        j = Math.floor(GetRandomFloat(seed) * (i + 1));
+        x = deck[i];
+        deck[i] = deck[j];
+        deck[j] = x;
+    }
+    return deck;
 }
 
 /**
@@ -211,6 +223,7 @@ export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: 
         lastChatMS: 0,
         action: 'idle',
         actionData: {act: 'idle'},
+        actionClock: [],
         activity_duration: {'buy': 0, 'chat': 0, 'craze': 0, 'crime': 0, 'idle': 0, 'relax': 0, 'sleep': 0, 'soapbox': 0, 'travel': 0, 'work': 0, 'chase': 0, 'assault': 0},
     };
     // MoverBusInstance.Get('bean', newBean.key).publish({
@@ -266,6 +279,8 @@ export function GenerateBean(world: {beans: {nextID:number}, date: IDate, seed: 
         newBean.cash = parent.cash / 2;
         parent.cash /= 2;
     }
+
+    newBean.actionClock = BeanCreateActivityClock(newBean, world.seed);
     
     // if (job == null){
     //     switch (city.beanSeed){

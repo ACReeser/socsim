@@ -9,6 +9,7 @@ import { doSelectCity, doSelectNone } from "../state/features/selected.reducer";
 import { abduct, beanInter, beanSetTitle, scan, vaporize } from "../state/features/world.reducer";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
 import { selectSelectedBean, selectSelectedCity } from "../state/state";
+import { ActivityClock } from "../widgets/ActivityClock";
 import { CardButton, TraitToCard } from "../widgets/CardButton";
 import { CostSmall } from "../widgets/CostSmall";
 import { EmoteIcon, IHappinessModifier, TraitIcon } from "../World";
@@ -105,6 +106,13 @@ function renderInner(scanned: boolean, innerView: string, bean: IBean, city: ICi
                             </tr>
                             
                         })
+                    }
+                    {
+                        <tr>
+                            <td colSpan={2} className="activity-clock-row">
+                                <ActivityClock clock={bean.actionClock} ></ActivityClock>
+                            </td>
+                        </tr>
                     }
                 </tbody>
             </table>

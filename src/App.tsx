@@ -51,6 +51,7 @@ interface AppState {
   spotlightEvent: IEvent | undefined;
   cursor?: Point;
   newGameSeed: string;
+  isMobile: boolean
 }
 export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
 export const MoverContext = React.createContext<MoverStore>(MoverStoreInstance);
@@ -69,13 +70,13 @@ class App extends React.Component<AppPs, AppState>{
       activeRightPanel: 'overview',
       timeScale: 0,
       spotlightEvent: undefined,
-      newGameSeed: GetSeedName()
+      newGameSeed: GetSeedName(),
+      isMobile: window.screen.availWidth < 576
     };
   }
   private previousTimeMS: DOMHighResTimeStamp = 0;
   private logicTickAccumulatorMS: number = 0;
   private millisecondsSinceLastSave: DOMHighResTimeStamp = 0;
-  private saveAccumulatorMS: number = 0;
   componentDidMount() {
     document.addEventListener("keyup", this.keyupHandler, false);
     window.requestAnimationFrame((time: DOMHighResTimeStamp) => {
@@ -293,7 +294,11 @@ class App extends React.Component<AppPs, AppState>{
             </Modal>
             <div className="left">
               <div className="top">
-                <span>👽 Alien 🌍 Utopia 🔬 Lab</span>
+                <span className="game-name">
+                  <span className="a">👽</span>
+                  <span className="u">🌍</span>
+                  <span className="l">🔬</span>
+                </span>
                 <SeasonWidget></SeasonWidget>
                 <StopPlayFastButtons timeScale={this.state.timeScale} setTimeScale={(n: number) => { this.setState({ timeScale: n }) }}></StopPlayFastButtons>
                 <GeoNetworkButtons setActiveMain={(v) => this.setState({ activeMain: v })} activeMain={this.state.activeMain} ></GeoNetworkButtons>
@@ -331,7 +336,8 @@ class App extends React.Component<AppPs, AppState>{
                 </span>
               </div>
             </div>
-            <div className="right">
+            {
+              this.state.isMobile ? null : <div className="right">
               <div className="full-width-tabs">
                 <button onClick={() => {this.setState({ activeRightPanel: 'overview' });}}>📈 Info</button>
                 <button onClick={() => {this.setState({ activeRightPanel: 'market' }); store.dispatch(doSelectNone())}}>🛍️ Market</button>
@@ -344,7 +350,8 @@ class App extends React.Component<AppPs, AppState>{
                 {this.getPanel()}
               </div>
             </div>
-          </div>
+            }
+            </div>
           </div>
       </MoverContext.Provider>
       </SfxContext.Provider>
