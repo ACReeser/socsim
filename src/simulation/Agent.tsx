@@ -12,7 +12,7 @@ import { EconomyCanBuy, IMarketReceipt, ISeller } from "./Economy";
 import { accelerate_towards, BuildingTypes, GoodToBuilding, HexPoint, hex_linedraw, hex_to_pixel, JobToBuilding, OriginAccelerator, pixel_to_hex, Point, point_normalize } from "./Geography";
 import { CrimeKey } from "./Government";
 import { IBuilding } from "./RealEstate";
-import { IDate } from "./Time";
+import { DateGetActivityPeriodIndex, IDate, TickSpeedMS, TicksPerPeriod } from "./Time";
 import { MathClamp, SampleNormalDistribution, StatsNormalDev, StatsNormalMean } from "./Utils";
 
 export type Act = 'travel'|'work'|'sleep'|'chat'|'soapbox'|'craze'|'idle'|'buy'|'crime'|'relax'|'chase'|'assault';
@@ -28,8 +28,15 @@ export type RecreationActivity = 'performance'|'artistry'|'sport'|'game'|'relax'
 export type RecPerformType = 'sing'|'dance'|'act'|'drum'|'guitar'|'piano'|'horn';
 export type RecArtType = 'paint'|'write'|'sculpt';
 export type RecSportType = 'soccer'|'basketball'|'hockey'|'tennis'|'baseball'|'cricket';
-export type RecGameType = 'chess'|'cards'|'mahjong';
+export type RecGameType = 'chess'|'cards'|'boardgames';
 export type RecRelaxType = 'watch'|'read'|'hike'|'swim'|'fish';
+
+// 🎤 🩰 🎭 🥁 🎸 🎹 🎺
+// 🎨 🖋️ 🏺
+// ⚽️ 🏀 🏒 🎾 ⚾ 🏏
+// ♟️ 🃏 🎲
+// 📺 📚 🎒 🤿 🎣
+
 
 export enum ActivityPeriod {
     Rest = 1,
@@ -57,13 +64,6 @@ export const ActivityPeriodMetadata = {
     }
 }
 
-
-// 🎤 🩰 🎭
-// 🎨 🖋️ 🏺
-// ⚽️ 🏒 🎾
-// 🎹 🥁 🎸
-// 🎣 🤿 🎒
-// losers: 🏏 🏐 🏀
 
 export interface IActivityData {
     act: Act;
@@ -120,12 +120,12 @@ export interface StateFunctions {
     exit: (agent: IBean, seed: string) => AnyAction|undefined;
 }
 const RelaxationDurationMS = 3000;
-const CrimeDurationMS = 1500;
+const CrimeDurationMS = TickSpeedMS;
 const TransactMaximumDurationMS = 1100;
 const ChatDurationMS = 1000;
-const WorkDurationMS = 3000;
-const SleepDurationMS = 3000;
-const AssaultDurationMS = 2000;
+const WorkDurationMS = TickSpeedMS * TicksPerPeriod / 2;
+const SleepDurationMS = TickSpeedMS * TicksPerPeriod / 2;
+const AssaultDurationMS = TickSpeedMS;
 const CatatoniaWalkSpeedPercentage = 0.4;
 
 const ChaseGiveUpTimeMS = 15000;
@@ -708,14 +708,32 @@ export const GetPriority = {
     }
 }
 
-export function GetPriorities(bean: IBean, seed: string, city: ICity, difficulty: IDifficulty): IPrioritizedActivityData[]{
-    const priors: IPrioritizedActivityData[] = [
-        {act: 'work', good: JobToGood(bean.job), priority: GetPriority.work(bean, seed, city)} as IPrioritizedActivityData,
-        {act: 'sleep', priority: GetPriority.stamina(bean, seed, difficulty)} as IPrioritizedActivityData,
-        {act: 'buy', good: 'food', priority: GetPriority.food(bean, seed, difficulty)} as IPrioritizedActivityData,
-        {act: 'buy', good: 'medicine', priority: GetPriority.medicine(bean, seed, difficulty)} as IPrioritizedActivityData,
-        {act: 'buy', good: 'fun', priority: GetPriority.fun(bean, seed, difficulty)} as IPrioritizedActivityData,
-    ];
+export function GetPriorities(bean: IBean, seed: string, date: IDate, city: ICity, difficulty: IDifficulty): IPrioritizedActivityData[]{
+    let priors: IPrioritizedActivityData[] = [];
+    const clockI = DateGetActivityPeriodIndex(date.hour);
+    if (clockI < bean.actionClock.length){
+        const period: ActivityPeriod = bean.actionClock[clockI];
+        switch(period){
+            case ActivityPeriod.Rest:
+                return [
+                    {act: 'sleep', priority: GetPriority.stamina(bean, seed, difficulty)} as IPrioritizedActivityData
+            ];
+            case ActivityPeriod.Chores:
+                priors = [{act: 'buy', good: 'food', priority: GetPriority.food(bean, seed, difficulty)} as IPrioritizedActivityData,
+                    {act: 'buy', good: 'medicine', priority: GetPriority.medicine(bean, seed, difficulty)} as IPrioritizedActivityData,
+                    {act: 'buy', good: 'fun', priority: GetPriority.fun(bean, seed, difficulty)} as IPrioritizedActivityData
+                ];
+                break;
+            case ActivityPeriod.Work:
+                return [
+                    {act: 'work', good: JobToGood(bean.job), priority: GetPriority.work(bean, seed, city)} as IPrioritizedActivityData
+                ];
+            case ActivityPeriod.Play:
+                return [
+                    {act: 'relax', priority: 1} as IPrioritizedActivityData
+                ];
+            }
+    }
     priors.sort((a, b) => b.priority - a.priority);
     return priors;
 }

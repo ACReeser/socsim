@@ -183,7 +183,7 @@ export const worldSlice = createSlice({
       remove_ufo: (state, action: PayloadAction<{ufoKey: number}>) => {
         const ufo = state.ufos.byID[action.payload.ufoKey];
         const newBean = GenerateBean(state, state.cities.byID[0], undefined, ufo.hex);
-        newBean.priorities = GetPriorities(newBean, state.seed, state.cities.byID[newBean.cityKey], state.alien.difficulty);
+        newBean.priorities = GetPriorities(newBean, state.seed, state.date, state.cities.byID[newBean.cityKey], state.alien.difficulty);
         delete state.ufos.byID[action.payload.ufoKey];
         state.ufos.allIDs = state.ufos.allIDs.filter(x => x !== action.payload.ufoKey);
         state.cities.byID[ufo.cityKey].ufoKeys = state.cities.byID[ufo.cityKey].ufoKeys.filter(x => x !== action.payload.ufoKey);
@@ -758,7 +758,7 @@ function _changeState(state: WritableDraft<IWorldState>, action: { payload: { be
     BeanCalculateStamina(bean, state.alien.difficulty)
   }
   if (action.payload.newState.act === 'idle') {
-    bean.priorities = GetPriorities(bean, state.seed, state.cities.byID[bean.cityKey], state.alien.difficulty)
+    bean.priorities = GetPriorities(bean, state.seed, state.date, state.cities.byID[bean.cityKey], state.alien.difficulty)
   }
   bean.activity_duration[oldAct] += ADS.elapsed;
   bean.action = action.payload.newState.act;

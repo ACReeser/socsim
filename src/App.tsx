@@ -39,6 +39,7 @@ import { GeoNetworkButtons, StopPlayFastButtons } from './widgets/StopPlayFast';
 import { TimelyEventToggle } from './widgets/TimelyEventToggle';
 import { WorldSfxInstance, WorldSound } from './WorldSound';
 import { EntitleModalContent } from './modal-content/Entitling';
+import { TickSpeedMS } from './simulation/Time';
 
 export type ModalView = 'mainmenu'|'loadgame'|'escapemenu'|'greeting' | 'economy' | 'society' | 'gov' | 'polisci' | 'brainwash' | 'traits'|'entitle';
 interface AppPs {
@@ -56,7 +57,6 @@ interface AppState {
 export const SfxContext = React.createContext<WorldSound|undefined>(undefined);
 export const MoverContext = React.createContext<MoverStore>(MoverStoreInstance);
 
-const LogicTickMS = 2000;
 const SpotlightDurationTimeMS = 5000;
 const store = StoreState;
 
@@ -108,7 +108,7 @@ class App extends React.Component<AppPs, AppState>{
         animate_pickups(store.getState().world, deltaTimeMS).map(x => store.dispatch(x));
         animate_beans(store.getState().world, deltaTimeMS).map(x => store.dispatch(x));
   
-        if (this.logicTickAccumulatorMS > LogicTickMS) {
+        if (this.logicTickAccumulatorMS > TickSpeedMS) {
           store.dispatch(worldTick())
           this.logicTickAccumulatorMS = 0;
         }

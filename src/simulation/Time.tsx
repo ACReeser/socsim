@@ -1,9 +1,15 @@
 import { IWorldState } from "../state/features/world";
-import { ActivityPeriod } from "./Agent";
 
+export const TickSpeedMS = 2000;
 export enum Season {Spring, Summer, Fall, Winter}
 export const TicksPerPeriod = 3;
-export const TicksPerDay = TicksPerPeriod * 4;
+export const PeriodsPerDay = 4;
+export const TicksPerDay = TicksPerPeriod * PeriodsPerDay;
+/**
+ * zero based part of day
+ * 
+ * not the same as ActivityPeriod
+ */
 export enum PartOfDay {
     Midnight = 0, 
     Morning = TicksPerPeriod, 
@@ -25,6 +31,15 @@ export interface IDate{
 
 export function Now(world: IWorldState): IDate{
     return {year: world.date.year, season: world.date.season, day: world.date.day, hour: world.date.hour};
+}
+
+/**
+ * returns 0-based index of ActivityPeriod for an Activity Clock
+ * @param date 
+ * @returns 
+ */
+export function DateGetActivityPeriodIndex(hour: number){
+    return Math.floor(hour/TicksPerDay*PeriodsPerDay);    
 }
 
 export function withinLastYear(current: IDate, last: IDate): boolean{

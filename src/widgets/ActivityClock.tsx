@@ -1,11 +1,11 @@
 import React from "react";
 import { ActivityPeriod, ActivityPeriodMetadata } from "../simulation/Agent";
-import { TicksPerDay } from "../simulation/Time";
+import { DateGetActivityPeriodIndex, TicksPerDay } from "../simulation/Time";
 import { useAppSelector } from "../state/hooks";
 
 export const ActivityClock: React.FC<{clock: ActivityPeriod[]}> = (props) => {
     const tick = useAppSelector(s => s.world.date.hour);
-    const activeSlot = Math.floor(tick/TicksPerDay*4);
+    const activeSlot = DateGetActivityPeriodIndex(tick)
     const opacityWhenNot = 0.5;
     return <div className="activity-clock">
         <svg height="100%" width="100%" viewBox="0 0 20 20">
@@ -26,7 +26,7 @@ export const ActivityClock: React.FC<{clock: ActivityPeriod[]}> = (props) => {
                 strokeWidth="10"
                 strokeDasharray="calc(25 * 31.4 / 100) 31.4" transform="rotate(180) translate(-20, -20)" />
             <g transform={'rotate('+((tick/TicksPerDay)*360)+')'} transform-box="fill-box" transform-origin="center">
-                <rect stroke-width="0.75" stroke="rgba(0,0,0,1)" x="10" y="0" height="10" width="0.01" ></rect>
+                <rect strokeWidth="0.75" stroke="rgba(0,0,0,1)" x="10" y="0" height="10" width="0.01" ></rect>
             </g>
             <text x="75%" y="35%" textAnchor="middle" >{ActivityPeriodMetadata[props.clock[0]].icon}</text>
             <text x="75%" y="75%" textAnchor="middle" >{ActivityPeriodMetadata[props.clock[1]].icon}</text>

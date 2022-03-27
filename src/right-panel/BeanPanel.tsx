@@ -94,26 +94,26 @@ function renderInner(scanned: boolean, innerView: string, bean: IBean, city: ICi
                         })
                     }
                     {
-                        actDurations(bean).filter((x) => bean.activity_duration[x] > 0).map((x) => {
-                            const act = x as Act;
-                            return <tr key={act}>
-                                <td>{x}</td>
-                                <td>
-                                    {
-                                        (bean.activity_duration[act] / 1000).toFixed(1)
-                                    }s
-                                </td>
-                            </tr>
-                            
-                        })
-                    }
-                    {
                         <tr>
                             <td colSpan={2} className="activity-clock-row">
                                 <ActivityClock clock={bean.actionClock} ></ActivityClock>
                             </td>
                         </tr>
                     }
+                    <tr>
+                        <td colSpan={2} style={{maxWidth: '100px'}}>
+                    {
+                        actDurations(bean).filter((x) => bean.activity_duration[x] > 0).map((x) => {
+                            const act = x as Act;
+                            return <><small key={act} className="badge pos"> {act}&nbsp;{
+                                (bean.activity_duration[act] / 1000).toFixed(1)
+                            }
+                            </small><small> </small></>
+                        })
+                    }
+                        </td>
+                    </tr>
+                    
                 </tbody>
             </table>
     }
@@ -158,7 +158,7 @@ export const BeanInnerPanel: React.FC<{
                 😐 Feelings
             </button>
             <button type="button" className={innerView=='priorities'?'active':''} onClick={()=>setInnerView('priorities')}>
-                💪 Priorities
+                ⏰ Priorities
             </button>
         </div>
         {renderInner(props.alien.scanned_bean[props.bean.key], innerView, props.bean, props.city, props.alien)}
