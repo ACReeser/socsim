@@ -41,6 +41,9 @@ export interface IDwelling{
 
 const EnterpriseBuildings: BuildingTypes[] = ['farm', 'hospital', 'theater'];
 
+export const DefaultBuildingStorageCount = 5;
+export const UpgradedBuildingStorageCount = 10;
+
 export function BuildingNumOfOpenJobs(b: IBuilding): number{
     return BuildingMaximumJobs(b) - b.employeeBeanKeys.length;
 }

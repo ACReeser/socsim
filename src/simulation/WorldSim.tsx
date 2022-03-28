@@ -207,7 +207,8 @@ export function simulate_every_other_tick(world: IWorldState){
                     enterprise.cash = 0;
                 }
                 else {
-                    const share = enterprise.cash / (workers.length + OwnerProfitPercentage);
+                    const ownerShare = enterprise.cash * (OwnerProfitPercentage + (1 / workers.length))
+                    const workerShare = (enterprise.cash - ownerShare) / (workers.length - 1);
                     enterprise.cash = 0;
                     let owner = workers.find(x => x.key === enterprise.ownerBeanKey);
                     if (owner == null){
@@ -215,7 +216,7 @@ export function simulate_every_other_tick(world: IWorldState){
                         enterprise.ownerBeanKey = owner.key;
                     }
                     workers.forEach(bean => {
-                        const pay = (bean === owner) ? share * (1+OwnerProfitPercentage) : share;
+                        const pay = (bean === owner) ? ownerShare : workerShare;
                         bean.cash += pay;
                         if (pay > 0)
                             bean.ticksSinceLastSale = 0;
@@ -223,6 +224,7 @@ export function simulate_every_other_tick(world: IWorldState){
                 }
                 break;
             case 'co-op':
+            case 'commune': //communes shouldn't have cash, so this shouldn't happen often
                 const share = enterprise.cash / workers.length;
                 enterprise.cash = 0;
                 workers.forEach(bean => {
@@ -231,14 +233,21 @@ export function simulate_every_other_tick(world: IWorldState){
                         bean.ticksSinceLastSale = 0;
                 });
                 break;
-            case 'commune':
-                const commShare = enterprise.cash / workers.length;
-                enterprise.cash = 0;
-                workers.forEach(bean => {
-                    bean.cash += commShare;
-                    if (commShare > 0)
-                        bean.ticksSinceLastSale = 0;
-                });
+            case 'state':
+                if (workers.length < 1) {
+                    //noop;
+                } else {
+                    const stateShare = enterprise.cash * OwnerProfitPercentage;
+                    const workerShare = (enterprise.cash - stateShare) / workers.length;
+                    enterprise.cash = 0;
+                    world.law.cash += stateShare;
+                    workers.forEach(bean => {
+                        const pay = workerShare;
+                        bean.cash += pay;
+                        if (pay > 0)
+                            bean.ticksSinceLastSale = 0;
+                    });
+                }
                 break;
         }
     });

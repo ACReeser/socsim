@@ -755,7 +755,7 @@ export function ActivityIcon(data: IActivityData): string{
     }
     return '';
 }
-export function ActivityDisplay(data: IActivityData): string{    
+export function ActivityDisplay(data: IActivityData): string{
     switch(data.act){
         case 'chat':
             return `chatting`;

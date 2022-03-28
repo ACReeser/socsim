@@ -3,7 +3,7 @@ import { BeanResources, IDifficulty } from "../Game";
 import { MoverStoreInstance } from "../MoverStoreSingleton";
 import { EmotionSanity, EmotionWorth, GoodToThreshold, JobToGood, TraitEmote, TraitFood, TraitGood, TraitHealth, TraitSanity, TraitStamina } from "../World";
 import { GetRandom, GetRandomFloat, GetRandomNumber, GetRandomRoll, GetRandomShuffle } from "../WorldGen";
-import { ActivityPeriod, IBean, IChatData } from "./Agent";
+import { ActivityDisplay, ActivityPeriod, IBean, IChatData } from "./Agent";
 import { GetInsanityFromBrainwashing, InsanityTraits, SecondaryBeliefData, TraitBelief } from "./Beliefs";
 import { GetFairGoodPrice, IEconomy } from "./Economy";
 import { OriginAccelerator } from "./Geography";
@@ -471,4 +471,10 @@ export function BeanCreateActivityClock(bean: IBean, seed: string): ActivityPeri
         );
     }
     return clock;
+}
+
+export function BeanActivityDisplay(bean: IBean){
+    if (bean.lifecycle !== 'alive')
+        return bean.lifecycle;
+    return ActivityDisplay(bean.actionData);
 }

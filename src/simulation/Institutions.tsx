@@ -1,11 +1,12 @@
 import { ISeller } from "./Economy";
 
-export type EnterpriseType = 'company'|'co-op'|'commune';
-export const EnterpriseTypes: EnterpriseType[] = ['company','co-op','commune'];
+export type EnterpriseType = 'company'|'co-op'|'commune'|'state';
+export const EnterpriseTypes: EnterpriseType[] = ['company','co-op','commune','state'];
 export const EnterpriseTypeIcon: {[e in EnterpriseType]: string} = {
     'company': '🎩', 
     'co-op': '🤝', 
-    'commune': '⚒️'
+    'commune': '⚒️',
+    'state': '🏛️'
 };
 
 export interface IEnterprise extends ISeller{

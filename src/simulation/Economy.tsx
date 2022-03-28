@@ -4,6 +4,7 @@ import { GovCanPayWelfare, GovPurchaseQualifiesForWelfare, IGovernment, IGovPoli
 import { IBean } from "./Agent";
 import { DistrictKind } from "./Geography";
 import { BeanBelievesIn } from "./Bean";
+import { DefaultBuildingStorageCount, IBuilding, UpgradedBuildingStorageCount } from "./RealEstate";
 
 export interface IEconomicAgent{
     cash: number;
@@ -145,13 +146,16 @@ export function EconomyProduceAndPrice(economy: IEconomy, seller: IBean, good: T
     }
     economy.market.listings[good].sort((a, b) => a.price - b.price);
 }
-export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, good: TraitGood, quantity: number, price: number) {
+export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, building: IBuilding, good: TraitGood, quantity: number, price: number) {
+    const storage = building.upgradedStorage ? UpgradedBuildingStorageCount : DefaultBuildingStorageCount;
     econ.monthlySupply[good] += quantity;
     const existing = econ.market.listings[good].find((x) => x.sellerEnterpriseKey == seller.key);
+    if (seller.enterpriseType === 'commune')
+        price = 0;
     if (existing){
         existing.quantity += quantity;
         existing.price = price;
-        existing.quantity = Math.min(existing.quantity, MaximumListingQuantity);
+        existing.quantity = Math.min(existing.quantity, storage);
     } else {
         econ.market.listings[good].push({
             sellerEnterpriseKey: seller.key,

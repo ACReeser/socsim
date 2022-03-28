@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Act, ActivityDisplay, ActivityIcon, GetPriorities, IBean } from "../simulation/Agent";
-import { BeanGetFace } from "../simulation/Bean";
+import { BeanActivityDisplay, BeanGetFace } from "../simulation/Bean";
 import { SecondaryBeliefData, TraitBelief } from "../simulation/Beliefs";
 import { ICity } from "../simulation/City";
 import { IPlayerData, PlayerCanAfford } from "../simulation/Player";
@@ -77,45 +77,32 @@ function renderInner(scanned: boolean, innerView: string, bean: IBean, city: ICi
             </table>
         default:
         case 'priorities':
-            return <table className="width-100p">
-                <tbody>
-                    <tr>
-                        <td>
-                            Currently {ActivityDisplay(bean.actionData)}
-                        </td>
-                    </tr>
-                    {
-                        bean.priorities.map((x) => {
-                            return <tr key={`p-${x.act}-${x.good}`}>
-                                <td>
-                                {x.priority.toFixed(2)} {ActivityIcon(x)}
-                                </td>
-                            </tr>
-                        })
-                    }
-                    {
-                        <tr>
-                            <td colSpan={2} className="activity-clock-row">
-                                <ActivityClock clock={bean.actionClock} ></ActivityClock>
-                            </td>
-                        </tr>
-                    }
-                    <tr>
-                        <td colSpan={2} style={{maxWidth: '100px'}}>
-                    {
-                        actDurations(bean).filter((x) => bean.activity_duration[x] > 0).map((x) => {
-                            const act = x as Act;
-                            return <><small key={act} className="badge pos"> {act}&nbsp;{
-                                (bean.activity_duration[act] / 1000).toFixed(1)
-                            }
-                            </small><small> </small></>
-                        })
-                    }
-                        </td>
-                    </tr>
-                    
-                </tbody>
-            </table>
+            return <div className="width-292px">
+                <div>
+                    Currently {BeanActivityDisplay(bean)}
+                </div>
+                {
+                    bean.priorities.map((x) => {
+                        return <div key={`p-${x.act}-${x.good}`}>
+                            {x.priority.toFixed(2)} {ActivityIcon(x)}
+                        </div>
+                    })
+                }
+                <div className="activity-clock-row">
+                    <ActivityClock clock={bean.actionClock} ></ActivityClock>
+                </div>
+                <div>
+                {
+                    actDurations(bean).filter((x) => bean.activity_duration[x] > 0).map((x) => {
+                        const act = x as Act;
+                        return <><small key={act} className="badge pos"> {act}&nbsp;{
+                            (bean.activity_duration[act] / 1000).toFixed(1)
+                        }
+                        </small><small> </small></>
+                    })
+                }
+                </div>
+            </div>
     }
 }
 function renderTraits(scanned: boolean, bean: IBean, alien: IPlayerData, brainwash: () => void, scan: () => void){

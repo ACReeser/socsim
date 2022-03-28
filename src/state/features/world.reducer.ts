@@ -431,10 +431,11 @@ export const worldSlice = createSlice({
                 }
             }
             let workedForEmployer = false;
-            if (bean.employerEnterpriseKey){
+            if (bean.employerEnterpriseKey != null){
                 const employer = state.enterprises.byID[bean.employerEnterpriseKey];
-                if (employer){
-                    EconomyEmployAndPrice(state.economy, employer, JobToGood(bean.job), 4, bean.fairGoodPrice);
+                if (employer && employer.buildingKey != null){
+                    const building = state.buildings.byID[employer.buildingKey];
+                    EconomyEmployAndPrice(state.economy, employer, building, JobToGood(bean.job), 4, bean.fairGoodPrice);
                     workedForEmployer = true;
                     switch(employer.enterpriseType){
                         case 'company':

@@ -267,6 +267,10 @@ button.pull-r {
     width: 100%;
 }
 
+.width-292px {
+    width: 292px;
+}
+
 .header {
     text-align: center;
     margin-top: 1em;

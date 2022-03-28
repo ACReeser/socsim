@@ -6,7 +6,7 @@ import { ICity } from "../simulation/City";
 import { BuildingIcon, BuildingJobIcon, BuildingToGood, BuildingTypes, HexPoint, IDistrict } from "../simulation/Geography";
 import { EnterpriseType, EnterpriseTypeIcon, EnterpriseTypes, IEnterprise } from "../simulation/Institutions";
 import { CostSmall } from "../widgets/CostSmall";
-import { BuildingJobs, BuildingNumOfOpenJobs, IBuilding } from "../simulation/RealEstate";
+import { BuildingJobs, BuildingNumOfOpenJobs, DefaultBuildingStorageCount, IBuilding, UpgradedBuildingStorageCount } from "../simulation/RealEstate";
 import { useSelector } from "react-redux";
 import { RootState, selectSelectedBuilding, selectSelectedCity } from "../state/state";
 import { useAppDispatch, useAppSelector } from "../state/hooks";
@@ -292,7 +292,7 @@ export const EnterpriseTypePicker: React.FC<{
     enter: IEnterprise,
     changeEnterprise: (newType: EnterpriseType) => void,
 }> = (props) => {
-    const options = EnterpriseTypes.map((x) => {
+    const options = EnterpriseTypes.filter(x => x != 'commune').map((x) => {
         return {
             icon: EnterpriseTypeIcon[x],
             text: x[0].toUpperCase()+x.substring(1),
@@ -302,7 +302,17 @@ export const EnterpriseTypePicker: React.FC<{
             }
         }
     }); 
-    return <Subtabs active={props.enter.enterpriseType} options={options}></Subtabs>
+    return <>
+        <Subtabs active={props.enter.enterpriseType} options={options}></Subtabs>
+        <label title="Communal buildings provide goods for free! This is great for the community, but will not pay the workers anything!">
+            <input type="checkbox" checked={props.enter.enterpriseType === 'commune'} onChange={(ev) => {
+                if (ev.target.checked)
+                    props.changeEnterprise('commune')
+                else
+                    props.changeEnterprise('co-op')
+            }} /> 🎁 Communal Property
+        </label>
+    </>
 }
 
 export const EnterpriseListings: React.FC<{
@@ -319,7 +329,7 @@ export const EnterpriseListings: React.FC<{
             </div>)
         }
         <div>
-            📦 Storage x{building.upgradedStorage ? 20 : 10}
+            📦 Storage x{building.upgradedStorage ? UpgradedBuildingStorageCount : DefaultBuildingStorageCount}
         </div>
     </div>
 }

@@ -9,7 +9,9 @@
 }
 
 .overlay button,
-.overlay a {
+.overlay a,
+.overlay label,
+.overlay input {
     pointer-events: all;
 }
 
