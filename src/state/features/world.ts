@@ -61,7 +61,7 @@ export function GetBlankWorldState(seed: string = 'abcdef'): IWorldState{
     economy: {
       unfulfilledMonthlyDemand: { food: 0, medicine: 0, fun: 0, },
       monthlyDemand: { food: 0, medicine: 0, fun: 0, },
-      monthlySupply: { food: 0, medicine: 0, fun: 0, },
+      monthlySupply: { food: {avgUnitPrice: 1, totalQty: 0}, medicine: {avgUnitPrice: 1, totalQty: 0}, fun: {avgUnitPrice: 1, totalQty: 0}, },
       market: {
         listings: {
           food: [], fun: [], medicine: []

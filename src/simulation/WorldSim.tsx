@@ -8,13 +8,13 @@ import { changeState, pickUpPickup, remove_ufo, selectBeansByCity } from "../sta
 import { MaxHedonHistory, PickupPhysics, WorldInflate } from "../World";
 import { GenerateBean, GetRandom } from "../WorldGen";
 import { WorldSfxInstance } from "../WorldSound";
-import { BeanActions, IBean } from "./Agent";
+import { BeanActions, GetPriorities, IBean } from "./Agent";
 import { AgentDurationStoreInstance } from "./AgentDurationInstance";
 import { BeanAge, BeanMaybeBaby, BeanCalculateBeliefs, BeanEmote, BeanCreateActivityClock } from "./Bean";
 import { BeanTryFindJob } from "./BeanAndCity";
 import { GetHedonReport } from "./Beliefs";
 import { BeanLoseJob, CalculateCityComputed } from "./City";
-import { GetCostOfLiving } from "./Economy";
+import { EconomyGetCostOfLiving } from "./Economy";
 import { accelerate_towards, accelerator_coast, OriginAccelerator } from "./Geography";
 import { IsLaw, MaybeRebate, PollTaxWeeklyAmount } from "./Government";
 import { GetMarketTraits } from "./MarketTraits";
@@ -72,8 +72,18 @@ export function simulate_world(world: IWorldState){
 
         }
     }
+    world.enterprises.allIDs.forEach((eKey) => {
+        const enterprise = world.enterprises.byID[eKey];
+        if (enterprise.ticksSinceLastSale >= 2){
+            enterprise.projectedPrice = Math.max(enterprise.projectedPrice - 0.02, 0.1);
+        }
+        else if (enterprise.ticksSinceLastSale == 0){
+            enterprise.projectedPrice = Math.min(enterprise.projectedPrice + 0.01, 1);
+        }
+        enterprise.ticksSinceLastSale++;
+    });
 
-    const CoL = GetCostOfLiving(world.economy);
+    const CoL = EconomyGetCostOfLiving(world.economy);
     world.beans.allIDs.forEach((bKey: number, i: number) => {
         const b = world.beans.byID[bKey];
 
@@ -108,8 +118,9 @@ export function simulate_world(world: IWorldState){
         const e = BeanMaybeBaby(b, world.seed, CoL);
         if (e) {
             const newBean = GenerateBean(world, world.cities.byID[b.cityKey], b);
+            newBean.priorities = GetPriorities(newBean, world.seed, world.date, world.cities.byID[newBean.cityKey], world.alien.difficulty);
             if (b.lastPoint && b.lastHex){
-                newBean.lastPoint = b.lastPoint;
+                newBean.lastPoint = {x: b.lastPoint.x, y: b.lastPoint.y};
                 MoverStoreInstance.Get('bean', newBean.key).publish({
                     point: {x: b.lastPoint.x, y: b.lastPoint.y}, 
                     hex: {q: b.lastHex.q, r: b.lastHex.r}, 
@@ -141,7 +152,8 @@ export function simulate_world(world: IWorldState){
     });
     world.cities.allIDs.forEach(cityID => {
         const c = world.cities.byID[cityID];
-        CalculateCityComputed(c, world.economy);
+        c.costOfLiving = CoL;
+        // CalculateCityComputed(c, world.economy);
     });
     world.beans.allIDs.forEach((k: number) => {
         const b = world.beans.byID[k];
@@ -160,7 +172,20 @@ export function simulate_every_month(world: IWorldState){
     //resetMonthlyDemand
     world.economy.unfulfilledMonthlyDemand = { food: 0, medicine: 0, fun: 0, };
     world.economy.monthlyDemand = { food: 0, medicine: 0, fun: 0, };
-    world.economy.monthlySupply = { food: 0, medicine: 0, fun: 0, };
+    world.economy.monthlySupply = { 
+        food: {
+            totalQty: 1, 
+            avgUnitPrice: world.economy.monthlySupply.food.avgUnitPrice
+        }, 
+        medicine: {
+            totalQty: 1, 
+            avgUnitPrice: world.economy.monthlySupply.medicine.avgUnitPrice
+        }, 
+        fun: {
+            totalQty: 1, 
+            avgUnitPrice: world.economy.monthlySupply.fun.avgUnitPrice
+        }, 
+    };
 }
 export function simulate_every_week(world: IWorldState){
     world.marketTraitsForSale = GetMarketTraits(world.seed);
@@ -188,8 +213,6 @@ export function simulate_every_day(world: IWorldState){
         x.hedonHistory.unshift({});
         x.actionClock = BeanCreateActivityClock(x, world.seed);
     });
-}
-export function simulate_every_other_tick(world: IWorldState){
     //pay beans
     world.enterprises.allIDs.forEach((eKey) => {
         const enterprise = world.enterprises.byID[eKey];
@@ -251,6 +274,8 @@ export function simulate_every_other_tick(world: IWorldState){
                 break;
         }
     });
+}
+export function simulate_every_other_tick(world: IWorldState){
 }
 export function WorldAddEvent(world: IWorldState, e: IEvent){
     e.key = world.events.nextID++;

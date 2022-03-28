@@ -176,13 +176,13 @@ function cube_distance(a: CubicPoint, b: CubicPoint): number{
     return (Math.abs(a.x - b.x) + Math.abs(a.y - b.y) + Math.abs(a.z - b.z)) / 2
 }
 function cube_round(cube: CubicPoint): CubicPoint{
-    var rx = Math.round(cube.x);
-    var ry = Math.round(cube.y);
-    var rz = Math.round(cube.z);
+    let rx = Math.round(cube.x);
+    let ry = Math.round(cube.y);
+    let rz = Math.round(cube.z);
 
-    var x_diff = Math.abs(rx - cube.x)
-    var y_diff = Math.abs(ry - cube.y)
-    var z_diff = Math.abs(rz - cube.z)
+    const x_diff = Math.abs(rx - cube.x)
+    const y_diff = Math.abs(ry - cube.y)
+    const z_diff = Math.abs(rz - cube.z)
 
     if (x_diff > y_diff && x_diff > z_diff)
         rx = -ry-rz;
@@ -191,7 +191,7 @@ function cube_round(cube: CubicPoint): CubicPoint{
     else
         rz = -rx-ry;
 
-    return {x: rx, y: ry, z: rz};
+    return {x: rx+0, y: ry+0, z: rz+0};
 }
 function round_point_to_hex(hex: HexPoint): HexPoint{
     return cube_to_axial(cube_round(axial_to_cube(hex)))

@@ -32,7 +32,7 @@ const AllGoods: TraitGood[] = ['food', 'medicine', 'fun'];
 export interface IEconomy{
     unfulfilledMonthlyDemand: {[key in TraitGood]: number};
     monthlyDemand: {[key in TraitGood]: number};
-    monthlySupply: {[key in TraitGood]: number};
+    monthlySupply: {[key in TraitGood]: {totalQty: number, avgUnitPrice: number}};
     market: IMarket;
 }
 export interface IMarket{
@@ -129,29 +129,35 @@ export function EconomyMostInDemandJob(economy: IEconomy){
     return max.job;
 }
 const MaximumListingQuantity = 20;
-export function EconomyProduceAndPrice(economy: IEconomy, seller: IBean, good: TraitGood, quantity: number, price: number) {
-    economy.monthlySupply[good] += quantity;
-    const existing = economy.market.listings[good].find((x) => x.sellerBeanKey == seller.key);
+export function EconomyProduceAndPrice(econ: IEconomy, seller: IBean, good: TraitGood, quantity: number, price: number) {
+    for (let i = 0; i < quantity; i++) {
+        econ.monthlySupply[good].totalQty +=1;
+        econ.monthlySupply[good].avgUnitPrice = econ.monthlySupply[good].avgUnitPrice + (price - econ.monthlySupply[good].avgUnitPrice) / Math.min(econ.monthlySupply[good].totalQty, 3);
+    }
+    const existing = econ.market.listings[good].find((x) => x.sellerBeanKey == seller.key);
     if (existing){
         existing.quantity += quantity;
         existing.price = price;
         existing.quantity = Math.min(existing.quantity, MaximumListingQuantity);
     } else {
-        economy.market.listings[good].push({
+        econ.market.listings[good].push({
             sellerBeanKey: seller.key,
             sellerCityKey: seller.cityKey,
             price: price,
             quantity: quantity
         });
     }
-    economy.market.listings[good].sort((a, b) => a.price - b.price);
+    econ.market.listings[good].sort((a, b) => a.price - b.price);
 }
 export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, building: IBuilding, good: TraitGood, quantity: number, price: number) {
-    const storage = building.upgradedStorage ? UpgradedBuildingStorageCount : DefaultBuildingStorageCount;
-    econ.monthlySupply[good] += quantity;
-    const existing = econ.market.listings[good].find((x) => x.sellerEnterpriseKey == seller.key);
     if (seller.enterpriseType === 'commune')
         price = 0;
+    const storage = building.upgradedStorage ? UpgradedBuildingStorageCount : DefaultBuildingStorageCount;
+    for (let i = 0; i < quantity; i++) {
+        econ.monthlySupply[good].totalQty +=1;
+        econ.monthlySupply[good].avgUnitPrice = econ.monthlySupply[good].avgUnitPrice + (price - econ.monthlySupply[good].avgUnitPrice) / Math.min(econ.monthlySupply[good].totalQty, 3);
+    }
+    const existing = econ.market.listings[good].find((x) => x.sellerEnterpriseKey == seller.key);
     if (existing){
         existing.quantity += quantity;
         existing.price = price;
@@ -166,11 +172,9 @@ export function EconomyEmployAndPrice(econ: IEconomy, seller: IEnterprise, build
     econ.market.listings[good].sort((a, b) => a.price - b.price);
 }
 export function GetFairGoodPrice(econ: IEconomy, good: TraitGood){
-    const supply = econ.monthlySupply[good] || 1;
-    const demand = econ.monthlyDemand[good];
-    return 0.25 + (0.75 * Math.min(demand/supply, 1));
+    return econ.monthlySupply[good].avgUnitPrice;
 }
-export function GetCostOfLiving(econ: IEconomy){
+export function EconomyGetCostOfLiving(econ: IEconomy){
     return GetFairGoodPrice(econ, 'food')+GetFairGoodPrice(econ,'medicine');
 }
 export function EconomyCanBuy(econ: IEconomy, gov: IGovernment, buyer: IEconomicAgent, good: TraitGood,

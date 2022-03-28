@@ -2,7 +2,7 @@
 import React from "react";
 import { TraitJob } from "../World";
 import { NeedReadout } from "../widgets/NeedReadout";
-import { GetCostOfLiving, IListing } from "../simulation/Economy";
+import { EconomyGetCostOfLiving, IListing } from "../simulation/Economy";
 import { useAppSelector } from "../state/hooks";
 import { selectBeansByCity } from "../state/features/world.reducer";
 
@@ -118,7 +118,7 @@ export const EconomyReport: React.FC<{}> = () => {
         <div className="col-2">
           <div>
             <strong><span role="img" aria-label="cashbag">💰</span> Wealth</strong> <br/>
-            {wealth_dire} penniless citizens &nbsp; &nbsp; Cost of Living: ${GetCostOfLiving(economy).toFixed(2)} <br/>
+            {wealth_dire} penniless citizens &nbsp; &nbsp; Cost of Living: ${EconomyGetCostOfLiving(economy).toFixed(2)} <br/>
             <table className="width-100p">
               <tbody>
                 <tr>

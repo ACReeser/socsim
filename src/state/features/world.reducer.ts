@@ -418,8 +418,6 @@ export const worldSlice = createSlice({
             _ifBelievesInMaybeEmote(state, bean, 'Hedonism', 'unhappiness', HedonismHateWorkChance);
             bean.ticksSinceLastSale++;
             if (bean.ticksSinceLastSale > UnderemploymentThresholdTicks && bean.employerEnterpriseKey != null){
-                // const cityHasOtherWorkers = state.cities.byID[bean.cityKey].beans.get.filter(x => x.job === bean.job).length > 1 : false;
-                // cityHasOtherWorkers &&
                 const employer = state.enterprises.byID[bean.employerEnterpriseKey];
                 // underemployment
                 if (employer.ownerBeanKey != bean.key && Math.random() > 0.5) {
@@ -435,7 +433,7 @@ export const worldSlice = createSlice({
                 const employer = state.enterprises.byID[bean.employerEnterpriseKey];
                 if (employer && employer.buildingKey != null){
                     const building = state.buildings.byID[employer.buildingKey];
-                    EconomyEmployAndPrice(state.economy, employer, building, JobToGood(bean.job), 4, bean.fairGoodPrice);
+                    EconomyEmployAndPrice(state.economy, employer, building, JobToGood(bean.job), 4, employer.projectedPrice);
                     workedForEmployer = true;
                     switch(employer.enterpriseType){
                         case 'company':

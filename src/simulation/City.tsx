@@ -5,7 +5,7 @@ import { Trait, TraitEmote } from "../World";
 import { GetRandom } from "../WorldGen";
 import { IBean } from "./Agent";
 import { SecondaryBeliefData, TraitBelief } from "./Beliefs";
-import { GetCostOfLiving, IEconomy } from "./Economy";
+import { EconomyGetCostOfLiving, IEconomy } from "./Economy";
 import { BuildingTypes, HexPoint, Point, Vector } from "./Geography";
 import { IPickup } from "./Pickup";
 import { BuildingTryFreeBean, IBuilding } from "./RealEstate";
@@ -67,7 +67,7 @@ export interface ICity extends IHexPlane{
 }
 
 export function CalculateCityComputed(city: ICity, economy: IEconomy){
-    city.costOfLiving = GetCostOfLiving(economy);
+    
 }
 /**
  * SIDE-EFFECTS

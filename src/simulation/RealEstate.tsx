@@ -85,6 +85,7 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     city.buildingKeys.push(newBuilding.key);
     const lot = world.lots.byID[lotKey];
     lot.buildingKey = newBuilding.key;
+    const good = BuildingToGood[type];
 
     if (EnterpriseBuildings.some(x => x === type)){
         newBuilding.enterpriseKey = newBuilding.key;
@@ -95,7 +96,11 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
             enterpriseType: "company",
             buildingKey: newBuilding.key,
             key: newBuilding.key,
-            ticksSinceLastSale: 0
+            ticksSinceLastSale: 0,
+            projectedPrice: 1
+        }
+        if (good != null && world.economy.monthlySupply[good] != null){
+            world.enterprises.byID[newBuilding.key].projectedPrice = world.economy.monthlySupply[good].avgUnitPrice;
         }
     }
     if (type === 'house'){
@@ -115,7 +120,6 @@ export function GenerateIBuilding(world: IWorldState, city: ICity, type: Buildin
     if (type === 'graveyard'){
         newBuilding.interredBeanKeys = [];
     }
-    const good = BuildingToGood[type];
     
     if (good && good !== 'fun')
     {

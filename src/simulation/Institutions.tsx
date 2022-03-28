@@ -15,4 +15,5 @@ export interface IEnterprise extends ISeller{
     buildingKey: number;
     enterpriseType: EnterpriseType;
     ownerBeanKey?: number;
+    projectedPrice: number;
 }
